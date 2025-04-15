@@ -36,6 +36,4 @@ E-Commerce showcase site. Suitable for making reservations. Administration panel
 ├── .env      # Variables d'env (config, DB, etc.)
 ├── .gitignore
 └── README.md       # 📝 Description globale du projet
-
-
 ```
