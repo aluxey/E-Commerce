@@ -1,4 +1,4 @@
--- Supprimer les tables si elles existent (ordre inverse des dépendances)
+-- Supprimer les tables si elles existent (ordre inverse des dépendances) dans POSTGRESQL
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS item;
