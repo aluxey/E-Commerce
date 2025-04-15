@@ -76,6 +76,6 @@ Table de liaison `many-to-many` entre `orders` et `item`.
 
 ## 📂 Fichier SQL associé
 
-> Voir le fichier `schema.sql` pour le script de création de cette base de données.
+> Voir le fichier [sql](../Database/bd.sql) pour le script de création de cette base de données.
 
 Nous allons utiliser PostgreSQL pour notre projet, cela s'explique par la simplicité de mis en place et d'utilisation.
