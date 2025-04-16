@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test API Produits</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    button { margin: 5px; padding: 10px; }
+    input, textarea { display: block; margin: 5px 0; }
+    #output { white-space: pre-wrap; background: #f0f0f0; padding: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <h1>🔌 Test API Items</h1>
+
+  <button onclick="getAllItems()">GET /api/items</button>
+  <button onclick="getItemById()">GET /api/items/:id</button>
+  <input type="number" id="itemId" placeholder="ID du produit" />
+
+  <hr>
+
+  <h3>POST /api/items</h3>
+  <input type="text" id="name" placeholder="Nom" />
+  <input type="text" id="description" placeholder="Description" />
+  <input type="number" id="price" placeholder="Prix" />
+  <input type="text" id="picture" placeholder="URL image" />
+  <input type="number" id="quantity" placeholder="Quantité" />
+  <button onclick="createItem()">Créer produit (POST)</button>
+
+  <div id="output"></div>
+
+  <script>
+    const API_BASE = 'http://172.24.58.181:3000/api/items'; // adapte l'URL si besoin
+
+    function showOutput(data) {
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getAllItems() {
+      const res = await fetch(API_BASE);
+      const data = await res.json();
+      showOutput(data);
+    }
+
+    async function getItemById() {
+      const id = document.getElementById('itemId').value;
+      if (!id) return alert("Entrez un ID !");
+      const res = await fetch(`${API_BASE}/${id}`);
+      const data = await res.json();
+      showOutput(data);
+    }
+
+    async function createItem() {
+      const body = {
+        name: document.getElementById('name').value,
+        description: document.getElementById('description').value,
+        price: parseFloat(document.getElementById('price').value),
+        picture: document.getElementById('picture').value,
+        quantity: parseInt(document.getElementById('quantity').value)
+      };
+
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTc0NDgwNTAwNCwiZXhwIjoxNzQ0ODA4NjA0fQ.3uA4fksQvTpCR3RYGFT96VTRAbfYklR81fa7Vw9xkAY' // à adapter
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+      showOutput(data);
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test API - E-Commerce</title>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; }
+    input, textarea { display: block; margin: 0.5rem 0; width: 100%; }
+    button { padding: 0.5rem 1rem; margin-top: 0.5rem; }
+    pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+  <h2>Connexion (POST /api/auth/login)</h2>
+  <input type="text" id="username" placeholder="Nom d'utilisateur">
+  <input type="password" id="password" placeholder="Mot de passe">
+  <button onclick="login()">Se connecter</button>
+
+  <h3>Token :</h3>
+  <pre id="tokenBox">Aucun token</pre>
+
+  <hr>
+
+  <h2>Créer un produit (POST /api/items)</h2>
+  <input type="text" id="name" placeholder="Nom du produit">
+  <input type="text" id="description" placeholder="Description">
+  <input type="number" id="price" placeholder="Prix">
+  <input type="text" id="picture" placeholder="URL image">
+  <input type="number" id="quantity" placeholder="Quantité">
+  <button onclick="createItem()">Créer produit</button>
+
+  <h3>Réponse :</h3>
+  <pre id="responseBox"></pre>
+
+  <script>
+    let token = "";
+
+    async function login() {
+      const body = {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value
+      };
+
+      const res = await fetch("http://172.24.58.181:3000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+      token = data.token;
+      document.getElementById("tokenBox").innerText = token || "Erreur";
+    }
+
+    async function createItem() {
+      const body = {
+        name: document.getElementById("name").value,
+        description: document.getElementById("description").value,
+        price: parseFloat(document.getElementById("price").value),
+        picture: document.getElementById("picture").value,
+        quantity: parseInt(document.getElementById("quantity").value)
+      };
+
+      const res = await fetch("http://172.24.58.181:3000/api/items", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+      document.getElementById("responseBox").innerText = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
