@@ -56,7 +56,7 @@ Table de liaison `many-to-many` entre `orders` et `item`.
 | item_id     | integer  | Référence vers `item.id`                  |
 | quantity    | integer  | Quantité de l'article dans la commande    |
 
-🔑 **Clé primaire composée** : `(order_id, item_id)`  
+🔑 **Clé primaire composée** : `(order_id, item_id)`
 🔗 Relation vers `orders` et `item`
 
 ✅ **Choix** :
@@ -73,6 +73,16 @@ Table de liaison `many-to-many` entre `orders` et `item`.
 - Table `cart` pour gérer les paniers temporaires avant validation.
 
 ---
+
+## Commande pour créer la base
+
+CREATE USER ecommerce_acc WITH PASSWORD 'password';
+CREATE DATABASE ecommerce;
+GRANT ALL PRIVILEGES ON DATABASE ecommerce TO ecommerce_acc;
+
+psql -U ecommerce_acc -h localhost -d ecommerce -f ../Database/bd.sql
+psql -U ecommerce_acc -h localhost -d ecommerce -f ../Database/populate.sql
+
 
 ## 📂 Fichier SQL associé
 
