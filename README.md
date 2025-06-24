@@ -16,8 +16,9 @@ E-Commerce showcase site. Suitable for making reservations. Administration panel
 │   ├── db.js          # Connexion à PostgreSQL
 │   └── index.js       # Point d'entrée du serveur
 │
-├── 📁 Client/         # (Front‑end à venir)
+├── 📁 Client/         # Pages statiques et scripts du front
 │   └── src/
+│       ├── api.js
 │       └── client.js
 │
 ├── 📁 Database/       # Scripts SQL
@@ -64,3 +65,6 @@ E-Commerce showcase site. Suitable for making reservations. Administration panel
    ```bash
    node index.js
    ```
+
+5. Ouvrir `Client/public/index.html` dans un navigateur. Les pages utilisent l'API
+   (port 3001 par défaut) pour afficher les produits.
