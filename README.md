@@ -4,6 +4,7 @@ E-Commerce showcase site. Suitable for making reservations. Administration panel
 ## Sommaire : 
 - [Liste des pages de l'application](./Docs/Pages.md)
 - [La base de donnée](./Docs/BDD.md)
+- [Endpoints de l'API](./Docs/API.md)
 
 ## Arborescence du projet
 
