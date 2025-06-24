@@ -89,3 +89,4 @@ psql -U ecommerce_acc -h localhost -d ecommerce -f ../Database/populate.sql
 > Voir le fichier [sql](../Database/bd.sql) pour le script de création de cette base de données.
 
 Nous allons utiliser PostgreSQL pour notre projet, cela s'explique par la simplicité de mis en place et d'utilisation.
+

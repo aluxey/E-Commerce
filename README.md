@@ -7,33 +7,59 @@ E-Commerce showcase site. Suitable for making reservations. Administration panel
 
 ## Arborescence du projet
 
-```plaintext 
-📦 ton-projet/ 
-├── 📁 backend/     # Code serveur (API, Express, etc.)                 
-│   ├── 📁 controllers/
-│   ├── 📁 models/
-│   ├── 📁 routes/
-│   ├── 📁 config/
-│   │   └── db.js     # Connexion à PostgreSQL
-│   └── index.js    # Point d'entrée du serveur
+```plaintext
+📦 E-Commerce/
+├── 📁 Server/         # API Express
+│   ├── controllers/
+│   ├── routes/
+│   ├── db.js          # Connexion à PostgreSQL
+│   └── index.js       # Point d'entrée du serveur
 │
-├── 📁 frontend/      # Code front-end (React, Vue, etc.)
-│   ├── 📁 public/
-│   ├── 📁 src/
-│   │   └── App.js
-│   └── package.json
+├── 📁 Client/         # (Front‑end à venir)
+│   └── src/
+│       └── client.js
 │
-├── 📁 database/      # Tout ce qui est lié à la BDD
-│   ├── schema.sql    # 💾 Script de création de la BDD 
-│   └── seed.sql      # Données de test à insérer
+├── 📁 Database/       # Scripts SQL
+│   ├── bd.sql         # Création de la base
+│   └── populate.sql   # Données de test
 │
-├── 📁 Docs/
-│   ├── 📁 Assets/
-│   │   ├── SQL_schema.png
-│   │   ├── BDD.md
-│   └───└── Pages.md
+├── 📁 Docs/           # Documentation
+│   ├── Assets/
+│   ├── BDD.md
+│   ├── Pages.md
+│   └── Roadmap.md
 │
-├── .env      # Variables d'env (config, DB, etc.)
+├── .env
 ├── .gitignore
-└── README.md       # 📝 Description globale du projet
+└── README.md
 ```
+
+## Installation
+
+1. Installer les dépendances du serveur :
+
+   ```bash
+   cd Server
+   npm install
+   ```
+
+2. Configurer un fichier `.env` à la racine du projet avec par exemple :
+
+   ```env
+   DATABASE_URL=postgres://user:password@localhost:5432/ecommerce
+   PORT=3001
+   JWT_SECRET=un_secret
+   ```
+
+3. Créer la base de données et insérer les données de test :
+
+   ```bash
+   psql -U user -d ecommerce -f Database/bd.sql
+   psql -U user -d ecommerce -f Database/populate.sql
+   ```
+
+4. Lancer le serveur depuis le dossier `Server` :
+
+   ```bash
+   node index.js
+   ```
