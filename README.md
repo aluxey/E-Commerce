@@ -16,9 +16,11 @@ E-Commerce showcase site. Suitable for making reservations. Administration panel
 │   ├── db.js          # Connexion à PostgreSQL
 │   └── index.js       # Point d'entrée du serveur
 │
-├── 📁 Client/         # (Front‑end à venir)
+├── 📁 Client/         # Front-end React
+│   ├── public/
+│   │   └── index.html
 │   └── src/
-│       └── client.js
+│       └── app.jsx
 │
 ├── 📁 Database/       # Scripts SQL
 │   ├── bd.sql         # Création de la base
@@ -64,3 +66,5 @@ E-Commerce showcase site. Suitable for making reservations. Administration panel
    ```bash
    node index.js
    ```
+
+5. Ouvrir `Client/public/index.html` dans votre navigateur pour utiliser l'interface React.
