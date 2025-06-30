@@ -64,3 +64,18 @@ E-Commerce showcase site. Suitable for making reservations. Administration panel
    ```bash
    node index.js
    ```
+
+
+### Stakc technique du projet 
+
+| Couche          | Choix recommandé                                     |
+| --------------- | ---------------------------------------------------- |
+| Frontend        | React + Vite + Tailwind                              |
+| Backend         | Node.js                                              |
+| Auth            | Auth.js                                              |
+| BDD             | PostgreSQL                                           |
+| Stockage images | Cloudinary                                           |
+| Paiement        | Stripe                                               |
+| Déploiement     | Vercel (Front) + Render/Railway (Back + DB)          |
+| Monitoring      | Sentry                                               |
+
