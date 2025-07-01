@@ -9,29 +9,35 @@ E-Commerce showcase site. Suitable for making reservations. Administration panel
 ## Arborescence du projet
 
 ```plaintext
-📦 E-Commerce/
-├── 📁 Server/         # API Express
-│   ├── controllers/
-│   ├── routes/
-│   ├── db.js          # Connexion à PostgreSQL
-│   └── index.js       # Point d'entrée du serveur
+E-Commerce/
+├── client/               # Frontend (React + Vite + Tailwind)
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── api/          # Appels API centralisés via React Query
+│   │   ├── auth/         # Auth provider & hooks
+│   │   ├── utils/        # Fonctions d’aide (formatage, etc.)
+│   │   └── main.tsx
+│   └── vite.config.ts
 │
-├── 📁 Client/         # (Front‑end à venir)
-│   └── src/
-│       └── client.js
+├── server/              # Backend (Node.js + Express ou Fastify)
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── middlewares/
+│   │   ├── services/
+│   │   ├── prisma/       # Prisma schema & client
+│   │   ├── utils/
+│   │   └── index.ts
+│   ├── .env
+│   └── tsconfig.json
 │
-├── 📁 Database/       # Scripts SQL
-│   ├── bd.sql         # Création de la base
-│   └── populate.sql   # Données de test
-│
-├── 📁 Docs/           # Documentation
-│   ├── Assets/
-│   ├── BDD.md
-│   ├── Pages.md
-│   └── Roadmap.md
-│
+├── docs/                # Spécifications techniques, schémas
+├── database/            # Script SQL ou schema.prisma
+├── .github/             # Actions CI/CD si besoin
 ├── .env
-├── .gitignore
 └── README.md
 ```
 
