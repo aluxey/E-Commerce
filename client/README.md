@@ -1,12 +1,33 @@
-# React + Vite
+# FrontEnd partie :
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🛍️ Page Boutique (grille de produits)
 
-Currently, two official plugins are available:
+    Afficher une liste de produits (mock ou venant de ton backend)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+    Chaque carte → bouton "Voir" ou "Ajouter au panier"
 
-## Expanding the ESLint configuration
+📦 Panier
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+    Système de panier avec useContext ou localStorage
+
+    Ajout / suppression d’un produit
+
+    Total dynamique
+
+🔍 Page Produit
+
+    Afficher les détails d’un produit via l’URL (/product/:id)
+
+    Image, description, prix, bouton d’achat
+
+👤 Authentification (plus tard)
+
+    Connexion / inscription
+
+    Affichage conditionnel dans la navbar
+
+🎨 UI/UX
+
+    Ajout d’un thème pastel (beige + gris foncé)
+
+    Animations avec Bootstrap ou libs comme framer-motion
