@@ -20,8 +20,9 @@ export default function Shop() {
       });
   }, []);
 
-  if (loading)
+  if (loading) {
     return <div className="text-center mt-5">Chargement des produits...</div>;
+  }
 
   return (
     <div className="container mt-4">
@@ -29,22 +30,29 @@ export default function Shop() {
       <div className="row">
         {products.map((product) => (
           <div className="col-md-4 mb-4" key={product.id}>
-            <div className="card h-100">
-              <img
-                src={product.image}
-                className="card-img-top"
-                alt={product.title}
-              />
+            <div className="card h-100 shadow-sm border-0">
+              {product.picture && (
+                <img
+                  src={`http://localhost:3001/uploads/${product.picture}`}
+                  className="card-img-top"
+                  alt={product.name}
+                  style={{ height: "200px", objectFit: "cover" }}
+                />
+              )}
               <div className="card-body d-flex flex-column">
-                <h5 className="card-title">{product.title}</h5>
-                <p className="card-text">{product.description}</p>
-                <p className="mt-auto fw-bold">{product.value} €</p>
-                <div className="d-flex justify-content-between mt-3">
+                <h5 className="card-title">{product.name}</h5>
+                <p className="card-text small text-muted">
+                  {product.description}
+                </p>
+                <p className="fw-bold mb-2">
+                  {(product.price / 100).toFixed(2)} €
+                </p>
+                <div className="d-grid gap-2 mt-auto">
                   <Link
                     to={`/product/${product.id}`}
                     className="btn btn-outline-primary btn-sm"
                   >
-                    Voir
+                    Voir le produit
                   </Link>
                   <button
                     className="btn btn-success btn-sm"
@@ -56,7 +64,7 @@ export default function Shop() {
                       })
                     }
                   >
-                    Ajouter
+                    Ajouter au panier
                   </button>
                 </div>
               </div>
