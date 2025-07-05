@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/login.css"; 
+import "../styles/login.css";
+import { Link } from "react-router-dom";
+
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -41,6 +43,7 @@ function Login() {
         required
       />
       <button type="submit">Se connecter</button>
+      <Link to="/register">Créer un compte</Link>
     </form>
   );
 }
