@@ -1,33 +1,52 @@
-# FrontEnd partie :
+# 🛍️ Front-End E-commerce
 
-🛍️ Page Boutique (grille de produits)
+Bienvenue dans la partie front-end de notre projet e-commerce !
+Ce projet a été développé avec **React** (via **Vite**), utilise **Bootstrap** pour le style, et interagit avec un back-end Express.
 
-    Afficher une liste de produits (mock ou venant de ton backend)
+---
 
-    Chaque carte → bouton "Voir" ou "Ajouter au panier"
+## 🔧 Architecture du front-end
 
-📦 Panier
+Le front suit une architecture simple et efficace :
 
-    Système de panier avec useContext ou localStorage
+![Diagramme de fonctionnement](../Docs/Assets/front_way_to_work.png)
+*Illustration du fonctionnement global de l'application.*
 
-    Ajout / suppression d’un produit
+---
 
-    Total dynamique
+## ✅ Fonctionnalités implémentées
 
-🔍 Page Produit
+### 🛍️ Page Boutique
 
-    Afficher les détails d’un produit via l’URL (/product/:id)
+- Affichage d’une **grille de produits** (récupérés depuis le backend)
+- Chaque produit possède :
+  - Une image
+  - Un nom
+  - Une description
+  - Un prix
+  - Deux boutons :
+    - **Voir le produit** (redirige vers `/product/:id`)
+    - **Ajouter au panier**
 
-    Image, description, prix, bouton d’achat
+### 📦 Panier
 
-👤 Authentification (plus tard)
+- Utilisation de **useContext** pour stocker les éléments du panier
+- **Ajout et suppression** de produits
+- **Quantité et total dynamique**
+- **Notifications toast** lors de l’ajout ou la suppression d’un article
 
-    Connexion / inscription
+### 🔍 Page Produit
 
-    Affichage conditionnel dans la navbar
+- Affichage **détaillé** du produit sélectionné :
+  - Image
+  - Description
+  - Prix
+  - Bouton "Ajouter au panier"
+- Chargement dynamique via l’URL `/product/:id`
 
-🎨 UI/UX
+### 🎨 UI/UX
 
-    Ajout d’un thème pastel (beige + gris foncé)
-
-    Animations avec Bootstrap ou libs comme framer-motion
+- Thème pastel :
+  - Couleurs principales : **beige clair** et **gris foncé**
+- Composants stylisés avec **Bootstrap**
+- **Animations** d’apparition (cartes, toast) avec Bootstrap ou `

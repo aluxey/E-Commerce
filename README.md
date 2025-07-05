@@ -1,8 +1,9 @@
 # E-Commerce
-E-Commerce showcase site. Suitable for making reservations. Administration panel to manage the site. 
+E-Commerce showcase site. Suitable for making reservations. Administration panel to manage the site.
 
-## Sommaire : 
+## Sommaire :
 - [Liste des pages de l'application](./Docs/Pages.md)
+- [La partie FrontEnd du projet](/client/README.md)
 - [La base de donnée](./Docs/BDD.md)
 - [Endpoints de l'API](./Docs/API.md)
 
@@ -72,7 +73,7 @@ E-Commerce/
    ```
 
 
-### Stakc technique du projet 
+### Stakc technique du projet
 
 | Couche          | Choix recommandé                                     |
 | --------------- | ---------------------------------------------------- |
