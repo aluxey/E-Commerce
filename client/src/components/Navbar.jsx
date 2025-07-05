@@ -1,19 +1,24 @@
+// components/Navbar.jsx
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
-export default function Navbar() {
+function Navbar() {
+  const { user, logout } = useContext(AuthContext);
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-      <Link className="navbar-brand" to="/">Ma Boutique</Link>
-      <div className="collapse navbar-collapse">
-        <ul className="navbar-nav me-auto">
-          <li className="nav-item">
-            <Link className="nav-link" to="/shop">Boutique</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/cart">Panier</Link>
-          </li>
-        </ul>
-      </div>
+    <nav className="navbar">
+      <Link to="/">Accueil</Link>
+      {user ? (
+        <>
+          <span>Bonjour {user.firstname}</span>
+          <button onClick={logout}>Déconnexion</button>
+        </>
+      ) : (
+        <Link to="/login">Se connecter</Link>
+      )}
     </nav>
   );
 }
+
+export default Navbar;
