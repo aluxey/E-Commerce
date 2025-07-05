@@ -33,13 +33,28 @@ export function CartProvider({ children }) {
   };
 
   const removeFromCart = (id) => {
+    const itemToRemove = cart.find((p) => p.id === id);
     setCart((prev) => prev.filter((p) => p.id !== id));
+    if (itemToRemove) {
+      setToastMsg(`❌ ${itemToRemove.name} supprimé du panier`);
+      setShowToast(true);
+    }
   };
 
   const clearCart = () => setCart([]);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, showToast, setShowToast, toastMsg }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        showToast,
+        setShowToast,
+        toastMsg,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
