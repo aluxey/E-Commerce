@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   background-color: #8f8fef;
-  padding: 1rem 2rem; 
+  padding: 1rem 2rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   color: white;
 }
@@ -39,4 +39,20 @@
 .navbar button:hover {
   background-color: #e4e4c0;
   color: #5c5ccf;
+}
+
+.navbar-left,
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-right {
+  gap: 1rem;
+}
+
+.navbar span {
+  margin-right: 1.5rem;
+  font-size: 1rem;
+  transition: opacity 0.3s ease;
 }

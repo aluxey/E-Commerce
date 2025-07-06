@@ -1,17 +1,21 @@
 import { useState } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
 import { Link } from "react-router-dom";
-
+import { useProduct } from "../context/ProductContext";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { setToastMsg, setShowToast } = useProduct ();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-     const res = await fetch("http://localhost:3001/users/login", {
+    const res = await fetch("http://localhost:3001/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -19,10 +23,14 @@ function Login() {
     const data = await res.json();
     if (res.ok) {
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      login(data.user);
+      setToastMsg("🎉 Connexion réussie !");
+      setShowToast(true);
+
       navigate("/");
     } else {
-      alert(data.message || "Erreur de connexion");
+      setToastMsg("Email ou mot de passe invalide");
+      setShowToast(true);
     }
   };
 

@@ -1,8 +1,8 @@
 import { Toast, ToastContainer } from 'react-bootstrap';
-import { useCart } from '../context/CartContext';
+import { useProduct  } from '../context/ProductContext';
 
 export default function ToastNotif() {
-  const { showToast, setShowToast, toastMsg } = useCart();
+  const { showToast, setShowToast, toastMsg } = useProduct ();
 
   return (
     <ToastContainer position="bottom-end" className="p-3">

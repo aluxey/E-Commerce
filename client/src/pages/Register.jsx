@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/register.css";
+import "../styles/register.css"; 
+import { useAuth  } from "../context/AuthContext";
+import { useProduct } from "../context/ProductContext";
 
 function Register() {
   const [email, setEmail] = useState("");
   const [firstname, setFirstname] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { setToastMsg, setShowToast } = useProduct ();
+  const { login } = useAuth();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -22,10 +26,13 @@ function Register() {
 
       if (res.ok) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        login(data.user);
+        setToastMsg("🎉 Connexion réussie !");
+        setShowToast(true);
         navigate("/");
       } else {
-        alert(data.error || "Erreur lors de l'inscription");
+        setToastMsg("Erreur lors de l'inscription");
+        setShowToast(true);
       }
     } catch (err) {
       console.error("Erreur réseau ou serveur :", err);

@@ -1,11 +1,11 @@
-import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { useCart } from '../context/CartContext';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useProduct  } from '../context/ProductContext';
 
 export default function Product() {
   const { id } = useParams();
-  const { addToCart } = useCart();
+  const { addToCart } = useProduct ();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 

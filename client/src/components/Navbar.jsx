@@ -1,22 +1,26 @@
-import { useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import '../styles/navbar.css';
+import { useContext } from "react";
+import { Link } from "react-router-dom";
+import "../styles/navbar.css";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, login, logout } = useAuth();
 
   return (
     <nav className="navbar">
-      <Link to="/">Accueil</Link>
-      {user ? (
-        <>
-          <span>Bonjour {user.firstname}</span>
-          <button onClick={logout}>Déconnexion</button>
-        </>
-      ) : (
-        <Link to="/login">Se connecter</Link>
-      )}
+      <div className="navbar-left">
+        <Link to="/">Accueil</Link>
+      </div>
+      <div className="navbar-right">
+        {user ? (
+          <>
+            <span>Bonjour {user.username}</span>
+            <button onClick={logout}>Déconnexion</button>
+          </>
+        ) : (
+          <Link to="/login">Se connecter</Link>
+        )}
+      </div>
     </nav>
   );
 }
