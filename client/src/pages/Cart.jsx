@@ -1,7 +1,7 @@
-import { useCart } from '../context/CartContext';
+import { useProduct  } from '../context/ProductContext';
 
 export default function Cart() {
-  const { cart, removeFromCart, clearCart } = useCart();
+  const { cart, removeFromCart, clearCart } = useProduct ();
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   if (cart.length === 0) {

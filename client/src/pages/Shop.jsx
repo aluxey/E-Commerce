@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { fetchProducts } from "../api/product";
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { fetchProducts } from "../api/product";
+import { useProduct  } from "../context/ProductContext";
 
 export default function Shop() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
+  const { addToCart } = useProduct ();
 
   useEffect(() => {
     fetchProducts()

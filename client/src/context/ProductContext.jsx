@@ -1,8 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
-const CartContext = createContext();
+const ProductContext = createContext();
 
-export function CartProvider({ children }) {
+export const ProductProvider = ({ children }) => {
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
@@ -25,7 +25,6 @@ export function CartProvider({ children }) {
       } else {
         updated = [...prev, { ...item, quantity: 1 }];
       }
-      // ➕ Toast
       setToastMsg(`✅ ${item.name} ajouté au panier`);
       setShowToast(true);
       return updated;
@@ -44,20 +43,19 @@ export function CartProvider({ children }) {
   const clearCart = () => setCart([]);
 
   return (
-    <CartContext.Provider
+    <ProductContext.Provider
       value={{
         cart,
-        addToCart,
-        removeFromCart,
-        clearCart,
+        setCart,
+        toastMsg,
+        setToastMsg,
         showToast,
         setShowToast,
-        toastMsg,
       }}
     >
       {children}
-    </CartContext.Provider>
+    </ProductContext.Provider>
   );
-}
+};
 
-export const useCart = () => useContext(CartContext);
+export const useProduct = () => useContext(ProductContext);
