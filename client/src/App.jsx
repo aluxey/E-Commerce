@@ -10,6 +10,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { ProductProvider } from "./context/ProductContext";
+import Admin from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/admin" element={<Admin />} />
             <Route
               path="/product/:id"
               element={

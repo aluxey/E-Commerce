@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import '../styles/Admin.css'; // ⬅️ Import du fichier CSS
 
 const AdminDashboard = () => {
   const [form, setForm] = useState({
@@ -129,97 +130,101 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-[#f4f4f4]">
-      <h1 className="text-3xl font-bold mb-6">Tableau de bord Admin</h1>
+    <div className="main">
+  <div className="dashboard-container">
+    <h1 className="title">Tableau de bord Admin</h1>
 
-      {/* Statistiques fictives */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card>
-          <CardContent>
-            <p className="text-sm text-gray-500">Produits en stock</p>
-            <p className="text-2xl font-bold">{products.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-sm text-gray-500">Commandes passées</p>
-            <p className="text-2xl font-bold">18</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-sm text-gray-500">Revenu total</p>
-            <p className="text-2xl font-bold">1 290 €</p>
-          </CardContent>
-        </Card>
-      </div>
+    {/* Statistiques fictives */}
+    <div className="stats">
+      <Card>
+        <CardContent>
+          <p className="label">Produits en stock</p>
+          <p className="value">{products.length}</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent>
+          <p className="label">Commandes passées</p>
+          <p className="value">18</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent>
+          <p className="label">Revenu total</p>
+          <p className="value">1 290 €</p>
+        </CardContent>
+      </Card>
+    </div>
 
-      {/* Ajouter un produit */}
-      <Card className="mb-8">
-        <CardContent className="space-y-4">
-          <h2 className="text-xl font-semibold">Ajouter un produit</h2>
+    {/* Ajouter un produit */}
+    <Card>
+      <CardContent>
+        <h2 className="subtitle">Ajouter un produit</h2>
+        <div className="form-row">
           <Input name="name" placeholder="Nom du produit" value={form.name} onChange={handleChange} />
           <Input name="description" placeholder="Description" value={form.description} onChange={handleChange} />
           <Input name="price" type="number" placeholder="Prix (€)" value={form.price} onChange={handleChange} />
           <Input name="image" placeholder="URL de l'image" value={form.image} onChange={handleChange} />
           <Button onClick={handleAddProduct}>Ajouter</Button>
-          {message && <p className="text-sm">{message}</p>}
-        </CardContent>
-      </Card>
+        </div>
+        {message && <p className="text-sm">{message}</p>}
+      </CardContent>
+    </Card>
 
-      {/* Liste des produits */}
-      <Card className="mb-8">
-        <CardContent>
-          <h2 className="text-xl font-semibold mb-4">Produits existants</h2>
-          {isLoading ? (
-            <p>Chargement...</p>
-          ) : (
-            <div className="space-y-2">
-              {products.map((product) => (
-                <div key={product.id} className="flex justify-between items-center border p-2 rounded">
-                  <div>
-                    <p className="font-medium">{product.name}</p>
-                    <p className="text-sm text-gray-500">{product.price} €</p>
-                  </div>
-                  <div className="space-x-2">
-                    <Button size="sm" onClick={() => handleEdit(product)}>Modifier</Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(product.id)}>Supprimer</Button>
-                  </div>
+    {/* Liste des produits */}
+    <Card>
+      <CardContent>
+        <h2 className="subtitle">Produits existants</h2>
+        {isLoading ? (
+          <p>Chargement...</p>
+        ) : (
+          <div className="space-y-2">
+            {products.map((product) => (
+              <div key={product.id} className="product-item">
+                <div>
+                  <p className="font-medium">{product.name}</p>
+                  <p className="text-sm text-gray-500">{product.price} €</p>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Historique commandes fictif */}
-      <Card>
-        <CardContent>
-          <h2 className="text-xl font-semibold mb-4">Historique des commandes</h2>
-          <ul className="space-y-2">
-            <li className="border p-2 rounded">Commande #1234 – 2 produits – 59,99 €</li>
-            <li className="border p-2 rounded">Commande #1235 – 1 produit – 29,99 €</li>
-            <li className="border p-2 rounded">Commande #1236 – 3 produits – 89,99 €</li>
-          </ul>
-        </CardContent>
-      </Card>
-
-      {/* 🪟 Modale de modification */}
-      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Modifier le produit</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 mt-4">
-            <Input name="name" placeholder="Nom" value={form.name} onChange={handleChange} />
-            <Input name="description" placeholder="Description" value={form.description} onChange={handleChange} />
-            <Input name="price" type="number" placeholder="Prix (€)" value={form.price} onChange={handleChange} />
-            <Input name="image" placeholder="Image URL" value={form.image} onChange={handleChange} />
-            <Button onClick={handleUpdate}>Enregistrer</Button>
+                <div className="actions">
+                  <Button size="sm" onClick={() => handleEdit(product)}>Modifier</Button>
+                  <Button size="sm" variant="destructive" onClick={() => handleDelete(product.id)}>Supprimer</Button>
+                </div>
+              </div>
+            ))}
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+        )}
+      </CardContent>
+    </Card>
+
+    {/* Historique commandes fictif */}
+    <Card>
+      <CardContent>
+        <h2 className="subtitle">Historique des commandes</h2>
+        <ul className="space-y-2">
+          <li className="order-item">Commande #1234 – 2 produits – 59,99 €</li>
+          <li className="order-item">Commande #1235 – 1 produit – 29,99 €</li>
+          <li className="order-item">Commande #1236 – 3 produits – 89,99 €</li>
+        </ul>
+      </CardContent>
+    </Card>
+
+    {/* 🪟 Modale de modification */}
+    <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Modifier le produit</DialogTitle>
+        </DialogHeader>
+        <div className="dialog-body">
+          <Input name="name" placeholder="Nom" value={form.name} onChange={handleChange} />
+          <Input name="description" placeholder="Description" value={form.description} onChange={handleChange} />
+          <Input name="price" type="number" placeholder="Prix (€)" value={form.price} onChange={handleChange} />
+          <Input name="image" placeholder="Image URL" value={form.image} onChange={handleChange} />
+          <Button onClick={handleUpdate}>Enregistrer</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  </div>
+</div>
   );
 };
 
