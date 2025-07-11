@@ -10,7 +10,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { setToastMsg, setShowToast } = useProduct ();
+  const { setToastMsg, setShowToast } = useProduct();
   const { login } = useAuth();
 
   const handleLogin = async (e) => {
@@ -21,12 +21,12 @@ function Login() {
       body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
+    console.log("Login response:", data);
     if (res.ok) {
       localStorage.setItem("token", data.token);
-      login(data.user);
+      login({ username: data.user.username });
       setToastMsg("🎉 Connexion réussie !");
       setShowToast(true);
-
       navigate("/");
     } else {
       setToastMsg("Email ou mot de passe invalide");

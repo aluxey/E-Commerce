@@ -47,7 +47,15 @@ exports.login = async (req, res) => {
       }
     );
 
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (err) {
     res.status(500).json({ error: "Erreur serveur" });
   }
