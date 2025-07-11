@@ -1,6 +1,7 @@
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
@@ -62,15 +63,65 @@ exports.login = async (req, res) => {
 };
 
 exports.getUserById = async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    console.log("❌ Aucun header Authorization");
+    return res.status(401).json({ error: "Non autorisé" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  console.log("🪪 Token reçu dans /:id :", token); // 👈 ici !
+
   try {
     const { rows } = await db.query(
       "SELECT id, username, email, role, created_at FROM users WHERE id=$1",
       [req.params.id]
     );
-    if (rows.length === 0)
+
+    if (rows.length === 0) {
+      console.log("❌ Aucun utilisateur avec id", req.params.id);
       return res.status(404).json({ error: "Utilisateur introuvable" });
+    }
+
     res.json(rows[0]);
   } catch (err) {
+    console.error("❌ Erreur dans getUserById:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+
+
+
+exports.getCurrentUser = async (req, res) => {
+  console.log("🔥 getCurrentUser appelée");
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    console.log("❌ Aucun header Authorization");
+    return res.status(401).json({ error: "Non autorisé" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    console.log("🔐 JWT_SECRET utilisé:", process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("✅ Token décodé:", decoded);
+
+    const { rows } = await db.query(
+      "SELECT id, username, email, role FROM users WHERE id = $1",
+      [decoded.id]
+    );
+
+    if (rows.length === 0) {
+      console.log("❌ Aucun utilisateur trouvé avec l'id :", decoded.id);
+      return res.status(404).json({ error: "Utilisateur introuvable" });
+    }
+
+    console.log("✅ Utilisateur trouvé:", rows[0]);
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("❌ Erreur dans getCurrentUser:", err);
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
