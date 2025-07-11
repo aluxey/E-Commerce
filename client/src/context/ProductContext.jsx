@@ -1,3 +1,5 @@
+// src/context/ProductContext.jsx
+
 import { createContext, useContext, useState, useEffect } from "react";
 
 const ProductContext = createContext();
@@ -40,17 +42,23 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
-  const clearCart = () => setCart([]);
+  const clearCart = () => {
+    setCart([]);
+    setToastMsg(`🗑️ Panier vidé`);
+    setShowToast(true);
+  };
 
   return (
     <ProductContext.Provider
       value={{
         cart,
-        setCart,
-        toastMsg,
-        setToastMsg,
+        addToCart,
+        removeFromCart,
+        clearCart,
         showToast,
+        toastMsg,
         setShowToast,
+        setToastMsg,
       }}
     >
       {children}
