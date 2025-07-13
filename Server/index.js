@@ -3,6 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
+
 app.use(express.json());
 app.use(cors());
 
@@ -16,6 +19,7 @@ app.use('/items', itemRoutes);
 app.use('/orders', orderRoutes);
 app.use('/users', userRoutes);
 app.use('/categories', categoryRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ❗ Route 404 doit être définie à la fin, après les autres routes
 app.use((req, res) => {
