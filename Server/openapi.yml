@@ -1,6 +1,15 @@
-openapi: 3.0.0
+openapi: 3.1.0
+
+info:
+  title: API de Gestion des Catégories
+  version: 1.0.0
+  description: API pour gérer les catégories dans le système.
+  contact:
+    name: Support Technique
+    email: aurelien.luxeyy@gmail.com
+
 paths:
-  /categories:
+  /categories/:
     get:
       summary: Liste toutes les catégories
       tags: [Categories]
@@ -11,10 +20,6 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/Category'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
       summary: Crée une nouvelle catégorie
       tags: [Categories]
@@ -23,69 +28,232 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategoryInput'
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
       responses:
         '201':
-          description: Catégorie créée
+          description: Catégorie créée avec succès
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
-        '500':
-          $ref: '#/components/responses/ServerError'
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
+        '400':
+          description: Données invalides
 
   /categories/{id}:
-    parameters:
-      - $ref: '#/components/parameters/CategoryId'
     get:
-      summary: Récupère une catégorie
+      summary: Récupère une catégorie par son ID
       tags: [Categories]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la catégorie
+          schema:
+            type: integer
       responses:
         '200':
           description: Catégorie trouvée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
         '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/ServerError'
-    put:
-      summary: Met à jour une catégorie
+          description: Catégorie non trouvée
+    delete:
+      summary: Supprime une catégorie par son ID
       tags: [Categories]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la catégorie à supprimer
+      responses:
+        '204':
+          description: Catégorie supprimée avec succès (aucune réponse)
+        '404':
+          description: Catégorie non trouvée
+    put:
+      summary: Met à jour une catégorie existante
+      tags: [Categories]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la catégorie à mettre à jour
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategoryInput'
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
       responses:
         '200':
           description: Catégorie mise à jour
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
         '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/ServerError'
-    delete:
-      summary: Supprime une catégorie
-      tags: [Categories]
+          description: Catégorie non trouvée
+
+  /items/:
+    get:
+      summary: Liste toutes les items
+      tags: [Items]
       responses:
         '200':
-          description: Catégorie supprimée
+          description: Tableau de items
+          content:
+            application/json:
+              schema:
+                type: array
+    post:
+      summary: Crée un nouvel items
+      tags: [Items]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Item créée avec succès
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  message:
+                  id:
+                    type: integer
+                  name:
                     type: string
-                    example: Catégorie supprimée
+                  description:
+                    type: string
+        '400':
+          description: Données invalides
+
+  /items/{id}:
+    get:
+      summary: Récupère un item par son ID
+      tags: [Items]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'item
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Item trouvée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
         '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/ServerError'
+          description: Item non trouvée
+    delete:
+      summary: Supprime un item par son ID
+      tags: [Items]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de l'item à supprimer
+      responses:
+        '204':
+          description: Item supprimé avec succès (aucune réponse)
+        '404':
+          description: Item non trouvée
+    put:
+      summary: Met à jour un item existante
+      tags: [Items]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de l'item à mettre à jour
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Item mise à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
+        '404':
+          description: Item non trouvée
+
