@@ -1,50 +1,55 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabase/supabaseClient';
 
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-
-  const login = (userData) => {
-    setUser(userData);
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("token");
-  };
+export const AuthProvider = ({ children }) => {
+  const [session, setSession] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch("http://localhost:3001/users/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("user from /me:", data);
-          if (data.username) {
-            setUser(data);
-          } else {
-            logout(); // Token invalide
-          }
-        })
-        .catch((err) => {
-          console.error("Erreur lors du chargement du user:", err);
-          logout();
-        });
-    }
+    const currentSession = supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      if (data.session) fetchUserData(data.session.user.id);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) fetchUserData(session.user.id);
+      else setUserData(null);
+    });
+
+    return () => listener?.subscription.unsubscribe();
   }, []);
 
+  const fetchUserData = async (id) => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, email, role')
+      .eq('id', id)
+      .single();
+
+    if (!error) {
+      setUserData(data);
+      if (data.role === 'admin') navigate('/admin');
+      else navigate('/client');
+    }
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+    setUserData(null);
+    navigate('/');
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ session, userData }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export const useAuth = () => useContext(AuthContext);

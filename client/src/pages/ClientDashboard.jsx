@@ -1,3 +1,4 @@
+
 import React from "react";
 import "../styles/home.css";
 
@@ -22,7 +23,7 @@ const mockProducts = [
   },
 ];
 
-export default function Home() {
+export default function ClientDashboard() {
   return (
     <div className="home">
       <section className="hero">

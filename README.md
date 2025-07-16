@@ -11,35 +11,37 @@ E-Commerce showcase site. Suitable for making reservations. Administration panel
 
 ```plaintext
 E-Commerce/
-├── client/               # Frontend (React + Vite + Tailwind)
+├── client/                          # Frontend (React + Vite + Tailwind)
 │   ├── public/
 │   ├── src/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── api/          # Appels API centralisés via React Query
-│   │   ├── auth/         # Auth provider & hooks
-│   │   ├── utils/        # Fonctions d’aide (formatage, etc.)
-│   │   └── main.tsx
-│   └── vite.config.ts
+│   │   ├── assets/                  # Logos, images, SVGs
+│   │   ├── components/             # Navbar, ProductCard, etc.
+│   │   ├── pages/                  # Home, Shop, Product, Cart, Admin...
+│   │   │   └── Admin/              # Dashboard, ProductForm, VariantForm
+│   │   ├── api/                    # Fonctions API via Supabase
+│   │   ├── auth/                   # AuthContext + hook + role check
+│   │   ├── context/                # CartContext (et autres si besoin)
+│   │   ├── utils/                  # formatPrice, role utils, etc.
+│   │   ├── supabase/               # Supabase client config
+│   │   │   └── client.js
+│   │   ├── App.jsx                 # Routes + Layout
+│   │   ├── index.js                # Entrée React
+│   │   └── styles/                 # main.css ou tailwind.css
+│   │
+│   ├── .env.local                  # SUPABASE_URL / SUPABASE_ANON_KEY
+│   └── vite.config.js
 │
-├── server/              # Backend (Node.js + Express ou Fastify)
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── routes/
-│   │   ├── middlewares/
-│   │   ├── services/
-│   │   ├── prisma/       # Prisma schema & client
-│   │   ├── utils/
-│   │   └── index.ts
-│   ├── .env
-│   └── tsconfig.json
+├── database/
+│   ├── schema.sql                  # Script complet des tables Supabase
+│   └── seed.sql                    # Remplissage de base (items, categories...)
 │
-├── docs/                # Spécifications techniques, schémas
-├── database/            # Script SQL ou schema.prisma
-├── .github/             # Actions CI/CD si besoin
-├── .env
+├── docs/                           # Spécifications, maquettes, schémas
+│   └── architecture.md
+│
+├── .github/                        # CI/CD si nécessaire
+├── .env                            # Variables globales (ex: VITE_*)
 └── README.md
+
 ```
 
 ## Installation
