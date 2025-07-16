@@ -79,9 +79,9 @@ E-Commerce/
 | --------------- | ---------------------------------------------------- |
 | Frontend        | React + Vite + Tailwind                              |
 | Backend         | Node.js                                              |
-| Auth            | Auth.js                                              |
-| BDD             | PostgreSQL                                           |
-| Stockage images | Cloudinary                                           |
+| Auth            | Supabase                                             |
+| BDD             | Supasbase                                            |
+| Stockage images | Supabase                                             |
 | Paiement        | Stripe                                               |
 | Déploiement     | Vercel (Front) + Render/Railway (Back + DB)          |
 | Monitoring      | Sentry                                               |
