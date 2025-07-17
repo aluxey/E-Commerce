@@ -1,5 +1,7 @@
+// components/AuthForm.jsx
 import { useState } from "react";
 import { supabase } from "../supabase/supabaseClient";
+import "../styles/Authform.css"; // Assurez-vous d'avoir ce fichier CSS pour le style
 
 export default function AuthForm() {
   const [email, setEmail] = useState("");
@@ -12,11 +14,7 @@ export default function AuthForm() {
     setLoading(true);
     setErrorMsg("");
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
+    const { data, error } = await supabase.auth.signUp({ email, password });
     console.log("Signup result:", { data, error });
 
     if (error) {
@@ -29,7 +27,7 @@ export default function AuthForm() {
   };
 
   return (
-    <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+    <form className="auth-form" onSubmit={handleSignup}>
       <h2>Inscription</h2>
       <input
         type="email"
@@ -49,7 +47,7 @@ export default function AuthForm() {
       <button type="submit" disabled={loading}>
         {loading ? "Chargement..." : "S'inscrire"}
       </button>
-      {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
+      {errorMsg && <p className="error">{errorMsg}</p>}
     </form>
   );
 }
