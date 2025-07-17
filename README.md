@@ -77,15 +77,6 @@ E-Commerce/
    ```
 
 
-### Stack technique du projet
 
-| Couche          | Choix recommandé                                     |
-| --------------- | ---------------------------------------------------- |
-| Frontend        | React + Vite + Tailwind                              |
-| Backend         | Supabase (API + Auth)                                |
-| BDD             | Supabase PostgreSQL                                  |
-| Stockage images | Supabase Storage                                     |
-| Paiement        | Stripe                                               |
-| Déploiement     | Vercel (front)                                       |
-| Monitoring      | Sentry                                               |
+
 
