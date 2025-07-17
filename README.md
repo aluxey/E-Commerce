@@ -1,11 +1,12 @@
 # E-Commerce
-E-Commerce showcase site. Suitable for making reservations. Administration panel to manage the site.
+Projet vitrine d'une boutique en ligne utilisant **React** pour l'interface et **Supabase** pour la gestion des données et de l'authentification.
 
 ## Sommaire :
 - [Liste des pages de l'application](./Docs/Pages.md)
-- [La partie FrontEnd du projet](/client/README.md)
-- [La base de donnée](./Docs/BDD.md)
+- [La partie FrontEnd du projet](./client/README.md)
+- [Schéma de la base de données](./Docs/BDD.md)
 - [Endpoints de l'API](./Docs/API.md)
+- [Architecture générale](./Docs/Architecture.md)
 
 ## Arborescence du projet
 
@@ -31,60 +32,60 @@ E-Commerce/
 │   ├── .env.local                  # SUPABASE_URL / SUPABASE_ANON_KEY
 │   └── vite.config.js
 │
-├── database/
-│   ├── schema.sql                  # Script complet des tables Supabase
-│   └── seed.sql                    # Remplissage de base (items, categories...)
+├── Database/                        # Scripts SQL
+│   ├── bd.sql                       # Création des tables
+│   └── populate.sql                 # Données de test
 │
-├── docs/                           # Spécifications, maquettes, schémas
-│   └── architecture.md
+├── Docs/                           # Spécifications et maquettes
+│   ├── Assets/                      # Images utilisées dans la doc
+│   ├── API.md
+│   ├── BDD.md
+│   ├── Pages.md
+│   └── Architecture.md
 │
-├── .github/                        # CI/CD si nécessaire
-├── .env                            # Variables globales (ex: VITE_*)
 └── README.md
 
 ```
 
 ## Installation
 
-1. Installer les dépendances du serveur :
+1. Installer les dépendances du front :
 
    ```bash
-   cd Server
+   cd client
    npm install
    ```
 
-2. Configurer un fichier `.env` à la racine du projet avec par exemple :
+2. Créer un fichier `.env.local` dans `client/` avec vos clés Supabase :
 
    ```env
-   DATABASE_URL=postgres://user:password@localhost:5432/ecommerce
-   PORT=3001
-   JWT_SECRET=un_secret
+   VITE_SUPABASE_URL=your-project-url
+   VITE_SUPABASE_ANON_KEY=your-anon-key
    ```
 
-3. Créer la base de données et insérer les données de test :
+3. (Optionnel) Préparer une base Postgres locale :
 
    ```bash
    psql -U user -d ecommerce -f Database/bd.sql
    psql -U user -d ecommerce -f Database/populate.sql
    ```
 
-4. Lancer le serveur depuis le dossier `Server` :
+4. Lancer le serveur de développement :
 
    ```bash
-   node index.js
+   npm run dev
    ```
 
 
-### Stakc technique du projet
+### Stack technique du projet
 
 | Couche          | Choix recommandé                                     |
 | --------------- | ---------------------------------------------------- |
 | Frontend        | React + Vite + Tailwind                              |
-| Backend         | Node.js                                              |
-| Auth            | Supabase                                             |
-| BDD             | Supasbase                                            |
-| Stockage images | Supabase                                             |
+| Backend         | Supabase (API + Auth)                                |
+| BDD             | Supabase PostgreSQL                                  |
+| Stockage images | Supabase Storage                                     |
 | Paiement        | Stripe                                               |
-| Déploiement     | Vercel (Front) + Render/Railway (Back + DB)          |
+| Déploiement     | Vercel (front)                                       |
 | Monitoring      | Sentry                                               |
 

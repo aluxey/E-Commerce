@@ -74,5 +74,5 @@
 ## 🗃️ Fichier SQL associé
 Fichier de création automatique exportable via `Table Editor` ou CLI Supabase.
 
-📁 Export prévu dans : `Database/schema.sql`
-📁 Exemple de seed : `Database/seed.sql`
+📁 Export prévu dans : `Database/bd.sql`
+📁 Exemple de seed : `Database/populate.sql`
