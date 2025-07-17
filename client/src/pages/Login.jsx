@@ -1,59 +1,71 @@
 import { useState } from "react";
-import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/login.css";
-import { Link } from "react-router-dom";
-import { useProduct } from "../context/ProductContext";
+import { supabase } from "../supabase/supabaseClient";
 import { useAuth } from "../context/AuthContext";
+import "../styles/login.css"; // Assurez-vous d'avoir ce fichier CSS pour le style
 
-function Login() {
+const Login = () => {
+  const { session } = useAuth();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-  const { setToastMsg, setShowToast } = useProduct();
-  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:3001/users/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    setLoading(true);
+    setErrorMsg("");
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
-    const data = await res.json();
-    console.log("Login response:", data);
-    if (res.ok) {
-      localStorage.setItem("token", data.token);
-      login({ username: data.user.username });
-      setToastMsg("🎉 Connexion réussie !");
-      setShowToast(true);
-      navigate("/");
+
+    setLoading(false);
+
+    if (error) {
+      setErrorMsg(error.message);
     } else {
-      setToastMsg("Email ou mot de passe invalide");
-      setShowToast(true);
+      navigate("/");
     }
   };
 
+  if (session) {
+    navigate("/");
+    return null;
+  }
+
   return (
-    <form onSubmit={handleLogin} className="login-form">
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        required
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Mot de passe"
-        required
-      />
-      <button type="submit">Se connecter</button>
-      <Link to="/register">Créer un compte</Link>
-    </form>
+    <div className="login-container">
+      <form className="login-form" onSubmit={handleLogin}>
+        <h2>Connexion</h2>
+
+        <label>Email</label>
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <label>Mot de passe</label>
+        <input
+          type="password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        {errorMsg && <p className="error-msg">{errorMsg}</p>}
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Connexion..." : "Se connecter"}
+        </button>
+      </form>
+    </div>
   );
-}
+};
 
 export default Login;

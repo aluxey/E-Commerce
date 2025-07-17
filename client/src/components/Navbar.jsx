@@ -1,34 +1,46 @@
-import { Link } from "react-router-dom";
-import "../styles/navbar.css";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "../supabase/supabaseClient";
 import { useAuth } from "../context/AuthContext";
-import { FaShoppingCart } from "react-icons/fa";
+import "../styles/navbar.css"; // Assurez-vous d'avoir ce fichier CSS pour le style
 
-function Navbar() {
-  const { user, logout } = useAuth();
+const Navbar = () => {
+  const { session, userData } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
 
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <Link to="/" className="logo">MonShop</Link>
-        {user && <Link to="/shop">Produits</Link>}
+        <Link to="/client" className="navbar-link navbar-brand">Accueil</Link>
+        <Link to="/items" className="navbar-link">Boutique</Link>
+        <Link to="/cart" className="navbar-link">Panier</Link>
+        {userData?.user_metadata?.role === "admin" && (
+          <Link to="/admin" className="navbar-link">Admin</Link>
+        )}
       </div>
 
       <div className="navbar-right">
-        {user ? (
+        {session ? (
           <>
-            <Link to="/cart" className="cart-link">
-              <FaShoppingCart />
-              <span className="cart-text">Panier</span>
-            </Link>
-            <span className="user-text">Bonjour {user.username}</span>
-            <button onClick={logout} className="logout-btn">Déconnexion</button>
+            <span className="navbar-user">
+              {userData?.email || "Connecté"}
+            </span>
+            <button onClick={handleLogout} className="btn-logout">
+              Logout
+            </button>
           </>
         ) : (
-          <Link to="/login" className="login-link">Se connecter</Link>
+          <Link to="/login" className="btn-login">
+            Login
+          </Link>
         )}
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;

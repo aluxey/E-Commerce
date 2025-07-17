@@ -1,6 +1,6 @@
 # Endpoints de l'API
 
-Cette page liste les routes disponibles de l'API Express.
+Cette page liste les routes disponibles de l'API Express et leur statut d'intégration avec Supabase.
 
 ## Catégories
 
@@ -12,15 +12,29 @@ Cette page liste les routes disponibles de l'API Express.
 | PUT | /categories/:id | Modifier une catégorie |
 | DELETE | /categories/:id | Supprimer une catégorie |
 
-## Produits
+## Produits (items)
 
 | Méthode | Route | Description |
 |---------|-------|-------------|
 | GET | /items | Liste des produits |
 | GET | /items/:id | Détail d'un produit |
-| POST | /items | Créer un produit |
-| PUT | /items/:id | Modifier un produit |
-| DELETE | /items/:id | Supprimer un produit |
+| POST | /items | Créer un produit (admin seulement) |
+| PUT | /items/:id | Modifier un produit (admin seulement) |
+| DELETE | /items/:id | Supprimer un produit (admin seulement) |
+
+**✅ Ajouts récents :**
+- Intégration du stockage d'image via Supabase Storage.
+- Les URLs des images sont stockées dans `image_url`.
+- Prise en charge des variantes via `/items/:id/variants`.
+
+## Variantes de produits
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | /items/:id/variants | Liste des variantes d’un produit |
+| POST | /items/:id/variants | Ajouter une variante (admin seulement) |
+| PUT | /variants/:variantId | Modifier une variante |
+| DELETE | /variants/:variantId | Supprimer une variante |
 
 ## Commandes
 
@@ -33,10 +47,20 @@ Cette page liste les routes disponibles de l'API Express.
 | PUT | /orders/:id/status | Modifier le statut d'une commande |
 | DELETE | /orders/:id | Supprimer une commande |
 
+**✅ Ajout :** Champ `customization` supporté (champ JSON libre).
+
 ## Utilisateurs
 
 | Méthode | Route | Description |
 |---------|-------|-------------|
-| POST | /users/register | Inscription |
-| POST | /users/login | Connexion |
-| GET | /users/:id | Profil utilisateur |
+| POST | /users/register | Inscription via Supabase Auth |
+| POST | /users/login | Connexion via Supabase Auth |
+| GET | /users/:id | Profil utilisateur (requiert token) |
+
+**✅ Ajout :** Gestion des rôles (`client`, `admin`) intégrée via Supabase RLS.
+
+## Sécurité et Accès
+
+- Ajout d’un système de rôles via Supabase (`auth.users` + table `profiles` ou `users` personnalisée).
+- Middleware `PrivateRoute` sur le front selon rôle.
+- JWT automatiquement généré par Supabase et stocké en local.

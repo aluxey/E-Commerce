@@ -1,50 +1,34 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Shop from "./pages/Shop";
-import Product from "./pages/Product";
-import Cart from "./pages/Cart";
-import Navbar from "./components/Navbar";
-import ToastNotif from "./components/ToastNotif";
+// App.jsx — corrigé
+import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import PrivateRoute from "./components/PrivateRoute";
+import ClientDashboard from './pages/ClientDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import ProductAdmin from './components/ProductAdmin';
+import PrivateRoute from './components/PrivateRoute';
+import Navbar from "./components/Navbar";
+import AuthForm from './pages/AuthForm';
 import Login from "./pages/Login";
-import Register from "./pages/Register";
-import { ProductProvider } from "./context/ProductContext";
-import Admin from "./pages/AdminDashboard";
+import ItemList from './pages/ProductList';
+import ItemDetail from './pages/ProductDetail';
 
 function App() {
   return (
-      <AuthProvider>
-        <ProductProvider>
-        <BrowserRouter>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route
-              path="/product/:id"
-              element={
-                <PrivateRoute>
-                  <Product />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/cart"
-              element={
-                <PrivateRoute>
-                  <Cart />
-                </PrivateRoute>
-              }
-            />
-          </Routes>
-          <ToastNotif />
-        </BrowserRouter>
-        </ProductProvider>
-      </AuthProvider>
+    <AuthProvider>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<AuthForm />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/client" element={<ClientDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/items" element={<ItemList />} />
+        <Route path="/item/:id" element={<ItemDetail />} /> {/* ← ici */}
+        <Route path="/admin" element={
+          <PrivateRoute role="admin">
+            <ProductAdmin />
+          </PrivateRoute>
+        } />
+      </Routes>
+    </AuthProvider>
   );
 }
 

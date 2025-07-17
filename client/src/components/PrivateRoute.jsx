@@ -1,11 +1,10 @@
-import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Navigate } from "react-router-dom";
 
-const PrivateRoute = ({ children }) => {
-  const { user } = useAuth(); // on récupère l’utilisateur via le hook
+export default function PrivateRoute({ children, role }) {
+  const { userData } = useAuth();
 
-  // si pas de user on redirige vers /login, sinon on rend les enfants
-  return user ? children : <Navigate to="/login" replace />;
-};
-
-export default PrivateRoute;
+  if (!userData) return <Navigate to="/" />;
+  if (role && userData.role !== role) return <Navigate to="/" />;
+  return children;
+}
