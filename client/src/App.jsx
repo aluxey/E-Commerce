@@ -3,13 +3,13 @@ import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ClientDashboard from './pages/ClientDashboard';
 import AdminDashboard from './pages/AdminDashboard';
-import ProductAdmin from './components/ProductAdmin';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from "./components/Navbar";
 import AuthForm from './pages/AuthForm';
 import Login from "./pages/Login";
 import ItemList from './pages/ProductList';
 import ItemDetail from './pages/ProductDetail';
+import ProductAdmin from './components/Admin/ProductManager';
 
 function App() {
   return (

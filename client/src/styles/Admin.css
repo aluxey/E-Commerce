@@ -1,106 +1,193 @@
-.admin-dashboard {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: #f4f6fb;
-  min-height: 100vh;
+/* Global layout */
+body {
   font-family: 'Segoe UI', sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+  margin: 0;
+  padding: 2rem;
 }
 
-.admin-header h1 {
-  font-size: 2.2rem;
-  color: #222;
+h2, h3, h4 {
+  color: #343a40;
   margin-bottom: 1rem;
 }
 
-.admin-section {
-  margin-top: 2rem;
+.admin-container{
+  padding: 1rem;
+}
+
+section {
+  margin-bottom: 2rem;
   background: #ffffff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.admin-section h2 {
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  color: #333;
-}
-
-
-/* Form styling */
-.product-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  background-color: #f5f7fa; /* couleur claire mais pas blanche */
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  margin: 0 auto 2rem;
-  max-width: 640px;
-  width: 100%;
-}
-
-.product-form h2.form-title {
-  margin-top: 0;
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #444;
-}
-
-
-.product-form input,
-.product-form textarea,
-.product-form select {
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
+  padding: 1rem;
   border-radius: 6px;
-  background-color: white;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.product-form input:focus,
-.product-form textarea:focus,
-.product-form select:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-  outline: none;
-}
-
-.product-form button {
-  align-self: start;
-  padding: 0.75rem 1.5rem;
+button {
   background-color: #007bff;
   color: white;
-  font-weight: 600;
   border: none;
-  border-radius: 6px;
+  padding: 6px 12px;
+  margin: 2px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.product-form button:hover {
+button:hover {
   background-color: #0056b3;
 }
 
-.product-form .message {
-  font-size: 0.9rem;
-  margin-top: -0.5rem;
-  line-height: 1.2;
+input, select, textarea {
+  padding: 8px;
+  margin: 6px 0;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
 }
-.product-form .message.error {
-  color: #dc3545;
+
+/* Grid container for dashboard cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
 }
-.product-form .message.success {
-  color: #28a745;
+
+.stat-card {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.stat-card.alert {
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+table th, table td {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  text-align: left;
+}
+
+table th {
+  background-color: #f1f1f1;
+}
+
+/* Forms */
+form {
+  background: #ffffff;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* User role badge */
+.role-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+}
+
+.role-badge.user {
+  background-color: #4caf50;
+}
+.role-badge.admin {
+  background-color: #f44336;
+}
+.role-badge.moderator {
+  background-color: #ff9800;
+}
+
+/* Category tree */
+.category-item {
+  margin-bottom: 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid #ced4da;
+}
+
+.main-category {
+  border-left-color: #007bff;
+}
+
+.category-description {
+  font-style: italic;
+  color: #6c757d;
+}
+
+.category-actions button {
+  margin-right: 0.5rem;
+}
+
+/* Variant table */
+.variants-list table th,
+.variants-list table td {
+  text-align: center;
+}
+
+/* Order Details */
+.order-details {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.order-total {
+  font-weight: bold;
+  text-align: right;
+  margin-top: 1rem;
+}
+
+.status-update select {
+  margin-top: 0.5rem;
 }
 
 /* Responsive */
-@media (max-width: 600px) {
-  .product-form {
-    padding: 1.25rem;
-    border-radius: 6px;
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .order-item {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

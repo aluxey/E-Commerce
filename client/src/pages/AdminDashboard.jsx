@@ -12,7 +12,10 @@ const AdminPage = () => {
     <PrivateRoute requiredRole="admin">
       <main className="admin-container">
         <h1>Panel Admin - Contrôle total</h1>
-        <DashboardStats />
+        <section>
+          <DashboardStats />
+        </section>
+
         <section>
           <h2>Produits</h2>
           <ProductManager />
