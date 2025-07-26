@@ -27,8 +27,8 @@ export default function UserManager() {
           *,
           orders (
             id,
-            total_amount,
-            status,
+            role,
+            username,
             created_at
           )
         `
