@@ -3,6 +3,11 @@
 :root {
   --font-main: 'Lexend', sans-serif;
   --font-size-base: 16px;
+  --color-primary: #8f8fef;
+  --color-secondary: #7474db;
+  --color-bg: #f8f9fa;
+  --color-text: #333;
+  --radius: 6px;
 }
 
 * {
@@ -14,15 +19,29 @@
 }
 
 body {
-  background-color: #f5f5f5;
-  color: #333;
-}
-
-
-body {
-  background-color: #f8f9fa;
+  background: linear-gradient(var(--color-bg), #ececec);
+  color: var(--color-text);
 }
 
 h1 {
-  color: #333;
+  color: var(--color-text);
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.fade-in {
+  animation: fade-in 0.6s ease-in-out both;
+}
+
+.slide-up {
+  animation: slide-up 0.6s ease-in-out both;
 }
