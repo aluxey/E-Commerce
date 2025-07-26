@@ -1,7 +1,7 @@
 .home {
-  font-family: 'Segoe UI', sans-serif;
-  color: #333;
-  background-color: #f9f9f6;
+  font-family: var(--font-main);
+  color: var(--color-text);
+  background-color: var(--color-bg);
 }
 
 /* Hero Section */
@@ -23,6 +23,7 @@
 .hero-text {
   position: relative;
   z-index: 1;
+  animation: fade-in 0.8s ease-in-out both;
 }
 
 .hero h1 {
@@ -36,7 +37,7 @@
   padding: 0.8rem 1.5rem;
   font-weight: bold;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius);
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -56,6 +57,8 @@
 
 .feature span {
   font-size: 2rem;
+  display: inline-block;
+  transition: transform 0.3s;
 }
 
 .feature h3 {
@@ -68,6 +71,10 @@
   font-size: 0.95rem;
   margin-top: 0.5rem;
   max-width: 250px;
+}
+
+.feature:hover span {
+  transform: scale(1.2);
 }
 
 /* Product Section */
@@ -90,6 +97,7 @@
   overflow: hidden;
   padding: 1rem;
   transition: transform 0.3s ease;
+  animation: slide-up 0.6s ease forwards;
 }
 
 .product-card:hover {
@@ -113,16 +121,17 @@
 }
 
 .product-btn {
-  background-color: #7474db;
+  background-color: var(--color-secondary);
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: var(--radius);
   cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s;
 }
 
 .product-btn:hover {
   background-color: #5c5ccf;
+  transform: translateY(-2px);
 }

@@ -3,8 +3,9 @@
   margin: 5rem auto;
   padding: 2rem;
   background: #f9fafb;
-  border-radius: 8px;
+  border-radius: var(--radius);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  animation: fade-in 0.6s ease-in-out both;
 }
 
 .login-form {
@@ -28,16 +29,17 @@
 
 .login-form button {
   padding: 0.5rem;
-  background-color: #3b82f6;
+  background-color: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .login-form button:hover {
-  background-color: #2563eb;
+  background-color: #6c6cf2;
 }
 
 .error-msg {
