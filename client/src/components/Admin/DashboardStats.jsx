@@ -14,7 +14,7 @@ export default function DashboardStats() {
     try {
       // Total des produits
       const { count: productsCount } = await supabase
-        .from('item')
+        .from('items')
         .select('*', { count: 'exact', head: true });
 
       // Total des commandes
