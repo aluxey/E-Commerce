@@ -4,13 +4,12 @@ import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import ClientDashboard from './pages/ClientDashboard';
 import AdminDashboard from './pages/AdminDashboard';
-import PrivateRoute from './components/PrivateRoute';
 import Navbar from "./components/Navbar";
 import AuthForm from './pages/AuthForm';
 import Login from "./pages/Login";
 import ItemList from './pages/ProductList';
 import ItemDetail from './pages/ProductDetail';
-import ProductAdmin from './components/Admin/ProductManager';
+import Cart from './pages/Cart';
 
 function App() {
   return (
@@ -23,12 +22,8 @@ function App() {
           <Route path="/client" element={<ClientDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/items" element={<ItemList />} />
-          <Route path="/item/:id" element={<ItemDetail />} /> {/* ← ici */}
-          <Route path="/admin" element={
-            <PrivateRoute role="admin">
-              <ProductAdmin />
-            </PrivateRoute>
-          } />
+          <Route path="/item/:id" element={<ItemDetail />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
       </CartProvider>
     </AuthProvider>

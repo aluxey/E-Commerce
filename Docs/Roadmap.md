@@ -7,9 +7,9 @@ Ce fichier contient les étapes de développement du projet, organisées par pri
 ## 1️⃣ Finalisation du parcours client
 
 ### 🛒 Panier (`Cart`)
-- [ ] Ajouter / retirer / modifier la quantité d’un item
-- [ ] Persistance via `localStorage` ou `React context`
-- [ ] Affichage dynamique dans la page `/cart`
+- [x] Ajouter / retirer / modifier la quantité d’un item
+- [x] Persistance via `localStorage` ou `React context`
+- [x] Affichage dynamique dans la page `/cart`
 
 ### 🎨 Déclinaisons produit
 - [ ] Affichage des variantes (taille, couleur, etc.)
@@ -85,4 +85,4 @@ Ce fichier contient les étapes de développement du projet, organisées par pri
 
 ---
 
-📅 Dernière mise à jour : `{{ À compléter manuellement }}`
+📅 Dernière mise à jour : `2025-07-29`

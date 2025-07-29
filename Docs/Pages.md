@@ -15,7 +15,7 @@
 ### Panier
 Liste des produits sélectionnés
 Modifier quantité, supprimer un item
-Total, frais de livraison estimés
+Total dynamique calculé
 
 ### Passer commande (Checkout)
 - Formulaire d’adresse, livraison, paiement
