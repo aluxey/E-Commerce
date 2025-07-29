@@ -22,6 +22,20 @@ body {
   padding: 3rem;
 }
 
+.filters {
+  display: flex;
+  gap: 1rem;
+  padding: 0 3rem;
+  margin-top: 1rem;
+}
+
+.filters input,
+.filters select {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+}
+
 /* === Card Styles === */
 .card {
   background-color: var(--card-bg);
@@ -32,6 +46,11 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
 }
 
 .card:hover {
@@ -62,6 +81,8 @@ body {
 
 .btn {
   margin-top: 1rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
   display: inline-block;
   text-align: center;
   background-color: var(--accent);
@@ -70,6 +91,8 @@ body {
   border-radius: 8px;
   text-decoration: none;
   transition: background-color 0.2s ease;
+  border: none;
+  cursor: pointer;
 }
 
 .btn:hover {
