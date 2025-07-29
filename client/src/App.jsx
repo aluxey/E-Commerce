@@ -1,6 +1,7 @@
 // App.jsx — corrigé
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
 import ClientDashboard from './pages/ClientDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import PrivateRoute from './components/PrivateRoute';
@@ -14,20 +15,22 @@ import ProductAdmin from './components/Admin/ProductManager';
 function App() {
   return (
     <AuthProvider>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<AuthForm />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/client" element={<ClientDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/items" element={<ItemList />} />
-        <Route path="/item/:id" element={<ItemDetail />} /> {/* ← ici */}
-        <Route path="/admin" element={
-          <PrivateRoute role="admin">
-            <ProductAdmin />
-          </PrivateRoute>
-        } />
-      </Routes>
+      <CartProvider>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<AuthForm />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/client" element={<ClientDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/items" element={<ItemList />} />
+          <Route path="/item/:id" element={<ItemDetail />} /> {/* ← ici */}
+          <Route path="/admin" element={
+            <PrivateRoute role="admin">
+              <ProductAdmin />
+            </PrivateRoute>
+          } />
+        </Routes>
+      </CartProvider>
     </AuthProvider>
   );
 }

@@ -1,11 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useCart } from "../context/CartContext";
 import { supabase } from "../supabase/supabaseClient";
 import "../styles/Item.css";
 
 export default function ItemDetail() {
   const { id } = useParams();
   const [item, setItem] = useState(null);
+  const { addItem } = useCart();
 
   useEffect(() => {
     const fetchItemWithImages = async () => {
@@ -42,6 +44,9 @@ export default function ItemDetail() {
       <h1>{item.name}</h1>
       <p>{item.description}</p>
       <p><strong>{item.price} €</strong></p>
+      <button className="btn" onClick={() => addItem(item)}>
+        Ajouter au panier
+      </button>
 
       {/* galerie d’images supplémentaires */}
       <div className="image-gallery">

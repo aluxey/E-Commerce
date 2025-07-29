@@ -1,0 +1,22 @@
+.toast-notif {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: #333;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  opacity: 0.95;
+  z-index: 1000;
+  animation: fadein 0.3s ease, fadeout 0.3s 2.7s ease forwards;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 0.95; }
+}
+
+@keyframes fadeout {
+  from { opacity: 0.95; }
+  to { opacity: 0; }
+}
