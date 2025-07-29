@@ -7,6 +7,7 @@ Projet vitrine d'une boutique en ligne utilisant **React** pour l'interface et *
 - [Schéma de la base de données](./Docs/BDD.md)
 - [Endpoints de l'API](./Docs/API.md)
 - [Architecture générale](./Docs/Architecture.md)
+- [Tests & CI](./Docs/Tests.md)
 
 ## Arborescence du projet
 
