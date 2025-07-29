@@ -1,11 +1,16 @@
+/* ==== Navbar générale ==== */
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px 10%;
+  background-color: var(--color-bg-alt);
 }
 
-.navbar div * {
+/* Cible uniquement les links, spans (user) et boutons (login/logout) */
+.navbar a,
+.navbar span,
+.navbar button {
   position: relative;
   overflow: hidden;
   color: #000;
@@ -14,39 +19,78 @@
   font-size: 20px;
   transition: color 0.2s ease-in-out;
   margin-right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-/* 2. Créez la pseudo‑barre qui sera agrandie */
-.navbar div *::after {
+/* ==== Underline animé pour links et span ==== */
+.navbar a::after {
   content: "";
   position: absolute;
   bottom: 0;
   left: 50%;
   width: 100%;
-  height: 3px;                /* épaisseur de la barre */
-  background-color: purple;
+  height: 3px;
+  background-color: #edb29f;
   transform: translateX(-50%) scaleX(0);
-  transform-origin: center;   /* on part du centre */
+  transform-origin: center;
   transition: transform 0.3s ease;
   opacity: 0.9;
 }
 
-
-
-.navbar div a:hover::after,
-.navbar div a:focus::after {
+.navbar a:hover::after,
+.navbar a:focus::after,
+.navbar span:hover::after,
+.navbar span:focus::after {
   transform: translateX(-50%) scaleX(1);
 }
 
-.navbar div span {
-  background-color: rgb(47, 47, 219);
-  color: white;
-  border-radius: 10px;
+/* Change de couleur au hover des links et spans */
+.navbar a:hover,
+.navbar a:focus {
+  color: black;
 }
 
-.navbar button {
-  background-color: rgb(236, 49, 49);
-  color: white;
+/* ==== Style spécifique pour l’utilisateur connecté ==== */
+.navbar span.navbar-user {
+  background-color: #2f2fdb;
+  color: #fff;
   border-radius: 10px;
-  border: none;
+  padding: 8px 12px;      /* ajustement intérieur */
+}
+
+/* ==== Style des boutons Login/Logout ==== */
+.navbar button.btn-logout,
+.navbar a.btn-login {
+  background-color: #ec3131;
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.navbar button.btn-logout:hover,
+.navbar a.btn-login:hover {
+  background-color: #c22828;
+  transform: translateY(-1px);
+}
+
+.navbar button.btn-logout:active,
+.navbar a.btn-login:active {
+  transform: translateY(0);
+}
+
+/* ==== Responsive Navbar ==== */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 10px;
+  }
+  .navbar a,
+  .navbar span,
+  .navbar button {
+    font-size: 18px;
+    margin: 6px 0;
+  }
 }

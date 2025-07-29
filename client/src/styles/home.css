@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 20vh;
+  padding-top: 10vh;
 }
 
 .header {
@@ -55,6 +55,61 @@
 .header button:hover {
   background-color: #0056b3;
 }
+/* Conteneur carousel */
+.carousel {
+  position: relative;
+  width: 90%;
+  max-width: 900px;
+  margin-bottom: var(--spacing-lg);
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+/* Affiche deux images côte à côte */
+.carousel.double .carousel-slide {
+  display: flex;
+  width: 100%;
+}
+
+.carousel-slide img {
+  flex: 1 0 50%;
+  width: 50%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+/* Boutons de navigation */
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.3s;
+  z-index: 2;
+}
+.carousel-btn:hover {
+  background: rgba(0,0,0,0.7);
+}
+.carousel-btn.prev {
+  left: 1rem;
+}
+.carousel-btn.next {
+  right: 1rem;
+}
+
+
 
 
 /* ==== Responsive Home Page ==== */
