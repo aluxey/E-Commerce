@@ -1,10 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
 
+:root {
+  --primary-color: #e5ddc7;
+  --secondary-color: #b56730;
+  --thirdary-color: #edb29f;
+  --fourth-color: #7f9fa0;
+}
+
 body {
   font-family: 'JetBrains Mono', monospace;
   margin: 0;
   padding: 0;
-  background-color: #f9fafc;
+  background-color: #e5ddc7;
 }
-
-

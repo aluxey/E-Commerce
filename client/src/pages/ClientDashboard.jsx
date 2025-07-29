@@ -25,16 +25,14 @@ const mockProducts = [
 
 export default function ClientDashboard() {
   return (
-    <div className="home">
-      <section className="hero">
-        <div className="hero-text">
-          <h1>Bienvenue sur notre site e-commerce !</h1>
-          <p>Découvrez notre collection unique de créations artisanales.</p>
-          <button className="cta-btn">Voir nos produits</button>
-        </div>
-      </section>
+    <div className="container">
+      <div className="header">
+        <h1>Welcome sur la boutique brodée pour toi!</h1>
+        <h4>Découvrez notre collection unique de créations artisanales.</h4>
+        <button className="cta-btn">Voir nos produits</button>
+      </div>
 
-      <section className="features">
+      {/* <section className="features">
         <div className="feature">
           <span>🧵</span>
           <h3>Fait main</h3>
@@ -55,7 +53,7 @@ export default function ClientDashboard() {
       <section className="highlighted-products">
         <h2>Produits en vedette</h2>
         <div className="product-grid">
-          {mockProducts.map((product) => (
+          {mockProducts.map(product => (
             <div key={product.id} className="product-card">
               <img src={product.image} alt={product.name} />
               <h4>{product.name}</h4>
@@ -64,7 +62,7 @@ export default function ClientDashboard() {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }

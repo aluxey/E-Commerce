@@ -1,0 +1,98 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20vh;
+}
+
+.header {
+  font-size: 2em;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* ==== Fade‑in uniquement sur le H1 ==== */
+.header h1 {
+  /* Dégradé de texte existant */
+  background: linear-gradient(90deg, #b56730, #edb29f, #7f9fa0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+
+  display: inline-block;
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out forwards;
+}
+
+/* Keyframes : fondu + léger décalage vertical */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header h4 {
+  color: #666;
+}
+
+.header button {
+  padding: 10px 20px;
+  font-size: 1em;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.header button:hover {
+  background-color: #0056b3;
+}
+
+
+/* ==== Responsive Home Page ==== */
+@media (max-width: 1024px) {
+  .container {
+    padding-top: 15vh;
+  }
+  .header {
+    font-size: 1.8em;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+  }
+  .header h4 {
+    font-size: clamp(0.9rem, 3vw, 1.125rem);
+    margin-bottom: 1.5rem;
+  }
+  .header button {
+    padding: 10px 24px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding-top: 10vh;
+  }
+  .header {
+    font-size: 1.5em;
+    margin-bottom: 12px;
+  }
+  .header h1 {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+  }
+  .header h4 {
+    font-size: clamp(0.85rem, 4vw, 1rem);
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+  }
+}
