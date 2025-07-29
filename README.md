@@ -72,9 +72,15 @@ E-Commerce/
 
 4. Lancer le serveur de développement :
 
-   ```bash
-   npm run dev
-   ```
+  ```bash
+  npm run dev
+  ```
+
+## Fonctionnalités clés
+
+- Authentification et rôles gérés via Supabase
+- Panier persistant grâce au `localStorage`
+- Nouvelle page `/cart` pour modifier les quantités et visualiser le total
 
 
 
