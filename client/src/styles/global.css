@@ -1,0 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  margin: 0;
+  padding: 0;
+  background-color: #f9fafc;
+}
+
+

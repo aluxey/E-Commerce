@@ -14,21 +14,27 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <div className="navbar-left">
-        <Link to="/client" className="navbar-link navbar-brand">Accueil</Link>
-        <Link to="/items" className="navbar-link">Boutique</Link>
-        <Link to="/cart" className="navbar-link">Panier</Link>
-        {userData?.user_metadata?.role === "admin" && (
-          <Link to="/admin" className="navbar-link">Admin</Link>
-        )}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <Link to="/client" className="navbar-link navbar-brand">
+          {' '}
+          Sabbels Handmade{' '}
+        </Link>
       </div>
-
-      <div className="navbar-right">
+      <div>
+        <Link to="/items" className="navbar-link">
+          Boutique
+        </Link>
+        <Link to="/cart" className="navbar-link">
+          Panier
+        </Link>
+        {userData?.user_metadata?.role === 'admin' && (
+          <Link to="/admin" className="navbar-link">
+            Admin
+          </Link>
+        )}
         {session ? (
           <>
-            <span className="navbar-user">
-              {userData?.email || "Connecté"}
-            </span>
+            <span className="navbar-user">{userData?.email || 'Connecté'}</span>
             <button onClick={handleLogout} className="btn-logout">
               Logout
             </button>

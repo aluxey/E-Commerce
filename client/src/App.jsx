@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import ItemList from './pages/ProductList';
 import ItemDetail from './pages/ProductDetail';
 import ProductAdmin from './components/Admin/ProductManager';
+import './styles/global.css';
 
 function App() {
   return (
