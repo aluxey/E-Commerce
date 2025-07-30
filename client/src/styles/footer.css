@@ -1,0 +1,107 @@
+/* Fade-up à l’apparition */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.site-footer {
+  color: #333;
+  animation: fadeUp 0.8s ease-out both;
+  padding: 20px 10%;
+  padding-top: 20vh;
+}
+
+/* Top area : 5 colonnes en grid */
+.footer-top {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* Titres de section */
+.footer-section h4,
+.footer-newsletter h4 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+/* Listes */
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.footer-section li {
+  margin-bottom: 6px;
+}
+.footer-section a {
+  text-decoration: none;
+  color: #333;
+  transition: color 0.3s, transform 0.2s;
+}
+.footer-section a:hover {
+  color: #ff5722;
+  transform: translateY(-2px);
+}
+
+/* Newsletter */
+.footer-newsletter form {
+  display: flex;
+  gap: 8px;
+}
+.footer-newsletter input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #999;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.footer-newsletter input:focus {
+  border-color: #333;
+}
+.footer-newsletter button {
+  padding: 6px 12px;
+  background: #333;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+.footer-newsletter button:hover {
+  background: #555;
+  transform: translateY(-2px);
+}
+
+/* Icônes sociales */
+.footer-social {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.footer-social .social-icon {
+  display: inline-block;
+  margin: 0 10px;
+  transition: transform 0.3s, filter 0.3s;
+  filter: grayscale(60%);
+}
+.footer-social .social-icon:hover {
+  filter: grayscale(0%);
+  transform: scale(1.2) rotate(5deg);
+}
+
+/* Bas de page */
+.footer-bottom {
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  line-height: 1.4;
+}
+.footer-bottom a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.footer-bottom a:hover {
+  color: #ff5722;
+}

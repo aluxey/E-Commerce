@@ -52,62 +52,107 @@
   cursor: pointer;
 }
 
+.header button a {
+  text-decoration: none;
+  color: #fff;
+}
+
 .header button:hover {
   background-color: #0056b3;
 }
 /* Conteneur carousel */
+/* Conteneur principal */
 .carousel {
   position: relative;
-  width: 90%;
-  max-width: 900px;
-  margin-bottom: var(--spacing-lg);
-  overflow: hidden;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-}
-
-/* Affiche deux images côte à côte */
-.carousel.double .carousel-slide {
-  display: flex;
   width: 100%;
+  max-width: 900px;
+  margin: 0 auto 24px;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
+/* Slide wrapper */
+.carousel-slide {
+  display: flex;
+  transition: transform 0.6s ease-in-out;
+}
+
+/* Images : chacune fait 50% du conteneur */
 .carousel-slide img {
-  flex: 1 0 50%;
+  flex: 0 0 50%;
   width: 50%;
-  height: auto;
+  height: 400px;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.6s ease, filter 0.6s ease;
+  filter: brightness(0.7);
+  cursor: pointer;
 }
 
-/* Boutons de navigation */
+/* Zoom et focus sur les images actives */
+.carousel-slide img.active {
+  transform: scale(1.05);
+  filter: brightness(1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+/* Effet « recul » sur les inactives */
+.carousel-slide img.inactive {
+  transform: scale(0.95);
+  filter: brightness(0.6) blur(1px);
+}
+
+/* Boutons flèches */
 .carousel-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0,0,0,0.5);
+  width: 48px;
+  height: 48px;
+  background: rgba(0, 0, 0, 0.5);
   border: none;
+  border-radius: 50%;
+  font-size: 1.6rem;
   color: #fff;
-  font-size: 2rem;
-  width: 2.5rem;
-  height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border-radius: 50%;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.3s;
   z-index: 2;
 }
 .carousel-btn:hover {
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
 }
-.carousel-btn.prev {
-  left: 1rem;
+.carousel-btn.prev { left: 16px; }
+.carousel-btn.next { right: 16px; }
+
+/* Pagination (dots) */
+.carousel-dots {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 2;
 }
-.carousel-btn.next {
-  right: 1rem;
+.carousel-dots .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
 }
+.carousel-dots .dot--active {
+  background: #ff5722;
+  transform: scale(1.3);
+}
+
 
 
 

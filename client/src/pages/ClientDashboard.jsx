@@ -1,6 +1,7 @@
 import React from 'react';
 import '../styles/home.css';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 // Import des images pour le carousel
 import deskOrganizer from '../assets/products/desk_organizer.jpg';
@@ -12,7 +13,7 @@ const carouselImages = [deskOrganizer, greyBasket, purpleBlackBox];
 export default function ClientDashboard() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Passage automatique toutes les 4 secondes
+  // Auto-slide toutes les 4 sec
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex(prev => (prev + 2) % carouselImages.length);
@@ -23,11 +24,17 @@ export default function ClientDashboard() {
   const prevSlide = () => {
     setCurrentIndex(prev => (prev - 2 + carouselImages.length) % carouselImages.length);
   };
+
   const nextSlide = () => {
     setCurrentIndex(prev => (prev + 2) % carouselImages.length);
   };
 
-  // Sélectionne les deux images à afficher
+  const goToSlide = idx => {
+    // Affiche idx et idx+1
+    setCurrentIndex(idx);
+  };
+
+  // Les deux images à afficher
   const slideImages = [
     carouselImages[currentIndex],
     carouselImages[(currentIndex + 1) % carouselImages.length],
@@ -38,7 +45,13 @@ export default function ClientDashboard() {
       <div className="header">
         <h1>Welcome sur la boutique brodée pour toi!</h1>
         <h4>Découvrez notre collection unique de créations artisanales.</h4>
-        <button className="cta-btn">Voir nos produits</button>
+        <h4>Toutes ces créations sont artisanales.</h4>
+        <h4>Trouver maintenant la pièce qu'il vous manque.</h4>
+        <button className="cta-btn">
+          <Link to="/items" className="navbar-link">
+            Voir nos produits
+          </Link>
+        </button>
       </div>
 
       {/* Carousel double */}
@@ -47,13 +60,35 @@ export default function ClientDashboard() {
           ‹
         </button>
         <div className="carousel-slide">
-          {slideImages.map((src, idx) => (
-            <img key={idx} src={src} alt={`Slide ${currentIndex + idx + 1}`} />
-          ))}
+          {slideImages.map((src, idx) => {
+            // idx ici vaut 0 ou 1, mais on veut comparer avec currentIndex réel
+            const globalIdx = (currentIndex + idx) % carouselImages.length;
+            const isActive =
+              globalIdx === currentIndex ||
+              globalIdx === (currentIndex + 1) % carouselImages.length;
+            return (
+              <img
+                key={globalIdx}
+                src={src}
+                alt={`Slide ${globalIdx + 1}`}
+                className={isActive ? 'active' : 'inactive'}
+              />
+            );
+          })}
         </div>
         <button className="carousel-btn next" onClick={nextSlide} aria-label="Suivant">
           ›
         </button>
+        <div className="carousel-dots">
+          {carouselImages.map((_, idx) => (
+            <button
+              key={idx}
+              className={`dot${idx === currentIndex ? ' dot--active' : ''}`}
+              onClick={() => goToSlide(idx)}
+              aria-label={`Aller au slide ${idx + 1}`}
+            />
+          ))}
+        </div>
       </div>
 
       {/* <section className="features">

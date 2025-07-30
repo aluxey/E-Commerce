@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import ItemList from './pages/ProductList';
 import ItemDetail from './pages/ProductDetail';
 import ProductAdmin from './components/Admin/ProductManager';
+import Footer from './components/Footer';
 import './styles/global.css';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
           </PrivateRoute>
         } />
       </Routes>
+      <Footer />
     </AuthProvider>
   );
 }
