@@ -1,0 +1,218 @@
+/* login-auth.css */
+
+/* ==== Palette sobre & variables ==== */
+:root {
+  --bg: #e5ddc7; /* beige clair */
+  --card-bg: #ffffff; /* blanc cassé pour contraste doux */
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 24px 60px -10px rgba(45, 45, 45, 0.07);
+  --accent: #8d5a35; /* terracotta doux */
+  --accent-hover: #a37350;
+  --text: #2d2d2d; /* gris foncé pour lisibilité */
+  --muted: #6f6f6f;
+  --error: #d9534f;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --input-height: 46px;
+  --focus-ring: 3px;
+  --font-stack: "SF Mono", Menlo, Consolas, "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* ==== Page background ==== */
+body {
+  background: var(--bg);
+  font-family: var(--font-stack);
+  color: var(--text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ==== Container common ==== */
+.login-container,
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* ==== Card (Login + Auth) ==== */
+.login-form,
+.auth-form {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 2.2rem 1.8rem 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+/* léger mouvement au hover pour "polish" sur desktop */
+@media (hover: hover) {
+  .login-form:hover,
+  .auth-form:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 32px 80px -15px rgba(45, 45, 45, 0.08);
+  }
+}
+
+/* Heading */
+.login-form h2,
+.auth-form h2 {
+  margin: 0 0 1rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Labels */
+.login-form label,
+.auth-form label {
+  display: block;
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Inputs */
+.login-form input,
+.auth-form input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #f7f3ee;
+  border: 1px solid rgba(45, 45, 45, 0.15);
+  padding: 0 1rem;
+  height: var(--input-height);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  color: var(--text);
+  outline: none;
+  transition: border var(--transition), box-shadow var(--transition), background var(--transition);
+  margin-bottom: 4px;
+  -webkit-appearance: none;
+}
+
+.login-form input::placeholder,
+.auth-form input::placeholder {
+  color: rgba(45, 45, 45, 0.5);
+}
+
+.login-form input:focus,
+.auth-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 var(--focus-ring) rgba(141, 90, 53, 0.3);
+  background: #fff;
+}
+
+.login-form input[aria-invalid="true"],
+.auth-form input[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+/* Error / validation feedback */
+.error-msg,
+.auth-form .error,
+.field-error {
+  background: rgba(217, 83, 79, 0.1);
+  border: 1px solid rgba(217, 83, 79, 0.6);
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  color: var(--error);
+  font-size: 0.8rem;
+  margin: 0.5rem 0 1rem;
+  position: relative;
+  animation: subtle-shake 0.35s ease;
+}
+
+/* Button */
+.login-form button,
+.auth-form button {
+  width: 100%;
+  padding: 0;
+  height: 48px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  letter-spacing: 0.5px;
+  transition: background var(--transition), transform 0.2s ease;
+  margin-top: 0.75rem;
+}
+
+.login-form button:hover:not(:disabled),
+.auth-form button:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.login-form button:active:not(:disabled),
+.auth-form button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.login-form button:disabled,
+.auth-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(141, 90, 53, 0.6);
+}
+
+/* Spinner */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+/* Muted helper text */
+.muted {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .login-form,
+  .auth-form {
+    padding: 1.8rem 1.5rem 1.5rem;
+  }
+}
+
+/* Animations */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes subtle-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+}

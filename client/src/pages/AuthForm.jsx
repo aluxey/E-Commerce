@@ -1,53 +1,168 @@
 // components/AuthForm.jsx
-import { useState } from "react";
-import { supabase } from "../supabase/supabaseClient";
-import "../styles/Authform.css"; // Assurez-vous d'avoir ce fichier CSS pour le style
+import { useState, useCallback, useMemo } from 'react';
+import { supabase } from '../supabase/supabaseClient';
+import '../styles/Authform.css';
 
-export default function AuthForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export default function AuthForm({ onSuccess }) {
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [touched, setTouched] = useState({ email: false, password: false });
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg("");
+  const isEmailValid = emailRegex.test(form.email.trim());
+  const isPasswordValid = form.password.length >= 6;
+  const canSubmit = isEmailValid && isPasswordValid && !loading;
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    console.log("Signup result:", { data, error });
+  const handleChange = useCallback(e => {
+    const { name, value } = e.target;
+    setForm(f => ({ ...f, [name]: value }));
+  }, []);
 
-    if (error) {
-      setErrorMsg(error.message);
-    } else {
-      alert("Check your email to confirm registration.");
+  const handleBlur = useCallback(e => {
+    const { name } = e.target;
+    setTouched(t => ({ ...t, [name]: true }));
+  }, []);
+
+  const getPasswordStrength = useMemo(() => {
+    const pwd = form.password;
+    if (!pwd) return { score: 0, label: 'Vide' };
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[a-z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    const labels = ['Très faible', 'Faible', 'Moyen', 'Bon', 'Fort', 'Excellent'];
+    return { score, label: labels[score] || 'Très faible' };
+  }, [form.password]);
+
+  const normalizeEmail = email => email.trim().toLowerCase();
+
+  const mapSupabaseError = error => {
+    // Tu peux étendre selon les codes que tu observes
+    if (!error) return '';
+    if (error.message?.toLowerCase().includes('already registered')) {
+      return 'Cet email est déjà utilisé.';
     }
-
-    setLoading(false);
+    if (error.message?.toLowerCase().includes('invalid email')) {
+      return "Format d'email invalide.";
+    }
+    // fallback générique
+    return "Échec de l'inscription. Réessaie plus tard.";
   };
 
+  const handleSignup = useCallback(
+    async e => {
+      e.preventDefault();
+      if (loading) return;
+      if (!canSubmit) {
+        setTouched({ email: true, password: true });
+        return;
+      }
+      setLoading(true);
+      setErrorMsg('');
+
+      const emailNormalized = normalizeEmail(form.email);
+
+      try {
+        const { error } = await supabase.auth.signUp({
+          email: emailNormalized,
+          password: form.password,
+        });
+
+        if (error) {
+          setErrorMsg(mapSupabaseError(error));
+        } else {
+          // Tu peux remplacer alert par un toast component dans ton UI
+          setErrorMsg(''); // clear
+          onSuccess?.();
+        }
+      } catch (err) {
+        console.error('Signup unexpected error:', err);
+        setErrorMsg('Une erreur inattendue est survenue.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [form, loading, canSubmit, onSuccess]
+  );
+
   return (
-    <form className="auth-form" onSubmit={handleSignup}>
+    <form className="auth-form" onSubmit={handleSignup} noValidate aria-describedby="form-error">
       <h2>Inscription</h2>
+
+      <label htmlFor="email">Adresse email</label>
       <input
+        id="email"
+        name="email"
         type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        placeholder="email@example.com"
+        value={form.email}
+        onChange={handleChange}
+        onBlur={handleBlur}
         required
+        aria-invalid={touched.email && !isEmailValid}
+        aria-describedby={touched.email && !isEmailValid ? 'email-error' : undefined}
+        autoComplete="email"
       />
+      {touched.email && !isEmailValid && (
+        <p id="email-error" className="field-error">
+          Format d'email invalide.
+        </p>
+      )}
+
+      <label htmlFor="password">Mot de passe</label>
       <input
+        id="password"
+        name="password"
         type="password"
-        placeholder="Mot de passe"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        placeholder="••••••••"
+        value={form.password}
+        onChange={handleChange}
+        onBlur={handleBlur}
         required
         minLength={6}
+        aria-invalid={touched.password && !isPasswordValid}
+        aria-describedby="password-strength"
+        autoComplete="new-password"
       />
-      <button type="submit" disabled={loading}>
-        {loading ? "Chargement..." : "S'inscrire"}
+      {touched.password && !isPasswordValid && (
+        <p id="password-error" className="field-error">
+          Le mot de passe doit contenir au moins 6 caractères.
+        </p>
+      )}
+
+      <div id="password-strength" className="password-strength" aria-live="polite">
+        <progress
+          max={5}
+          value={getPasswordStrength.score}
+          aria-valuemin={0}
+          aria-valuemax={5}
+          aria-valuenow={getPasswordStrength.score}
+        />
+        <span>{getPasswordStrength.label}</span>
+      </div>
+
+      <button type="submit" disabled={!canSubmit}>
+        {loading ? (
+          <>
+            <span className="spinner" aria-hidden="true" />
+            <span className="sr-only">Chargement...</span>
+          </>
+        ) : (
+          "S'inscrire"
+        )}
       </button>
-      {errorMsg && <p className="error">{errorMsg}</p>}
+
+      <div aria-live="polite">
+        {errorMsg && (
+          <p id="form-error" className="error">
+            {errorMsg}
+          </p>
+        )}
+      </div>
     </form>
   );
 }
