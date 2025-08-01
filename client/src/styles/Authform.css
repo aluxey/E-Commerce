@@ -15,22 +15,11 @@
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --input-height: 46px;
   --focus-ring: 3px;
-  --font-stack: "SF Mono", Menlo, Consolas, "Segoe UI", system-ui, -apple-system, sans-serif;
-}
-
-/* ==== Page background ==== */
-body {
-  background: var(--bg);
-  font-family: var(--font-stack);
-  color: var(--text);
-  margin: 0;
-  line-height: 1.4;
 }
 
 /* ==== Container common ==== */
 .login-container,
-.auth-wrapper {
-  min-height: 100vh;
+.auth-wrapper { 
   display: flex;
   align-items: center;
   justify-content: center;

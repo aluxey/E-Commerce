@@ -90,79 +90,81 @@ export default function AuthForm({ onSuccess }) {
   );
 
   return (
-    <form className="auth-form" onSubmit={handleSignup} noValidate aria-describedby="form-error">
-      <h2>Inscription</h2>
+    <div className="auth-wrapper">
+      <form className="auth-form" onSubmit={handleSignup} noValidate aria-describedby="form-error">
+        <h2>Inscription</h2>
 
-      <label htmlFor="email">Adresse email</label>
-      <input
-        id="email"
-        name="email"
-        type="email"
-        placeholder="email@example.com"
-        value={form.email}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        required
-        aria-invalid={touched.email && !isEmailValid}
-        aria-describedby={touched.email && !isEmailValid ? 'email-error' : undefined}
-        autoComplete="email"
-      />
-      {touched.email && !isEmailValid && (
-        <p id="email-error" className="field-error">
-          Format d'email invalide.
-        </p>
-      )}
-
-      <label htmlFor="password">Mot de passe</label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        placeholder="••••••••"
-        value={form.password}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        required
-        minLength={6}
-        aria-invalid={touched.password && !isPasswordValid}
-        aria-describedby="password-strength"
-        autoComplete="new-password"
-      />
-      {touched.password && !isPasswordValid && (
-        <p id="password-error" className="field-error">
-          Le mot de passe doit contenir au moins 6 caractères.
-        </p>
-      )}
-
-      <div id="password-strength" className="password-strength" aria-live="polite">
-        <progress
-          max={5}
-          value={getPasswordStrength.score}
-          aria-valuemin={0}
-          aria-valuemax={5}
-          aria-valuenow={getPasswordStrength.score}
+        <label htmlFor="email">Adresse email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="email@example.com"
+          value={form.email}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          required
+          aria-invalid={touched.email && !isEmailValid}
+          aria-describedby={touched.email && !isEmailValid ? 'email-error' : undefined}
+          autoComplete="email"
         />
-        <span>{getPasswordStrength.label}</span>
-      </div>
-
-      <button type="submit" disabled={!canSubmit}>
-        {loading ? (
-          <>
-            <span className="spinner" aria-hidden="true" />
-            <span className="sr-only">Chargement...</span>
-          </>
-        ) : (
-          "S'inscrire"
-        )}
-      </button>
-
-      <div aria-live="polite">
-        {errorMsg && (
-          <p id="form-error" className="error">
-            {errorMsg}
+        {touched.email && !isEmailValid && (
+          <p id="email-error" className="field-error">
+            Format d'email invalide.
           </p>
         )}
-      </div>
-    </form>
+
+        <label htmlFor="password">Mot de passe</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="••••••••"
+          value={form.password}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          required
+          minLength={6}
+          aria-invalid={touched.password && !isPasswordValid}
+          aria-describedby="password-strength"
+          autoComplete="new-password"
+        />
+        {touched.password && !isPasswordValid && (
+          <p id="password-error" className="field-error">
+            Le mot de passe doit contenir au moins 6 caractères.
+          </p>
+        )}
+
+        <div id="password-strength" className="password-strength" aria-live="polite">
+          <progress
+            max={5}
+            value={getPasswordStrength.score}
+            aria-valuemin={0}
+            aria-valuemax={5}
+            aria-valuenow={getPasswordStrength.score}
+          />
+          <span>{getPasswordStrength.label}</span>
+        </div>
+
+        <button type="submit" disabled={!canSubmit}>
+          {loading ? (
+            <>
+              <span className="spinner" aria-hidden="true" />
+              <span className="sr-only">Chargement...</span>
+            </>
+          ) : (
+            "S'inscrire"
+          )}
+        </button>
+
+        <div aria-live="polite">
+          {errorMsg && (
+            <p id="form-error" className="error">
+              {errorMsg}
+            </p>
+          )}
+        </div>
+      </form>
+    </div>
   );
 }

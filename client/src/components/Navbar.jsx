@@ -40,9 +40,11 @@
               </button>
             </>
           ) : (
-            <Link to="/login" className="btn-login">
-              Login
-            </Link>
+            <><Link to="/login" className="btn-login">
+                Login
+              </Link><Link to="/" className="btn-login">
+                  Sign up
+                </Link></>
           )}
         </div>
       </nav>
