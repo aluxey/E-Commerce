@@ -1,0 +1,95 @@
+.item-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: #333;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  max-width: 300px;
+}
+
+.item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.image-container {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder-img {
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e0e0e0;
+  font-style: italic;
+}
+
+.card-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #222;
+  margin: 0;
+}
+
+.item-price {
+  font-size: 1rem;
+  color: #007b55;
+  font-weight: 600;
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  flex-grow: 1;
+}
+
+.add-cart-btn {
+  background-color: #007b55;
+  color: #fff;
+  border: none;
+  border-radius: 0 0 12px 12px;
+  padding: 0.8rem;
+  width: 100%;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add-cart-btn:hover {
+  background-color: #005f40;
+}
+
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+}

@@ -11,12 +11,14 @@ import ItemList from './pages/ProductList';
 import ItemDetail from './pages/ProductDetail';
 import ProductAdmin from './components/Admin/ProductManager';
 import Footer from './components/Footer';
+import { CartProvider } from './context/CartContext'; // ✅ import du provider
 import './styles/global.css';
 
 function App() {
   return (
     <AuthProvider>
-      <Navbar />
+      <CartProvider>
+        <Navbar />
       <Routes>
         <Route path="/" element={<AuthForm />} />
         <Route path="/login" element={<Login />} />
@@ -31,6 +33,7 @@ function App() {
         } />
       </Routes>
       <Footer />
+      </CartProvider>
     </AuthProvider>
   );
 }
