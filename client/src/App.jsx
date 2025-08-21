@@ -13,13 +13,13 @@ import Login from "./pages/Login";
 import ItemList from './pages/ProductList';
 import ItemDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
-import StripeCheckout from '../Stripe/index';
+import StripeCheckout from './components/Stripe';
 import PaymentSuccess from './pages/PaymentSuccess';
 import ProductAdmin from './components/Admin/ProductManager';
 import Footer from './components/Footer';
 
 import './styles/global.css';
-import './styles/stripe.css';
+import './styles/Stripe.css';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 

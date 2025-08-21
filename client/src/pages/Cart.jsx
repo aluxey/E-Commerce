@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
+import '../styles/cart.css';
+
 const Cart = () => {
   const { cart, removeItem, decreaseItem, addItem } = useContext(CartContext);
   const { session } = useAuth();
