@@ -60,6 +60,8 @@ export default function Footer() {
         </div>
       </div>
 
+      
+
       <div className="footer-social">
         <a href="#" aria-label="Facebook" className="social-icon">
           {/* Remplace par tes SVG ou icônes */}
