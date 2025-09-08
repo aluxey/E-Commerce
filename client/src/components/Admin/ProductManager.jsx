@@ -5,7 +5,7 @@ export const TABLE_ITEMS = 'items';
 
 export default function ProductAdmin() {
   const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({ name: '', price: '', stock: '' });
+  const [form, setForm] = useState({ name: '', price: '', description: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -13,7 +13,7 @@ export default function ProductAdmin() {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase.from(TABLE_ITEMS).select('*');
+      const { data, error } = await supabase.from(TABLE_ITEMS).select('id, name, price, description');
       if (error) throw error;
       setProducts(data || []);
     } catch (err) {
@@ -32,9 +32,10 @@ export default function ProductAdmin() {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      const { error } = await supabase.from(TABLE_ITEMS).insert([form]);
+      const payload = { name: form.name, price: parseFloat(form.price), description: form.description };
+      const { error } = await supabase.from(TABLE_ITEMS).insert([payload]);
       if (error) throw error;
-      setForm({ name: '', price: '', stock: '' });
+      setForm({ name: '', price: '', description: '' });
       fetchProducts();
     } catch (err) {
       console.error('Erreur lors de l’ajout :', err.message);
@@ -71,11 +72,10 @@ export default function ProductAdmin() {
           required
         />
         <input
-          name="stock"
-          value={form.stock}
+          name="description"
+          value={form.description}
           onChange={handleChange}
-          placeholder="Stock"
-          required
+          placeholder="Description (optionnelle)"
         />
         <button type="submit">Ajouter</button>
       </form>
@@ -89,7 +89,7 @@ export default function ProductAdmin() {
         {Array.isArray(products) &&
           products.map(p => (
             <li key={p.id}>
-              {p.name} - {p.price}€ - Stock: {p.stock}
+              {p.name} - {p.price}€
               <button onClick={() => handleDelete(p.id)}>Supprimer</button>
             </li>
           ))}

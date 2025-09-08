@@ -12,9 +12,8 @@ export default function UserManager() {
   const [loading, setLoading] = useState(false);
 
   const roleOptions = [
-    { value: 'user', label: 'Utilisateur' },
+    { value: 'client', label: 'Utilisateur' },
     { value: 'admin', label: 'Administrateur' },
-    { value: 'moderator', label: 'Modérateur' },
   ];
 
   const fetchUsers = async () => {
@@ -24,11 +23,15 @@ export default function UserManager() {
         .from('users')
         .select(
           `
-          *,
+          id,
+          email,
+          username,
+          role,
+          created_at,
           orders (
             id,
-            role,
-            username,
+            status,
+            total,
             created_at
           )
         `
@@ -45,11 +48,9 @@ export default function UserManager() {
 
       // Filtrage par terme de recherche
       if (searchTerm) {
+        const q = searchTerm.toLowerCase();
         filteredData = filteredData.filter(
-          user =>
-            user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.last_name?.toLowerCase().includes(searchTerm.toLowerCase())
+          user => user.email?.toLowerCase().includes(q) || user.username?.toLowerCase().includes(q)
         );
       }
 
@@ -76,21 +77,7 @@ export default function UserManager() {
     }
   };
 
-  const toggleUserStatus = async (userId, currentStatus) => {
-    const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-
-    try {
-      await supabase.from(TABLE_USERS).update({ status: newStatus }).eq('id', userId);
-
-      fetchUsers();
-
-      if (selectedUser && selectedUser.id === userId) {
-        setSelectedUser({ ...selectedUser, status: newStatus });
-      }
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du statut:', error);
-    }
-  };
+  // Statut utilisateur (active/suspended) non géré dans le schéma actuel
 
   const deleteUser = async userId => {
     if (
@@ -132,7 +119,7 @@ export default function UserManager() {
     const totalOrders = orders.length;
     const totalSpent = orders
       .filter(order => order.status === 'delivered')
-      .reduce((total, order) => total + (order.total_amount || 0), 0);
+      .reduce((total, order) => total + (order.total || 0), 0);
 
     return { totalOrders, totalSpent };
   };
@@ -145,7 +132,7 @@ export default function UserManager() {
     };
 
     return {
-      backgroundColor: colors[role] || '#grey',
+      backgroundColor: colors[role] || '#808080',
       color: 'white',
       padding: '4px 8px',
       borderRadius: '4px',
@@ -188,7 +175,6 @@ export default function UserManager() {
               <th>Email</th>
               <th>Nom</th>
               <th>Rôle</th>
-              <th>Statut</th>
               <th>Commandes</th>
               <th>Total Dépensé</th>
               <th>Actions</th>
@@ -200,9 +186,7 @@ export default function UserManager() {
               return (
                 <tr key={user.id} style={{ borderBottom: '1px solid #ccc' }}>
                   <td>{user.email}</td>
-                  <td>
-                    {user.first_name} {user.last_name}
-                  </td>
+                  <td>{user.username || '-'}</td>
                   <td>
                     <span style={getRoleStyle(user.role)}>{user.role}</span>
                     <br />
@@ -216,11 +200,6 @@ export default function UserManager() {
                         </option>
                       ))}
                     </select>
-                  </td>
-                  <td>
-                    <button onClick={() => toggleUserStatus(user.id, user.status)}>
-                      {user.status === 'active' ? 'Suspendre' : 'Réactiver'}
-                    </button>
                   </td>
                   <td>{totalOrders}</td>
                   <td>{totalSpent.toFixed(2)} €</td>
@@ -250,16 +229,13 @@ export default function UserManager() {
             <strong>Rôle :</strong> {selectedUser.role}
           </p>
           <p>
-            <strong>Statut :</strong> {selectedUser.status}
-          </p>
-          <p>
             <strong>Commandes :</strong>
           </p>
           <ul>
             {selectedUser.orders &&
               selectedUser.orders.map(order => (
                 <li key={order.id}>
-                  {formatDate(order.created_at)} - {order.status} - {order.total_amount} €
+                  {formatDate(order.created_at)} - {order.status} - {order.total ?? 0} €
                 </li>
               ))}
           </ul>

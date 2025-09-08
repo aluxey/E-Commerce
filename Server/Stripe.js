@@ -41,12 +41,11 @@ serve(async req => {
       },
     });
 
-    // Optionnel : sauvegarder la commande en pending
+    // Optionnel : sauvegarder la commande en pending (colonnes minimales existantes)
     const { error: orderError } = await supabase.from('orders').insert({
       user_id: user.id,
       status: 'pending',
-      total_amount: amount / 100,
-      stripe_payment_intent_id: paymentIntent.id,
+      total: amount / 100,
     });
 
     return new Response(

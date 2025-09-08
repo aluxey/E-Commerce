@@ -27,7 +27,7 @@
           <Link to="/cart" className="navbar-link">
             Panier
           </Link>
-          {userData?.user_metadata?.role === 'admin' && (
+          {userData?.role === 'admin' && (
             <Link to="/admin" className="navbar-link">
               Admin
             </Link>

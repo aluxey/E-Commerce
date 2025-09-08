@@ -9,10 +9,10 @@ export default function VariantManager() {
   const [variants, setVariants] = useState([]);
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({
-    product_id: '',
+    item_id: '',
     color: '',
-    size: '',
-    price_modifier: 0,
+    format: '',
+    price: 0,
     stock: 0,
   });
   const [editingId, setEditingId] = useState(null);
@@ -48,10 +48,10 @@ export default function VariantManager() {
       }
 
       setForm({
-        product_id: '',
+        item_id: '',
         color: '',
-        size: '',
-        price_modifier: 0,
+        format: '',
+        price: 0,
         stock: 0,
       });
       fetchVariants();
@@ -62,10 +62,10 @@ export default function VariantManager() {
 
   const handleEdit = variant => {
     setForm({
-      product_id: variant.product_id,
+      item_id: variant.item_id,
       color: variant.color,
-      size: variant.size,
-      price_modifier: variant.price_modifier,
+      format: variant.format,
+      price: variant.price,
       stock: variant.stock,
     });
     setEditingId(variant.id);
@@ -81,10 +81,10 @@ export default function VariantManager() {
   const cancelEdit = () => {
     setEditingId(null);
     setForm({
-      product_id: '',
+      item_id: '',
       color: '',
-      size: '',
-      price_modifier: 0,
+      format: '',
+      price: 0,
       stock: 0,
     });
   };
@@ -99,7 +99,7 @@ export default function VariantManager() {
       <h2>Gestion des Variantes</h2>
 
       <form onSubmit={handleSubmit} className="variant-form">
-        <select name="product_id" value={form.product_id} onChange={handleChange} required>
+        <select name="item_id" value={form.item_id} onChange={handleChange} required>
           <option value="">Sélectionner un produit</option>
           {products.map(product => (
             <option key={product.id} value={product.id}>
@@ -117,20 +117,20 @@ export default function VariantManager() {
         />
 
         <input
-          name="size"
-          value={form.size}
+          name="format"
+          value={form.format}
           onChange={handleChange}
-          placeholder="Taille"
+          placeholder="Format"
           required
         />
 
         <input
-          name="price_modifier"
+          name="price"
           type="number"
           step="0.01"
-          value={form.price_modifier}
+          value={form.price}
           onChange={handleChange}
-          placeholder="Modificateur de prix (€)"
+          placeholder="Prix (€)"
         />
 
         <input
@@ -162,8 +162,8 @@ export default function VariantManager() {
               <tr>
                 <th>Produit</th>
                 <th>Couleur</th>
-                <th>Taille</th>
-                <th>Prix Modif.</th>
+                <th>Format</th>
+                <th>Prix</th>
                 <th>Stock</th>
                 <th>Actions</th>
               </tr>
@@ -171,13 +171,10 @@ export default function VariantManager() {
             <tbody>
               {variants.map(variant => (
                 <tr key={variant.id}>
-                  <td>{variant.item?.name || 'N/A'}</td>
+                  <td>{variant.items?.name || 'N/A'}</td>
                   <td>{variant.color}</td>
-                  <td>{variant.size}</td>
-                  <td>
-                    {variant.price_modifier > 0 ? '+' : ''}
-                    {variant.price_modifier}€
-                  </td>
+                  <td>{variant.format}</td>
+                  <td>{variant.price}€</td>
                   <td>{variant.stock}</td>
                   <td>
                     <button onClick={() => handleEdit(variant)}>Modifier</button>

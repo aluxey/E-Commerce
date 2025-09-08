@@ -1,8 +1,8 @@
-// api/product.js
+// api/orders.js
 import { supabase } from "../supabase/supabaseClient";
 
-export async function fetchProducts() {
-  const { data, error } = await supabase.from("order").select("*");
+export async function fetchOrders() {
+  const { data, error } = await supabase.from("orders").select("*");
   if (error) throw error;
   return data;
 }

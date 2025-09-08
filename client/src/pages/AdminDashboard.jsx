@@ -36,7 +36,7 @@ const Widget = ({ title, value, delta, deltaType = 'neutral', progress, icon = '
 
 const AdminPage = () => {
   return (
-    <PrivateRoute requiredRole="admin">
+    <PrivateRoute role="admin">
       <main className="admin-container">
         <h1>Panneau d’administration</h1>
         <p className="admin-subtitle">

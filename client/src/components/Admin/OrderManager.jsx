@@ -28,14 +28,13 @@ export default function OrderManager() {
           *,
           user:user_id (
             email,
-            first_name,
-            last_name
+            username
           ),
           order_items (
             quantity,
-            price,
             items (
-              name
+              name,
+              price
             )
           )
         `
@@ -73,7 +72,7 @@ export default function OrderManager() {
   const getStatusStyle = status => {
     const statusOption = statusOptions.find(option => option.value === status);
     return {
-      backgroundColor: statusOption?.color || '#grey',
+      backgroundColor: statusOption?.color || '#808080',
       color: 'white',
       padding: '4px 8px',
       borderRadius: '4px',
@@ -92,7 +91,12 @@ export default function OrderManager() {
   };
 
   const calculateOrderTotal = orderItems => {
-    return orderItems?.reduce((total, item) => total + item.quantity * item.price, 0) || 0;
+    return (
+      orderItems?.reduce(
+        (total, item) => total + item.quantity * (item.items?.price ?? 0),
+        0
+      ) || 0
+    );
   };
 
   useEffect(() => {
@@ -140,14 +144,11 @@ export default function OrderManager() {
                     <tr key={order.id}>
                       <td>#{order.id.slice(0, 8)}</td>
                       <td>
-                        {order.user
-                          ? `${order.user.first_name} ${order.user.last_name}`
-                          : order.customer_email}
+                        {order.user ? order.user.username || order.user.email : order.customer_email}
                       </td>
                       <td>{formatDate(order.created_at)}</td>
                       <td>
-                        {order.total_amount?.toFixed(2) ||
-                          calculateOrderTotal(order.order_items).toFixed(2)}
+                        {(order.total ?? calculateOrderTotal(order.order_items)).toFixed(2)}
                         €
                       </td>
                       <td>
@@ -195,17 +196,15 @@ export default function OrderManager() {
                 <h4>Articles commandés</h4>
                 {selectedOrder.order_items?.map((item, index) => (
                   <div key={index} className="order-item">
-                    <span>{item.item?.name || 'Produit supprimé'}</span>
+                    <span>{item.items?.name || 'Produit supprimé'}</span>
                     <span>Quantité: {item.quantity}</span>
-                    <span>Prix: {item.price}€</span>
-                    <span>Total: {(item.quantity * item.price).toFixed(2)}€</span>
+                    <span>Prix: {item.items?.price ?? 0}€</span>
+                    <span>Total: {(item.quantity * (item.items?.price ?? 0)).toFixed(2)}€</span>
                   </div>
                 ))}
                 <div className="order-total">
                   <strong>
-                    Total:{' '}
-                    {selectedOrder.total_amount?.toFixed(2) ||
-                      calculateOrderTotal(selectedOrder.order_items).toFixed(2)}
+                    Total: {(selectedOrder.total ?? calculateOrderTotal(selectedOrder.order_items)).toFixed(2)}
                     €
                   </strong>
                 </div>

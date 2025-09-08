@@ -36,18 +36,17 @@ const StripeCheckout = () => {
         return;
       }
 
-      // Correction de l'URL pour Supabase Edge Function
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const response = await fetch(`${supabaseUrl}/functions/v1/create-payment-intent`, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const minimalCart = cart.map(i => ({ item_id: i.id, quantity: i.quantity, variant_id: i.variant_id }));
+      const response = await fetch(`${apiUrl}/api/checkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
-          amount: Math.round(total * 100), // Convertir en centimes
           currency: 'eur',
-          cartItems: cart,
+          cartItems: minimalCart,
           customerEmail: userData?.email,
         }),
       });

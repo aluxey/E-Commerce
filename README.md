@@ -56,26 +56,43 @@ E-Commerce/
    npm install
    ```
 
-2. Créer un fichier `.env.local` dans `client/` avec vos clés Supabase :
+2. (Backend) API Node/Express pour Stripe
+
+   ```bash
+   cd api
+   cp .env.example .env
+   # Renseignez SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, CLIENT_ORIGIN
+   npm install
+   npm run dev
+   ```
+
+3. Créer un fichier `.env.local` dans `client/` avec vos clés Supabase :
 
    ```env
    VITE_SUPABASE_URL=your-project-url
    VITE_SUPABASE_ANON_KEY=your-anon-key
+   VITE_API_URL=http://localhost:3000
    ```
 
-3. (Optionnel) Préparer une base Postgres locale :
+4. (Optionnel) Préparer une base Postgres locale :
 
    ```bash
    psql -U user -d ecommerce -f Database/bd.sql
    psql -U user -d ecommerce -f Database/populate.sql
    ```
 
-4. Lancer le serveur de développement :
+5. Lancer le serveur de développement :
 
    ```bash
    npm run dev
    ```
 
+6. Webhook Stripe en local (via stripe-cli) :
+
+   ```bash
+   stripe listen --forward-to http://localhost:3000/api/stripe/webhook \
+     --events payment_intent.succeeded,payment_intent.payment_failed
+   ```
 
 
 
