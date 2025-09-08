@@ -403,3 +403,34 @@ create policy "Storage: delete product-images (admin)"
     bucket_id = (select id from storage.buckets where name = 'product-images' limit 1)
     and public.is_admin(auth.uid())
   );
+
+--
+-- ANALYTICS: Top purchased items (public RPC)
+--
+-- Expose a SECURITY DEFINER function that aggregates total quantities sold per item
+-- from paid/shipped orders, so the client can show a "Top achats" section without
+-- requiring service-role or bypassing RLS at the table level.
+--
+-- Returns: rows with (item_id bigint, total_sold bigint)
+-- Usage from Supabase JS: supabase.rpc('top_purchased_items', { limit_count: 8 })
+--
+create or replace function public.top_purchased_items(limit_count int default 8)
+returns table (
+  item_id bigint,
+  total_sold bigint
+)
+language sql
+stable
+security definer
+set search_path = public as $$
+  select oi.item_id::bigint as item_id,
+         sum(oi.quantity)::bigint as total_sold
+  from public.order_items oi
+  join public.orders o on o.id = oi.order_id
+  where o.status in ('paid','shipped')
+  group by oi.item_id
+  order by total_sold desc
+  limit greatest(1, limit_count);
+$$;
+
+grant execute on function public.top_purchased_items(int) to anon, authenticated;

@@ -2,6 +2,8 @@ import React from 'react';
 import '../styles/home.css';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../supabase/supabaseClient';
+import ItemCard from '../components/ItemCard';
 
 // Import des images pour le carousel
 import deskOrganizer from '../assets/products/desk_organizer.jpg';
@@ -12,6 +14,9 @@ const carouselImages = [deskOrganizer, greyBasket, purpleBlackBox];
 
 export default function ClientDashboard() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [latestItems, setLatestItems] = useState([]);
+  const [topItems, setTopItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Auto-slide toutes les 4 sec
   useEffect(() => {
@@ -39,6 +44,46 @@ export default function ClientDashboard() {
     carouselImages[currentIndex],
     carouselImages[(currentIndex + 1) % carouselImages.length],
   ];
+
+  // Fetch sections content
+  useEffect(() => {
+    (async () => {
+      try {
+        // Derniers articles
+        const { data: latest, error: latestErr } = await supabase
+          .from('items')
+          .select('*, item_images ( image_url )')
+          .order('created_at', { ascending: false })
+          .limit(8);
+        if (latestErr) console.error(latestErr);
+
+        // Top achats via RPC puis fetch des items correspondants
+        const { data: topAgg, error: topErr } = await supabase
+          .rpc('top_purchased_items', { limit_count: 8 });
+        if (topErr) console.warn('RPC top_purchased_items indisponible:', topErr?.message);
+
+        let topDetailed = [];
+        if (topAgg?.length) {
+          const ids = topAgg.map(r => r.item_id);
+          const { data: items, error: itemsErr } = await supabase
+            .from('items')
+            .select('*, item_images ( image_url )')
+            .in('id', ids);
+          if (!itemsErr && items) {
+            const map = new Map(items.map(i => [i.id, i]));
+            topDetailed = ids.map(id => map.get(id)).filter(Boolean);
+          }
+        }
+
+        setLatestItems(latest || []);
+        setTopItems(topDetailed || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   return (
     <div className="container">
@@ -91,37 +136,51 @@ export default function ClientDashboard() {
         </div>
       </div>
 
-      {/* <section className="features">
-        <div className="feature">
-          <span>🧵</span>
-          <h3>Fait main</h3>
-          <p>Chaque produit est unique, fabriqué avec soin.</p>
+      {/* Sections dynamiques */}
+      <HomeSections
+        loading={loading}
+        latestItems={latestItems}
+        topItems={topItems}
+      />
+    </div>
+  );
+}
+
+function HomeSections({ loading, latestItems, topItems }) {
+  return (
+    <div className="home-sections">
+      <section className="home-section">
+        <div className="section-header">
+          <h2>Derniers articles</h2>
+          <Link to="/items" className="see-all">Voir tout</Link>
         </div>
-        <div className="feature">
-          <span>🚚</span>
-          <h3>Livraison rapide</h3>
-          <p>Expédition sous 48h en France métropolitaine.</p>
-        </div>
-        <div className="feature">
-          <span>🔒</span>
-          <h3>Paiement sécurisé</h3>
-          <p>Transactions protégées avec chiffrement SSL.</p>
-        </div>
+        {loading ? (
+          <div className="section-loading">Chargement…</div>
+        ) : (
+          <div className="grid">
+            {latestItems.map(item => (
+              <ItemCard key={`latest-${item.id}`} item={item} />
+            ))}
+          </div>
+        )}
       </section>
 
-      <section className="highlighted-products">
-        <h2>Produits en vedette</h2>
-        <div className="product-grid">
-          {mockProducts.map(product => (
-            <div key={product.id} className="product-card">
-              <img src={product.image} alt={product.name} />
-              <h4>{product.name}</h4>
-              <p className="price">{product.price}</p>
-              <button className="product-btn">Voir le produit</button>
-            </div>
-          ))}
+      <section className="home-section">
+        <div className="section-header">
+          <h2>Top achats</h2>
         </div>
-      </section> */}
+        {loading ? (
+          <div className="section-loading">Chargement…</div>
+        ) : topItems.length ? (
+          <div className="grid">
+            {topItems.map(item => (
+              <ItemCard key={`top-${item.id}`} item={item} />
+            ))}
+          </div>
+        ) : (
+          <div className="section-empty">Pas encore de best-sellers</div>
+        )}
+      </section>
     </div>
   );
 }

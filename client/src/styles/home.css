@@ -179,6 +179,15 @@
   }
 }
 
+/* ==== Home Sections (Derniers / Top achats) ==== */
+.home-sections { width: 100%; max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+.home-section { margin-top: 2rem; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
+.section-header h2 { margin: 0; font-size: 1.4rem; }
+.see-all { color: #b56730; text-decoration: none; font-weight: 600; }
+.see-all:hover { text-decoration: underline; }
+.section-loading, .section-empty { padding: 1rem; color: #666; }
+
 @media (max-width: 600px) {
   .container {
     padding-top: 10vh;
