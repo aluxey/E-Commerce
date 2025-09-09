@@ -2,7 +2,12 @@
 import { supabase } from "../supabase/supabaseClient";
 
 export async function fetchOrders() {
-  const { data, error } = await supabase.from("orders").select("*");
-  if (error) throw error;
-  return data;
+  try {
+    const { data, error } = await supabase.from("orders").select("*");
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("fetchOrders error:", error);
+    throw error;
+  }
 }
