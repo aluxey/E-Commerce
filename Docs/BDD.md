@@ -1,78 +1,51 @@
 
-# 📦 Base de Données E-commerce - Supabase
+# 📦 Base de données
 
-## 📚 Tables principales
+Aperçu des tables principales utilisées par la boutique Supabase.
 
-### `items`
-| Champ       | Type         | Description                          |
-|-------------|--------------|--------------------------------------|
-| id          | integer      | Identifiant unique                   |
-| name        | text         | Nom                                  |
-| description | text         | Description complète                 |
-| base_price  | integer      | Prix de base (en centimes)           |
-| image_url   | text         | URL vers l'image stockée             |
-| created_at  | timestamp    | Date d'ajout                         |
+## `items`
 
-✅ Images stockées dans Supabase Storage via bucket `product-images`.
+- `id` — identifiant
+- `name`, `description` — infos produit
+- `base_price` — prix de base en centimes
+- `image_url` — URL d’illustration (Supabase Storage)
+- `created_at` — date d’ajout
 
----
+## `item_variants`
 
-### `item_variants`
-| Champ       | Type         | Description                          |
-|-------------|--------------|--------------------------------------|
-| id          | integer      | Identifiant                          |
-| item_id     | integer      | Référence vers `items.id`            |
-| color       | text         | Couleur                              |
-| format      | text         | Format / taille                      |
-| stock       | integer      | Stock disponible                     |
-| extra_price | integer      | Surcoût optionnel (centimes)        |
+- `id`, `item_id`
+- `color`, `format`
+- `stock` — quantité disponible
+- `extra_price` — surcoût éventuel
 
-🔗 Relation : chaque produit peut avoir plusieurs variantes.
+Chaque produit peut proposer plusieurs variantes.
 
----
+## `users`
 
-### `users` (profils personnalisés de Supabase Auth)
-| Champ       | Type         | Description                          |
-|-------------|--------------|--------------------------------------|
-| id          | uuid         | Référence à `auth.users.id`          |
-| email       | text         | Email utilisateur                    |
-| role        | text         | `client` ou `admin`                  |
-| created_at  | timestamp    | Date de création                     |
+- `id` (lié à `auth.users.id`)
+- `email`
+- `role` — `client` ou `admin`
+- `created_at`
 
-✅ Supabase Auth gère le compte, cette table enrichit le profil avec le rôle.
+Supabase Auth gère la connexion, cette table stocke le rôle.
 
----
+## `orders`
 
-### `orders`
-| Champ       | Type         | Description                          |
-|-------------|--------------|--------------------------------------|
-| id          | integer      | Identifiant de la commande           |
-| user_id     | uuid         | Référence vers `users.id`            |
-| created_at  | timestamp    | Date de la commande                  |
+- `id`, `user_id`
+- `created_at`
 
----
+## `order_items`
 
-### `order_items`
-| Champ         | Type     | Description                               |
-|---------------|----------|-------------------------------------------|
-| order_id      | integer  | Référence vers `orders.id`                |
-| item_variant_id | integer | Référence vers `item_variants.id`         |
-| quantity      | integer  | Quantité commandée                        |
-| customization | json     | Détail personnalisé (texte libre)         |
+- `order_id` + `item_variant_id` — clé composée
+- `quantity`
+- `customization` — champ JSON libre
 
-🔑 Clé composée : `(order_id, item_variant_id)`.
+## Sécurité (RLS)
 
----
+Les règles de Supabase limitent la lecture/écriture selon `auth.uid()` et le
+rôle de l’utilisateur.
 
-## 🔐 Sécurité Supabase (RLS)
-- Règles activées : accès en lecture/écriture restreint selon `auth.uid()`.
-- Lecture filtrée par rôle ou userId.
-- Gestion automatique des permissions via Supabase Policy Editor.
+## Fichiers SQL
 
----
-
-## 🗃️ Fichier SQL associé
-Fichier de création automatique exportable via `Table Editor` ou CLI Supabase.
-
-📁 Export prévu dans : `Database/bd.sql`
-📁 Exemple de seed : `Database/populate.sql`
+- `Database/bd.sql` — création des tables
+- `Database/populate.sql` — exemples de données

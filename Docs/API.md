@@ -1,66 +1,50 @@
 # Endpoints de l'API
 
-Cette page liste les routes disponibles de l'API Express et leur statut d'intégration avec Supabase.
+Petit tour d’horizon des routes REST utilisées par la boutique. Les appels
+s’appuient sur Supabase pour l’authentification et la base de données.
 
 ## Catégories
 
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| GET | /categories | Liste des catégories |
-| GET | /categories/:id | Détail d'une catégorie |
-| POST | /categories | Créer une catégorie |
-| PUT | /categories/:id | Modifier une catégorie |
-| DELETE | /categories/:id | Supprimer une catégorie |
+- `GET /categories` — toutes les catégories
+- `GET /categories/:id` — détail d’une catégorie
+- `POST /categories` — ajouter (admin)
+- `PUT /categories/:id` — modifier (admin)
+- `DELETE /categories/:id` — supprimer (admin)
 
-## Produits (items)
+## Produits
 
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| GET | /items | Liste des produits |
-| GET | /items/:id | Détail d'un produit |
-| POST | /items | Créer un produit (admin seulement) |
-| PUT | /items/:id | Modifier un produit (admin seulement) |
-| DELETE | /items/:id | Supprimer un produit (admin seulement) |
+- `GET /items` — liste des produits
+- `GET /items/:id` — fiche produit
+- `POST /items` — créer (admin)
+- `PUT /items/:id` — mettre à jour (admin)
+- `DELETE /items/:id` — retirer (admin)
 
-**✅ Ajouts récents :**
-- Intégration du stockage d'image via Supabase Storage.
-- Les URLs des images sont stockées dans `image_url`.
-- Prise en charge des variantes via `/items/:id/variants`.
+Les images sont stockées dans Supabase Storage et référencées via `image_url`.
+Une route dédiée gère les variantes : `GET /items/:id/variants`.
 
-## Variantes de produits
+## Variantes
 
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| GET | /items/:id/variants | Liste des variantes d’un produit |
-| POST | /items/:id/variants | Ajouter une variante (admin seulement) |
-| PUT | /variants/:variantId | Modifier une variante |
-| DELETE | /variants/:variantId | Supprimer une variante |
+- `GET /items/:id/variants` — variations d’un produit
+- `POST /items/:id/variants` — ajouter (admin)
+- `PUT /variants/:variantId` — modifier
+- `DELETE /variants/:variantId` — supprimer
 
 ## Commandes
 
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| GET | /orders | Liste des commandes |
-| GET | /orders/user/:userId | Commandes d'un utilisateur |
-| GET | /orders/:id | Détail d'une commande |
-| POST | /orders | Créer une commande |
-| PUT | /orders/:id/status | Modifier le statut d'une commande |
-| DELETE | /orders/:id | Supprimer une commande |
+- `GET /orders` — toutes les commandes (admin)
+- `GET /orders/user/:userId` — historique d’un client
+- `GET /orders/:id` — détail d’une commande
+- `POST /orders` — créer une commande
+- `PUT /orders/:id/status` — changer le statut
+- `DELETE /orders/:id` — annuler (admin)
 
-**✅ Ajout :** Champ `customization` supporté (champ JSON libre).
+Champ libre `customization` accepté pour préciser un message ou une option.
 
 ## Utilisateurs
 
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| POST | /users/register | Inscription via Supabase Auth |
-| POST | /users/login | Connexion via Supabase Auth |
-| GET | /users/:id | Profil utilisateur (requiert token) |
+- `POST /users/register` — inscription via Supabase Auth
+- `POST /users/login` — connexion
+- `GET /users/:id` — profil (token requis)
 
-**✅ Ajout :** Gestion des rôles (`client`, `admin`) intégrée via Supabase RLS.
-
-## Sécurité et Accès
-
-- Ajout d’un système de rôles via Supabase (`auth.users` + table `profiles` ou `users` personnalisée).
-- Middleware `PrivateRoute` sur le front selon rôle.
-- JWT automatiquement généré par Supabase et stocké en local.
+Les rôles `client` et `admin` sont gérés automatiquement par Supabase et
+définissent l’accès aux routes.

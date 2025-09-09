@@ -1,55 +1,51 @@
-## 👤 Pages côté client (utilisateurs classiques)
+# Parcours des interfaces
+
+Ce document présente les principaux écrans de la boutique et de l'espace
+administrateur.
+
+## Côté boutique
 
 ### Accueil
-- Présentation de la boutique
-- Produits mis en avant
+Vitrine mettant en avant la boutique et quelques produits phares.
 
-### Catalogue / Boutique
-- Liste paginée des produits
-- Filtres par catégories, prix, etc.
+### Boutique
+Catalogue paginé avec filtres par catégorie, prix ou autres critères.
 
-### Page produit
-- Détails du produit (nom, description, prix, image, stock dispo, etc.)
-- Bouton « Ajouter au panier »
+### Fiche produit
+Détails d'un article : photos, description, prix et disponibilité. Un
+bouton permet d'ajouter le produit au panier.
 
 ### Panier
-Liste des produits sélectionnés
-Modifier quantité, supprimer un item
-Total, frais de livraison estimés
+Récapitulatif des articles choisis avec possibilité d'ajuster les
+quantités ou de retirer un article avant de passer commande.
 
-### Passer commande (Checkout)
-- Formulaire d’adresse, livraison, paiement
-- Récapitulatif de la commande
+### Commande
+Formulaire de livraison et de paiement suivi d'un récapitulatif.
 
-### Confirmation de commande
-- Merci pour votre achat + récap
-
+### Confirmation
+Message de remerciement avec le détail de la commande.
 
 ### À propos / Contact
-- Infos sur la boutique, formulaire de contact, liens réseaux sociaux
+Informations sur l'équipe, formulaire de contact et liens vers les réseaux
+sociaux.
 
-## 🔐 Pages côté admin
+## Espace administrateur
 
-Ces pages doivent être protégées par une authentification !
+Accessible uniquement aux comptes disposant des droits nécessaires.
 
-### Dashboard (Vue d'ensemble)
-- Nombre de commandes, ventes totales, produits en stock faible, etc.
+### Tableau de bord
+Vue d'ensemble : nombre de commandes, ventes, alertes de stock...
 
-### Gestion des produits
-- Liste des produits
-- Modifier / Supprimer un produit
-- Ajouter un nouveau produit
-- Formulaire avec image, titre, description, prix, stock
+### Produits
+Listing complet avec possibilité d'ajouter, modifier ou supprimer un
+article.
 
-### Gestion des commandes
-- Liste des commandes
-- Voir détails (produits commandés, date, statut, client, adresse)
-- Modifier le statut : en préparation, expédié, livré, annulé
-- Supprimer une commande si nécessaire
+### Commandes
+Suivi des commandes et mise à jour de leur statut (préparation, expédié,
+livré, annulé).
 
-### Gestion des stocks
-- Vue rapide des quantités disponibles
-- Modifier les quantités sans passer par la fiche produit complète
+### Stocks
+Modification rapide des quantités disponibles.
 
-### Connexion admin
-- Page de login (email + mot de passe)
+### Connexion
+Page de login dédiée aux administrateurs.
