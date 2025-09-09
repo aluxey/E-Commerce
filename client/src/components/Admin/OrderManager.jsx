@@ -9,13 +9,14 @@ export default function OrderManager() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(false);
 
+  // Statuts alignés avec le schéma DB: ('pending','paid','failed','canceled','shipped','refunded')
   const statusOptions = [
-    { value: 'pending', label: 'En attente', color: '#ffa500' },
-    { value: 'confirmed', label: 'Confirmée', color: '#2196f3' },
-    { value: 'processing', label: 'En traitement', color: '#ff9800' },
-    { value: 'shipped', label: 'Expédiée', color: '#9c27b0' },
-    { value: 'delivered', label: 'Livrée', color: '#4caf50' },
-    { value: 'cancelled', label: 'Annulée', color: '#f44336' },
+    { value: 'pending',  label: 'En attente', color: '#ffa500' },
+    { value: 'paid',     label: 'Payée',      color: '#4caf50' },
+    { value: 'shipped',  label: 'Expédiée',   color: '#9c27b0' },
+    { value: 'refunded', label: 'Remboursée', color: '#2196f3' },
+    { value: 'canceled', label: 'Annulée',    color: '#f44336' },
+    { value: 'failed',   label: 'Échec',      color: '#b42318' },
   ];
 
   const fetchOrders = async () => {
@@ -27,8 +28,7 @@ export default function OrderManager() {
           `
           *,
           user:user_id (
-            email,
-            username
+            email
           ),
           order_items (
             quantity,
@@ -144,7 +144,7 @@ export default function OrderManager() {
                     <tr key={order.id}>
                       <td>#{order.id.slice(0, 8)}</td>
                       <td>
-                        {order.user ? order.user.username || order.user.email : order.customer_email}
+                        {order.user ? order.user.email : order.customer_email}
                       </td>
                       <td>{formatDate(order.created_at)}</td>
                       <td>

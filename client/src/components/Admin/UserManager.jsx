@@ -25,7 +25,6 @@ export default function UserManager() {
           `
           id,
           email,
-          username,
           role,
           created_at,
           orders (
@@ -49,9 +48,7 @@ export default function UserManager() {
       // Filtrage par terme de recherche
       if (searchTerm) {
         const q = searchTerm.toLowerCase();
-        filteredData = filteredData.filter(
-          user => user.email?.toLowerCase().includes(q) || user.username?.toLowerCase().includes(q)
-        );
+        filteredData = filteredData.filter(user => user.email?.toLowerCase().includes(q));
       }
 
       setUsers(filteredData);
@@ -118,7 +115,7 @@ export default function UserManager() {
     const orders = user.orders || [];
     const totalOrders = orders.length;
     const totalSpent = orders
-      .filter(order => order.status === 'delivered')
+      .filter(order => ['paid', 'shipped'].includes(order.status))
       .reduce((total, order) => total + (order.total || 0), 0);
 
     return { totalOrders, totalSpent };
@@ -160,7 +157,7 @@ export default function UserManager() {
 
         <input
           type="text"
-          placeholder="Rechercher par email ou nom"
+          placeholder="Rechercher par email"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
@@ -173,7 +170,7 @@ export default function UserManager() {
           <thead>
             <tr>
               <th>Email</th>
-              <th>Nom</th>
+              <th>Créé le</th>
               <th>Rôle</th>
               <th>Commandes</th>
               <th>Total Dépensé</th>
@@ -186,7 +183,7 @@ export default function UserManager() {
               return (
                 <tr key={user.id} style={{ borderBottom: '1px solid #ccc' }}>
                   <td>{user.email}</td>
-                  <td>{user.username || '-'}</td>
+                  <td>{formatDate(user.created_at)}</td>
                   <td>
                     <span style={getRoleStyle(user.role)}>{user.role}</span>
                     <br />
@@ -223,7 +220,7 @@ export default function UserManager() {
             <strong>Email :</strong> {selectedUser.email}
           </p>
           <p>
-            <strong>Nom :</strong> {selectedUser.first_name} {selectedUser.last_name}
+            <strong>Créé le :</strong> {formatDate(selectedUser.created_at)}
           </p>
           <p>
             <strong>Rôle :</strong> {selectedUser.role}

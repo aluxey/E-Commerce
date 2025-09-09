@@ -1,52 +1,33 @@
-/* ---------------------------------------
-   Design tokens (sobre, themable, a11y)
-   --------------------------------------- */
+/*
+  Admin — feuille de style simplifiée, rapide et esthétique.
+  Scope maximal sous .admin-container pour éviter les fuites globales.
+*/
+
 :root {
-  color-scheme: light;
+  --adm-bg: #f6f7fb;
+  --adm-surface: #ffffff;
+  --adm-border: #e5e7eb;
+  --adm-text: #111827;
+  --adm-muted: #6b7280;
+  --adm-brand: #7c3aed;
+  --adm-brand-600: #6d28d9;
+  --adm-brand-700: #5b21b6;
+  --adm-success: #16a34a;
+  --adm-danger: #dc2626;
+  --adm-ring: rgba(124,58,237,.18);
 
-  /* Surfaces & texte */
-  --bg-page: transparent;          /* laisse transparaître le fond global */
-  --surface-1: #ffffff;
-  --surface-2: #f7f7f4;
+  --s-1: .5rem;   /* 8px  */
+  --s-2: .75rem;  /* 12px */
+  --s-3: 1rem;    /* 16px */
+  --s-4: 1.25rem; /* 20px */
+  --s-5: 1.5rem;  /* 24px */
+  --s-6: 2rem;    /* 32px */
 
-  --text-1: #1f2937;
-  --text-2: #6b7280;
-
-  /* Décor & structure */
-  --border: #e5e7eb;
-  --shadow-1: 0 1px 2px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.02);
-
-  /* Couleur de marque par défaut */
-  --accent: #b56730;
-  --accent-600: #a45c2b;
-  --accent-700: #8e4f26;
-
-  /* États */
-  --success-bg: #eaf7ef; --success: #1d7a3a;
-  --danger-bg:  #faeaea; --danger:  #b42318;
-  --warn-bg:    #fff7e6; --warn:    #b45309;
-  --info-bg:    #eaf2ff; --info:    #1d4ed8;
-
-  /* Spacings */
-  --space-1: .5rem;
-  --space-2: .75rem;
-  --space-3: 1rem;
-  --space-4: 1.25rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-
-  /* Rayons & anneaux */
-  --radius-sm: 7px;
-  --radius: 8px;
-  --radius-lg: 12px;
-  --ring-size: 3px;
-  --ring: rgba(181,103,48,.15); /* anneau par défaut basé sur l’accent */
+  --rad: 10px;
+  --rad-sm: 8px;
+  --shadow: 0 1px 2px rgba(0,0,0,.04);
 }
 
-
-/* ---------------------------------------
-   Helpers accessibilité
-   --------------------------------------- */
 .sr-only {
   position: absolute !important;
   width: 1px; height: 1px;
@@ -55,643 +36,133 @@
   white-space: nowrap; border: 0;
 }
 
-/* ---------------------------------------
-   Conteneur général (plus étroit, container queries)
-   --------------------------------------- */
 .admin-container {
-  max-width: 1100px;
-  margin: var(--space-6) auto;
-  padding: 0 var(--space-3) var(--space-6);
-  background: var(--bg-page);
-  color: var(--text-1);
-  line-height: 1.5;
-
-  /* Active les container queries pour ce scope */
-  container-type: inline-size;
+  max-width: 1080px;
+  margin: var(--s-6) auto;
+  padding: 0 var(--s-3) var(--s-6);
+  color: var(--adm-text);
 }
 
-/* Titre principal */
 .admin-container h1 {
-  margin: 0 0 var(--space-4) 0;
+  margin: 0 0 var(--s-4) 0;
   font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
   font-weight: 700;
-  color: var(--text-1);
 }
 
-/* Sous-titre */
 .admin-subtitle {
-  margin: -0.5rem 0 var(--space-5) 0;
-  color: var(--text-2);
+  margin: -0.25rem 0 var(--s-5) 0;
+  color: var(--adm-muted);
   font-size: .95rem;
 }
 
-/* ---------------------------------------
-   Cartes & sections
-   --------------------------------------- */
-/* Groupement pour éviter la duplication de styles */
-.admin-container section,
-.product-form,
-.variant-form,
-.category-form,
-.order-form,
-.user-form {
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  box-shadow: var(--shadow-1);
-  margin-bottom: var(--space-5);
-}
-
-/* Titres de section */
-.admin-container section h2 {
-  margin: 0 0 var(--space-4) 0;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-1);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: var(--space-2);
-}
-
-/* ---------------------------------------
-   Dashboard widgets (KPI)
-   --------------------------------------- */
+/* KPI widgets */
 .dashboard-widgets {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: var(--space-4);
-  margin-bottom: var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
 }
-
 .widget {
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  box-shadow: var(--shadow-1);
-  display: flex; flex-direction: column; gap: .6rem;
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--rad);
+  padding: var(--s-4);
+  box-shadow: var(--shadow);
+  display: grid; gap: .6rem;
 }
+.widget-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.widget-title { font-size: .95rem; font-weight: 600; color: var(--adm-muted); }
+.widget-icon { width: 36px; height: 36px; border-radius: 10px; background: #f3f4f6; display: inline-flex; align-items: center; justify-content: center; }
+.widget-value { font-size: 1.75rem; font-weight: 800; letter-spacing: .2px; }
+.widget-delta { font-weight: 700; font-size: .95rem; display: inline-flex; align-items: center; gap: .4rem; }
+.widget-delta .marker { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.widget-delta.positive { color: var(--adm-success); }
+.widget-delta.positive .marker { background: var(--adm-success); }
+.widget-delta.negative { color: var(--adm-danger); }
+.widget-delta.negative .marker { background: var(--adm-danger); }
+.widget-delta.neutral { color: var(--adm-muted); }
+.widget-delta.neutral .marker { background: var(--adm-muted); }
+.widget-progress { height: 8px; border-radius: 999px; background: #eef0f3; overflow: hidden; }
+.widget-progress > span { display: block; height: 100%; background: var(--adm-brand); }
 
-.widget-header {
-  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+/* Sections */
+.admin-container section {
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--rad);
+  padding: var(--s-4);
+  box-shadow: var(--shadow);
+  margin-bottom: var(--s-5);
 }
-.widget-title { font-size: .95rem; font-weight: 700; color: var(--text-1); }
-
-.widget-icon {
-  inline-size: 36px; block-size: 36px; border-radius: 10px;
-  background: color-mix(in srgb, var(--border) 60%, transparent);
-  display: inline-flex; align-items: center; justify-content: center;
+.section .section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-3); margin-bottom: var(--s-3); padding-bottom: var(--s-2);
+  border-bottom: 1px solid var(--adm-border);
 }
+.section .section-title { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.btn-group { display: inline-flex; flex-wrap: wrap; gap: .5rem; }
 
-.widget-value { font-size: 1.8rem; font-weight: 800; letter-spacing: .2px; color: var(--text-1); }
-
-.widget-delta {
-  font-weight: 700; font-size: .95rem;
-  display: inline-flex; align-items: center; gap: .4rem;
-}
-.widget-delta .marker { inline-size: 8px; block-size: 8px; border-radius: 50%; display: inline-block; }
-.widget-delta.positive { color: var(--success); }
-.widget-delta.positive .marker { background: var(--success); }
-.widget-delta.negative { color: var(--danger);  }
-.widget-delta.negative .marker { background: var(--danger);  }
-.widget-delta.neutral  { color: var(--text-2); }
-.widget-delta.neutral .marker { background: var(--text-2); }
-
-.widget-progress {
-  block-size: 8px; border-radius: 999px; background: #eef0f3; overflow: hidden;
-}
-.widget-progress > span {
-  display: block; block-size: 100%; inline-size: var(--value, 0%);
-  background: var(--accent);
-}
-
-.widget-footer { margin-top: .2rem; color: var(--text-2); font-size: .85rem; }
-
-/* ---------------------------------------
-   Boutons — base, variantes, tailles, états
-   --------------------------------------- */
-.btn,
-.add-product-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .5rem;
-  padding: .65rem 1rem;
-  border-radius: var(--radius);
-  border: 1px solid transparent;
-  font-weight: 600;
-  cursor: pointer;
-  line-height: 1.2;
-  transition: box-shadow .15s ease, transform .02s ease, background-color .15s ease, border-color .15s ease;
-}
-.btn:active,
-.add-product-btn:active { transform: translateY(1px); }
-
-.btn-sm { padding: .5rem .75rem; font-size: .9rem; border-radius: var(--radius-sm); }
-.btn-lg { padding: .85rem 1.15rem; font-size: 1.05rem; border-radius: 10px; }
-
-.btn-primary,
-.add-product-btn {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent-700);
-}
-.btn-primary:hover,
-.add-product-btn:hover { background: var(--accent-600); }
-
-.btn-secondary {
-  background: #f3f4f6;
-  color: var(--text-1);
-  border-color: var(--border);
-}
-.btn-secondary:hover {
-  background: #eaecef;
-  border-color: #d7dbe0;
-}
-
-.btn-outline {
-  background: #fff; color: var(--text-1);
-  border-color: var(--border);
-}
-.btn-outline:hover { border-color: #cfd6dd; background: #fafafa; }
-
-.btn-ghost {
-  background: transparent; color: var(--text-1);
-  border-color: transparent;
-}
-.btn-ghost:hover { background: #f6f6f6; border-color: var(--border); }
-
-.btn-destructive {
-  background: var(--danger); color: #fff;
-  border-color: #951c13;
-}
-.btn-destructive:hover { background: #991b12; }
-
-.btn-icon {
-  inline-size: 36px; block-size: 36px; padding: 0;
-  display: inline-flex; align-items: center; justify-content: center;
-}
-.btn-icon.btn-sm { inline-size: 30px; block-size: 30px; }
-.btn-icon.btn-lg { inline-size: 42px; block-size: 42px; }
-
-.btn-group { display: inline-flex; gap: .5rem; flex-wrap: wrap; }
-
-.btn[disabled], .btn.is-disabled,
-.add-product-btn[disabled], .add-product-btn.is-disabled {
-  opacity: .6; cursor: not-allowed;
-}
-
-/* Focus accessible : on privilégie :focus-visible (clavier) avec fallback :focus */
-.btn:focus-visible,
-.add-product-btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 var(--ring-size) var(--ring);
-}
-.btn:focus:not(:focus-visible),
-.add-product-btn:focus:not(:focus-visible) { box-shadow: none; }
-
-/* Loading state */
-.btn.is-loading,
-.add-product-btn.is-loading { position: relative; color: transparent !important; }
-.btn.is-loading::after,
-.add-product-btn.is-loading::after {
-  content: "";
-  position: absolute; inset: 0;
-  margin: auto; inline-size: 16px; block-size: 16px;
-  border-radius: 50%;
-  border: 2px solid currentColor; border-right-color: transparent;
-  animation: spin .8s linear infinite;
-}
-
-/* ---------------------------------------
-   Formulaires — champs unifiés
-   --------------------------------------- */
-.field,
-.form-group { margin-bottom: var(--space-4); }
-
-.field label,
-.form-group label {
-  display: inline-flex; align-items: center; gap: .4rem;
-  font-weight: 600; color: var(--text-1); margin-bottom: .5rem;
-}
-.field .required { color: var(--danger); font-weight: 700; }
-
-/* Unification des contrôles avec :is() pour réduire la répétition */
-:is(.form-control, .input, .select, .textarea,
-    .form-group input, .form-group textarea, .form-group select) {
-  inline-size: 100%;
-  padding: .75rem .875rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: #fff; color: var(--text-1);
+/* Formulaires */
+.admin-container .form-control,
+.admin-container input,
+.admin-container select,
+.admin-container textarea {
+  width: 100%;
+  padding: .7rem .85rem;
+  border: 1px solid var(--adm-border);
+  border-radius: var(--rad-sm);
+  background: #fff; color: var(--adm-text);
   font-size: 1rem; line-height: 1.3;
-  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
-:is(.textarea, .form-group textarea) { min-height: 110px; resize: vertical; }
-
-/* Focus clavier prioritaire + fallback */
-:is(.form-control, .input, .select, .textarea,
-    .form-group input, .form-group textarea, .form-group select):focus-visible {
-  outline: none; border-color: var(--accent);
-  box-shadow: 0 0 0 var(--ring-size) var(--ring);
-}
-:is(.form-control, .input, .select, .textarea,
-    .form-group input, .form-group textarea, .form-group select):focus:not(:focus-visible) {
-  box-shadow: none;
-}
-
-.help-text { color: var(--text-2); font-size: .9rem; margin-top: .35rem; }
-.error-text { color: var(--danger); font-size: .9rem; margin-top: .35rem; }
-
-/* Densité compacte optionnelle */
-.is-compact :is(.form-control, .input, .select, .textarea) {
-  padding: .55rem .7rem; border-radius: var(--radius-sm); font-size: .95rem;
-}
-
-/* Groupes avec addon */
-.input-group { display: flex; align-items: stretch; }
-.input-group .addon {
-  padding: .75rem .8rem; background: #f3f4f6; border: 1px solid var(--border);
-  border-right: 0; border-radius: var(--radius) 0 0 var(--radius); color: var(--text-2); white-space: nowrap;
-}
-.input-group .form-control {
-  border-radius: 0 var(--radius) var(--radius) 0; border-left: 0;
-}
-
-/* Cases / radios / switch */
-.checkbox, .radio {
-  display: inline-flex; align-items: center; gap: .5rem; cursor: pointer;
-  user-select: none;
-}
-.checkbox input[type="checkbox"],
-.radio input[type="radio"] { inline-size: 18px; block-size: 18px; accent-color: var(--accent); }
-
-/* Switch pur CSS */
-.switch {
-  appearance: none; inline-size: 42px; block-size: 24px; border-radius: 999px;
-  background: #e5e7eb; position: relative; cursor: pointer; border: 1px solid var(--border);
-  transition: background-color .15s ease, border-color .15s ease;
-}
-.switch::after {
-  content: ""; position: absolute; inset-block-start: 2px; inset-inline-start: 2px;
-  inline-size: 20px; block-size: 20px;
-  background: #fff; border-radius: 50%; transition: transform .15s ease;
-  box-shadow: 0 1px 2px rgba(0,0,0,.12);
-}
-.switch:checked { background: var(--accent); border-color: var(--accent-700); }
-.switch:checked::after { transform: translateX(18px); }
-
-/* États de validation (fonctionnent aussi via aria-invalid) */
-.field.error :is(.form-control, .input, .select, .textarea),
-.form-group.error :is(input, textarea, select),
-[aria-invalid="true"] {
-  border-color: var(--danger);
-  box-shadow: 0 0 0 var(--ring-size) color-mix(in srgb, var(--danger) 18%, transparent);
-}
-.field.success :is(.form-control, .input, .select, .textarea),
-.form-group.success :is(input, textarea, select),
-[aria-valid="true"] {
-  border-color: var(--success);
-  box-shadow: 0 0 0 var(--ring-size) color-mix(in srgb, var(--success) 18%, transparent);
-}
-
-/* Actions de formulaire */
-.form-actions {
-  display: flex;
-  gap: var(--space-3);
-  justify-content: flex-end;
-  margin-top: var(--space-4);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--border);
-  flex-wrap: wrap;
-}
-.form-actions .btn-ghost { color: var(--text-2); }
-
-/* Grille de formulaire (responsive via container queries) */
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
-}
-@container (min-width: 700px) {
-  .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@container (min-width: 1020px) {
-  .form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
-/* Inline / checkbox (compat) */
-.form-group.inline { flex-direction: row; align-items: center; gap: var(--space-3); }
-.form-group.checkbox { flex-direction: row; align-items: center; gap: .75rem; }
-.form-group.checkbox input[type="checkbox"] { inline-size: 18px; block-size: 18px; accent-color: var(--accent); }
-
-/* ---------------------------------------
-   Zones d'upload
-   --------------------------------------- */
-.file-upload-area {
-  border: 2px dashed var(--accent);
-  border-radius: 10px;
-  padding: var(--space-5);
-  text-align: center;
-  background: var(--surface-2);
-  transition: background-color .15s ease, border-color .15s ease;
-  cursor: pointer;
-  margin: var(--space-3) 0;
-}
-.file-upload-area:hover { background: color-mix(in srgb, var(--surface-2) 70%, #000 0%); border-color: var(--accent-600); }
-.file-upload-area.dragover { background: #e8f5e8; border-color: var(--success); }
-
-.upload-icon { font-size: 2.25rem; color: var(--accent); margin-bottom: .5rem; }
-.upload-text { color: var(--text-1); font-weight: 600; }
-.upload-hint { color: var(--text-2); font-size: .9rem; }
-
-/* ---------------------------------------
-   Tables
-   --------------------------------------- */
-.admin-table-wrapper {
-  inline-size: 100%;
-  overflow: auto;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-}
-
-.admin-table {
-  inline-size: 100%;
-  border-collapse: collapse;
-  background: var(--surface-1);
-  min-width: 720px; /* meilleur scroll horizontal sur petits écrans */
-}
-
-.admin-table thead th {
-  position: sticky; inset-block-start: 0;
-  background: #fafafa;
-  color: var(--text-1);
-  font-weight: 700;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  padding: .9rem .875rem;
-  z-index: 1;
-}
-
-.admin-table tbody td {
-  padding: .8rem .875rem;
-  border-bottom: 1px solid var(--border);
-  color: var(--text-1);
-}
-
-.admin-table tbody tr:nth-child(odd) { background: #fcfcfc; }
-.admin-table tbody tr:hover { background: #f7f7f7; }
-
-.table-image {
-  inline-size: 52px; block-size: 52px;
-  object-fit: cover;
-  border-radius: var(--radius);
-}
-
-/* Badges de statut */
-.status-badge {
-  display: inline-block;
-  padding: .2rem .6rem;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: .78rem;
-}
-.status-active    { background: var(--success-bg); color: var(--success); }
-.status-inactive  { background: var(--danger-bg);  color: var(--danger);  }
-.status-pending   { background: var(--warn-bg);    color: var(--warn);    }
-.status-processing{ background: var(--info-bg);    color: var(--info);    }
-.status-delivered { background: var(--success-bg); color: var(--success); }
-
-/* Actions */
-.action-buttons { display: flex; gap: .5rem; justify-content: center; }
-.btn-edit, .btn-delete {
-  inline-size: 34px; block-size: 34px;
-  display: inline-flex; align-items: center; justify-content: center;
-  border-radius: var(--radius); border: 1px solid var(--border); background: #fff; cursor: pointer;
-}
-.btn-edit:hover  { border-color: #bcd3ff; box-shadow: 0 0 0 var(--ring-size) rgba(29, 78, 216, .15); }
-.btn-delete:hover{ border-color: #ffd0d0; box-shadow: 0 0 0 var(--ring-size) rgba(180, 35, 24, .12); }
-
-/* ---------------------------------------
-   Filtres et recherche
-   --------------------------------------- */
-.admin-filters {
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  margin-bottom: var(--space-5);
-}
-
-.filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: var(--space-3);
-  align-items: end;
-}
-
-.search-input {
-  padding: .65rem .875rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 1rem;
-  background: #fff;
-}
-.search-input:focus-visible {
+.admin-container textarea { min-height: 110px; resize: vertical; }
+.admin-container .form-control:focus-visible,
+.admin-container input:focus-visible,
+.admin-container select:focus-visible,
+.admin-container textarea:focus-visible {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 var(--ring-size) var(--ring);
+  border-color: var(--adm-brand);
+  box-shadow: 0 0 0 3px var(--adm-ring);
 }
 
-/* ---------------------------------------
-   États (loading, messages, empty)
-   --------------------------------------- */
-.loading-container { display: flex; justify-content: center; align-items: center; padding: var(--space-6); }
-.loading-spinner {
-  inline-size: 42px; block-size: 42px;
-  border: 3px solid #eee; border-top: 3px solid var(--accent);
-  border-radius: 50%; animation: spin 1s linear infinite;
+/* Boutons (scopés) */
+.admin-container .btn,
+.admin-container button {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: .5rem; padding: .6rem .95rem; border-radius: var(--rad-sm);
+  border: 1px solid transparent; background: #f3f4f6; color: var(--adm-text);
+  font-weight: 600; cursor: pointer; line-height: 1.2;
+  transition: background-color .15s ease, border-color .15s ease, transform .02s ease, box-shadow .15s ease;
 }
+.admin-container .btn:active,
+.admin-container button:active { transform: translateY(1px); }
+.admin-container button:hover { background: #eaecef; }
+.admin-container button[disabled] { opacity: .6; cursor: not-allowed; }
+.admin-container .btn-primary { background: var(--adm-brand); color: #fff; border-color: var(--adm-brand-700); }
+.admin-container .btn-primary:hover { background: var(--adm-brand-600); }
+.admin-container .btn-outline { background: #fff; color: var(--adm-text); border-color: var(--adm-border); }
+.admin-container .btn-outline:hover { background: #fafafa; border-color: #cfd6dd; }
+.admin-container .btn-danger { background: var(--adm-danger); color: #fff; border-color: #b91c1c; }
 
-.admin-message {
-  padding: .8rem 1rem;
-  border-radius: var(--radius);
-  margin-bottom: var(--space-3);
-  font-weight: 500;
+/* Tables (applique à toutes les tables de la page admin) */
+.admin-container table { width: 100%; border-collapse: collapse; }
+.admin-container thead th {
+  text-align: left; font-weight: 700; font-size: .95rem; color: var(--adm-muted);
+  background: #fafafa; border-bottom: 1px solid var(--adm-border); padding: .7rem .8rem;
 }
-.admin-message.success { background: var(--success-bg); color: var(--success); border: 1px solid color-mix(in srgb, var(--success) 24%, transparent); }
-.admin-message.error   { background: var(--danger-bg);  color: var(--danger);  border: 1px solid color-mix(in srgb, var(--danger) 24%, transparent); }
-.admin-message.info    { background: var(--info-bg);    color: var(--info);    border: 1px solid color-mix(in srgb, var(--info)   24%, transparent); }
+.admin-container tbody td { padding: .7rem .8rem; border-bottom: 1px solid var(--adm-border); }
+.admin-container tbody tr:nth-child(odd) { background: #fcfcfc; }
+.admin-container tbody tr:hover { background: #f7f7f7; }
 
-.empty-state { text-align: center; padding: var(--space-6) var(--space-4); color: var(--text-2); }
-.empty-state .icon { font-size: 3rem; margin-bottom: .5rem; opacity: .5; }
-.empty-state h3 { margin-bottom: .35rem; color: var(--text-1); }
+/* États et utilitaires */
+.loading-container { display: flex; justify-content: center; align-items: center; padding: var(--s-6); }
+.empty-state { text-align: center; padding: var(--s-6) var(--s-4); color: var(--adm-muted); }
 
-/* ---------------------------------------
-   Responsive
-   --------------------------------------- */
 @media (max-width: 768px) {
-  .admin-container { margin-top: var(--space-4); }
-  .form-actions { flex-direction: column; align-items: stretch; }
-  .btn, .btn-primary, .btn-secondary, .btn-outline, .btn-ghost, .btn-destructive, .add-product-btn { inline-size: 100%; }
+  .admin-container { margin-top: var(--s-4); }
+  .admin-container .btn { width: 100%; }
 }
 
-/* ---------------------------------------
-   Motion & contrast
-   --------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
-@media (prefers-contrast: more) {
-  :root { --ring: rgba(181,103,48,.35); }
-}
-
-/* ---------------------------------------
-   Compat composants Admin (structure)
-   --------------------------------------- */
-.product-manager { inline-size: 100%; }
-.product-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-  flex-wrap: wrap;
-}
-
-/* =======================================
-   SECTIONS — accents + formulaires/boutons
-   ======================================= */
-.section {
-  /* Valeurs par défaut si aucune variante n'est définie */
-  --section-accent: var(--accent);
-  --section-accent-600: var(--accent-600);
-  --section-accent-700: var(--accent-700);
-  --section-ring: rgba(181, 103, 48, .18);
-
-  /* Propager l’anneau contextualisé aux descendants */
-  --ring: var(--section-ring);
-}
-
-/* Variantes d'accent par section */
-.section--products {
-  --section-accent: #b56730;   /* brun (couleur marque) */
-  --section-accent-600: #a45c2b;
-  --section-accent-700: #8e4f26;
-  --section-ring: rgba(181,103,48,.18);
-}
-.section--variants {
-  --section-accent: #7c3aed;   /* violet */
-  --section-accent-600: #6d28d9;
-  --section-accent-700: #5b21b6;
-  --section-ring: rgba(124,58,237,.18);
-}
-.section--categories {
-  --section-accent: #0d9488;   /* teal */
-  --section-accent-600: #0f766e;
-  --section-accent-700: #115e59;
-  --section-ring: rgba(13,148,136,.18);
-}
-.section--users {
-  --section-accent: #4f46e5;   /* indigo */
-  --section-accent-600: #4338ca;
-  --section-accent-700: #3730a3;
-  --section-ring: rgba(79,70,229,.18);
-}
-.section--orders {
-  --section-accent: #2563eb;   /* bleu */
-  --section-accent-600: #1d4ed8;
-  --section-accent-700: #1e40af;
-  --section-ring: rgba(37,99,235,.18);
-}
-
-/* Header d'une section (titre + actions) */
-.section .section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--border);
-}
-.section .section-title {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-1);
-}
-.section .section-toolbar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
-/* Toolbar : recherche + filtres pill + actions */
-.section .toolbar-search { min-width: 240px; }
-.section .toolbar-search .form-control {
-  padding-inline-start: 2.25rem; /* place pour l’icône */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: .65rem 50%;
-  background-size: 18px;
-}
-.section .toolbar-filters { display: inline-flex; gap: .5rem; flex-wrap: wrap; }
-.section .filter-pill {
-  display: inline-flex; align-items: center; gap: .35rem;
-  padding: .35rem .6rem; border-radius: 999px;
-  border: 1px solid var(--border); background: #fafafa; color: var(--text-2);
-  font-size: .85rem; cursor: pointer;
-}
-.section .filter-pill.is-active {
-  background: var(--section-ring); border-color: var(--section-accent-600); color: var(--text-1);
-}
-
-/* Boutons contextualisés */
-.section .btn-primary {
-  background: var(--section-accent);
-  border-color: var(--section-accent-700);
-  color: #fff;
-}
-.section .btn-primary:hover { background: var(--section-accent-600); }
-.section .btn-outline:hover { border-color: var(--section-accent-600); }
-.section .btn-ghost:hover   { border-color: var(--border); background: color-mix(in srgb, var(--surface-1) 88%, #000 0%); }
-
-/* Focus contextualisé des champs/switch via --ring déjà propagé */
-.section :is(.form-control, .input, .select, .textarea):focus-visible {
-  border-color: var(--section-accent);
-}
-.section .switch:checked {
-  background: var(--section-accent);
-  border-color: var(--section-accent-700);
-}
-
-/* Upload contextualisé */
-.section .file-upload-area { border-color: var(--section-accent); }
-.section .file-upload-area:hover { border-color: var(--section-accent-600); }
-
-/* Grilles & actions */
-.section .form-grid { gap: var(--space-3); }
-.section .form-actions { border-top: 1px solid var(--border); }
-
-/* Barre d’actions de table */
-.section .table-actions {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: var(--space-3); margin: var(--space-3) 0 var(--space-3);
-}
-
-/* Badges accent si besoin */
-.section .status-badge--accent {
-  background: var(--section-ring); color: var(--section-accent);
-  border: 1px solid var(--section-accent-600);
-}
-
-/* Alignement d’actions */
-.section .actions-end { display: flex; gap: var(--space-3); justify-content: flex-end; }
-
-/* ---------------------------------------
-   Animations
-   --------------------------------------- */
-@keyframes spin { to { transform: rotate(360deg); } }
