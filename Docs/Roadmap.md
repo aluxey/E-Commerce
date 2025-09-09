@@ -1,6 +1,6 @@
 # 🛍️ Roadmap - Projet E-commerce
 
-Ce fichier contient les étapes de développement du projet, organisées par priorité. Tu peux cocher chaque case une fois une tâche terminée ✅
+Les grandes étapes prévues pour faire évoluer la boutique. Coche les cases au fur et à mesure ✅
 
 ---
 
@@ -85,4 +85,4 @@ Ce fichier contient les étapes de développement du projet, organisées par pri
 
 ---
 
-📅 Dernière mise à jour : `{{ À compléter manuellement }}`
+📅 Dernière mise à jour : 2025-09-09
