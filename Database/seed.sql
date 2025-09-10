@@ -87,20 +87,28 @@ end $$;
 -- 3) Produits (items) + images
 ------------------------------------------------------------
 with c as (select id, name from public.categories)
-insert into public.items(name, description, price, image_url, category_id)
+insert into public.items(name, description, price, image_url, category_id, sizes, colors)
 values
   ('Chaussettes en laine', 'Chaussettes douillettes pour l’hiver', 12.00,
    'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80&auto=format&fit=crop',
-   (select id from c where name='Vêtements')),
+   (select id from c where name='Vêtements'),
+   array['S','M','L'],
+   array['BLEU','ORANGE','VERT']),
   ('Mug en céramique', 'Mug artisanal peint à la main', 18.00,
    'https://images.unsplash.com/photo-1484659619207-9165d119dafe?w=1200&q=80&auto=format&fit=crop',
-   (select id from c where name='Maison')),
+   (select id from c where name='Maison'),
+   array['S','M','L'],
+   array['BLEU','ORANGE','VERT']),
   ('Bonnet tricoté', 'Bonnet chaud fait main', 15.00,
    'https://images.unsplash.com/photo-1603293552165-0e7d1226a9b6?w=1200&q=80&auto=format&fit=crop',
-   (select id from c where name='Vêtements')),
+   (select id from c where name='Vêtements'),
+   array['S','M','L'],
+   array['BLEU','ORANGE','VERT']),
   ('Plaid tissé main', 'Plaid doux et chaud', 35.00,
    'https://images.unsplash.com/photo-1582582621956-f11a44c1f36a?w=1200&q=80&auto=format&fit=crop',
-   (select id from c where name='Maison'))
+   (select id from c where name='Maison'),
+   array['S','M','L'],
+   array['BLEU','ORANGE','VERT'])
 on conflict do nothing;
 
 -- une image par item si absente

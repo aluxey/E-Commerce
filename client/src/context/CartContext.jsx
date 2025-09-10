@@ -15,22 +15,48 @@ export function CartProvider({ children }) {
 
   const addItem = item => {
     setCart(prev => {
-      const existing = prev.find(i => i.id === item.id);
+      const existing = prev.find(
+        i =>
+          i.id === item.id &&
+          i.selectedSize === item.selectedSize &&
+          i.selectedColor === item.selectedColor
+      );
       if (existing) {
-        return prev.map(i => (i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i));
+        return prev.map(i =>
+          i.id === item.id &&
+          i.selectedSize === item.selectedSize &&
+          i.selectedColor === item.selectedColor
+            ? { ...i, quantity: i.quantity + 1 }
+            : i
+        );
       }
       return [...prev, { ...item, quantity: 1 }];
     });
   };
 
-  const removeItem = id => {
-    setCart(prev => prev.filter(i => i.id !== id));
+  const removeItem = item => {
+    setCart(prev =>
+      prev.filter(
+        i =>
+          !(
+            i.id === item.id &&
+            i.selectedSize === item.selectedSize &&
+            i.selectedColor === item.selectedColor
+          )
+      )
+    );
   };
 
-  const decreaseItem = id => {
+  const decreaseItem = item => {
     setCart(prev =>
       prev
-        .map(i => (i.id === id ? { ...i, quantity: i.quantity - 1 } : i))
+        .map(i =>
+          i.id === item.id &&
+          i.selectedSize === item.selectedSize &&
+          i.selectedColor === item.selectedColor
+            ? { ...i, quantity: i.quantity - 1 }
+            : i
+        )
         .filter(i => i.quantity > 0)
     );
   };
