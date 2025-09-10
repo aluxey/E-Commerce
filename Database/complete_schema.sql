@@ -49,6 +49,8 @@ create table public.items (
   price        numeric(10,2) not null check (price >= 0), -- in euros
   image_url    text,
   category_id  bigint references public.categories(id) on delete set null,
+  sizes        text[] default array['S','M','L'],
+  colors       text[] default array['BLEU','ORANGE','VERT'],
   created_at   timestamp without time zone default now(),
   updated_at   timestamp without time zone default now()
 );
@@ -76,6 +78,18 @@ create table public.item_variants (
   created_at timestamp without time zone default now()
 );
 create index if not exists idx_variants_item on public.item_variants(item_id);
+
+create table public.item_ratings (
+  id         bigserial primary key,
+  item_id    bigint not null references public.items(id) on delete cascade,
+  user_id    uuid not null references public.users(id) on delete cascade,
+  rating     integer not null check (rating >= 1 and rating <= 5),
+  comment    text,
+  created_at timestamp without time zone default now(),
+  updated_at timestamp without time zone default now(),
+  unique (item_id, user_id)
+);
+create index if not exists idx_ratings_item on public.item_ratings(item_id);
 
 create table public.orders (
   id                 uuid primary key default gen_random_uuid(),
@@ -142,6 +156,10 @@ drop trigger if exists trg_items_updated_at on public.items;
 create trigger trg_items_updated_at before update on public.items
 for each row execute function public.set_updated_at();
 
+drop trigger if exists trg_ratings_updated_at on public.item_ratings;
+create trigger trg_ratings_updated_at before update on public.item_ratings
+for each row execute function public.set_updated_at();
+
 drop trigger if exists trg_orders_updated_at on public.orders;
 create trigger trg_orders_updated_at before update on public.orders
 for each row execute function public.set_updated_at();
@@ -155,6 +173,7 @@ alter table public.users          enable row level security;
 alter table public.items          enable row level security;
 alter table public.item_images    enable row level security;
 alter table public.item_variants  enable row level security;
+alter table public.item_ratings  enable row level security;
 alter table public.orders         enable row level security;
 alter table public.order_items    enable row level security;
 alter table public.payments       enable row level security;
@@ -241,6 +260,20 @@ create policy "Variants: admin write"
   to authenticated
   using ( public.is_admin(auth.uid()) )
   with check ( public.is_admin(auth.uid()) );
+
+-- ITEM RATINGS
+drop policy if exists "Ratings: public read" on public.item_ratings;
+create policy "Ratings: public read"
+  on public.item_ratings for select
+  to anon, authenticated
+  using ( true );
+
+drop policy if exists "Ratings: user manage own" on public.item_ratings;
+create policy "Ratings: user manage own"
+  on public.item_ratings for all
+  to authenticated
+  using ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
 
 -- ORDERS
 drop policy if exists "Orders: read own or admin" on public.orders;

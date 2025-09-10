@@ -9,7 +9,11 @@ export default function ItemCard({ item }) {
 
   const handleAddToCart = e => {
     e.preventDefault();
-    addItem(item);
+    addItem({
+      ...item,
+      selectedSize: item.sizes?.[0] || 'S',
+      selectedColor: item.colors?.[0] || 'BLEU',
+    });
   };
 
   return (
