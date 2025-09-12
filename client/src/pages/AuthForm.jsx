@@ -10,6 +10,7 @@ export default function AuthForm({ onSuccess }) {
   const [touched, setTouched] = useState({ email: false, password: false });
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const isEmailValid = emailRegex.test(form.email.trim());
   const isPasswordValid = form.password.length >= 6;
@@ -23,6 +24,10 @@ export default function AuthForm({ onSuccess }) {
   const handleBlur = useCallback(e => {
     const { name } = e.target;
     setTouched(t => ({ ...t, [name]: true }));
+  }, []);
+
+  const togglePasswordVisibility = useCallback(() => {
+    setShowPassword(v => !v);
   }, []);
 
   const getPasswordStrength = useMemo(() => {
@@ -108,34 +113,50 @@ export default function AuthForm({ onSuccess }) {
           aria-describedby={touched.email && !isEmailValid ? 'email-error' : undefined}
           autoComplete="email"
         />
+        <p className="muted" id="email-help">Nous ne partagerons jamais votre email.</p>
         {touched.email && !isEmailValid && (
-          <p id="email-error" className="field-error">
+          <p id="email-error" className="field-error" role="alert">
             Format d'email invalide.
           </p>
         )}
 
         <label htmlFor="password">Mot de passe</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          placeholder="••••••••"
-          value={form.password}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          required
-          minLength={6}
-          aria-invalid={touched.password && !isPasswordValid}
-          aria-describedby="password-strength"
-          autoComplete="new-password"
-        />
+        <div className="input-with-toggle">
+          <input
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="••••••••"
+            value={form.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            required
+            minLength={6}
+            aria-invalid={touched.password && !isPasswordValid}
+            aria-describedby="password-strength"
+            autoComplete="new-password"
+          />
+          <button
+            type="button"
+            className="password-toggle"
+            aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+            onClick={togglePasswordVisibility}
+          >
+            {showPassword ? 'Masquer' : 'Afficher'}
+          </button>
+        </div>
         {touched.password && !isPasswordValid && (
-          <p id="password-error" className="field-error">
+          <p id="password-error" className="field-error" role="alert">
             Le mot de passe doit contenir au moins 6 caractères.
           </p>
         )}
 
-        <div id="password-strength" className="password-strength" aria-live="polite">
+        <div
+          id="password-strength"
+          className="password-strength"
+          aria-live="polite"
+          data-score={getPasswordStrength.score}
+        >
           <progress
             max={5}
             value={getPasswordStrength.score}
@@ -157,9 +178,9 @@ export default function AuthForm({ onSuccess }) {
           )}
         </button>
 
-        <div aria-live="polite">
+        <div aria-live="assertive">
           {errorMsg && (
-            <p id="form-error" className="error">
+            <p id="form-error" className="error" role="alert">
               {errorMsg}
             </p>
           )}
