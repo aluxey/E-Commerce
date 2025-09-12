@@ -1,9 +1,9 @@
-import { useEffect, useState, useMemo } from 'react';
-import { supabase } from '../supabase/supabaseClient';
+import { useEffect, useState } from 'react';
 import ItemCard from '../components/ItemCard';
-import '../styles/Item.css';
+import '../styles/ProductList.css';
+import { supabase } from '../supabase/supabaseClient';
 
-export default function ItemList() {
+export default function ProductList() {
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);

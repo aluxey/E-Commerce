@@ -3,8 +3,27 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 10%;
-  background-color: var(--color-bg-alt);
+  padding: 1.25rem 10%;
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  transition: padding var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+/* Navbar compacte au scroll */
+.navbar.scrolled {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Groupe de navigation */
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
 }
 
 /* Cible uniquement les links, spans (user) et boutons (login/logout) */
@@ -13,28 +32,30 @@
 .navbar button {
   position: relative;
   overflow: hidden;
-  color: #000;
+  color: var(--color-text);
   text-decoration: none;
-  padding: 10px;
-  font-size: 20px;
-  transition: color 0.2s ease-in-out;
-  margin-right: 10px;
+  padding: 0.625rem var(--space-sm);
+  font-size: 1.125rem;
+  transition: color var(--transition-fast);
+  margin-right: var(--space-sm);
   background: none;
   border: none;
   cursor: pointer;
+  font-family: var(--font-family);
 }
 
 /* ==== Underline animé pour links et span ==== */
-.navbar a::after {
-  content: "";
+.navbar a::after,
+.navbar span::after {
+  content: '';
   position: absolute;
   bottom: 0;
-  left: 50%;
+  left: 0;
   width: 100%;
-  height: 3px;
-  background-color: #edb29f;
-  transform: translateX(-50%) scaleX(0);
-  transform-origin: center;
+  height: 2px;
+  background-color: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: right;
   transition: transform 0.3s ease;
   opacity: 0.9;
 }
@@ -43,37 +64,51 @@
 .navbar a:focus::after,
 .navbar span:hover::after,
 .navbar span:focus::after {
-  transform: translateX(-50%) scaleX(1);
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 /* Change de couleur au hover des links et spans */
 .navbar a:hover,
-.navbar a:focus {
-  color: black;
+.navbar a:focus,
+.navbar span:hover,
+.navbar span:focus {
+  color: var(--color-accent);
 }
 
-/* ==== Style spécifique pour l’utilisateur connecté ==== */
+/* ==== Style spécifique pour l'utilisateur connecté ==== */
 .navbar span.navbar-user {
-  background-color: #2f2fdb;
-  color: #fff;
-  border-radius: 10px;
-  padding: 8px 12px;      /* ajustement intérieur */
+  background-color: var(--color-complementary);
+  color: var(--color-surface);
+  border-radius: var(--radius-pill);
+  padding: 0.5rem 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.navbar span.navbar-user:hover {
+  background-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 /* ==== Style des boutons Login/Logout ==== */
 .navbar button.btn-logout,
 .navbar a.btn-login {
-  background-color: #ec3131;
-  color: #fff;
-  border-radius: 10px;
-  padding: 8px 12px;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  background-color: var(--color-error);
+  color: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
 }
 
 .navbar button.btn-logout:hover,
 .navbar a.btn-login:hover {
   background-color: #c22828;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .navbar button.btn-logout:active,
@@ -81,16 +116,104 @@
   transform: translateY(0);
 }
 
-/* ==== Responsive Navbar ==== */
+/* Logo animation */
+.navbar-logo {
+  font-weight: 700;
+  font-size: 1.5rem;
+  transition: transform var(--transition-normal);
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
+
+/* ==== Responsive Navbar + Hamburger Menu ==== */
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 21px;
+  cursor: pointer;
+  z-index: var(--z-fixed);
+}
+
+.navbar-toggle span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: var(--color-text);
+  border-radius: var(--radius-pill);
+  transition: all 0.3s ease;
+}
+
 @media (max-width: 768px) {
   .navbar {
-    flex-direction: column;
-    padding: 10px;
+    padding: 1rem 5%;
   }
+
+  .navbar-toggle {
+    display: flex;
+  }
+
+  .navbar-nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    height: 100vh;
+    background-color: var(--color-surface);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+    transition: right 0.3s ease;
+    box-shadow: var(--shadow-lg);
+    z-index: calc(var(--z-fixed) - 1);
+  }
+
+  .navbar-nav.active {
+    right: 0;
+  }
+
+  .navbar-toggle.active span:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+  }
+
+  .navbar-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .navbar-toggle.active span:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+  }
+
   .navbar a,
   .navbar span,
   .navbar button {
-    font-size: 18px;
-    margin: 6px 0;
+    font-size: 1.125rem;
+    margin: 0.5rem 0;
+    width: 100%;
+    text-align: center;
   }
+}
+
+/* Animation d'entrée pour les éléments du menu */
+.navbar-nav a,
+.navbar-nav span,
+.navbar-nav button {
+  animation: fadeInDown 0.4s ease backwards;
+}
+
+.navbar-nav a:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.navbar-nav a:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.navbar-nav a:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.navbar-nav a:nth-child(4) {
+  animation-delay: 0.4s;
 }
