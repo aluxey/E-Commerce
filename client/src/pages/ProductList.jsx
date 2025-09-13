@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ItemCard from '../components/ItemCard';
 import '../styles/ProductList.css';
 import { supabase } from '../supabase/supabaseClient';
 
 export default function ProductList() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -13,6 +14,8 @@ export default function ProductList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('name');
+  const [avgRatings, setAvgRatings] = useState({}); // { [itemId]: number }
+  const [reviewCounts, setReviewCounts] = useState({}); // { [itemId]: number }
 
   // Charger les items et catégories
   useEffect(() => {
@@ -37,9 +40,42 @@ export default function ProductList() {
         .select('*');
 
       if (!itemsError && !categoriesError) {
-        setItems(itemsData || []);
+        const safeItems = itemsData || [];
+        setItems(safeItems);
         setCategories(categoriesData || []);
-        setFilteredItems(itemsData || []);
+        setFilteredItems(safeItems || []);
+
+        // Charger les ratings moyens pour les items chargés
+        try {
+          const ids = safeItems.map(i => i.id);
+          if (ids.length) {
+            const { data: ratingsData, error: ratingsError } = await supabase
+              .from('item_ratings')
+              .select('item_id, rating')
+              .in('item_id', ids);
+
+            if (!ratingsError && ratingsData) {
+              const sums = {};
+              const counts = {};
+              for (const r of ratingsData) {
+                sums[r.item_id] = (sums[r.item_id] || 0) + r.rating;
+                counts[r.item_id] = (counts[r.item_id] || 0) + 1;
+              }
+              const averages = {};
+              const reviewsCount = {};
+              ids.forEach(id => {
+                const c = counts[id] || 0;
+                const s = sums[id] || 0;
+                averages[id] = c ? s / c : 0;
+                reviewsCount[id] = c;
+              });
+              setAvgRatings(averages);
+              setReviewCounts(reviewsCount);
+            }
+          }
+        } catch (e) {
+          console.warn('Impossible de charger les ratings moyens:', e);
+        }
       } else {
         console.error('Erreur lors du chargement :', itemsError || categoriesError);
       }
@@ -109,6 +145,19 @@ export default function ProductList() {
     setSortBy('name');
   };
 
+  // Lecture du filtre actif via l’URL (promo / month / all)
+  const activeFilter = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('filter') || 'all';
+  }, [location.search]);
+
+  const setActiveFilter = value => {
+    const params = new URLSearchParams(location.search);
+    if (value === 'all') params.delete('filter');
+    else params.set('filter', value);
+    navigate({ pathname: '/items', search: params.toString() });
+  };
+
   if (isLoading) {
     return (
       <div className="products-loading">
@@ -119,54 +168,104 @@ export default function ProductList() {
   }
 
   return (
-    <div className="products-page">
+    <div className="products-page simple">
       {/* En-tête simplifié */}
       <div className="products-header">
         <h1>Notre Collection</h1>
         <p className="products-subtitle">{items.length} produits disponibles</p>
       </div>
 
-      {/* Barre de recherche et filtres simplifiés */}
+      {/* Mini‑navbar: recherche + filtres */}
       <div className="products-controls">
-        <div className="search-section">
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Rechercher un produit..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-            <span className="search-icon">🔍</span>
+        <nav className="products-subnav" aria-label="Navigation des filtres produits">
+          <div className="subnav-left">
+            <div className="search-box">
+              <input
+                type="text"
+                placeholder="Rechercher un produit..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="search-input"
+                aria-label="Rechercher"
+              />
+              <span className="search-icon">🔍</span>
+            </div>
           </div>
-        </div>
-
-        <div className="filters-section">
-          <select
-            value={selectedCategory}
-            onChange={e => setSelectedCategory(e.target.value)}
-            className="category-select"
-          >
-            <option value="">Toutes les catégories</option>
-            {categories.map(category => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-
-          <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="sort-select">
-            <option value="name">Trier par nom</option>
-            <option value="price">Prix croissant</option>
-            <option value="price-desc">Prix décroissant</option>
-          </select>
-
-          {(searchTerm || selectedCategory) && (
-            <button onClick={handleClearFilters} className="clear-btn">
-              Effacer les filtres
-            </button>
-          )}
-        </div>
+          <div className="subnav-right">
+            <ul className="filter-list">
+              <li>
+                <button
+                  className={`filter-chip${activeFilter === 'all' ? ' active' : ''}`}
+                  onClick={() => setActiveFilter('all')}
+                >
+                  Tous
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`filter-chip${activeFilter === 'promo' ? ' active' : ''}`}
+                  onClick={() => setActiveFilter('promo')}
+                >
+                  Promo
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`filter-chip${activeFilter === 'month' ? ' active' : ''}`}
+                  onClick={() => setActiveFilter('month')}
+                >
+                  Article du mois
+                </button>
+              </li>
+            </ul>
+            <ul className="sort-list" aria-label="Tri">
+              <li>
+                <button
+                  className={`sort-chip${sortBy === 'name' ? ' active' : ''}`}
+                  onClick={() => setSortBy('name')}
+                >
+                  Nom
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`sort-chip${sortBy === 'price' ? ' active' : ''}`}
+                  onClick={() => setSortBy('price')}
+                >
+                  Prix ↑
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`sort-chip${sortBy === 'price-desc' ? ' active' : ''}`}
+                  onClick={() => setSortBy('price-desc')}
+                >
+                  Prix ↓
+                </button>
+              </li>
+            </ul>
+            <div className="subnav-selects">
+              <select
+                value={selectedCategory}
+                onChange={e => setSelectedCategory(e.target.value)}
+                className="category-select"
+                aria-label="Catégorie"
+              >
+                <option value="">Toutes catégories</option>
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              {(searchTerm || selectedCategory) && (
+                <button onClick={handleClearFilters} className="clear-btn">
+                  Effacer
+                </button>
+              )}
+            </div>
+          </div>
+        </nav>
       </div>
 
       {/* Résultats */}
@@ -183,7 +282,12 @@ export default function ProductList() {
         {filteredItems.length > 0 ? (
           <div className="products-grid">
             {filteredItems.map(item => (
-              <ItemCard key={item.id} item={item} />
+              <ItemCard
+                key={item.id}
+                item={item}
+                avgRating={avgRatings[item.id] || 0}
+                reviewCount={reviewCounts[item.id] || 0}
+              />
             ))}
           </div>
         ) : (

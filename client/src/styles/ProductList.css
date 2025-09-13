@@ -11,8 +11,9 @@
 
 /* Header avec dégradé */
 .products-header {
-  background: linear-gradient(135deg, var(--color-accent-dark) 0%, var(--color-accent) 100%);
-  color: var(--color-surface);
+  /* Dégradé clair et moderne */
+  background: linear-gradient(135deg, var(--color-bg-alt) 0%, var(--color-surface) 100%);
+  color: var(--color-text);
   padding: 4rem 1rem;
   text-align: center;
   box-shadow: var(--shadow-lg);
@@ -26,7 +27,7 @@
   position: absolute;
   inset: 0;
   background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  opacity: 0.5;
+  opacity: 0.18; /* motif très léger sur fond clair */
 }
 
 .products-header h1 {
@@ -518,6 +519,148 @@
   animation: fadeInUp 0.6s ease-out forwards;
 }
 
+/* --- Mini navbar (subnav) --- */
+.products-subnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;            /* meilleur comportement sur mobile */
+  row-gap: 0.75rem;
+  padding: 0.25rem 0 0.5rem;  /* aération minimale */
+}
+
+.products-subnav .subnav-left {
+  flex: 1 1 50%;
+}
+
+.products-subnav .subnav-right {
+  flex: 1 1 50%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;            /* évite les débordements */
+}
+
+.filter-list,
+.sort-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Séparateur visuel entre filtres et tri */
+.sort-list {
+  border-left: 1px solid rgba(127, 159, 160, 0.2);
+  padding-left: 0.75rem;
+}
+
+.filter-chip,
+.sort-chip {
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-md);                      /* angles doux, plus modernes */
+  background: var(--color-bg-alt);                      /* fond très léger */
+  border: 1px solid rgba(127, 159, 160, 0.25);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease;
+}
+
+.filter-chip:hover,
+.sort-chip:hover {
+  background: #f5f2ea;                                  /* léger survol, sans animation forte */
+  border-color: var(--color-accent-light);
+}
+
+.filter-chip.active,
+.sort-chip.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-surface);
+}
+
+.filter-chip:focus-visible,
+.sort-chip:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.subnav-selects {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.subnav-selects .category-select {
+  min-width: 160px;
+}
+
+/* --- Rating & actions on card --- */
+.item-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.item-rating .stars {
+  display: inline-flex;
+  line-height: 1;
+}
+
+.item-rating .star {
+  color: #cfcfcf;
+}
+
+.item-rating .star.full {
+  color: #f1c40f;
+}
+
+.item-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.8rem 1.2rem 1.2rem;
+}
+
+.item-cta.secondary {
+  background: rgba(127, 159, 160, 0.15);
+  color: var(--color-text);
+}
+
+/* --- Minimal animations mode --- */
+.products-page.simple .products-header,
+.products-page.simple .products-controls,
+.products-page.simple .products-results {
+  animation: none;
+}
+
+.products-page.simple .products-grid > * {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
+.products-page.simple .item-card:hover,
+.products-page.simple .products-grid > *:hover {
+  transform: none;
+  box-shadow: var(--shadow-md);
+}
+
+.products-page.simple .item-card .item-image img,
+.products-page.simple .products-grid > * .item-image img {
+  transition: none;
+}
+
+.products-page.simple .item-card .item-image::after,
+.products-page.simple .products-grid > * .item-image::after {
+  display: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .products-grid > *:nth-child(1) {
     animation-delay: 0.1s;
@@ -551,6 +694,15 @@
   .products-controls {
     margin-top: -1rem;
     padding: 1.2rem;
+  }
+
+  .products-subnav {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .products-subnav .subnav-right {
+    justify-content: flex-start;
   }
 
   .filters-section {
