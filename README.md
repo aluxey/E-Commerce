@@ -6,6 +6,24 @@ une application complète bâtie avec **React** pour l'interface et
 
 ## Découvrir le site
 
+### Home page
+![homepage1](/Docs/Assets/homepage1.png)
+![homepage2](/Docs/Assets/homepage2.png)
+
+### Admin page
+![admin1](/Docs/Assets/admin1.png)
+![admin2](/Docs/Assets/admin2.png)
+
+### Liste des items
+![itemlist](/Docs/Assets/itemlist.png)
+
+### Page de login
+![terminalImage](/Docs/Assets/login.png)
+
+### Panier
+![terminalImage](/Docs/Assets/cart.png)
+
+
 - **Catalogue** : parcourez les produits et leurs détails.
 - **Panier et commande** : ajoutez vos articles puis finalisez l'achat.
 - **Espace admin** : gérez produits, commandes et stocks.
