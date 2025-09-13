@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../supabase/supabaseClient';
 import ItemCard from '../components/ItemCard';
+import MiniItemCard from '../components/MiniItemCard';
 
 // Import des images pour le carousel
 import deskOrganizer from '../assets/products/desk_organizer.jpg';
@@ -157,9 +158,9 @@ function HomeSections({ loading, latestItems, topItems }) {
         {loading ? (
           <div className="section-loading">Chargement…</div>
         ) : (
-          <div className="grid">
-            {latestItems.map(item => (
-              <ItemCard key={`latest-${item.id}`} item={item} />
+          <div className="home-row">
+            {(latestItems || []).slice(0, 5).map(item => (
+              <MiniItemCard key={`latest-${item.id}`} item={item} />
             ))}
           </div>
         )}
@@ -168,13 +169,14 @@ function HomeSections({ loading, latestItems, topItems }) {
       <section className="home-section">
         <div className="section-header">
           <h2>Top achats</h2>
+          <Link to="/items" className="see-all">Voir tout</Link>
         </div>
         {loading ? (
           <div className="section-loading">Chargement…</div>
         ) : topItems.length ? (
-          <div className="grid">
-            {topItems.map(item => (
-              <ItemCard key={`top-${item.id}`} item={item} />
+          <div className="home-row">
+            {(topItems || []).slice(0, 5).map(item => (
+              <MiniItemCard key={`top-${item.id}`} item={item} />
             ))}
           </div>
         ) : (
