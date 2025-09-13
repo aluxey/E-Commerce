@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import ItemCard from '../components/ItemCard';
 import '../styles/ProductList.css';
 import { supabase } from '../supabase/supabaseClient';
 
 export default function ProductList() {
+  const location = useLocation();
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -48,9 +50,27 @@ export default function ProductList() {
     fetchData();
   }, []);
 
+  // Appliquer une catégorie à partir des query params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const categoryName = params.get('category');
+    if (categoryName && categories.length) {
+      const cat = categories.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
+      if (cat) setSelectedCategory(String(cat.id));
+    }
+  }, [categories, location.search]);
+
   // Filtrer et trier les items
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
     let filtered = [...items];
+
+    const filter = params.get('filter');
+    if (filter === 'promo') {
+      filtered = filtered.filter(item => item.is_promo);
+    } else if (filter === 'month') {
+      filtered = filtered.filter(item => item.is_item_month);
+    }
 
     // Filtre par recherche
     if (searchTerm) {
@@ -81,7 +101,7 @@ export default function ProductList() {
     });
 
     setFilteredItems(filtered);
-  }, [items, searchTerm, selectedCategory, sortBy]);
+  }, [items, searchTerm, selectedCategory, sortBy, location.search]);
 
   const handleClearFilters = () => {
     setSearchTerm('');

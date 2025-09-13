@@ -6,7 +6,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
-const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
+const Home = lazy(() => import("./pages/Home"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AuthForm = lazy(() => import("./pages/AuthForm"));
 const Login = lazy(() => import("./pages/Login"));
@@ -26,9 +26,10 @@ function App() {
       <Navbar />
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
-          <Route path="/" element={<AuthForm />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/signup" element={<AuthForm />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/client" element={<ClientDashboard />} />
+          <Route path="/client" element={<Home />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/items" element={<ItemList />} />
           <Route path="/item/:id" element={<ItemDetail />} />

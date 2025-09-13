@@ -12,7 +12,8 @@ import purpleBlackBox from '../assets/products/purple_black_box.jpg';
 
 const carouselImages = [deskOrganizer, greyBasket, purpleBlackBox];
 
-export default function ClientDashboard() {
+// Page d'accueil publique affichant les dernières nouveautés et les best sellers
+export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [latestItems, setLatestItems] = useState([]);
   const [topItems, setTopItems] = useState([]);
@@ -88,10 +89,9 @@ export default function ClientDashboard() {
   return (
     <div className="container">
       <div className="header">
-        <h1>Welcome sur la boutique brodée pour toi!</h1>
-        <h4>Découvrez notre collection unique de créations artisanales.</h4>
-        <h4>Toutes ces créations sont artisanales.</h4>
-        <h4>Trouver maintenant la pièce qu'il vous manque.</h4>
+        <h1>Bienvenue chez Sabbels Handmade !</h1>
+        <h4>Des créations artisanales uniques pour votre quotidien.</h4>
+        <h4>Chaque pièce est réalisée à la main avec passion.</h4>
         <button className="cta-btn">
           <Link to="/items" className="navbar-link">
             Voir nos produits
