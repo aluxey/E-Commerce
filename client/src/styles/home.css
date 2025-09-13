@@ -107,6 +107,45 @@
   z-index: 1;
 }
 
+/* Sous-navbar d'items (Home) */
+.home-subnav {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  margin: 0 auto var(--space-xl);
+  padding: var(--space-sm);
+  background: var(--color-surface);
+  border: 1px solid rgba(127, 159, 160, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.home-subnav__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  background: rgba(181, 103, 48, 0.08);
+  border: 1px solid rgba(181, 103, 48, 0.25);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all var(--transition-normal);
+}
+
+.home-subnav__link:hover {
+  background: var(--color-accent);
+  color: var(--color-surface);
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
 /* Carousel amélioré */
 .carousel {
   position: relative;

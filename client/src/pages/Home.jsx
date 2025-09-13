@@ -100,6 +100,14 @@ export default function Home() {
         </button>
       </div>
 
+      {/* Sous‑navbar dédiée aux items */}
+      <nav className="home-subnav" aria-label="Filtres rapides des produits">
+        <Link to="/items?filter=month" className="home-subnav__link">Article du mois</Link>
+        <Link to="/items?filter=promo" className="home-subnav__link">Promo</Link>
+        <Link to={`/items?category=${encodeURIComponent('Set de table')}`} className="home-subnav__link">Set de table</Link>
+        <Link to={`/items?category=${encodeURIComponent('Vêtement')}`} className="home-subnav__link">Vêtement</Link>
+      </nav>
+
       {/* Carousel double */}
       <div className="carousel double">
         <button className="carousel-btn prev" onClick={prevSlide} aria-label="Précédent">
