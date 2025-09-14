@@ -46,9 +46,7 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0 }) {
         </div>
         <div className="item-content">
           <h2 className="item-title">{item.name}</h2>
-          {item.description && (
-            <p className="item-description">{item.description}</p>
-          )}
+          
           <div className="item-meta">
             <div className="item-price">{item.price?.toLocaleString()} €</div>
             <div className="item-rating" aria-label={`Note moyenne ${roundedRating} sur 5`}>

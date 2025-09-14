@@ -1,6 +1,3 @@
-/* ProductList.css — version moderne & cohérente avec le design system */
-
-/* Page */
 .products-page {
   min-height: 100vh;
   background-color: var(--color-bg);
@@ -12,11 +9,9 @@
 /* Header avec dégradé */
 .products-header {
   /* Dégradé clair et moderne */
-  background: linear-gradient(135deg, var(--color-bg-alt) 0%, var(--color-surface) 100%);
   color: var(--color-text);
   padding: 4rem 1rem;
-  text-align: center;
-  box-shadow: var(--shadow-lg);
+  text-align: center; 
   position: relative;
   overflow: hidden;
   animation: fadeIn 0.8s ease-out;
@@ -27,7 +22,7 @@
   position: absolute;
   inset: 0;
   background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  opacity: 0.18; /* motif très léger sur fond clair */
+  opacity: 0.18;
 }
 
 .products-header h1 {
@@ -42,7 +37,6 @@
 .products-subtitle {
   font-size: clamp(1rem, 2vw, 1.1rem);
   opacity: 0.95;
-  margin: 0;
   position: relative;
   max-width: 700px;
   margin: 0 auto;
@@ -50,7 +44,7 @@
 
 /* Controls */
 .products-controls {
-  max-width: 1200px;
+  max-width: 80vw;
   margin: -1.5rem auto 0;
   padding: 1.5rem;
   background: var(--color-surface);
@@ -197,7 +191,7 @@
 
 /* Results block */
 .products-results {
-  max-width: 1200px;
+  max-width: 80vw;
   margin: 0 auto;
   padding: 2rem 1rem 3rem;
   animation: fadeInUp 0.8s ease-out 0.3s both;
@@ -328,7 +322,6 @@
   display: grid;
   gap: 0.7rem;
   flex: 1;
-  display: flex;
   flex-direction: column;
 }
 

@@ -19,8 +19,7 @@ const Navbar = () => {
           Sabbels Handmade
         </Link>
       </div>
-      <div className="navbar-nav">
-        <Link to="/" className="navbar-link">Accueil</Link>
+      <div className="navbar-nav"> 
         <Link to="/items" className="navbar-link">Boutique</Link>
         <Link to="/cart" className="navbar-link">Panier</Link>
         {!session && (

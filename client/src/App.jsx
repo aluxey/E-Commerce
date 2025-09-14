@@ -18,7 +18,6 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const ProductAdmin = lazy(() => import("./components/Admin/ProductManager"));
 
 import './styles/global.css';
-import './styles/Stripe.css';
 
 function App() {
   return (

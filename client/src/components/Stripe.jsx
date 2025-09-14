@@ -5,6 +5,7 @@ import { CartContext } from '../context/CartContext'; // Correction du chemin
 import { useAuth } from '../context/AuthContext'; // Correction du chemin
 import CheckoutForm from './CheckoutForm';
 
+import '../styles/Stripe.css';
 // Initialize Stripe (utilise ta clé publique)
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 

@@ -7,7 +7,7 @@
 
 /* En-tête simplifié */
 .products-header {
-  max-width: 1200px;
+  max-width: 80vw;
   margin: 0 auto 3rem;
   padding: 0 2rem;
   text-align: center;
@@ -162,7 +162,7 @@
 }
 
 .item-card .item-image {
-  height: 120px;
+  height: 260px;
   overflow: hidden;
 }
 

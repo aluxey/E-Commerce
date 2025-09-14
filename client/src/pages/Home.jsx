@@ -89,6 +89,29 @@ export default function Home() {
 
   return (
     <div className="container">
+      
+      {/* Sous‑navbar dédiée aux items */}
+      <nav className="home-subnav" aria-label="Filtres rapides des produits">
+        <Link to="/items?filter=month" className="home-subnav__link">
+          Article du mois
+        </Link>
+        <Link to="/items?filter=promo" className="home-subnav__link">
+          Promo
+        </Link>
+        <Link
+          to={`/items?category=${encodeURIComponent('Set de table')}`}
+          className="home-subnav__link"
+        >
+          Set de table
+        </Link>
+        <Link
+          to={`/items?category=${encodeURIComponent('Vêtement')}`}
+          className="home-subnav__link"
+        >
+          Vêtement
+        </Link>
+      </nav>
+
       <div className="header">
         <h1>Bienvenue chez Sabbels Handmade !</h1>
         <h4>Des créations artisanales uniques pour votre quotidien.</h4>
@@ -99,14 +122,6 @@ export default function Home() {
           </Link>
         </button>
       </div>
-
-      {/* Sous‑navbar dédiée aux items */}
-      <nav className="home-subnav" aria-label="Filtres rapides des produits">
-        <Link to="/items?filter=month" className="home-subnav__link">Article du mois</Link>
-        <Link to="/items?filter=promo" className="home-subnav__link">Promo</Link>
-        <Link to={`/items?category=${encodeURIComponent('Set de table')}`} className="home-subnav__link">Set de table</Link>
-        <Link to={`/items?category=${encodeURIComponent('Vêtement')}`} className="home-subnav__link">Vêtement</Link>
-      </nav>
 
       {/* Carousel double */}
       <div className="carousel double">
@@ -146,11 +161,7 @@ export default function Home() {
       </div>
 
       {/* Sections dynamiques */}
-      <HomeSections
-        loading={loading}
-        latestItems={latestItems}
-        topItems={topItems}
-      />
+      <HomeSections loading={loading} latestItems={latestItems} topItems={topItems} />
     </div>
   );
 }
