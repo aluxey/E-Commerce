@@ -9,7 +9,7 @@ import MiniItemCard from '../components/MiniItemCard';
 // Import des images pour le carousel
 import deskOrganizer from '../assets/products/desk_organizer.jpg';
 import greyBasket from '../assets/products/grey_basket.jpg';
-import purpleBlackBox from '../assets/products/purple_black_box.jpg';
+import purpleBlackBox from '../assets/mainPic.jpg';
 
 const carouselImages = [deskOrganizer, greyBasket, purpleBlackBox];
 
@@ -89,39 +89,62 @@ export default function Home() {
 
   return (
     <div className="container">
-      
       {/* Sous‑navbar dédiée aux items */}
       <nav className="home-subnav" aria-label="Filtres rapides des produits">
-        <Link to="/items?filter=month" className="home-subnav__link">
-          Article du mois
+        <Link to="/items?filter=promo" className="home-subnav__link">
+          Unsere Bestseller
         </Link>
         <Link to="/items?filter=promo" className="home-subnav__link">
-          Promo
+          Alles fürs Kinderzimmer
         </Link>
-        <Link
-          to={`/items?category=${encodeURIComponent('Set de table')}`}
-          className="home-subnav__link"
-        >
-          Set de table
+        <Link to="/items?filter=promo" className="home-subnav__link">
+          Für jede Saison
         </Link>
-        <Link
-          to={`/items?category=${encodeURIComponent('Vêtement')}`}
-          className="home-subnav__link"
-        >
-          Vêtement
+        <Link to="/items?filter=month" className="home-subnav__link">
+          Sets
+        </Link>
+        <Link to={`/items?category=${encodeURIComponent('Maison')}`} className="home-subnav__link">
+          Über das Produkt
         </Link>
       </nav>
 
-      <div className="header">
-        <h1>Bienvenue chez Sabbels Handmade !</h1>
-        <h4>Des créations artisanales uniques pour votre quotidien.</h4>
-        <h4>Chaque pièce est réalisée à la main avec passion.</h4>
-        <button className="cta-btn">
-          <Link to="/items" className="navbar-link">
-            Voir nos produits
-          </Link>
-        </button>
-      </div>
+      {/* Hero image + slogan */}
+      <section className="home-hero" aria-label="Présentation">
+        <div className="hero-media">
+          <img src={purpleBlackBox} alt="Produit artisanal en vedette" />
+        </div>
+        <div className="hero-content">
+          <h1>Willkommen in meiner Häkelwelt</h1>
+          <p className="hero-tagline">Deine Größe ist nicht dabei? Sende mir deinen Wunsch!</p>
+          <div className="hero-actions">
+            <Link to="/items" className="btn btn--primary">
+              Siehe alle Produkte
+            </Link>
+            <a
+              href="mailto:contact@sabbels-handmade.com?subject=Commande%20personnalis%C3%A9e"
+              className="btn btn--ghost"
+            >
+              Anfragen
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Zone catégories (accès rapide) */}
+      <section className="home-categories" aria-label="Accès rapide catégories">
+        <Link className="category-card" to="/items?filter=promo">
+          <span className="category-title">Favoris</span>
+        </Link>
+        <Link className="category-card" to="/items?filter=month">
+          <span className="category-title">Saison</span>
+        </Link>
+        <Link className="category-card" to={`/items?category=${encodeURIComponent('Maison')}`}>
+          <span className="category-title">Maison</span>
+        </Link>
+        <Link className="category-card" to={`/items?category=${encodeURIComponent('Vêtement')}`}>
+          <span className="category-title">Vêtements</span>
+        </Link>
+      </section>
 
       {/* Carousel double */}
       <div className="carousel double">
@@ -178,7 +201,7 @@ function HomeSections({ loading, latestItems, topItems }) {
           <div className="section-loading">Chargement…</div>
         ) : (
           <div className="home-row">
-            {(latestItems || []).slice(0, 5).map(item => (
+            {(latestItems || []).slice(0, 4).map(item => (
               <MiniItemCard key={`latest-${item.id}`} item={item} />
             ))}
           </div>
@@ -187,7 +210,7 @@ function HomeSections({ loading, latestItems, topItems }) {
 
       <section className="home-section">
         <div className="section-header">
-          <h2>Top achats</h2>
+          <h2>Best sellers</h2>
           <Link to="/items" className="see-all">Voir tout</Link>
         </div>
         {loading ? (

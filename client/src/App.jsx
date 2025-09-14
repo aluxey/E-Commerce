@@ -16,6 +16,7 @@ const Cart = lazy(() => import("./pages/Cart"));
 const StripeCheckout = lazy(() => import("./components/Stripe"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const ProductAdmin = lazy(() => import("./components/Admin/ProductManager"));
+const Profile = lazy(() => import("./pages/Profile"));
 
 import './styles/global.css';
 
@@ -33,6 +34,7 @@ function App() {
           <Route path="/items" element={<ItemList />} />
           <Route path="/item/:id" element={<ItemDetail />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/profile" element={<Profile />} />
           <Route
             path="/checkout"
             element={

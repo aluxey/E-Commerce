@@ -8,7 +8,7 @@
   --fourth-color: #7f9fa0;
 
   /* Extended palette */
-  --color-bg: #e5ddc7;
+  --color-bg: #9dac99;
   --color-bg-alt: #f8f6f0;
   --color-surface: #ffffff;
   --color-text: #2d2d2d;
@@ -31,7 +31,7 @@
   --space-xxl: 3rem; /* 48px */
 
   /* Typography */
-  --font-family: 'JetBrains Mono', monospace;
+
   --font-size-xs: 0.75rem; /* 12px */
   --font-size-sm: 0.875rem; /* 14px */
   --font-size-md: 1rem; /* 16px */

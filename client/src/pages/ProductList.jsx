@@ -86,6 +86,13 @@ export default function ProductList() {
     fetchData();
   }, []);
 
+  // Synchroniser la recherche depuis l'URL (?search=...)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('search') || '';
+    setSearchTerm(q);
+  }, [location.search]);
+
   // Appliquer une catégorie à partir des query params
   useEffect(() => {
     const params = new URLSearchParams(location.search);

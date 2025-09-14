@@ -12,6 +12,49 @@
   transition: padding var(--transition-normal), box-shadow var(--transition-normal);
 }
 
+/* Brand group: logo image + brand text */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.logoNav {
+  display: block;
+  height: 82px;
+  width: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Search bar in navbar */
+.navbar-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-bg-alt);
+  border: 1px solid rgba(0,0,0,0.08);
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar-search input {
+  border: none;
+  background: transparent;
+  outline: none;
+  min-width: 220px;
+  font-size: 0.95rem;
+}
+
+.navbar-search button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
 /* Navbar compacte au scroll */
 .navbar.scrolled {
   padding-top: 0.75rem;
@@ -152,9 +195,13 @@
     padding: 1rem 5%;
   }
 
+  .logoNav { height: 36px; border-radius: 6px; }
+
   .navbar-toggle {
     display: flex;
   }
+
+  .navbar-search input { min-width: 140px; }
 
   .navbar-nav {
     position: fixed;
