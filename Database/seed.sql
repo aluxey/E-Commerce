@@ -123,26 +123,35 @@ where i.image_url is not null
 ------------------------------------------------------------
 do $$
 declare
-  v_mug_id    bigint;
-  v_bonnet_id bigint;
+  v_mug_id       bigint;
+  v_bonnet_id    bigint;
+  v_mug_price    numeric(10,2);
+  v_bonnet_price numeric(10,2);
 begin
-  select id into v_mug_id    from public.items where name = 'Mug en céramique' limit 1;
-  select id into v_bonnet_id from public.items where name = 'Bonnet tricoté'   limit 1;
+  select id, price into v_mug_id, v_mug_price
+  from public.items
+  where name = 'Mug en céramique'
+  limit 1;
+
+  select id, price into v_bonnet_id, v_bonnet_price
+  from public.items
+  where name = 'Bonnet tricoté'
+  limit 1;
 
   if v_mug_id is not null then
-    insert into public.item_variants(item_id, sku, color, "format", stock, price)
+    insert into public.item_variants(item_id, sku, color, size, stock, price)
     values
-      (v_mug_id, 'MUG-WHITE-300', 'blanc', '300ml', 20, null),   -- utilise le prix de base de l'item
+      (v_mug_id, 'MUG-WHITE-300', 'blanc', '300ml', 20, v_mug_price),
       (v_mug_id, 'MUG-NOIR-300',  'noir',  '300ml', 15, 19.50)
     on conflict (sku) do nothing;
   end if;
 
   if v_bonnet_id is not null then
-    insert into public.item_variants(item_id, sku, color, "format", stock, price)
+    insert into public.item_variants(item_id, sku, color, size, stock, price)
     values
-      (v_bonnet_id, 'BONNET-GRIS-S', 'gris', 'S', 10, null),
-      (v_bonnet_id, 'BONNET-GRIS-M', 'gris', 'M', 12, null),
-      (v_bonnet_id, 'BONNET-GRIS-L', 'gris', 'L',  8, null)
+      (v_bonnet_id, 'BONNET-GRIS-S', 'gris', 'S', 10, v_bonnet_price),
+      (v_bonnet_id, 'BONNET-GRIS-M', 'gris', 'M', 12, v_bonnet_price),
+      (v_bonnet_id, 'BONNET-GRIS-L', 'gris', 'L',  8, v_bonnet_price)
     on conflict (sku) do nothing;
   end if;
 end $$;
@@ -158,6 +167,7 @@ declare
   v_client_id uuid;
   v_order_id  uuid;
   v_item_id   bigint;
+  v_variant_id bigint;
   v_unit      numeric(10,2);
   v_qty       int := 2;
   v_total     numeric(10,2);
@@ -180,8 +190,16 @@ begin
   limit 1;
 
   if v_item_id is not null then
-    insert into public.order_items(order_id, item_id, variant_id, quantity, unit_price)
-    values (v_order_id, v_item_id, null, v_qty, v_unit);
+    select id into v_variant_id
+    from public.item_variants
+    where item_id = v_item_id
+    order by price asc, id asc
+    limit 1;
+
+    if v_variant_id is not null then
+      insert into public.order_items(order_id, item_id, variant_id, quantity, unit_price)
+      values (v_order_id, v_item_id, v_variant_id, v_qty, v_unit);
+    end if;
   end if;
 
   -- recalcule le total sur la base de total_price généré

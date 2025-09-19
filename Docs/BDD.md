@@ -14,9 +14,9 @@ Aperçu des tables principales utilisées par la boutique Supabase.
 ## `item_variants`
 
 - `id`, `item_id`
-- `color`, `format`
-- `stock` — quantité disponible
-- `extra_price` — surcoût éventuel
+- `color`, `size`
+- `stock` — quantité disponible (>= 0)
+- `price` — prix variant (obligatoire, en euros)
 
 Chaque produit peut proposer plusieurs variantes.
 
@@ -49,3 +49,5 @@ rôle de l’utilisateur.
 
 - `Database/bd.sql` — création des tables
 - `Database/populate.sql` — exemples de données
+- `Database/migrations/20241017_variants_overhaul.sql` — migration renommage taille/prix et contraintes
+- `Database/scripts/backfill_variants_from_items.sql` — génération de variantes depuis `items.sizes/colors`

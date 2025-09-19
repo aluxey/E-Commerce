@@ -11,9 +11,10 @@ export default function VariantManager() {
   const [form, setForm] = useState({
     item_id: '',
     color: '',
-    format: '',
-    price: 0,
+    size: '',
+    price: '',
     stock: 0,
+    sku: '',
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -33,30 +34,65 @@ export default function VariantManager() {
   };
 
   const handleChange = e => {
-    const value = e.target.type === 'number' ? parseFloat(e.target.value) : e.target.value;
-    setForm({ ...form, [e.target.name]: value });
+    const { name, value, type } = e.target;
+    if (type === 'number') {
+      setForm(prev => ({ ...prev, [name]: value }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
     try {
+      const payload = {
+        item_id: Number(form.item_id),
+        color: form.color.trim() ? form.color.trim() : null,
+        size: form.size.trim(),
+        stock: Math.max(0, parseInt(form.stock, 10) || 0),
+        price: parseFloat(String(form.price).replace(',', '.')),
+      };
+
+      if (!payload.item_id || !payload.size || Number.isNaN(payload.price)) {
+        alert('Produit, taille et prix sont requis.');
+        return;
+      }
+
+      if (payload.price < 0) {
+        alert('Le prix doit être positif.');
+        return;
+      }
+
       if (editingId) {
-        await supabase.from(TABLE_VARIANTS).update(form).eq('id', editingId);
+        const updatePayload = { ...payload };
+        if (form.sku) updatePayload.sku = form.sku;
+        const { error } = await supabase.from(TABLE_VARIANTS).update(updatePayload).eq('id', editingId);
+        if (error) throw error;
         setEditingId(null);
       } else {
-        await supabase.from(TABLE_VARIANTS).insert([form]);
+        const skuBase = `SKU-${payload.item_id}-${payload.size}-${payload.color || 'default'}`
+          .toUpperCase()
+          .replace(/[^A-Z0-9-]/g, '-');
+        const insertPayload = {
+          ...payload,
+          sku: skuBase,
+        };
+        const { error } = await supabase.from(TABLE_VARIANTS).insert([insertPayload]);
+        if (error) throw error;
       }
 
       setForm({
         item_id: '',
         color: '',
-        format: '',
-        price: 0,
+        size: '',
+        price: '',
         stock: 0,
+        sku: '',
       });
       fetchVariants();
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
+      alert(error.message || 'Impossible de sauvegarder la variante.');
     }
   };
 
@@ -64,9 +100,10 @@ export default function VariantManager() {
     setForm({
       item_id: variant.item_id,
       color: variant.color,
-      format: variant.format,
+      size: variant.size,
       price: variant.price,
       stock: variant.stock,
+      sku: variant.sku,
     });
     setEditingId(variant.id);
   };
@@ -83,9 +120,10 @@ export default function VariantManager() {
     setForm({
       item_id: '',
       color: '',
-      format: '',
-      price: 0,
+      size: '',
+      price: '',
       stock: 0,
+      sku: '',
     });
   };
 
@@ -117,10 +155,10 @@ export default function VariantManager() {
         />
 
         <input
-          name="format"
-          value={form.format}
+          name="size"
+          value={form.size}
           onChange={handleChange}
-          placeholder="Format"
+          placeholder="Taille"
           required
         />
 
@@ -152,17 +190,17 @@ export default function VariantManager() {
         </div>
       </form>
 
-      <div className="variants-list">
-        <h3>Variantes existantes</h3>
-        {variants.length === 0 ? (
-          <p>Aucune variante trouvée</p>
-        ) : (
+        <div className="variants-list">
+          <h3>Variantes existantes</h3>
+          {variants.length === 0 ? (
+            <p>Aucune variante trouvée</p>
+          ) : (
           <table>
             <thead>
               <tr>
                 <th>Produit</th>
                 <th>Couleur</th>
-                <th>Format</th>
+                <th>Taille</th>
                 <th>Prix</th>
                 <th>Stock</th>
                 <th>Actions</th>
@@ -173,8 +211,8 @@ export default function VariantManager() {
                 <tr key={variant.id}>
                   <td>{variant.items?.name || 'N/A'}</td>
                   <td>{variant.color}</td>
-                  <td>{variant.format}</td>
-                  <td>{variant.price}€</td>
+                  <td>{variant.size}</td>
+                  <td>{Number(variant.price).toFixed(2)}€</td>
                   <td>{variant.stock}</td>
                   <td>
                     <button onClick={() => handleEdit(variant)}>Modifier</button>
