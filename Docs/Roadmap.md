@@ -48,7 +48,7 @@ Les grandes étapes prévues pour faire évoluer la boutique. Coche les cases au
 ### 📋 Interface Admin
 - [ ] Liste des produits (pagination, actions CRUD)
 - [ ] Formulaire ajout / édition produit
-- [ ] Gestion des variantes (formats, prix, stock)
+- [ ] Gestion des variantes (tailles, prix, stock)
 - [ ] Liste des commandes (filtrage par statut)
 
 ### 🔐 Supabase RLS

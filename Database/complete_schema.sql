@@ -72,12 +72,16 @@ create table public.item_variants (
   item_id    bigint not null references public.items(id) on delete cascade,
   sku        text unique,
   color      text,
-  "format"   text,
+  size       text,
   stock      integer not null default 0 check (stock >= 0),
-  price      numeric(10,2) null check (price is null or price >= 0), -- override item price if set
+  price      numeric(10,2) not null check (price >= 0), -- variant price in euros
   created_at timestamp without time zone default now()
 );
 create index if not exists idx_variants_item on public.item_variants(item_id);
+create unique index if not exists ux_item_variants_combo
+  on public.item_variants (item_id, coalesce(size, ''), coalesce(color, ''));
+create index if not exists idx_item_variants_item_size_color
+  on public.item_variants (item_id, size, color);
 
 create table public.item_ratings (
   id         bigserial primary key,
@@ -108,7 +112,7 @@ create table public.order_items (
   id           bigserial primary key,
   order_id     uuid not null references public.orders(id) on delete cascade,
   item_id      bigint not null references public.items(id) on delete restrict,
-  variant_id   bigint null references public.item_variants(id) on delete set null,
+  variant_id   bigint not null references public.item_variants(id) on delete restrict,
   quantity     integer not null check (quantity > 0),
   unit_price   numeric(10,2) not null default 0 check (unit_price >= 0), -- euros at time of purchase
   total_price  numeric(10,2) generated always as (quantity * coalesce(unit_price,0)) stored,

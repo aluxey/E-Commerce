@@ -28,6 +28,13 @@ export default function ProductList() {
           item_images (
             image_url
           ),
+          item_variants (
+            id,
+            size,
+            color,
+            price,
+            stock
+          ),
           categories (
             id,
             name

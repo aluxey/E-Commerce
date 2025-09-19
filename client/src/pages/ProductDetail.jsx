@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useContext, useCallback } from 'react';
+import { useEffect, useState, useContext, useCallback, useMemo } from 'react';
 import { supabase } from '../supabase/supabaseClient';
 import '../styles/itemPage.css';
 import { CartContext } from '../context/CartContext';
@@ -10,6 +10,7 @@ export default function ItemDetail() {
   const [item, setItem] = useState(null);
   const [activeImage, setActiveImage] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [variants, setVariants] = useState([]);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [rating, setRating] = useState(0);
@@ -25,6 +26,75 @@ export default function ItemDetail() {
   const navigate = useNavigate();
   const { addItem } = useContext(CartContext);
   const { session } = useAuth();
+
+  const sizeOptions = useMemo(() => {
+    if (!variants.length) return [];
+    const map = new Map();
+    variants.forEach(variant => {
+      const key = variant.size || '';
+      const label = variant.size || 'Unique';
+      const entry = map.get(key) || { value: key, label, hasStock: false };
+      const available = variant.stock == null || variant.stock > 0;
+      if (available) entry.hasStock = true;
+      map.set(key, entry);
+    });
+    return Array.from(map.values());
+  }, [variants]);
+
+  const colorOptions = useMemo(() => {
+    const filtered = variants.filter(v => (v.size || '') === selectedSize);
+    if (!filtered.length) return [];
+    const map = new Map();
+    filtered.forEach(variant => {
+      const key = variant.color || '';
+      const label = variant.color || 'Sans couleur';
+      const entry = map.get(key) || { value: key, label, hasStock: false };
+      const available = variant.stock == null || variant.stock > 0;
+      if (available) entry.hasStock = true;
+      map.set(key, entry);
+    });
+    return Array.from(map.values());
+  }, [variants, selectedSize]);
+
+  const selectedVariant = useMemo(() => {
+    if (!selectedSize) return null;
+    return (
+      variants.find(
+        variant => (variant.size || '') === selectedSize && (variant.color || '') === selectedColor
+      ) || null
+    );
+  }, [variants, selectedSize, selectedColor]);
+
+  const showColorSelect = colorOptions.length > 1 || (colorOptions.length === 1 && colorOptions[0].value !== '');
+  const priceToDisplay = selectedVariant?.price != null ? Number(selectedVariant.price) : item?.price != null ? Number(item.price) : 0;
+  const isOutOfStock = selectedVariant
+    ? selectedVariant.stock != null
+      ? selectedVariant.stock <= 0
+      : false
+    : !variants.length;
+
+  useEffect(() => {
+    if (!colorOptions.length) {
+      setSelectedColor('');
+      return;
+    }
+    if (!colorOptions.some(option => option.value === selectedColor)) {
+      const preferred = colorOptions.find(option => option.hasStock) || colorOptions[0];
+      setSelectedColor(preferred.value);
+    }
+  }, [colorOptions, selectedColor]);
+
+  useEffect(() => {
+    if (!selectedVariant) return;
+    const stock = selectedVariant.stock ?? null;
+    if (stock != null && stock > 0 && quantity > stock) {
+      setQuantity(stock);
+    }
+  }, [selectedVariant, quantity]);
+
+  useEffect(() => {
+    setQuantity(1);
+  }, [selectedVariant ? selectedVariant.id : null]);
 
   // Calculer la date de livraison estimée
   useEffect(() => {
@@ -49,6 +119,13 @@ export default function ItemDetail() {
           *,
           item_images (
             image_url
+          ),
+          item_variants (
+            id,
+            size,
+            color,
+            price,
+            stock
           )
         `
         )
@@ -59,8 +136,27 @@ export default function ItemDetail() {
         setItem(data);
         const first = data?.item_images?.[0]?.image_url || null;
         setActiveImage(first);
-        setSelectedSize(data.sizes?.[0] || 'S');
-        setSelectedColor(data.colors?.[0] || 'BLEU');
+
+        const sortedVariants = (data?.item_variants || [])
+          .map(v => ({
+            ...v,
+            price: v.price != null ? Number(v.price) : null,
+          }))
+          .sort((a, b) => {
+            const ap = a.price ?? Number.POSITIVE_INFINITY;
+            const bp = b.price ?? Number.POSITIVE_INFINITY;
+            return ap - bp;
+          });
+
+        setVariants(sortedVariants);
+        const preferred = sortedVariants.find(v => (v.stock ?? 0) > 0) || sortedVariants[0] || null;
+        if (preferred) {
+          setSelectedSize(preferred.size || '');
+          setSelectedColor(preferred.color || '');
+        } else {
+          setSelectedSize('');
+          setSelectedColor('');
+        }
 
         // Charger les produits similaires
         fetchRelatedItems(data.category_id);
@@ -83,6 +179,13 @@ export default function ItemDetail() {
         *,
         item_images (
           image_url
+        ),
+        item_variants (
+          id,
+          size,
+          color,
+          price,
+          stock
         )
       `
       )
@@ -150,11 +253,15 @@ export default function ItemDetail() {
   };
 
   const handleAddToCart = async () => {
+    if (!selectedVariant || isOutOfStock) return;
     setIsAddingToCart(true);
+
+    const stock = selectedVariant.stock ?? null;
+    const safeQuantity = Math.max(1, stock != null ? Math.min(quantity, stock) : quantity);
 
     // Simulation d'un délai pour l'UX
     setTimeout(() => {
-      for (let i = 0; i < quantity; i++) addItem({ ...item, selectedSize, selectedColor });
+      addItem({ item, variant: selectedVariant, quantity: safeQuantity });
 
       setIsAddingToCart(false);
       setShowNotification(true);
@@ -234,9 +341,13 @@ export default function ItemDetail() {
           {item.description && <p className="pd-desc">{item.description}</p>}
 
           <div className="pd-price-container">
-            <div className="pd-price">{Number(item.price).toFixed(2)} €</div>
+            <div className="pd-price">{priceToDisplay.toFixed(2)} €</div>
             <div className="pd-badges">
-
+              {selectedVariant && selectedVariant.stock != null && (
+                <span className={`badge ${isOutOfStock ? 'badge--danger' : ''}`}>
+                  {isOutOfStock ? 'Rupture de stock' : `Stock : ${selectedVariant.stock}`}
+                </span>
+              )}
               <span className="badge delivery">Livraison {deliveryDate}</span>
             </div>
           </div>
@@ -248,31 +359,36 @@ export default function ItemDetail() {
                 <select
                   value={selectedSize}
                   onChange={e => setSelectedSize(e.target.value)}
+                  disabled={!sizeOptions.length}
                 >
-                  {item.sizes?.map(s => (
-                    <option key={s} value={s}>
-                      {s}
+                  {sizeOptions.map(option => (
+                    <option key={option.value || 'unique'} value={option.value} disabled={!option.hasStock}>
+                      {option.label}
+                      {!option.hasStock ? ' (épuisé)' : ''}
                     </option>
                   ))}
                 </select>
               </label>
             </div>
 
-            <div className="option-group">
-              <label>
-                Couleur:
-                <select
-                  value={selectedColor}
-                  onChange={e => setSelectedColor(e.target.value)}
-                >
-                  {item.colors?.map(c => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
+            {showColorSelect && (
+              <div className="option-group">
+                <label>
+                  Couleur:
+                  <select
+                    value={selectedColor}
+                    onChange={e => setSelectedColor(e.target.value)}
+                  >
+                    {colorOptions.map(option => (
+                      <option key={option.value || 'default'} value={option.value} disabled={!option.hasStock}>
+                        {option.label}
+                        {!option.hasStock ? ' (épuisé)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            )}
           </div>
 
           <div className="pd-actions">
@@ -289,12 +405,25 @@ export default function ItemDetail() {
                   type="number"
                   min={1}
                   value={quantity}
-                  onChange={e => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+                  onChange={e => {
+                    const value = Math.max(1, Number(e.target.value) || 1);
+                    const stock = selectedVariant?.stock ?? null;
+                    setQuantity(stock != null ? Math.min(value, stock) : value);
+                  }}
                   className="qty-input"
                 />
                 <button
                   className="qty-btn"
-                  onClick={() => setQuantity(q => q + 1)}
+                  onClick={() =>
+                    setQuantity(q => {
+                      const stock = selectedVariant?.stock ?? null;
+                      if (stock != null) {
+                        return Math.min(stock, q + 1);
+                      }
+                      return q + 1;
+                    })
+                  }
+                  disabled={isOutOfStock || (selectedVariant?.stock != null && quantity >= selectedVariant.stock)}
                 >
                   +
                 </button>
@@ -305,7 +434,7 @@ export default function ItemDetail() {
               <button
                 className={`btn primary ${isAddingToCart ? 'loading' : ''}`}
                 onClick={handleAddToCart}
-                disabled={isAddingToCart}
+                disabled={isAddingToCart || isOutOfStock || !selectedVariant}
               >
                 {isAddingToCart ? (
                   <>

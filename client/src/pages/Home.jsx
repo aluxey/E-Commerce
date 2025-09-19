@@ -54,7 +54,7 @@ export default function Home() {
         // Derniers articles
         const { data: latest, error: latestErr } = await supabase
           .from('items')
-          .select('*, item_images ( image_url )')
+          .select('*, item_images ( image_url ), item_variants ( id, size, color, price, stock )')
           .order('created_at', { ascending: false })
           .limit(8);
         if (latestErr) console.error(latestErr);
@@ -69,7 +69,7 @@ export default function Home() {
           const ids = topAgg.map(r => r.item_id);
           const { data: items, error: itemsErr } = await supabase
             .from('items')
-            .select('*, item_images ( image_url )')
+            .select('*, item_images ( image_url ), item_variants ( id, size, color, price, stock )')
             .in('id', ids);
           if (!itemsErr && items) {
             const map = new Map(items.map(i => [i.id, i]));

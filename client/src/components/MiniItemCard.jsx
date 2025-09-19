@@ -5,14 +5,14 @@ import { CartContext } from '../context/CartContext';
 export default function MiniItemCard({ item }) {
   const { addItem } = useContext(CartContext);
   const imageUrl = item?.item_images?.[0]?.image_url;
+  const variants = item?.item_variants || [];
+  const preferredVariant = variants.find(v => (v.stock ?? 0) > 0) || variants[0] || null;
+  const displayPrice = item?.price != null ? Number(item.price) : preferredVariant?.price != null ? Number(preferredVariant.price) : 0;
 
   const handleAdd = e => {
     e.preventDefault();
-    addItem({
-      ...item,
-      selectedSize: item.sizes?.[0] || 'S',
-      selectedColor: item.colors?.[0] || 'BLEU',
-    });
+    if (!preferredVariant) return;
+    addItem({ item, variant: preferredVariant });
   };
 
   return (
@@ -27,13 +27,18 @@ export default function MiniItemCard({ item }) {
       <div className="mini-card__body">
         <div className="mini-card__info">
           <h3 className="mini-card__title" title={item?.name}>{item?.name}</h3>
-          <div className="mini-card__price">{item?.price?.toLocaleString()} €</div>
+          <div className="mini-card__price">{displayPrice.toFixed(2)} €</div>
         </div>
         <div className="mini-card__actions">
           <Link to={`/item/${item?.id}`} className="btn btn--ghost" aria-label="Voir le détail du produit">
             En savoir plus
           </Link>
-          <button className="btn btn--primary" onClick={handleAdd} aria-label="Ajouter au panier">
+          <button
+            className="btn btn--primary"
+            onClick={handleAdd}
+            aria-label="Ajouter au panier"
+            disabled={!preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0)}
+          >
             Ajouter
           </button>
         </div>
@@ -41,4 +46,3 @@ export default function MiniItemCard({ item }) {
     </div>
   );
 }
-
