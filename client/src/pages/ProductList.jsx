@@ -115,13 +115,6 @@ export default function ProductList() {
     const params = new URLSearchParams(location.search);
     let filtered = [...items];
 
-    const filter = params.get('filter');
-    if (filter === 'promo') {
-      filtered = filtered.filter(item => item.is_promo);
-    } else if (filter === 'month') {
-      filtered = filtered.filter(item => item.is_item_month);
-    }
-
     // Filtre par recherche
     if (searchTerm) {
       filtered = filtered.filter(
@@ -159,18 +152,7 @@ export default function ProductList() {
     setSortBy('name');
   };
 
-  // Lecture du filtre actif via l’URL (promo / month / all)
-  const activeFilter = useMemo(() => {
-    const params = new URLSearchParams(location.search);
-    return params.get('filter') || 'all';
-  }, [location.search]);
-
-  const setActiveFilter = value => {
-    const params = new URLSearchParams(location.search);
-    if (value === 'all') params.delete('filter');
-    else params.set('filter', value);
-    navigate({ pathname: '/items', search: params.toString() });
-  };
+  // Suppression des filtres obsolètes (promo/mois) non supportés par le schéma
 
   if (isLoading) {
     return (
@@ -206,32 +188,6 @@ export default function ProductList() {
             </div>
           </div>
           <div className="subnav-right">
-            <ul className="filter-list">
-              <li>
-                <button
-                  className={`filter-chip${activeFilter === 'all' ? ' active' : ''}`}
-                  onClick={() => setActiveFilter('all')}
-                >
-                  Tous
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`filter-chip${activeFilter === 'promo' ? ' active' : ''}`}
-                  onClick={() => setActiveFilter('promo')}
-                >
-                  Promo
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`filter-chip${activeFilter === 'month' ? ' active' : ''}`}
-                  onClick={() => setActiveFilter('month')}
-                >
-                  Article du mois
-                </button>
-              </li>
-            </ul>
             <ul className="sort-list" aria-label="Tri">
               <li>
                 <button

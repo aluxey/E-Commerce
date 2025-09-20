@@ -90,17 +90,17 @@ export default function Home() {
   return (
     <div className="container">
       {/* Sous‑navbar dédiée aux items */}
-      <nav className="home-subnav" aria-label="Filtres rapides des produits">
-        <Link to="/items?filter=promo" className="home-subnav__link">
+      <nav className="home-subnav" aria-label="Accès rapide produits">
+        <Link to="/items" className="home-subnav__link">
           Unsere Bestseller
         </Link>
-        <Link to="/items?filter=promo" className="home-subnav__link">
+        <Link to="/items" className="home-subnav__link">
           Alles fürs Kinderzimmer
         </Link>
-        <Link to="/items?filter=promo" className="home-subnav__link">
+        <Link to="/items" className="home-subnav__link">
           Für jede Saison
         </Link>
-        <Link to="/items?filter=month" className="home-subnav__link">
+        <Link to="/items" className="home-subnav__link">
           Sets
         </Link>
         <Link to={`/items?category=${encodeURIComponent('Maison')}`} className="home-subnav__link">
@@ -132,10 +132,10 @@ export default function Home() {
 
       {/* Zone catégories (accès rapide) */}
       <section className="home-categories" aria-label="Accès rapide catégories">
-        <Link className="category-card" to="/items?filter=promo">
+        <Link className="category-card" to="/items">
           <span className="category-title">Favoris</span>
         </Link>
-        <Link className="category-card" to="/items?filter=month">
+        <Link className="category-card" to="/items">
           <span className="category-title">Saison</span>
         </Link>
         <Link className="category-card" to={`/items?category=${encodeURIComponent('Maison')}`}>

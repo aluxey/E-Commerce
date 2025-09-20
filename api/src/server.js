@@ -195,6 +195,16 @@ app.post('/api/checkout', async (req, res) => {
       },
     })
 
+    // Enregistrer l'identifiant du paiement sur la commande
+    try {
+      await supabase
+        .from('orders')
+        .update({ payment_intent_id: paymentIntent.id })
+        .eq('id', order.id)
+    } catch (_) {
+      // no-op: ne bloque pas le checkout si l'update échoue
+    }
+
     return res.status(200).json({ clientSecret: paymentIntent.client_secret, orderId: order.id })
   } catch (err) {
     console.error('Checkout error:', err)

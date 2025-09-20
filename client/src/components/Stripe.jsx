@@ -134,10 +134,15 @@ const StripeCheckout = () => {
           const unit = Number(item.unit_price) || 0;
           return (
             <div key={item.variantId} className="order-item">
-            <span className="item-name">{item.name}</span>
-            <span className="item-quantity">{item.quantity}x</span>
-            <span className="item-total">{(unit * item.quantity).toFixed(2)}€</span>
-          </div>
+              <div className="order-item-main">
+                <span className="item-name">{item.name}</span>
+                <span className="item-variant">
+                  Taille: {item.size || '—'} | Couleur: {item.color || '—'}
+                </span>
+              </div>
+              <span className="item-quantity">{item.quantity}x</span>
+              <span className="item-total">{(unit * item.quantity).toFixed(2)}€</span>
+            </div>
           );
         })}
         <div className="order-total">
