@@ -15,6 +15,7 @@ drop table if exists public.payments cascade;
 drop table if exists public.stripe_events cascade;
 drop table if exists public.item_images cascade;
 drop table if exists public.item_variants cascade;
+drop table if exists public.item_ratings cascade;
 drop table if exists public.items cascade;
 drop table if exists public.categories cascade;
 drop table if exists public.orders cascade;
