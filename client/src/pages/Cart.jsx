@@ -11,7 +11,7 @@ const Cart = () => {
 
   const calculateTotal = () => {
     return cart.reduce((total, item) => {
-      return total + item.price * item.quantity;
+      return total + (Number(item.unit_price) || 0) * item.quantity;
     }, 0);
   };
 
@@ -31,28 +31,38 @@ const Cart = () => {
       <h1>Mon Panier</h1>
 
       <div className="cart-items">
-        {cart.map(item => (
-          <div
-            key={`${item.id}-${item.selectedSize}-${item.selectedColor}`}
-            className="cart-item"
-          >
-            <img src={item.item_images?.[0]?.image_url} alt={item.name} />
+        {cart.map(item => {
+          const unitPrice = Number(item.unit_price) || 0;
+          const stock = item.stock ?? null;
+          const cannotIncrease = stock != null && item.quantity >= stock;
+          return (
+            <div
+              key={`${item.variantId}`}
+              className="cart-item"
+            >
+              <img src={item.image_url} alt={item.name} />
             <div className="item-details">
               <h3>{item.name}</h3>
-              <p>{item.price}€</p>
-              <p>Taille: {item.selectedSize} | Couleur: {item.selectedColor}</p>
+              <p>{unitPrice.toFixed(2)}€</p>
+              <p>
+                Taille: {item.size || '—'} | Couleur: {item.color || '—'}
+              </p>
+              {stock != null && <p className="item-stock">Stock: {stock}</p>}
             </div>
             <div className="quantity-controls">
               <button onClick={() => decreaseItem(item)}>-</button>
               <span>{item.quantity}</span>
-              <button onClick={() => addItem(item)}>+</button>
+              <button onClick={() => addItem(item)} disabled={cannotIncrease}>
+                +
+              </button>
             </div>
-            <div className="item-total">{(item.price * item.quantity).toFixed(2)}€</div>
+            <div className="item-total">{(unitPrice * item.quantity).toFixed(2)}€</div>
             <button onClick={() => removeItem(item)} className="remove-btn">
               Supprimer
             </button>
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
 
       <div className="cart-summary">

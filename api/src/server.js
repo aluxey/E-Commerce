@@ -89,14 +89,17 @@ function normalizeCartItems(rawItems) {
   return rawItems
     .map(i => ({
       item_id: i.item_id || i.id || i.itemId,
-      quantity: Number(i.quantity) || 1,
-      variant_id: i.variant_id || i.variantId || null,
+      quantity: Math.max(1, Number(i.quantity) || 1),
+      variant_id: i.variant_id != null ? Number(i.variant_id) : i.variantId != null ? Number(i.variantId) : null,
     }))
     .filter(i => i.item_id)
 }
 
-async function computeAmountCents(cartItems) {
-  if (!cartItems.length) return 0
+async function gatherCartPricing(cartItems) {
+  if (!cartItems.length) {
+    return { totalCents: 0, itemsById: new Map(), variantsById: new Map() }
+  }
+
   const itemIds = [...new Set(cartItems.map(i => i.item_id))]
   const variantIds = [...new Set(cartItems.map(i => i.variant_id).filter(Boolean))]
 
@@ -111,21 +114,26 @@ async function computeAmountCents(cartItems) {
   if (variantIds.length) {
     const { data: variants, error: variantsError } = await supabase
       .from('item_variants')
-      .select('id, item_id, price')
+      .select('id, item_id, price, stock')
       .in('id', variantIds)
     if (variantsError) throw variantsError
-    variantMap = new Map(variants.map(v => [v.id, { item_id: v.item_id, price: v.price != null ? Number(v.price) : null }]))
+    variantMap = new Map(
+      variants.map(v => [v.id, { item_id: v.item_id, price: Number(v.price), stock: v.stock ?? 0 }])
+    )
   }
 
   const total = cartItems.reduce((sum, it) => {
     const basePrice = itemMap.get(it.item_id) || 0
     const variant = it.variant_id ? variantMap.get(it.variant_id) : null
-    const price = variant?.price != null ? variant.price : basePrice
+    const price = variant ? variant.price : basePrice
     return sum + price * it.quantity
   }, 0)
 
-  // Convert euros to cents safely
-  return Math.max(0, Math.round(total * 100))
+  return {
+    totalCents: Math.max(0, Math.round(total * 100)),
+    itemsById: itemMap,
+    variantsById: variantMap,
+  }
 }
 
 app.post('/api/checkout', async (req, res) => {
@@ -137,8 +145,25 @@ app.post('/api/checkout', async (req, res) => {
     const cartItems = normalizeCartItems(req.body.cartItems)
     if (!cartItems.length) return res.status(400).json({ error: 'Cart is empty' })
 
-    const amount = await computeAmountCents(cartItems)
+    if (cartItems.some(ci => !ci.variant_id)) {
+      return res.status(400).json({ error: 'Chaque article doit inclure un variant_id.' })
+    }
+
+    const { totalCents: amount, variantsById } = await gatherCartPricing(cartItems)
     if (amount <= 0) return res.status(400).json({ error: 'Invalid amount' })
+
+    for (const item of cartItems) {
+      const variant = variantsById.get(item.variant_id)
+      if (!variant) {
+        return res.status(400).json({ error: `Variant ${item.variant_id} introuvable` })
+      }
+      if (variant.item_id !== item.item_id) {
+        return res.status(400).json({ error: 'Variant et produit incompatibles' })
+      }
+      if (variant.stock != null && variant.stock < item.quantity) {
+        return res.status(400).json({ error: 'Stock insuffisant pour un des variants' })
+      }
+    }
 
     // Create order in pending
     const { data: order, error: orderErr } = await supabase
@@ -153,7 +178,8 @@ app.post('/api/checkout', async (req, res) => {
       order_id: order.id,
       item_id: ci.item_id,
       quantity: ci.quantity,
-      variant_id: ci.variant_id || null,
+      variant_id: ci.variant_id,
+      unit_price: variantsById.get(ci.variant_id)?.price ?? 0,
     }))
     const { error: oiErr } = await supabase.from('order_items').insert(orderItemsPayload)
     if (oiErr) throw oiErr
@@ -169,6 +195,16 @@ app.post('/api/checkout', async (req, res) => {
       },
     })
 
+    // Enregistrer l'identifiant du paiement sur la commande
+    try {
+      await supabase
+        .from('orders')
+        .update({ payment_intent_id: paymentIntent.id })
+        .eq('id', order.id)
+    } catch (_) {
+      // no-op: ne bloque pas le checkout si l'update échoue
+    }
+
     return res.status(200).json({ clientSecret: paymentIntent.client_secret, orderId: order.id })
   } catch (err) {
     console.error('Checkout error:', err)
@@ -179,4 +215,3 @@ app.post('/api/checkout', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`[api] listening on :${PORT}`)
 })
-

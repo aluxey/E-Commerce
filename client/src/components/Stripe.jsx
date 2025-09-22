@@ -19,7 +19,7 @@ const StripeCheckout = () => {
   // Calculer le total du panier
   const calculateTotal = () => {
     return cart.reduce((total, item) => {
-      return total + item.price * item.quantity;
+      return total + (Number(item.unit_price) || 0) * item.quantity;
     }, 0);
   };
 
@@ -38,7 +38,11 @@ const StripeCheckout = () => {
       }
 
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const minimalCart = cart.map(i => ({ item_id: i.id, quantity: i.quantity, variant_id: i.variant_id }));
+      const minimalCart = cart.map(i => ({
+        item_id: i.itemId || i.id,
+        quantity: i.quantity,
+        variant_id: i.variant_id ?? i.variantId,
+      }));
       const response = await fetch(`${apiUrl}/api/checkout`, {
         method: 'POST',
         headers: {
@@ -126,13 +130,21 @@ const StripeCheckout = () => {
       {/* Résumé de la commande */}
       <div className="order-summary">
         <h3>Résumé de votre commande</h3>
-        {cart.map(item => (
-          <div key={item.id} className="order-item">
-            <span className="item-name">{item.name}</span>
-            <span className="item-quantity">{item.quantity}x</span>
-            <span className="item-total">{(item.price * item.quantity).toFixed(2)}€</span>
-          </div>
-        ))}
+        {cart.map(item => {
+          const unit = Number(item.unit_price) || 0;
+          return (
+            <div key={item.variantId} className="order-item">
+              <div className="order-item-main">
+                <span className="item-name">{item.name}</span>
+                <span className="item-variant">
+                  Taille: {item.size || '—'} | Couleur: {item.color || '—'}
+                </span>
+              </div>
+              <span className="item-quantity">{item.quantity}x</span>
+              <span className="item-total">{(unit * item.quantity).toFixed(2)}€</span>
+            </div>
+          );
+        })}
         <div className="order-total">
           <strong>Total: {calculateTotal().toFixed(2)}€</strong>
         </div>

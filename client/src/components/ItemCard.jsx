@@ -6,14 +6,24 @@ import '../styles/Item.css';
 export default function ItemCard({ item, avgRating = 0, reviewCount = 0 }) {
   const { addItem } = useContext(CartContext); // ✅ utilisation directe
   const imageUrl = item.item_images?.[0]?.image_url;
+  const variants = item.item_variants || [];
+
+  const preferredVariant = useMemo(() => {
+    if (!variants.length) return null;
+    const inStock = variants.find(v => (v.stock ?? 0) > 0);
+    return inStock || variants[0];
+  }, [variants]);
+
+  const displayPrice = useMemo(() => {
+    if (item.price != null) return Number(item.price);
+    if (preferredVariant?.price != null) return Number(preferredVariant.price);
+    return 0;
+  }, [item.price, preferredVariant]);
 
   const handleAddToCart = e => {
     e.preventDefault();
-    addItem({
-      ...item,
-      selectedSize: item.sizes?.[0] || 'S',
-      selectedColor: item.colors?.[0] || 'BLEU',
-    });
+    if (!preferredVariant) return;
+    addItem({ item, variant: preferredVariant });
   };
 
   const roundedRating = useMemo(() => {
@@ -48,7 +58,7 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0 }) {
           <h2 className="item-title">{item.name}</h2>
           
           <div className="item-meta">
-            <div className="item-price">{item.price?.toLocaleString()} €</div>
+            <div className="item-price">{displayPrice.toFixed(2)} €</div>
             <div className="item-rating" aria-label={`Note moyenne ${roundedRating} sur 5`}>
               <span className="stars">{renderStars(roundedRating)}</span>
               <span className="rating-value">{roundedRating || 0}</span>
@@ -60,7 +70,11 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0 }) {
         </div>
       </Link>
       <div className="item-actions">
-        <button className="item-cta" onClick={handleAddToCart}>
+        <button
+          className="item-cta"
+          onClick={handleAddToCart}
+          disabled={!preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0)}
+        >
           Acheter
         </button>
         <Link to={`/item/${item.id}`} className="item-cta secondary" aria-label="Voir le détail">

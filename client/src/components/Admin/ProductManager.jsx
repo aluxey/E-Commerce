@@ -3,6 +3,35 @@ import { supabase } from '../../supabase/supabaseClient';
 
 export const TABLE_ITEMS = 'items';
 const TABLE_CATEGORIES = 'categories';
+const TABLE_VARIANTS = 'item_variants';
+
+const createEmptyVariant = () => ({
+  id: null,
+  size: '',
+  color: '',
+  price: '',
+  stock: 0,
+  sku: '',
+});
+
+const sanitizeText = value => (value || '').trim();
+
+const slugify = value =>
+  sanitizeText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+const randomSuffix = () =>
+  typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID().slice(0, 8)
+    : Math.random().toString(36).slice(2, 8).toUpperCase();
+
+const buildSku = (itemId, variant) => {
+  const sizeSlug = slugify(variant.size) || 'std';
+  const colorSlug = slugify(variant.color || '') || 'def';
+  return `SKU-${itemId}-${sizeSlug}-${colorSlug}-${randomSuffix()}`.toUpperCase();
+};
 
 export default function ProductAdmin() {
   const [products, setProducts] = useState([]);
@@ -15,29 +44,21 @@ export default function ProductAdmin() {
 
   const [form, setForm] = useState({
     name: '',
-    price: '',
     description: '',
     category_id: '',
-    sizes: ['S', 'M', 'L'],
-    colors: ['BLEU', 'ORANGE', 'VERT'],
   });
 
-  const [sizeInput, setSizeInput] = useState('');
-  const [colorInput, setColorInput] = useState('');
+  const [variants, setVariants] = useState([createEmptyVariant()]);
   const [newImages, setNewImages] = useState([]); // File[]
   const [imagePreviews, setImagePreviews] = useState([]); // local URL previews
 
   const resetForm = () => {
     setForm({
       name: '',
-      price: '',
       description: '',
       category_id: '',
-      sizes: ['S', 'M', 'L'],
-      colors: ['BLEU', 'ORANGE', 'VERT'],
     });
-    setSizeInput('');
-    setColorInput('');
+    setVariants([createEmptyVariant()]);
     setEditingId(null);
     setNewImages([]);
     setImagePreviews([]);
@@ -53,7 +74,8 @@ export default function ProductAdmin() {
           `
           id, name, price, description, category_id, sizes, colors,
           item_images ( id, image_url ),
-          categories ( id, name )
+          categories ( id, name ),
+          item_variants ( id, size, color, price, stock, sku )
         `
         )
         .order('id', { ascending: false });
@@ -80,26 +102,22 @@ export default function ProductAdmin() {
 
   const handleChange = e => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: name === 'price' ? value : value }));
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const addSize = () => {
-    const v = (sizeInput || '').trim();
-    if (!v) return;
-    setForm(prev => ({ ...prev, sizes: Array.from(new Set([...(prev.sizes || []), v])) }));
-    setSizeInput('');
+  const addVariantRow = () => {
+    setVariants(prev => [...prev, createEmptyVariant()]);
   };
-  const removeSize = value => {
-    setForm(prev => ({ ...prev, sizes: (prev.sizes || []).filter(s => s !== value) }));
+
+  const updateVariantField = (index, field, value) => {
+    setVariants(prev => prev.map((variant, idx) => (idx === index ? { ...variant, [field]: value } : variant)));
   };
-  const addColor = () => {
-    const v = (colorInput || '').trim();
-    if (!v) return;
-    setForm(prev => ({ ...prev, colors: Array.from(new Set([...(prev.colors || []), v])) }));
-    setColorInput('');
-  };
-  const removeColor = value => {
-    setForm(prev => ({ ...prev, colors: (prev.colors || []).filter(c => c !== value) }));
+
+  const removeVariantRow = index => {
+    setVariants(prev => {
+      if (prev.length === 1) return [createEmptyVariant()];
+      return prev.filter((_, idx) => idx !== index);
+    });
   };
 
   const onFilesSelected = files => {
@@ -146,37 +164,147 @@ export default function ProductAdmin() {
     return imageUrl;
   };
 
+  const minVariantPrice = useMemo(() => {
+    const prices = variants
+      .map(v => parseFloat(String(v.price).replace(',', '.')))
+      .filter(v => !Number.isNaN(v) && v >= 0);
+    if (!prices.length) return null;
+    return Math.min(...prices);
+  }, [variants]);
+
+  const validateVariants = () => {
+    const errors = [];
+    const combos = new Set();
+    const cleaned = variants.map((variant, index) => {
+      const size = sanitizeText(variant.size);
+      const colorText = sanitizeText(variant.color);
+      const color = colorText || null;
+      const price = parseFloat(String(variant.price).replace(',', '.'));
+      const stock = Math.max(0, parseInt(variant.stock, 10) || 0);
+
+      if (!size) errors.push(`Variante #${index + 1}: la taille est requise.`);
+      if (Number.isNaN(price)) errors.push(`Variante #${index + 1}: prix invalide.`);
+      if (!Number.isNaN(price) && price < 0) errors.push(`Variante #${index + 1}: le prix doit être positif.`);
+
+      const key = `${size}::${color || ''}`;
+      if (size && !Number.isNaN(price)) {
+        if (combos.has(key)) {
+          errors.push(`Variante #${index + 1}: combinaison taille/couleur déjà utilisée.`);
+        } else {
+          combos.add(key);
+        }
+      }
+
+      return {
+        ...variant,
+        size,
+        color,
+        price,
+        stock,
+        index,
+      };
+    });
+
+    const valid = cleaned.filter(v => v.size && !Number.isNaN(v.price) && v.price >= 0);
+    if (!valid.length) errors.push('Au moins une variante valide est requise.');
+
+    return { errors, validVariants: valid };
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      const payload = {
-        name: form.name,
-        price: parseFloat(String(form.price).replace(',', '.')) || 0,
-        description: form.description || null,
-        category_id: form.category_id ? Number(form.category_id) : null,
-        sizes: form.sizes || [],
-        colors: form.colors || [],
-      };
-
-      if (!payload.name || isNaN(payload.price)) {
-        alert('Nom et prix sont requis.');
+      const trimmedName = sanitizeText(form.name);
+      if (!trimmedName) {
+        alert('Le nom du produit est requis.');
         return;
       }
 
+      const { errors: variantErrors, validVariants } = validateVariants();
+      if (variantErrors.length) {
+        alert(variantErrors.join('\n'));
+        return;
+      }
+
+      const minPrice = Math.min(...validVariants.map(v => v.price));
+      const uniqueSizes = Array.from(new Set(validVariants.map(v => v.size))).sort();
+      const uniqueColors = Array.from(new Set(validVariants.map(v => v.color).filter(Boolean))).sort();
+
+      const itemPayload = {
+        name: trimmedName,
+        description: sanitizeText(form.description) || null,
+        category_id: form.category_id ? Number(form.category_id) : null,
+        price: minPrice,
+        sizes: uniqueSizes,
+        colors: uniqueColors,
+      };
+
+      let itemId = editingId;
       if (editingId) {
-        const { error } = await supabase.from(TABLE_ITEMS).update(payload).eq('id', editingId);
+        const { error } = await supabase.from(TABLE_ITEMS).update(itemPayload).eq('id', editingId);
         if (error) throw error;
-        // Upload nouvelles images si présentes
-        if (newImages.length) {
-          await Promise.all(newImages.map(f => uploadImage(f, editingId)));
-        }
       } else {
-        const { data, error } = await supabase.from(TABLE_ITEMS).insert([payload]).select().single();
+        const { data, error } = await supabase.from(TABLE_ITEMS).insert([itemPayload]).select('id').single();
         if (error) throw error;
-        const itemId = data.id;
-        if (newImages.length) {
-          await Promise.all(newImages.map(f => uploadImage(f, itemId)));
-        }
+        itemId = data.id;
+      }
+
+      // Fetch existing variants to detect deletions
+      const { data: existingVariants, error: existingError } = await supabase
+        .from(TABLE_VARIANTS)
+        .select('id')
+        .eq('item_id', itemId);
+      if (existingError) throw existingError;
+      const existingIds = (existingVariants || []).map(v => v.id);
+
+      const variantsPayload = validVariants.map(variant => {
+        const payload = {
+          item_id: itemId,
+          size: variant.size,
+          color: variant.color,
+          price: variant.price,
+          stock: variant.stock,
+          sku: variant.sku || buildSku(itemId, variant),
+        };
+        if (variant.id) payload.id = variant.id;
+        return payload;
+      });
+
+      const variantsToUpdate = variantsPayload.filter(v => v.id);
+      const variantsToInsert = variantsPayload
+        .filter(v => !v.id)
+        .map(({ id: _ignore, ...rest }) => rest);
+
+      if (variantsToUpdate.length) {
+        const { error: updateError } = await supabase
+          .from(TABLE_VARIANTS)
+          .upsert(variantsToUpdate, { onConflict: 'id' });
+        if (updateError) throw updateError;
+      }
+
+      if (variantsToInsert.length) {
+        const { error: insertError } = await supabase
+          .from(TABLE_VARIANTS)
+          .insert(variantsToInsert);
+        if (insertError) throw insertError;
+      }
+
+      const keepIds = variantsToUpdate.map(v => v.id);
+      const toDelete = existingIds.filter(id => !keepIds.includes(id));
+      if (toDelete.length) {
+        const { error: deleteError } = await supabase.from(TABLE_VARIANTS).delete().in('id', toDelete);
+        if (deleteError) throw deleteError;
+      }
+
+      // Assure que le prix min est bien répercuté
+      const { error: priceError } = await supabase
+        .from(TABLE_ITEMS)
+        .update({ price: minPrice, sizes: uniqueSizes, colors: uniqueColors })
+        .eq('id', itemId);
+      if (priceError) throw priceError;
+
+      if (newImages.length) {
+        await Promise.all(newImages.map(f => uploadImage(f, itemId)));
       }
 
       resetForm();
@@ -199,18 +327,37 @@ export default function ProductAdmin() {
     }
   };
 
-  const handleEdit = product => {
+  const handleEdit = async product => {
     setEditingId(product.id);
     setForm({
       name: product.name || '',
-      price: product.price ?? '',
       description: product.description || '',
       category_id: product.category_id || '',
-      sizes: product.sizes || [],
-      colors: product.colors || [],
     });
     setNewImages([]);
     setImagePreviews([]);
+
+    const { data, error } = await supabase
+      .from(TABLE_VARIANTS)
+      .select('id, size, color, price, stock, sku')
+      .eq('item_id', product.id)
+      .order('price', { ascending: true })
+      .order('id', { ascending: true });
+
+    if (!error) {
+      const mapped = (data || []).map(v => ({
+        id: v.id,
+        size: v.size || '',
+        color: v.color || '',
+        price: v.price != null ? Number(v.price).toFixed(2) : '',
+        stock: v.stock ?? 0,
+        sku: v.sku || '',
+      }));
+      setVariants(mapped.length ? mapped : [createEmptyVariant()]);
+    } else {
+      console.error('Erreur chargement variantes:', error.message);
+      setVariants([createEmptyVariant()]);
+    }
   };
 
   const removeNewImage = idx => {
@@ -220,16 +367,13 @@ export default function ProductAdmin() {
 
   const deleteExistingImage = async (productId, image) => {
     try {
-      // Supprimer le fichier du bucket si possible (extraction du chemin)
       const marker = '/product-images/';
       const idx = image.image_url.indexOf(marker);
       if (idx !== -1) {
         const path = image.image_url.substring(idx + marker.length);
         await supabase.storage.from('product-images').remove([path]);
       }
-      // Supprimer l'entrée BD
       await supabase.from('item_images').delete().eq('id', image.id);
-      // Mise à jour locale
       setProducts(prev =>
         prev.map(p =>
           p.id === productId
@@ -255,16 +399,10 @@ export default function ProductAdmin() {
       <form onSubmit={handleSubmit} className="product-form" style={{ display: 'grid', gap: '10px' }}>
         <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: '1fr 180px' }}>
           <input name="name" value={form.name} onChange={handleChange} placeholder="Titre" required />
-          <input
-            name="price"
-            type="number"
-            step="0.01"
-            inputMode="decimal"
-            value={form.price}
-            onChange={handleChange}
-            placeholder="Prix (€)"
-            required
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <span style={{ fontSize: 12, color: '#4b5563' }}>Prix min (auto)</span>
+            <strong>{minVariantPrice != null ? `${minVariantPrice.toFixed(2)} €` : '—'}</strong>
+          </div>
         </div>
 
         <textarea
@@ -283,55 +421,76 @@ export default function ProductAdmin() {
               </option>
             ))}
           </select>
-
-          <div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <input
-                value={sizeInput}
-                onChange={e => setSizeInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSize())}
-                placeholder="Ajouter une taille (Entrée)"
-              />
-              <button type="button" onClick={addSize}>
-                +
-              </button>
-            </div>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-              {(form.sizes || []).map(s => (
-                <span key={s} style={{ padding: '4px 8px', background: '#eef0f3', borderRadius: 8 }}>
-                  {s}{' '}
-                  <button type="button" onClick={() => removeSize(s)} aria-label={`Retirer ${s}`}>
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
         </div>
 
-        <div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <input
-              value={colorInput}
-              onChange={e => setColorInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addColor())}
-              placeholder="Ajouter une couleur (Entrée)"
-            />
-            <button type="button" onClick={addColor}>
-              +
+        <section className="variant-editor" style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <h3 style={{ margin: 0 }}>Variantes</h3>
+            <button type="button" onClick={addVariantRow} className="btn btn-outline">
+              + Ajouter une variante
             </button>
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-            {(form.colors || []).map(c => (
-              <span key={c} style={{ padding: '4px 8px', background: '#eef0f3', borderRadius: 8 }}>
-                {c}{' '}
-                <button type="button" onClick={() => removeColor(c)} aria-label={`Retirer ${c}`}>
-                  ×
-                </button>
-              </span>
-            ))}
+          <div style={{ overflowX: 'auto' }}>
+            <table className="variant-table">
+              <thead>
+                <tr>
+                  <th>Taille</th>
+                  <th>Couleur</th>
+                  <th>Prix (€)</th>
+                  <th>Stock</th>
+                  <th>SKU</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {variants.map((variant, index) => (
+                  <tr key={variant.id ?? `new-${index}`}>
+                    <td>
+                      <input
+                        value={variant.size}
+                        onChange={e => updateVariantField(index, 'size', e.target.value)}
+                        placeholder="Ex: S, M, L"
+                        required
+                      />
+                    </td>
+                    <td>
+                      <input
+                        value={variant.color}
+                        onChange={e => updateVariantField(index, 'color', e.target.value)}
+                        placeholder="Couleur"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={variant.price}
+                        onChange={e => updateVariantField(index, 'price', e.target.value)}
+                        placeholder="Prix"
+                        required
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        min={0}
+                        value={variant.stock}
+                        onChange={e => updateVariantField(index, 'stock', e.target.value)}
+                        placeholder="Stock"
+                      />
+                    </td>
+                    <td>{variant.sku || 'Auto'}</td>
+                    <td>
+                      <button type="button" onClick={() => removeVariantRow(index)} className="btn btn-outline">
+                        Retirer
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
+        </section>
 
         <div
           onDrop={onDrop}
@@ -401,10 +560,9 @@ export default function ProductAdmin() {
                 <th>#</th>
                 <th>Image</th>
                 <th>Titre</th>
-                <th>Prix</th>
+                <th>Prix (min)</th>
                 <th>Catégorie</th>
-                <th>Tailles</th>
-                <th>Couleurs</th>
+                <th>Variantes</th>
                 <th>Images</th>
                 <th>Actions</th>
               </tr>
@@ -427,8 +585,21 @@ export default function ProductAdmin() {
                   <td>{p.name}</td>
                   <td>{Number(p.price).toFixed(2)}€</td>
                   <td>{categoryName(p.category_id)}</td>
-                  <td>{(p.sizes || []).join(', ')}</td>
-                  <td>{(p.colors || []).join(', ')}</td>
+                  <td>
+                    {(p.item_variants || []).length ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {p.item_variants.slice(0, 3).map(v => (
+                          <span key={v.id}>
+                            {v.size}
+                            {v.color ? ` / ${v.color}` : ''} — {Number(v.price).toFixed(2)}€
+                          </span>
+                        ))}
+                        {p.item_variants.length > 3 && <span>… (+{p.item_variants.length - 3})</span>}
+                      </div>
+                    ) : (
+                      <span style={{ color: '#9ca3af' }}>—</span>
+                    )}
+                  </td>
                   <td>
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                       {(p.item_images || []).map(img => (
