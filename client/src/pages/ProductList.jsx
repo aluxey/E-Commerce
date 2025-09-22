@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import ItemCard from '../components/ItemCard';
 import '../styles/ProductList.css';
 import { supabase } from '../supabase/supabaseClient';
 
 export default function ProductList() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -112,7 +111,6 @@ export default function ProductList() {
 
   // Filtrer et trier les items
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
     let filtered = [...items];
 
     // Filtre par recherche

@@ -1,4 +1,5 @@
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 export default function Profile() {
   const { session, userData } = useAuth();
@@ -20,7 +21,9 @@ export default function Profile() {
         {userData?.username && <p><strong>Nom d'utilisateur:</strong> {userData.username}</p>}
         {userData?.role && <p><strong>Rôle:</strong> {userData.role}</p>}
       </div>
+      <div style={{ marginTop: 16 }}>
+        <Link to="/orders" className="btn btn--primary">Voir mes commandes</Link>
+      </div>
     </div>
   );
 }
-

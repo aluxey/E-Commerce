@@ -6,7 +6,7 @@ import '../styles/Item.css';
 export default function ItemCard({ item, avgRating = 0, reviewCount = 0 }) {
   const { addItem } = useContext(CartContext); // ✅ utilisation directe
   const imageUrl = item.item_images?.[0]?.image_url;
-  const variants = item.item_variants || [];
+  const variants = useMemo(() => item.item_variants || [], [item.item_variants]);
 
   const preferredVariant = useMemo(() => {
     if (!variants.length) return null;

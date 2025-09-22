@@ -1,6 +1,6 @@
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { CartContext } from '../context/CartContext'; // Correction du chemin
 import { useAuth } from '../context/AuthContext'; // Correction du chemin
 import CheckoutForm from './CheckoutForm';
@@ -17,14 +17,14 @@ const StripeCheckout = () => {
   const { userData, session } = useAuth();
 
   // Calculer le total du panier
-  const calculateTotal = () => {
+  const calculateTotal = useCallback(() => {
     return cart.reduce((total, item) => {
       return total + (Number(item.unit_price) || 0) * item.quantity;
     }, 0);
-  };
+  }, [cart]);
 
   // Créer le PaymentIntent
-  const createPaymentIntent = async () => {
+  const createPaymentIntent = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -69,14 +69,13 @@ const StripeCheckout = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [cart, session, userData, calculateTotal]);
 
   useEffect(() => {
     if (cart.length > 0 && session) {
-      // Ajout de la vérification de session
       createPaymentIntent();
     }
-  }, [cart, session]); // Ajout de session dans les dépendances
+  }, [cart.length, session, createPaymentIntent]);
 
   const appearance = {
     theme: 'stripe',

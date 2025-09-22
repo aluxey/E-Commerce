@@ -143,9 +143,10 @@ export default function ItemDetail() {
     }
   }, [selectedVariant, quantity]);
 
+  const selectedVariantId = selectedVariant?.id ?? null;
   useEffect(() => {
     setQuantity(1);
-  }, [selectedVariant ? selectedVariant.id : null]);
+  }, [selectedVariantId]);
 
   // Calculer la date de livraison estimée
   useEffect(() => {
@@ -159,6 +160,33 @@ export default function ItemDetail() {
       })
     );
   }, []);
+
+  const fetchRelatedItems = useCallback(async categoryId => {
+    if (!categoryId) return;
+
+    const { data } = await supabase
+      .from('items')
+      .select(
+        `
+        *,
+        item_images (
+          image_url
+        ),
+        item_variants (
+          id,
+          size,
+          color,
+          price,
+          stock
+        )
+      `
+      )
+      .eq('category_id', categoryId)
+      .neq('id', id)
+      .limit(4);
+
+    if (data) setRelatedItems(data);
+  }, [id]);
 
   useEffect(() => {
     const fetchItemWithImages = async () => {
@@ -218,34 +246,7 @@ export default function ItemDetail() {
     };
 
     if (id) fetchItemWithImages();
-  }, [id]);
-
-  const fetchRelatedItems = async categoryId => {
-    if (!categoryId) return;
-
-    const { data } = await supabase
-      .from('items')
-      .select(
-        `
-        *,
-        item_images (
-          image_url
-        ),
-        item_variants (
-          id,
-          size,
-          color,
-          price,
-          stock
-        )
-      `
-      )
-      .eq('category_id', categoryId)
-      .neq('id', id)
-      .limit(4);
-
-    if (data) setRelatedItems(data);
-  };
+  }, [id, fetchRelatedItems]);
 
   const loadRatings = useCallback(async () => {
     // Charger les notes moyennes
