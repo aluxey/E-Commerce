@@ -72,7 +72,7 @@ export default function AuthForm({ onSuccess }) {
       const emailNormalized = normalizeEmail(form.email);
 
       try {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: emailNormalized,
           password: form.password,
         });
@@ -80,8 +80,26 @@ export default function AuthForm({ onSuccess }) {
         if (error) {
           setErrorMsg(mapSupabaseError(error));
         } else {
-          // Tu peux remplacer alert par un toast component dans ton UI
-          setErrorMsg(''); // clear
+          const user = data?.user;
+          const hasSession = !!data?.session;
+
+          if (user && hasSession) {
+            const profilePayload = {
+              id: user.id,
+              email: emailNormalized,
+              role: 'client',
+            };
+
+            const { error: profileError } = await supabase
+              .from('users')
+              .upsert(profilePayload, { onConflict: 'id' });
+
+            if (profileError) {
+              console.error('Erreur insertion profil utilisateur:', profileError);
+            }
+          }
+
+          setErrorMsg('');
           onSuccess?.();
         }
       } catch (err) {

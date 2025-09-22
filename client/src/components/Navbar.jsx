@@ -71,6 +71,11 @@ const Navbar = () => {
             Login
           </Link>
         )}
+        {!session && (
+          <Link to="/signup" className="btn-login">
+            Sign in
+          </Link>
+        )}
         {session && (
           <>
             <Link

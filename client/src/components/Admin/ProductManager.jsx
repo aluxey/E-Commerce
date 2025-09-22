@@ -257,7 +257,7 @@ export default function ProductAdmin() {
       if (existingError) throw existingError;
       const existingIds = (existingVariants || []).map(v => v.id);
 
-      const variantsPayload = validVariants.map((variant, idx) => {
+      const variantsPayload = validVariants.map(variant => {
         const payload = {
           item_id: itemId,
           size: variant.size,
@@ -270,12 +270,26 @@ export default function ProductAdmin() {
         return payload;
       });
 
-      const { error: upsertError } = await supabase
-        .from(TABLE_VARIANTS)
-        .upsert(variantsPayload, { onConflict: 'id' });
-      if (upsertError) throw upsertError;
+      const variantsToUpdate = variantsPayload.filter(v => v.id);
+      const variantsToInsert = variantsPayload
+        .filter(v => !v.id)
+        .map(({ id: _ignore, ...rest }) => rest);
 
-      const keepIds = variantsPayload.filter(v => v.id).map(v => v.id);
+      if (variantsToUpdate.length) {
+        const { error: updateError } = await supabase
+          .from(TABLE_VARIANTS)
+          .upsert(variantsToUpdate, { onConflict: 'id' });
+        if (updateError) throw updateError;
+      }
+
+      if (variantsToInsert.length) {
+        const { error: insertError } = await supabase
+          .from(TABLE_VARIANTS)
+          .insert(variantsToInsert);
+        if (insertError) throw insertError;
+      }
+
+      const keepIds = variantsToUpdate.map(v => v.id);
       const toDelete = existingIds.filter(id => !keepIds.includes(id));
       if (toDelete.length) {
         const { error: deleteError } = await supabase.from(TABLE_VARIANTS).delete().in('id', toDelete);
