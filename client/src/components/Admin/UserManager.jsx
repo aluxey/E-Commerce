@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../../supabase/supabaseClient';
 
 export const TABLE_USERS = 'users';
@@ -16,7 +16,7 @@ export default function UserManager() {
     { value: 'admin', label: 'Administrateur' },
   ];
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       let query = supabase
@@ -57,7 +57,7 @@ export default function UserManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterRole, searchTerm]);
 
   const updateUserRole = async (userId, newRole) => {
     try {
@@ -139,7 +139,7 @@ export default function UserManager() {
 
   useEffect(() => {
     fetchUsers();
-  }, [filterRole, searchTerm]);
+  }, [fetchUsers]);
 
   return (
     <div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../../supabase/supabaseClient';
 
 export const TABLE_ORDERS = 'orders';
@@ -19,7 +19,7 @@ export default function OrderManager() {
     { value: 'failed',   label: 'Échec',      color: '#b42318' },
   ];
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       let query = supabase
@@ -52,7 +52,7 @@ export default function OrderManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterStatus]);
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
@@ -101,7 +101,7 @@ export default function OrderManager() {
 
   useEffect(() => {
     fetchOrders();
-  }, [filterStatus]);
+  }, [fetchOrders]);
 
   return (
     <div className="order-manager">

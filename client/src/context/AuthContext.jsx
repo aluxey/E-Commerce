@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabase/supabaseClient';
 
 const AuthContext = createContext();
@@ -7,24 +7,8 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [userData, setUserData] = useState(null);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      if (data.session) fetchUserData(data.session.user);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) fetchUserData(session.user);
-      else setUserData(null);
-    });
-
-    return () => listener?.subscription.unsubscribe();
-  }, []);
-
-  const fetchUserData = async user => {
+  const fetchUserData = useCallback(async user => {
     if (!user?.id) return;
 
     const { data, error } = await supabase
@@ -62,16 +46,24 @@ export const AuthProvider = ({ children }) => {
     }
 
     setUserData(profile);
-    if (profile.role === 'admin') navigate('/admin');
-    else navigate('/client');
-  };
+    // Ne pas forcer la navigation ici pour éviter des redirections
+    // indésirables quand l'utilisateur visite une page spécifique.
+  }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    setUserData(null);
-    navigate('/');
-  };
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      if (data.session) fetchUserData(data.session.user);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) fetchUserData(session.user);
+      else setUserData(null);
+    });
+
+    return () => listener?.subscription.unsubscribe();
+  }, [fetchUserData]);
 
   return (
     <AuthContext.Provider value={{ session, userData }}>

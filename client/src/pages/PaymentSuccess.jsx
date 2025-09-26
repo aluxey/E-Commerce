@@ -1,16 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { useStripe } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
-  const stripe = useStripe();
   const [status, setStatus] = useState('loading');
   const [paymentIntent, setPaymentIntent] = useState(null);
 
   useEffect(() => {
-    if (!stripe) return;
-
     const clientSecret = searchParams.get('payment_intent_client_secret');
 
     if (!clientSecret) {
@@ -18,25 +15,32 @@ const PaymentSuccess = () => {
       return;
     }
 
-    stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-      setPaymentIntent(paymentIntent);
+    (async () => {
+      try {
+        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+        if (!stripe) throw new Error('Stripe not initialized');
+        const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
+        setPaymentIntent(paymentIntent);
 
-      switch (paymentIntent.status) {
-        case 'succeeded':
-          setStatus('succeeded');
-          break;
-        case 'processing':
-          setStatus('processing');
-          break;
-        case 'requires_payment_method':
-          setStatus('requires_payment_method');
-          break;
-        default:
-          setStatus('error');
-          break;
+        switch (paymentIntent.status) {
+          case 'succeeded':
+            setStatus('succeeded');
+            break;
+          case 'processing':
+            setStatus('processing');
+            break;
+          case 'requires_payment_method':
+            setStatus('requires_payment_method');
+            break;
+          default:
+            setStatus('error');
+            break;
+        }
+      } catch {
+        setStatus('error');
       }
-    });
-  }, [stripe, searchParams]);
+    })();
+  }, [searchParams]);
 
   if (status === 'loading') {
     return (

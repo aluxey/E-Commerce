@@ -271,9 +271,12 @@ export default function ProductAdmin() {
       });
 
       const variantsToUpdate = variantsPayload.filter(v => v.id);
+      /* eslint-disable no-unused-vars */
       const variantsToInsert = variantsPayload
         .filter(v => !v.id)
-        .map(({ id: _ignore, ...rest }) => rest);
+        // Drop `id` if present to avoid conflicts on insert
+        .map(({ id, ...rest }) => rest);
+      /* eslint-enable no-unused-vars */
 
       if (variantsToUpdate.length) {
         const { error: updateError } = await supabase
