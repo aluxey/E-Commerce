@@ -1,93 +1,176 @@
-/* ==== Navbar générale ==== */
+/* ======================
+   NAVBAR – MOBILE FIRST
+   ====================== */
+
 .navbar {
+  position: sticky;
+  top: 0;
+  inset-inline: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: clamp(0.75rem, 1.5vw, 1rem) clamp(1rem, 4vw, 2.5rem);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-sticky);
+  backdrop-filter: blur(6px);
+}
+
+.navbar-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 10%;
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-md);
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  transition: padding var(--transition-normal), box-shadow var(--transition-normal);
+  gap: var(--space-md);
 }
 
-/* Brand group: logo image + brand text */
 .navbar-left {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
+  min-width: 0;
 }
 
 .logoNav {
-  display: block;
-  height: 82px;
+  height: 48px;
   width: auto;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   object-fit: cover;
   box-shadow: var(--shadow-sm);
 }
 
-/* Search bar in navbar */
+.navbar-logo {
+  font-weight: 700;
+  font-size: 1.25rem;
+  white-space: nowrap;
+  transition: transform var(--transition-fast);
+}
+
+.navbar-logo:hover,
+.navbar-logo:focus-visible {
+  transform: scale(1.03);
+}
+
+.navbar-toggle {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.navbar-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: var(--color-text);
+  border-radius: var(--radius-pill);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.navbar-toggle.active {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.navbar-toggle.active span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.navbar-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.navbar-toggle.active span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
 .navbar-search {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  background: var(--color-bg-alt);
-  border: 1px solid rgba(0,0,0,0.08);
-  padding: 0.35rem 0.5rem;
+  padding: 0.35rem 0.75rem;
   border-radius: var(--radius-pill);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--color-bg-alt);
   box-shadow: var(--shadow-sm);
 }
 
 .navbar-search input {
+  flex: 1 1 auto;
   border: none;
   background: transparent;
   outline: none;
-  min-width: 220px;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  min-width: 0;
 }
 
 .navbar-search button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   background: transparent;
+  font-size: 1.1rem;
   cursor: pointer;
-  font-size: 1rem;
+  transition: transform var(--transition-fast);
 }
 
-/* Navbar compacte au scroll */
-.navbar.scrolled {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  box-shadow: var(--shadow-lg);
+.navbar-search button:hover,
+.navbar-search button:focus-visible {
+  transform: scale(1.1);
 }
 
-/* Groupe de navigation */
 .navbar-nav {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: min(320px, 85vw);
+  padding: clamp(1.5rem, 6vw, 2rem);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-lg);
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-md);
+  transform: translateX(100%);
+  transition: transform var(--transition-normal);
+  overflow-y: auto;
+  pointer-events: none;
+  visibility: hidden;
 }
 
-/* Cible uniquement les links, spans (user) et boutons (login/logout) */
+.navbar-nav.active {
+  transform: translateX(0);
+  pointer-events: auto;
+  visibility: visible;
+}
+
 .navbar a,
 .navbar span,
 .navbar button {
   position: relative;
-  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
   color: var(--color-text);
   text-decoration: none;
-  padding: 0.625rem var(--space-sm);
-  font-size: 1.125rem;
+  padding: 0.6rem 0;
+  font-size: 1rem;
   transition: color var(--transition-fast);
-  margin-right: var(--space-sm);
   background: none;
   border: none;
   cursor: pointer;
-  font-family: var(--font-family);
+  font-family: inherit;
 }
 
-/* ==== Underline animé pour links et span ==== */
 .navbar a::after,
 .navbar span::after {
   content: '';
@@ -100,200 +183,136 @@
   transform: scaleX(0);
   transform-origin: right;
   transition: transform 0.3s ease;
-  opacity: 0.9;
 }
 
 .navbar a:hover::after,
-.navbar a:focus::after,
+.navbar a:focus-visible::after,
 .navbar span:hover::after,
-.navbar span:focus::after {
+.navbar span:focus-visible::after {
   transform: scaleX(1);
   transform-origin: left;
 }
 
-/* Change de couleur au hover des links et spans */
 .navbar a:hover,
-.navbar a:focus,
+.navbar a:focus-visible,
 .navbar span:hover,
-.navbar span:focus {
+.navbar span:focus-visible {
   color: var(--color-accent);
 }
 
-/* ==== Style spécifique pour l'utilisateur connecté ==== */
-.navbar span.navbar-user {
+.navbar .btn-login,
+.navbar .btn-logout {
+  display: inline-flex;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar .btn-login {
+  background-color: var(--color-accent);
+  color: var(--color-surface);
+}
+
+.navbar .btn-login:hover,
+.navbar .btn-login:focus-visible {
+  background-color: var(--color-accent-dark);
+}
+
+.navbar .btn-logout {
+  background-color: var(--color-error);
+  color: var(--color-surface);
+}
+
+.navbar .btn-logout:hover,
+.navbar .btn-logout:focus-visible {
+  background-color: #c22828;
+}
+
+.navbar .navbar-user {
   background-color: var(--color-complementary);
   color: var(--color-surface);
   border-radius: var(--radius-pill);
-  padding: 0.5rem 1rem;
+  padding-inline: 1.25rem;
   box-shadow: var(--shadow-sm);
-  transition: all var(--transition-normal);
 }
 
-.navbar span.navbar-user:hover {
+.navbar .navbar-user:hover,
+.navbar .navbar-user:focus-visible {
   background-color: var(--color-accent);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-/* ==== Style des boutons Login/Logout ==== */
-.navbar button.btn-logout,
-.navbar a.btn-login {
-  background-color: var(--color-error);
   color: var(--color-surface);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 1rem;
-  transition: all var(--transition-normal);
-  box-shadow: var(--shadow-sm);
-  font-weight: 600;
 }
 
-.navbar button.btn-logout:hover,
-.navbar a.btn-login:hover {
-  background-color: #c22828;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+/* ======================
+   MEDIUM & LARGE SCREENS
+   ====================== */
 
-.navbar button.btn-logout:active,
-.navbar a.btn-login:active {
-  transform: translateY(0);
-}
-
-/* Logo animation */
-.navbar-logo {
-  font-weight: 700;
-  font-size: 1.5rem;
-  transition: transform var(--transition-normal);
-}
-
-.navbar-logo:hover {
-  transform: scale(1.05);
-}
-
-/* ==== Responsive Navbar + Hamburger Menu ==== */
-.navbar-toggle {
-  display: none;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 30px;
-  height: 21px;
-  cursor: pointer;
-  z-index: var(--z-fixed);
-}
-
-.navbar-toggle span {
-  display: block;
-  width: 100%;
-  height: 3px;
-  background-color: var(--color-text);
-  border-radius: var(--radius-pill);
-  transition: all 0.3s ease;
-}
-
-@media (max-width: 768px) {
+@media (min-width: 640px) {
   .navbar {
-    padding: 1rem 5%;
+    padding-inline: clamp(1.5rem, 4vw, 3rem);
   }
 
-  .logoNav { height: 36px; border-radius: 6px; }
+  .navbar-search {
+    align-self: center;
+  }
+}
+
+@media (min-width: 960px) {
+  .navbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+  }
+
+  .navbar-top {
+    flex: 0 0 auto;
+  }
 
   .navbar-toggle {
-    display: flex;
+    display: none;
   }
 
-  .navbar-search input { min-width: 140px; }
+  .navbar-search {
+    flex: 0 0 auto;
+    width: min(360px, 40vw);
+    margin-left: auto;
+  }
 
   .navbar-nav {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 70%;
-    height: 100vh;
-    background-color: var(--color-surface);
-    flex-direction: column;
+    position: static;
+    transform: none;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    gap: var(--space-lg);
-    transition: right 0.3s ease;
-    box-shadow: var(--shadow-lg);
-    z-index: calc(var(--z-fixed) - 1);
-  }
-
-  .navbar-nav.active {
-    right: 0;
-  }
-
-  .navbar-toggle.active span:nth-child(1) {
-    transform: translateY(9px) rotate(45deg);
-  }
-
-  .navbar-toggle.active span:nth-child(2) {
-    opacity: 0;
-  }
-
-  .navbar-toggle.active span:nth-child(3) {
-    transform: translateY(-9px) rotate(-45deg);
+    gap: var(--space-md);
+    width: auto;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .navbar a,
   .navbar span,
   .navbar button {
-    font-size: 1.125rem;
-    margin: 0.5rem 0;
-    width: 100%;
-    text-align: center;
+    width: auto;
+    padding: 0.625rem var(--space-sm);
+    font-size: 1.05rem;
+  }
+
+  .navbar .btn-login,
+  .navbar .btn-logout {
+    width: auto;
   }
 }
 
-/* ==== Dropdown menu ==== */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
+@media (min-width: 1280px) {
+  .navbar {
+    padding-inline: clamp(2rem, 5vw, 6rem);
+  }
 
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: var(--color-surface);
-  min-width: 180px;
-  box-shadow: var(--shadow-md);
-  padding: var(--space-xs) 0;
-  z-index: var(--z-dropdown, 1000);
-}
-
-.dropdown-content a {
-  display: block;
-  padding: var(--space-sm) var(--space-md);
-  color: var(--color-text);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.dropdown-content a:hover {
-  background-color: var(--color-background);
-  color: var(--color-accent);
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-/* Animation d'entrée pour les éléments du menu */
-.navbar-nav a,
-.navbar-nav span,
-.navbar-nav button {
-  animation: fadeInDown 0.4s ease backwards;
-}
-
-.navbar-nav a:nth-child(1) {
-  animation-delay: 0.1s;
-}
-.navbar-nav a:nth-child(2) {
-  animation-delay: 0.2s;
-}
-.navbar-nav a:nth-child(3) {
-  animation-delay: 0.3s;
-}
-.navbar-nav a:nth-child(4) {
-  animation-delay: 0.4s;
+  .logoNav {
+    height: 60px;
+  }
 }

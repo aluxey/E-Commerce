@@ -88,7 +88,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="container">
+    <div className="home-page container">
       {/* Sous‑navbar dédiée aux items */}
       <nav className="home-subnav" aria-label="Accès rapide produits">
         <Link to="/items" className="home-subnav__link">

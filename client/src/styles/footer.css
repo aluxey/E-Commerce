@@ -13,14 +13,14 @@
 .site-footer {
   color: #333;
   animation: fadeUp 0.8s ease-out both;
-  padding: 20px 10%;
-  padding-top: 20vh;
+  padding: clamp(2.5rem, 8vw, 4rem) clamp(1.5rem, 6vw, 5rem);
+  background: var(--color-surface);
 }
 
 /* Top area : 5 colonnes en grid */
 .footer-top {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
   margin-bottom: 32px;
 }
@@ -55,6 +55,7 @@
 /* Newsletter */
 .footer-newsletter form {
   display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 .footer-newsletter input {
@@ -68,7 +69,7 @@
   border-color: #333;
 }
 .footer-newsletter button {
-  padding: 6px 12px;
+  padding: 10px 12px;
   background: #333;
   color: #fff;
   border: none;
@@ -99,9 +100,25 @@
 /* Bas de page */
 .footer-bottom {
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   opacity: 0.7;
   line-height: 1.4;
+}
+
+@media (min-width: 720px) {
+  .footer-top {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    align-items: start;
+  }
+
+  .footer-newsletter form {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .footer-newsletter input {
+    flex: 1;
+  }
 }
 .footer-bottom a {
   color: #333;

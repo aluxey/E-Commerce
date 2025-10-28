@@ -20,6 +20,10 @@
   --color-text-secondary: #6b6b6b;
   --color-text-tertiary: #999999;
   --color-text-inverse: #ffffff;
+  --color-bg: var(--color-bg-primary);
+  --color-bg-alt: var(--color-bg-secondary);
+  --color-text: var(--color-text-primary);
+  --color-text-muted: var(--color-text-secondary);
 
   /* Accent & Interactive Colors */
   --color-accent: #b56730;
@@ -99,6 +103,7 @@
   --radius-xl: 0.75rem;  /* 12px */
   --radius-2xl: 1rem;    /* 16px */
   --radius-full: 9999px;
+  --radius-pill: 999px;
 
   /* Border widths */
   --border-width-0: 0;
@@ -187,6 +192,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeSpeed;
   transition: background-color var(--transition-normal);
+  min-height: 100vh;
+  margin: 0;
 }
 
 /* Remove default margins & improve typography */
@@ -248,8 +255,8 @@ a {
   width: 100%;
   max-width: var(--container-xl);
   margin: 0 auto;
-  padding-left: var(--space-md);
-  padding-right: var(--space-md);
+  padding-left: clamp(1rem, 3vw, 2.5rem);
+  padding-right: clamp(1rem, 3vw, 2.5rem);
 }
 
 .container-sm { max-width: var(--container-sm); }
@@ -259,20 +266,17 @@ a {
 .container-2xl { max-width: var(--container-2xl); }
 
 /* Accessibility utilities */
-.visually-hidden {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-.sr-only { /* Alternative class name */
-  @extend .visually-hidden;
+.visually-hidden,
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Focus management */

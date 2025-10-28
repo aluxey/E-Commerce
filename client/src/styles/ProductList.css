@@ -2,15 +2,15 @@
   min-height: 100vh;
   background-color: var(--color-bg);
   font-family: var(--font-family);
-  padding: 0;
   color: var(--color-text);
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2.5rem);
 }
 
 /* Header avec dégradé */
 .products-header {
   /* Dégradé clair et moderne */
   color: var(--color-text);
-  padding: 4rem 1rem;
+  padding: clamp(2.5rem, 8vw, 4rem) clamp(1rem, 5vw, 2rem);
   text-align: center; 
   position: relative;
   overflow: hidden;
@@ -44,9 +44,9 @@
 
 /* Controls */
 .products-controls {
-  max-width: 80vw;
+  width: min(100%, 960px);
   margin: -1.5rem auto 0;
-  padding: 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
   background: var(--color-surface);
   border: 1px solid rgba(127, 159, 160, 0.15);
   border-radius: var(--radius-lg);
@@ -191,9 +191,9 @@
 
 /* Results block */
 .products-results {
-  max-width: 80vw;
+  width: min(100%, 1200px);
   margin: 0 auto;
-  padding: 2rem 1rem 3rem;
+  padding: clamp(1.5rem, 5vw, 2.5rem) clamp(1rem, 4vw, 2rem) clamp(2.5rem, 6vw, 3rem);
   animation: fadeInUp 0.8s ease-out 0.3s both;
 }
 

@@ -1,7 +1,7 @@
 .cart-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
   min-height: 70vh;
 }
 
@@ -16,7 +16,7 @@
 /* Panier vide */
 .cart-empty {
   text-align: center;
-  padding: 4rem 2rem;
+  padding: clamp(3rem, 8vw, 4rem) clamp(1.5rem, 6vw, 2.5rem);
   background: #f8f9fa;
   border-radius: 12px;
   margin: 2rem 0;
@@ -53,14 +53,21 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .cart-item {
   display: grid;
-  grid-template-columns: 120px 1fr 150px 120px 100px 50px;
+  grid-template-columns: 90px 1fr;
+  grid-template-areas:
+    "image details"
+    "quantity quantity"
+    "total total"
+    "actions actions";
   gap: 1rem;
   align-items: center;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-bottom: 1px solid #e9ecef;
   transition: background 0.3s ease;
 }
@@ -74,11 +81,17 @@
 }
 
 .cart-item img {
-  width: 100px;
-  height: 100px;
+  grid-area: image;
+  width: 100%;
+  max-width: 90px;
+  height: 90px;
   object-fit: cover;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.item-details {
+  grid-area: details;
 }
 
 .item-details h3 {
@@ -104,12 +117,15 @@
 
 /* Contrôles de quantité */
 .quantity-controls {
+  grid-area: quantity;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   background: #f8f9fa;
   border-radius: 8px;
   padding: 0.5rem;
+  width: 100%;
 }
 
 .quantity-controls button {
@@ -146,26 +162,24 @@
 }
 
 .item-total {
+  grid-area: total;
   font-weight: 700;
   font-size: 1.2rem;
   color: #b56730;
-  text-align: center;
+  text-align: right;
 }
 
 .remove-btn {
+  grid-area: actions;
   background: #dc3545;
   color: white;
   border: none;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1.2rem;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 1rem;
+  align-self: flex-start;
 }
 
 .remove-btn:hover {
@@ -177,10 +191,31 @@
   content: "🗑️";
 }
 
+@media (min-width: 900px) {
+  .cart-item {
+    grid-template-columns: 140px 1fr 160px 120px auto;
+    grid-template-areas: "image details quantity total actions";
+    align-items: center;
+  }
+
+  .quantity-controls {
+    width: max-content;
+    justify-content: center;
+  }
+
+  .item-total {
+    text-align: center;
+  }
+
+  .remove-btn {
+    justify-self: flex-end;
+  }
+}
+
 /* Résumé du panier */
 .cart-summary {
   background: white;
-  padding: 2rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
