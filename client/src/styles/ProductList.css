@@ -277,7 +277,12 @@
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: linear-gradient(135deg, rgba(181, 103, 48, 0.05), rgba(127, 159, 160, 0.05));
+  background: linear-gradient(135deg, var(--color-accent-light), var(--color-complementary));
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--color-accent) 16%, transparent),
+    color-mix(in oklab, var(--color-complementary) 18%, transparent)
+  );
   overflow: hidden;
 }
 
@@ -300,7 +305,8 @@
   content: 'Voir détails';
   position: absolute;
   inset: 0;
-  background: rgba(var(--color-accent-dark-rgb, 141, 82, 37), 0.8);
+  background: rgba(217, 131, 67, 0.82);
+  background: color-mix(in oklab, var(--color-accent-dark) 82%, transparent);
   color: var(--color-surface);
   display: flex;
   align-items: center;

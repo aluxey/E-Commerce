@@ -6,16 +6,16 @@
      ====================== */
 
   /* Primary Color Palette - Thème plus clair */
-  --primary-color: #f8f6f0;    /* Plus clair */
-  --secondary-color: #b56730;
-  --tertiary-color: #f5e6d8;   /* Plus clair */
-  --quaternary-color: #a8bfc0; /* Plus clair */
+  --primary-color: #fdf8f2;
+  --secondary-color: #d88343;
+  --tertiary-color: #faecd9;
+  --quaternary-color: #c7dfe4;
 
   /* Semantic Color System - Thème clair */
   --color-bg-primary: #ffffff;      /* Blanc pur pour le fond principal */
   --color-bg-secondary: #fafafa;    /* Gris très clair */
   --color-surface: #ffffff;
-  --color-surface-elevated: #f8f9fa;
+  --color-surface-elevated: #fdfaf6;
   --color-text-primary: #2d2d2d;
   --color-text-secondary: #6b6b6b;
   --color-text-tertiary: #999999;
@@ -26,11 +26,11 @@
   --color-text-muted: var(--color-text-secondary);
 
   /* Accent & Interactive Colors */
-  --color-accent: #b56730;
-  --color-accent-light: #f5e6d8;    /* Plus clair */
-  --color-accent-dark: #8d5225;
-  --color-accent-hover: #a05527;
-  --color-complementary: #a8bfc0;   /* Plus clair */
+  --color-accent: #d88343;
+  --color-accent-light: #fbe4cd;
+  --color-accent-dark: #b96c30;
+  --color-accent-hover: #c77637;
+  --color-complementary: #c7dfe4;
 
   /* Status Colors */
   --color-success: #22c55e;

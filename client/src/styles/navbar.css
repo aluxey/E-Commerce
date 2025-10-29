@@ -10,7 +10,9 @@
   flex-direction: column;
   gap: var(--space-md);
   padding: clamp(0.75rem, 1.5vw, 1rem) clamp(1rem, 4vw, 2.5rem);
-  background-color: var(--color-surface);
+  background: linear-gradient(135deg, var(--color-surface), var(--color-surface-elevated));
+  border-bottom: 1px solid var(--color-complementary);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-complementary) 25%, transparent);
   box-shadow: var(--shadow-md);
   z-index: var(--z-sticky);
   backdrop-filter: blur(6px);
@@ -96,8 +98,9 @@
   gap: var(--space-sm);
   padding: 0.35rem 0.75rem;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: var(--color-bg-alt);
+  border: 1px solid var(--color-complementary);
+  border: 1px solid color-mix(in oklab, var(--color-complementary) 22%, transparent);
+  background: var(--color-surface-elevated);
   box-shadow: var(--shadow-sm);
 }
 
@@ -133,7 +136,7 @@
   right: 0;
   width: min(320px, 85vw);
   padding: clamp(1.5rem, 6vw, 2rem);
-  background-color: var(--color-surface);
+  background: linear-gradient(165deg, var(--color-surface), var(--color-surface-elevated));
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
@@ -263,12 +266,17 @@
   .navbar {
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-lg);
+    justify-content: center;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding-block: clamp(0.75rem, 1vw, 1rem);
+    padding-inline: clamp(2rem, 6vw, 4.5rem);
   }
 
   .navbar-top {
     flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
   }
 
   .navbar-toggle {
@@ -276,34 +284,44 @@
   }
 
   .navbar-search {
-    flex: 0 0 auto;
-    width: min(360px, 40vw);
-    margin-left: auto;
+    flex: 0 1 420px;
+    width: auto;
+    margin: 0;
+    box-shadow: none;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-accent);
+    border: 1px solid color-mix(in oklab, var(--color-accent) 20%, transparent);
   }
 
   .navbar-nav {
     position: static;
+    inset: auto;
     transform: none;
     flex-direction: row;
     align-items: center;
-    gap: var(--space-md);
+    justify-content: flex-end;
+    gap: clamp(1rem, 2vw, 1.75rem);
     width: auto;
     padding: 0;
     background: transparent;
     box-shadow: none;
+    pointer-events: auto;
+    visibility: visible;
+    overflow: visible;
   }
 
   .navbar a,
   .navbar span,
   .navbar button {
     width: auto;
-    padding: 0.625rem var(--space-sm);
-    font-size: 1.05rem;
+    padding: 0.25rem 0;
+    font-size: 1rem;
   }
 
   .navbar .btn-login,
   .navbar .btn-logout {
     width: auto;
+    padding-inline: 1.25rem;
   }
 }
 

@@ -6,7 +6,7 @@
 }
 
 .cart-page h1 {
-  color: #b56730;
+  color: var(--color-accent);
   text-align: center;
   margin-bottom: 2rem;
   font-size: 2.5rem;
@@ -30,20 +30,20 @@
 
 .btn-shop {
   display: inline-block;
-  background: #b56730;
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-surface);
   padding: 1rem 2rem;
   text-decoration: none;
   border-radius: 8px;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(181, 103, 48, 0.3);
+  box-shadow: 0 2px 8px rgba(216, 131, 67, 0.28);
 }
 
 .btn-shop:hover {
-  background: #a37350;
+  background: var(--color-accent-dark);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(181, 103, 48, 0.4);
+  box-shadow: 0 4px 12px rgba(185, 108, 48, 0.36);
 }
 
 /* Liste des articles */
@@ -102,7 +102,7 @@
 }
 
 .item-details p {
-  color: #b56730;
+  color: var(--color-accent);
   font-weight: 700;
   font-size: 1.1rem;
   margin: 0;
@@ -132,8 +132,8 @@
   width: 35px;
   height: 35px;
   border: none;
-  background: #b56730;
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-surface);
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -145,7 +145,7 @@
 }
 
 .quantity-controls button:hover {
-  background: #a37350;
+  background: var(--color-accent-dark);
   transform: scale(1.1);
 }
 
@@ -165,7 +165,7 @@
   grid-area: total;
   font-weight: 700;
   font-size: 1.2rem;
-  color: #b56730;
+  color: var(--color-accent);
   text-align: right;
 }
 
@@ -224,35 +224,38 @@
 .cart-summary .total {
   margin-bottom: 2rem;
   padding: 1rem;
-  background: linear-gradient(135deg, #e5ddc7, #f0ead6);
+  background: linear-gradient(135deg, #fdf1e4, #f6ede1);
   border-radius: 8px;
-  border: 2px solid #b56730;
+  border: 2px solid var(--color-accent);
+  border: 2px solid color-mix(in oklab, var(--color-accent) 35%, transparent);
 }
 
 .cart-summary .total strong {
   font-size: 2rem;
-  color: #b56730;
+  color: var(--color-accent);
 }
 
 .checkout-btn {
   display: inline-block;
-  background: linear-gradient(135deg, #b56730, #d4983a);
-  color: white;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  background: linear-gradient(135deg, color-mix(in oklab, var(--color-accent) 90%, white), color-mix(in oklab, var(--color-accent-dark) 85%, white));
+  color: var(--color-surface);
   padding: 1.25rem 3rem;
   text-decoration: none;
   border-radius: 12px;
   font-weight: 700;
   font-size: 1.2rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(181, 103, 48, 0.4);
+  box-shadow: 0 4px 15px rgba(216, 131, 67, 0.35);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .checkout-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(181, 103, 48, 0.5);
-  background: linear-gradient(135deg, #a37350, #c28934);
+  box-shadow: 0 6px 20px rgba(185, 108, 48, 0.4);
+  background: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent));
+  background: linear-gradient(135deg, var(--color-accent-dark), color-mix(in oklab, var(--color-accent-dark) 80%, black 5%));
 }
 
 .auth-required {
@@ -326,18 +329,19 @@
 }
 
 .continue-shopping {
-  color: #b56730;
+  color: var(--color-accent);
   text-decoration: none;
   font-weight: 600;
   padding: 0.75rem 1.5rem;
-  border: 2px solid #b56730;
+  border: 2px solid var(--color-accent);
+  border: 2px solid color-mix(in oklab, var(--color-accent) 55%, transparent);
   border-radius: 6px;
   transition: all 0.3s ease;
 }
 
 .continue-shopping:hover {
-  background: #b56730;
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-surface);
 }
 
 /* Responsive Design */
@@ -449,7 +453,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #b56730;
+  border-top: 4px solid var(--color-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;

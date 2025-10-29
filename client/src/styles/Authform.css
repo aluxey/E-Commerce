@@ -1,14 +1,14 @@
 :root {
   --bg: #f4efe7;
-  --bg-gradient: radial-gradient(1200px 500px at 10% -10%, rgba(141, 90, 53, 0.10), transparent 60%),
-                   radial-gradient(900px 400px at 120% 10%, rgba(141, 90, 53, 0.08), transparent 60%),
-                   linear-gradient(180deg, #f7f3ee, #efe9df 60%, #e5ddc7);
+  --bg-gradient: radial-gradient(1200px 500px at 10% -10%, rgba(216, 131, 67, 0.12), transparent 60%),
+                   radial-gradient(900px 400px at 120% 10%, rgba(216, 131, 67, 0.10), transparent 60%),
+                   linear-gradient(180deg, #fdf6ef, #f6eddf 60%, #f1e6cf);
   --card-bg: #ffffff;
   --radius: 12px;
   --radius-sm: 8px;
   --shadow: 0 20px 50px -15px rgba(45, 45, 45, 0.10);
-  --accent: #8d5a35;
-  --accent-hover: #a37350;
+  --accent: #d88343;
+  --accent-hover: #b96c30;
   --text: #2d2d2d;
   --muted: #6f6f6f;
   --error: #d9534f;
