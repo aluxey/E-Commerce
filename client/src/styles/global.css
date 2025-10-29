@@ -6,27 +6,31 @@
      ====================== */
 
   /* Primary Color Palette - Thème plus clair */
-  --primary-color: #f8f6f0;    /* Plus clair */
-  --secondary-color: #b56730;
-  --tertiary-color: #f5e6d8;   /* Plus clair */
-  --quaternary-color: #a8bfc0; /* Plus clair */
+  --primary-color: #fdf8f2;
+  --secondary-color: #d88343;
+  --tertiary-color: #faecd9;
+  --quaternary-color: #c7dfe4;
 
   /* Semantic Color System - Thème clair */
   --color-bg-primary: #ffffff;      /* Blanc pur pour le fond principal */
   --color-bg-secondary: #fafafa;    /* Gris très clair */
   --color-surface: #ffffff;
-  --color-surface-elevated: #f8f9fa;
+  --color-surface-elevated: #fdfaf6;
   --color-text-primary: #2d2d2d;
   --color-text-secondary: #6b6b6b;
   --color-text-tertiary: #999999;
   --color-text-inverse: #ffffff;
+  --color-bg: var(--color-bg-primary);
+  --color-bg-alt: var(--color-bg-secondary);
+  --color-text: var(--color-text-primary);
+  --color-text-muted: var(--color-text-secondary);
 
   /* Accent & Interactive Colors */
-  --color-accent: #b56730;
-  --color-accent-light: #f5e6d8;    /* Plus clair */
-  --color-accent-dark: #8d5225;
-  --color-accent-hover: #a05527;
-  --color-complementary: #a8bfc0;   /* Plus clair */
+  --color-accent: #d88343;
+  --color-accent-light: #fbe4cd;
+  --color-accent-dark: #b96c30;
+  --color-accent-hover: #c77637;
+  --color-complementary: #c7dfe4;
 
   /* Status Colors */
   --color-success: #22c55e;
@@ -99,6 +103,7 @@
   --radius-xl: 0.75rem;  /* 12px */
   --radius-2xl: 1rem;    /* 16px */
   --radius-full: 9999px;
+  --radius-pill: 999px;
 
   /* Border widths */
   --border-width-0: 0;
@@ -187,6 +192,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeSpeed;
   transition: background-color var(--transition-normal);
+  min-height: 100vh;
+  margin: 0;
 }
 
 /* Remove default margins & improve typography */
@@ -248,8 +255,8 @@ a {
   width: 100%;
   max-width: var(--container-xl);
   margin: 0 auto;
-  padding-left: var(--space-md);
-  padding-right: var(--space-md);
+  padding-left: clamp(1rem, 3vw, 2.5rem);
+  padding-right: clamp(1rem, 3vw, 2.5rem);
 }
 
 .container-sm { max-width: var(--container-sm); }
@@ -259,20 +266,17 @@ a {
 .container-2xl { max-width: var(--container-2xl); }
 
 /* Accessibility utilities */
-.visually-hidden {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-.sr-only { /* Alternative class name */
-  @extend .visually-hidden;
+.visually-hidden,
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Focus management */

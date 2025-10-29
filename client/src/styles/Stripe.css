@@ -7,7 +7,7 @@
 }
 
 .stripe-checkout h2 {
-  color: #b56730;
+  color: var(--color-accent);
   text-align: center;
   margin-bottom: 2rem;
 }
@@ -21,7 +21,7 @@
 }
 
 .order-summary h3 {
-  color: #b56730;
+  color: var(--color-accent);
   margin-bottom: 1rem;
   border-bottom: 2px solid #e5ddc7;
   padding-bottom: 0.5rem;
@@ -52,7 +52,7 @@
 
 .item-total {
   font-weight: 600;
-  color: #b56730;
+  color: var(--color-accent);
   flex: 1;
   text-align: right;
 }
@@ -60,10 +60,11 @@
 .order-total {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 2px solid #b56730;
+  border-top: 2px solid var(--color-accent);
+  border-top: 2px solid color-mix(in oklab, var(--color-accent) 45%, transparent);
   font-size: 1.2rem;
   text-align: right;
-  color: #b56730;
+  color: var(--color-accent);
 }
 
 .checkout-form {
@@ -80,15 +81,15 @@
 
 .address-section h4,
 .payment-section h4 {
-  color: #b56730;
+  color: var(--color-accent);
   margin-bottom: 1rem;
   font-size: 1.1rem;
 }
 
 .pay-button {
   width: 100%;
-  background: #b56730;
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-surface);
   border: none;
   padding: 1rem;
   font-size: 1.1rem;
@@ -100,7 +101,7 @@
 }
 
 .pay-button:hover:not(:disabled) {
-  background: #a37350;
+  background: var(--color-accent-dark);
   transform: translateY(-1px);
 }
 
@@ -126,7 +127,7 @@
   height: 40px;
   border: 4px solid #f3f3f3;
   border-radius: 50%;
-  border-top-color: #b56730;
+  border-top-color: var(--color-accent);
   animation: spin 1s ease-in-out infinite;
   margin: 0 auto 1rem;
 }
@@ -168,8 +169,8 @@
 }
 
 .retry-btn {
-  background: #b56730;
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-surface);
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
@@ -179,7 +180,7 @@
 }
 
 .retry-btn:hover {
-  background: #a37350;
+  background: var(--color-accent-dark);
 }
 
 .payment-status {
@@ -230,8 +231,8 @@
   display: inline-block;
   margin-top: 2rem;
   padding: 1rem 2rem;
-  background: #b56730;
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-surface);
   text-decoration: none;
   border-radius: 8px;
   font-weight: 600;
@@ -239,7 +240,7 @@
 }
 
 .btn-return:hover {
-  background: #a37350;
+  background: var(--color-accent-dark);
   transform: translateY(-1px);
 }
 

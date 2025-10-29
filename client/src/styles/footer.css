@@ -11,16 +11,18 @@
 }
 
 .site-footer {
-  color: #333;
+  color: var(--color-text);
   animation: fadeUp 0.8s ease-out both;
-  padding: 20px 10%;
-  padding-top: 20vh;
+  padding: clamp(2.5rem, 8vw, 4rem) clamp(1.5rem, 6vw, 5rem);
+  background: linear-gradient(160deg, var(--color-surface), var(--color-surface-elevated));
+  border-top: 1px solid var(--color-complementary);
+  border-top: 1px solid color-mix(in oklab, var(--color-complementary) 25%, transparent);
 }
 
 /* Top area : 5 colonnes en grid */
 .footer-top {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
   margin-bottom: 32px;
 }
@@ -44,39 +46,42 @@
 }
 .footer-section a {
   text-decoration: none;
-  color: #333;
+  color: var(--color-text);
   transition: color 0.3s, transform 0.2s;
 }
 .footer-section a:hover {
-  color: #ff5722;
+  color: var(--color-accent);
   transform: translateY(-2px);
 }
 
 /* Newsletter */
 .footer-newsletter form {
   display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 .footer-newsletter input {
   flex: 1;
   padding: 6px 8px;
-  border: 1px solid #999;
+  border: 1px solid var(--color-complementary);
+  border: 1px solid color-mix(in oklab, var(--color-complementary) 30%, transparent);
   outline: none;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 .footer-newsletter input:focus {
-  border-color: #333;
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-focus);
 }
 .footer-newsletter button {
-  padding: 6px 12px;
-  background: #333;
-  color: #fff;
+  padding: 10px 12px;
+  background: var(--color-accent);
+  color: var(--color-surface);
   border: none;
   cursor: pointer;
   transition: background 0.3s, transform 0.2s;
 }
 .footer-newsletter button:hover {
-  background: #555;
+  background: var(--color-accent-dark);
   transform: translateY(-2px);
 }
 
@@ -99,15 +104,31 @@
 /* Bas de page */
 .footer-bottom {
   text-align: center;
-  font-size: 0.8rem;
-  opacity: 0.7;
+  font-size: 0.85rem;
+  opacity: 0.75;
   line-height: 1.4;
 }
+
+@media (min-width: 720px) {
+  .footer-top {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    align-items: start;
+  }
+
+  .footer-newsletter form {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .footer-newsletter input {
+    flex: 1;
+  }
+}
 .footer-bottom a {
-  color: #333;
+  color: var(--color-text);
   text-decoration: none;
   transition: color 0.3s;
 }
 .footer-bottom a:hover {
-  color: #ff5722;
+  color: var(--color-accent);
 }
