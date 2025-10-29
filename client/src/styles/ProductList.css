@@ -305,7 +305,6 @@
   content: 'Voir détails';
   position: absolute;
   inset: 0;
-  background: rgba(217, 131, 67, 0.82);
   background: color-mix(in oklab, var(--color-accent-dark) 82%, transparent);
   color: var(--color-surface);
   display: flex;
