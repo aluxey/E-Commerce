@@ -11,12 +11,12 @@ export default function OrderManager() {
 
   // Statuts alignés avec le schéma DB: ('pending','paid','failed','canceled','shipped','refunded')
   const statusOptions = [
-    { value: 'pending',  label: 'En attente', color: '#ffa500' },
-    { value: 'paid',     label: 'Payée',      color: '#4caf50' },
-    { value: 'shipped',  label: 'Expédiée',   color: '#9c27b0' },
-    { value: 'refunded', label: 'Remboursée', color: '#2196f3' },
-    { value: 'canceled', label: 'Annulée',    color: '#f44336' },
-    { value: 'failed',   label: 'Échec',      color: '#b42318' },
+    { value: 'pending',  label: 'En attente',  color: 'var(--color-warning)', text: 'var(--color-surface)' },
+    { value: 'paid',     label: 'Payée',       color: 'var(--color-success)', text: 'var(--color-surface)' },
+    { value: 'shipped',  label: 'Expédiée',    color: 'var(--color-accent)', text: 'var(--color-surface)' },
+    { value: 'refunded', label: 'Remboursée',  color: 'var(--color-complementary)', text: 'var(--color-text-primary)' },
+    { value: 'canceled', label: 'Annulée',     color: 'var(--color-error)', text: 'var(--color-surface)' },
+    { value: 'failed',   label: 'Échec',       color: 'color-mix(in oklab, var(--color-error) 78%, black 12%)', text: 'var(--color-surface)' },
   ];
 
   const fetchOrders = useCallback(async () => {
@@ -72,11 +72,12 @@ export default function OrderManager() {
   const getStatusStyle = status => {
     const statusOption = statusOptions.find(option => option.value === status);
     return {
-      backgroundColor: statusOption?.color || '#808080',
-      color: 'white',
+      backgroundColor: statusOption?.color || 'var(--color-complementary-dark)',
+      color: statusOption?.text || 'var(--color-text-primary)',
       padding: '4px 8px',
       borderRadius: '4px',
       fontSize: '12px',
+      fontWeight: 600,
     };
   };
 

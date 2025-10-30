@@ -147,7 +147,7 @@
 
 .btn--ghost:hover,
 .btn--ghost:focus-visible {
-  background: rgba(216, 131, 67, 0.12);
+  background: rgba(113, 154, 153, 0.12);
   background: color-mix(in oklab, var(--color-accent) 18%, transparent);
   border-color: var(--color-accent);
   transform: translateY(-2px);
@@ -170,7 +170,7 @@
   min-height: 110px;
   background: linear-gradient(135deg, var(--color-accent-light), var(--color-complementary));
   background: linear-gradient(135deg, var(--color-accent-light), color-mix(in oklab, var(--color-complementary) 25%, transparent));
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
   text-decoration: none;
   color: var(--color-text);
@@ -342,7 +342,7 @@
 .see-all:hover,
 .see-all:focus-visible {
   color: var(--color-accent-dark);
-  background: rgba(216, 131, 67, 0.16);
+  background: rgba(113, 154, 153, 0.16);
   background: color-mix(in oklab, var(--color-accent) 22%, transparent);
   transform: translateX(4px);
 }
@@ -377,7 +377,7 @@
 }
 
 .home-row::-webkit-scrollbar-thumb {
-  background-color: rgba(216, 131, 67, 0.35);
+  background-color: rgba(113, 154, 153, 0.35);
   background-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
   border-radius: var(--radius-pill);
 }

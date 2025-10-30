@@ -1,24 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
-:root {
+:root,
+:root[data-theme="light"] {
   /* ======================
      DESIGN TOKENS
      ====================== */
 
-  /* Primary Color Palette - Thème plus clair */
-  --primary-color: #fdf8f2;
-  --secondary-color: #d88343;
-  --tertiary-color: #faecd9;
-  --quaternary-color: #c7dfe4;
+  /* Primary Color Palette */
+  --primary-color: #8bb9b8;
+  --secondary-color: #f1bca9;
+  --tertiary-color: #fff4e6;
+  --quaternary-color: #d5e7e6;
 
-  /* Semantic Color System - Thème clair */
-  --color-bg-primary: #ffffff;      /* Blanc pur pour le fond principal */
-  --color-bg-secondary: #fafafa;    /* Gris très clair */
+  /* Semantic Color System */
+  --color-bg-primary: #fff9f2;
+  --color-bg-secondary: #fff2e5;
   --color-surface: #ffffff;
-  --color-surface-elevated: #fdfaf6;
-  --color-text-primary: #2d2d2d;
-  --color-text-secondary: #6b6b6b;
-  --color-text-tertiary: #999999;
+  --color-surface-elevated: #fff7ec;
+  --color-text-primary: #2f3a3a;
+  --color-text-secondary: #587070;
+  --color-text-tertiary: #7c9191;
   --color-text-inverse: #ffffff;
   --color-bg: var(--color-bg-primary);
   --color-bg-alt: var(--color-bg-secondary);
@@ -26,21 +27,29 @@
   --color-text-muted: var(--color-text-secondary);
 
   /* Accent & Interactive Colors */
-  --color-accent: #d88343;
-  --color-accent-light: #fbe4cd;
-  --color-accent-dark: #b96c30;
-  --color-accent-hover: #c77637;
-  --color-complementary: #c7dfe4;
+  --color-accent: #86aba9;
+  --color-accent-light: #b8d4d4;
+  --color-accent-dark: #5d8c8b;
+  --color-accent-hover: #6f9f9e;
+  --color-complementary: #f0bba8;
+  --color-complementary-light: #f8d1c2;
+  --color-complementary-dark: #dba28d;
+  --color-cream: var(--tertiary-color);
+  --color-cream-light: #fff8ef;
+  --color-cream-dark: #f6dcbf;
+  --color-border: color-mix(in oklab, var(--color-text-primary) 18%, transparent);
+  --color-border-strong: color-mix(in oklab, var(--color-text-primary) 28%, transparent);
+  --color-border-soft: color-mix(in oklab, var(--color-text-secondary) 22%, transparent);
 
   /* Status Colors */
-  --color-success: #22c55e;
-  --color-success-light: #f0fdf4;   /* Plus clair */
-  --color-error: #ef4444;
-  --color-error-light: #fef2f2;
-  --color-warning: #f59e0b;
-  --color-warning-light: #fffbeb;
-  --color-info: #3b82f6;
-  --color-info-light: #eff6ff;
+  --color-success: #5a9a7b;
+  --color-success-light: #e3f2ea;
+  --color-error: #d46a63;
+  --color-error-light: #fde6e2;
+  --color-warning: #f0b067;
+  --color-warning-light: #fcebd3;
+  --color-info: #6aa8ad;
+  --color-info-light: #e1f3f4;
 
   /* Spacing Scale (8pt grid system) */
   --space-0: 0;
@@ -112,13 +121,13 @@
   --border-width-4: 4px;
 
   /* Enhanced Shadows - Plus subtiles pour le thème clair */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.03);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.08), 0 10px 10px rgba(0, 0, 0, 0.02);
-  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(181, 103, 48, 0.08);
+  --shadow-xs: 0 1px 2px rgba(47, 58, 58, 0.06);
+  --shadow-sm: 0 1px 3px rgba(47, 58, 58, 0.08), 0 1px 2px rgba(47, 58, 58, 0.06);
+  --shadow-md: 0 4px 6px rgba(47, 58, 58, 0.1), 0 2px 4px rgba(47, 58, 58, 0.06);
+  --shadow-lg: 0 10px 15px rgba(47, 58, 58, 0.12), 0 4px 6px rgba(47, 58, 58, 0.05);
+  --shadow-xl: 0 20px 25px rgba(47, 58, 58, 0.14), 0 10px 10px rgba(47, 58, 58, 0.05);
+  --shadow-inner: inset 0 2px 4px rgba(47, 58, 58, 0.08);
+  --shadow-focus: 0 0 0 3px rgba(113, 154, 153, 0.15);
   --shadow-focus-visible: 0 0 0 2px var(--color-accent);
 
   /* Transitions & Animations */
@@ -421,23 +430,56 @@ a {
   }
 }
 
+:root[data-theme="dark"] {
+  --color-bg-primary: #f2f6f6;
+  --color-bg-secondary: #ebf1f1;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f7fbfb;
+  --color-text-primary: #273333;
+  --color-text-secondary: #4e6666;
+  --color-text-tertiary: #728686;
+
+  --color-accent: #7ca8a7;
+  --color-accent-light: #b5d3d3;
+  --color-accent-dark: #5d8c8b;
+  --color-complementary: #edb4a1;
+
+  --color-border: rgba(39, 51, 51, 0.18);
+  --color-border-strong: rgba(39, 51, 51, 0.3);
+  --color-border-soft: rgba(39, 51, 51, 0.12);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5), 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5), 0 10px 10px rgba(0, 0, 0, 0.2);
+}
+
 /* Dark mode support - Version améliorée */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg-primary: #0f0f0f;
-    --color-bg-secondary: #1a1a1a;
-    --color-surface: #262626;
-    --color-surface-elevated: #333333;
-    --color-text-primary: #f5f5f5;
-    --color-text-secondary: #d4d4d4;
-    --color-text-tertiary: #a3a3a3;
+  :root:not([data-theme]) {
+    --color-bg-primary: #f2f6f6;
+    --color-bg-secondary: #ebf1f1;
+    --color-surface: #ffffff;
+    --color-surface-elevated: #f7fbfb;
+    --color-text-primary: #273333;
+    --color-text-secondary: #4e6666;
+    --color-text-tertiary: #728686;
 
-    /* Ombres plus prononcées en mode sombre */
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5), 0 4px 6px rgba(0, 0, 0, 0.3);
-    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5), 0 10px 10px rgba(0, 0, 0, 0.2);
+    --color-accent: #7ca8a7;
+    --color-accent-light: #b5d3d3;
+    --color-accent-dark: #5d8c8b;
+    --color-complementary: #edb4a1;
+
+    --color-border: rgba(39, 51, 51, 0.18);
+    --color-border-strong: rgba(39, 51, 51, 0.3);
+    --color-border-soft: rgba(39, 51, 51, 0.12);
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.15);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2), 0 4px 6px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.24), 0 10px 10px rgba(0, 0, 0, 0.12);
   }
 }
 

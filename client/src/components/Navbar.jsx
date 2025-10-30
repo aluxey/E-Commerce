@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabase/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import "../styles/navbar.css";
@@ -10,39 +10,27 @@ const Navbar = () => {
   const { session, userData } = useAuth();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleMenu = () => setIsMenuOpen(prev => !prev);
-  const closeMenu = () => setIsMenuOpen(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 960) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/");
-    closeMenu();
   };
 
   const onSubmitSearch = (e) => {
     e.preventDefault();
     const q = searchValue.trim();
     navigate({ pathname: "/items", search: q ? `?search=${encodeURIComponent(q)}` : "" });
-    closeMenu();
   };
 
-  const handleNavLinkClick = () => {
-    closeMenu();
-  };
+  const navLinks = useMemo(() => ([
+    { type: "link", to: "/items", label: "Alle Produkte" },
+    { type: "external", href: "mailto:contact@sabbels-handmade.com?subject=Feedback%20ou%20Demande", label: "Feedbacks" },
+    { type: "link", to: "/cart", label: "Einkaufswagen" },
+  ]), []);
 
   return (
     <nav className="navbar">
@@ -53,23 +41,37 @@ const Navbar = () => {
             to="/"
             className="navbar-link navbar-brand navbar-logo"
             aria-label="Accueil Sabbels Handmade"
-            onClick={handleNavLinkClick}
           >
             Sabbels Handmade
           </Link>
         </div>
-        <button
-          type="button"
-          className={`navbar-toggle${isMenuOpen ? ' active' : ''}`}
-          aria-expanded={isMenuOpen}
-          aria-controls="primary-navigation"
-          onClick={toggleMenu}
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-          <span className="visually-hidden">Menu</span>
-        </button>
+
+        <div className="navbar-actions">
+          {!session && (
+            <>
+              <Link to="/login" className="btn-login">
+                Login
+              </Link>
+              <Link to="/signup" className="btn-signup">
+                Sign in
+              </Link>
+            </>
+          )}
+          {session && (
+            <>
+              <Link
+                to="/profile"
+                className="navbar-link navbar-user"
+                title={userData?.email || 'Profil'}
+              >
+                {userData?.username || userData?.email || 'Profil'}
+              </Link>
+              <button onClick={handleLogout} className="btn-logout">
+                Logout
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <form
@@ -90,45 +92,29 @@ const Navbar = () => {
         </button>
       </form>
 
-      <div className={`navbar-nav${isMenuOpen ? ' active' : ''}`} id="primary-navigation">
-        <Link to="/items" className="navbar-link" onClick={handleNavLinkClick}>
-          Alle Produkte
-        </Link>
-        <a
-          href="mailto:contact@sabbels-handmade.com?subject=Feedback%20ou%20Demande"
-          className="navbar-link"
-          onClick={handleNavLinkClick}
-        >
-          Feedbacks
-        </a>
-        <Link to="/cart" className="navbar-link" onClick={handleNavLinkClick}>
-          Einkaufswagen
-        </Link>
-        {!session && (
-          <Link to="/login" className="btn-login" onClick={handleNavLinkClick}>
-            Login
-          </Link>
-        )}
-        {!session && (
-          <Link to="/signup" className="btn-login" onClick={handleNavLinkClick}>
-            Sign in
-          </Link>
-        )}
-        {session && (
-          <>
+      <div className="navbar-links" id="primary-navigation">
+        {navLinks.map(({ type, ...item }) => {
+          if (type === "external") {
+            return (
+              <a
+                key={item.label}
+                className="navbar-chip"
+                href={item.href}
+              >
+                {item.label}
+              </a>
+            );
+          }
+          return (
             <Link
-              to="/profile"
-              className="navbar-link navbar-user"
-              title={userData?.email || 'Profil'}
-              onClick={handleNavLinkClick}
+              key={item.label}
+              className="navbar-chip"
+              to={item.to}
             >
-              {userData?.username || userData?.email || 'Profil'}
+              {item.label}
             </Link>
-            <button onClick={handleLogout} className="btn-logout">
-              Logout
-            </button>
-          </>
-        )}
+          );
+        })}
       </div>
     </nav>
   );

@@ -123,17 +123,20 @@ export default function UserManager() {
 
   const getRoleStyle = role => {
     const colors = {
-      admin: '#f44336',
-      moderator: '#ff9800',
-      user: '#4caf50',
+      admin: { bg: 'var(--adm-danger)', text: 'var(--color-surface)' },
+      moderator: { bg: 'var(--color-warning)', text: 'var(--color-text-primary)' },
+      user: { bg: 'var(--adm-success)', text: 'var(--color-surface)' },
     };
 
+    const palette = colors[role] || { bg: 'var(--color-complementary)', text: 'var(--color-text-primary)' };
+
     return {
-      backgroundColor: colors[role] || '#808080',
-      color: 'white',
+      backgroundColor: palette.bg,
+      color: palette.text,
       padding: '4px 8px',
       borderRadius: '4px',
       fontSize: '12px',
+      fontWeight: 600,
     };
   };
 
@@ -181,7 +184,12 @@ export default function UserManager() {
             {users.map(user => {
               const { totalOrders, totalSpent } = getUserStats(user);
               return (
-                <tr key={user.id} style={{ borderBottom: '1px solid #ccc' }}>
+                <tr
+                  key={user.id}
+                  style={{
+                    borderBottom: '1px solid var(--adm-border)',
+                  }}
+                >
                   <td>{user.email}</td>
                   <td>{formatDate(user.created_at)}</td>
                   <td>
@@ -202,7 +210,7 @@ export default function UserManager() {
                   <td>{totalSpent.toFixed(2)} €</td>
                   <td>
                     <button onClick={() => setSelectedUser(user)}>Détails</button>
-                    <button onClick={() => deleteUser(user.id)} style={{ color: 'red' }}>
+                    <button onClick={() => deleteUser(user.id)} style={{ color: 'var(--adm-danger)' }}>
                       Supprimer
                     </button>
                   </td>
@@ -214,7 +222,16 @@ export default function UserManager() {
       )}
 
       {selectedUser && (
-        <div style={{ marginTop: '2rem', padding: '1rem', border: '1px solid #ccc' }}>
+        <div
+          style={{
+            marginTop: '2rem',
+            padding: '1rem',
+            border: '1px solid var(--adm-border)',
+            borderRadius: 'var(--rad)',
+            background: 'var(--adm-surface)',
+            boxShadow: 'var(--shadow-sm)',
+          }}
+        >
           <h3>Détails de l'utilisateur</h3>
           <p>
             <strong>Email :</strong> {selectedUser.email}

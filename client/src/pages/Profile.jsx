@@ -16,7 +16,15 @@ export default function Profile() {
   return (
     <div style={{ maxWidth: 800, margin: '4rem auto', padding: '1rem' }}>
       <h1>Mon Profil</h1>
-      <div style={{ background: '#fff', borderRadius: 8, padding: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+      <div
+        style={{
+          background: 'var(--color-surface)',
+          borderRadius: 'var(--radius-lg)',
+          padding: 16,
+          border: '1px solid var(--color-border)',
+          boxShadow: 'var(--shadow-sm)',
+        }}
+      >
         <p><strong>Email:</strong> {userData?.email || session.user?.email}</p>
         {userData?.username && <p><strong>Nom d'utilisateur:</strong> {userData.username}</p>}
         {userData?.role && <p><strong>Rôle:</strong> {userData.role}</p>}

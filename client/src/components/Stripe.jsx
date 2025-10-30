@@ -80,10 +80,10 @@ const StripeCheckout = () => {
   const appearance = {
     theme: 'stripe',
     variables: {
-      colorPrimary: '#d88343',
-      colorBackground: '#fdf1e4',
-      colorText: '#2d2d2d',
-      colorDanger: '#df1b41',
+      colorPrimary: '#719a99',
+      colorBackground: '#fdf0d6',
+      colorText: '#2f3a3a',
+      colorDanger: '#d46a63',
       borderRadius: '8px',
     },
   };

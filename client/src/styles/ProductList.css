@@ -571,7 +571,7 @@
 
 .filter-chip:hover,
 .sort-chip:hover {
-  background: #f5f2ea;                                  /* léger survol, sans animation forte */
+  background: var(--color-cream-light);                                  /* léger survol, sans animation forte */
   border-color: var(--color-accent-light);
 }
 
@@ -612,11 +612,11 @@
 }
 
 .item-rating .star {
-  color: #cfcfcf;
+  color: color-mix(in oklab, var(--color-text-secondary) 25%, transparent);
 }
 
 .item-rating .star.full {
-  color: #f1c40f;
+  color: var(--color-complementary);
 }
 
 .item-actions {

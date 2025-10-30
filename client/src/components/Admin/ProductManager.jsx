@@ -403,7 +403,7 @@ export default function ProductAdmin() {
         <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: '1fr 180px' }}>
           <input name="name" value={form.name} onChange={handleChange} placeholder="Titre" required />
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <span style={{ fontSize: 12, color: '#4b5563' }}>Prix min (auto)</span>
+            <span style={{ fontSize: 12, color: 'var(--adm-muted)' }}>Prix min (auto)</span>
             <strong>{minVariantPrice != null ? `${minVariantPrice.toFixed(2)} €` : '—'}</strong>
           </div>
         </div>
@@ -426,7 +426,15 @@ export default function ProductAdmin() {
           </select>
         </div>
 
-        <section className="variant-editor" style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 12 }}>
+        <section
+          className="variant-editor"
+          style={{
+            border: '1px solid var(--adm-border)',
+            borderRadius: 8,
+            padding: 12,
+            background: 'var(--adm-surface)',
+          }}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <h3 style={{ margin: 0 }}>Variantes</h3>
             <button type="button" onClick={addVariantRow} className="btn btn-outline">
@@ -500,10 +508,12 @@ export default function ProductAdmin() {
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
           style={{
-            border: '2px dashed #cbd5e1',
+            border: '2px dashed color-mix(in oklab, var(--adm-border) 130%, transparent)',
             borderRadius: 10,
             padding: 16,
-            background: isDragging ? '#f9fafb' : 'transparent',
+            background: isDragging
+              ? 'color-mix(in oklab, var(--color-cream-light) 60%, var(--adm-surface) 40%)'
+              : 'transparent',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
@@ -582,7 +592,7 @@ export default function ProductAdmin() {
                         style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }}
                       />
                     ) : (
-                      <span style={{ color: '#9ca3af' }}>—</span>
+                      <span style={{ color: 'color-mix(in oklab, var(--adm-muted) 65%, transparent)' }}>—</span>
                     )}
                   </td>
                   <td>{p.name}</td>
@@ -600,7 +610,7 @@ export default function ProductAdmin() {
                         {p.item_variants.length > 3 && <span>… (+{p.item_variants.length - 3})</span>}
                       </div>
                     ) : (
-                      <span style={{ color: '#9ca3af' }}>—</span>
+                      <span style={{ color: 'color-mix(in oklab, var(--adm-muted) 65%, transparent)' }}>—</span>
                     )}
                   </td>
                   <td>

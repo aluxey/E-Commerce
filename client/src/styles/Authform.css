@@ -1,17 +1,17 @@
 :root {
-  --bg: #f4efe7;
-  --bg-gradient: radial-gradient(1200px 500px at 10% -10%, rgba(216, 131, 67, 0.12), transparent 60%),
-                   radial-gradient(900px 400px at 120% 10%, rgba(216, 131, 67, 0.10), transparent 60%),
-                   linear-gradient(180deg, #fdf6ef, #f6eddf 60%, #f1e6cf);
-  --card-bg: #ffffff;
+  --bg: var(--color-cream-light);
+  --bg-gradient: radial-gradient(1200px 500px at 10% -10%, rgba(113, 154, 153, 0.12), transparent 60%),
+                   radial-gradient(900px 400px at 120% 10%, rgba(238, 179, 161, 0.12), transparent 60%),
+                   linear-gradient(180deg, #fff6ec, #fdf0d6 60%, #f3d9b4);
+  --card-bg: var(--color-surface);
   --radius: 12px;
   --radius-sm: 8px;
-  --shadow: 0 20px 50px -15px rgba(45, 45, 45, 0.10);
-  --accent: #d88343;
-  --accent-hover: #b96c30;
-  --text: #2d2d2d;
-  --muted: #6f6f6f;
-  --error: #d9534f;
+  --shadow: 0 20px 50px -15px rgba(47, 58, 58, 0.16);
+  --accent: var(--color-accent);
+  --accent-hover: var(--color-accent-dark);
+  --text: var(--color-text-primary);
+  --muted: var(--color-text-secondary);
+  --error: var(--color-error);
   --transition: 180ms cubic-bezier(0.2, 0.6, 0.2, 1);
   --input-height: 48px;
   --focus-ring: 3px;
@@ -40,7 +40,7 @@
   overflow: hidden;
   box-shadow: var(--shadow);
   transition: transform var(--transition), box-shadow var(--transition);
-  border: 1px solid rgba(45, 45, 45, 0.06);
+  border: 1px solid color-mix(in oklab, var(--text) 10%, transparent);
   backdrop-filter: saturate(1.1);
 }
 
@@ -49,7 +49,7 @@
   .login-form:hover,
   .auth-form:hover {
     transform: translateY(-2px);
-    box-shadow: 0 32px 80px -15px rgba(45, 45, 45, 0.08);
+    box-shadow: 0 32px 80px -15px rgba(47, 58, 58, 0.12);
   }
 }
 
@@ -77,8 +77,8 @@
 .auth-form input {
   width: 100%;
   box-sizing: border-box;
-  background: #f7f3ee;
-  border: 1px solid rgba(45, 45, 45, 0.15);
+  background: var(--color-cream-light);
+  border: 1px solid color-mix(in oklab, var(--text) 18%, transparent);
   padding: 0 1rem;
   height: var(--input-height);
   border-radius: var(--radius-sm);
@@ -92,14 +92,14 @@
 
 .login-form input::placeholder,
 .auth-form input::placeholder {
-  color: rgba(45, 45, 45, 0.5);
+  color: color-mix(in oklab, var(--text) 55%, transparent);
 }
 
 .login-form input:focus,
 .auth-form input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 var(--focus-ring) rgba(141, 90, 53, 0.3);
-  background: #fff;
+  box-shadow: 0 0 0 var(--focus-ring) rgba(113, 154, 153, 0.32);
+  background: var(--color-surface);
 }
 
 /* Input + toggle (mot de passe) */
@@ -114,16 +114,16 @@
   height: calc(var(--input-height) - 12px);
   padding: 0 10px;
   border-radius: 8px;
-  border: 1px solid rgba(45, 45, 45, 0.12);
-  background: #fff;
+  border: 1px solid color-mix(in oklab, var(--text) 16%, transparent);
+  background: var(--color-surface);
   color: var(--text);
   font-size: 0.8rem;
   cursor: pointer;
   transition: background var(--transition), border-color var(--transition);
 }
 .password-toggle:hover {
-  background: #faf8f5;
-  border-color: rgba(45, 45, 45, 0.2);
+  background: var(--color-cream-light);
+  border-color: color-mix(in oklab, var(--text) 26%, transparent);
 }
 
 .login-form input[aria-invalid="true"],
@@ -135,8 +135,8 @@
 .error-msg,
 .auth-form .error,
 .field-error {
-  background: rgba(217, 83, 79, 0.1);
-  border: 1px solid rgba(217, 83, 79, 0.6);
+  background: color-mix(in oklab, var(--error) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--error) 55%, transparent);
   padding: 0.65rem 1rem;
   border-radius: var(--radius-sm);
   color: var(--error);
@@ -183,7 +183,7 @@
 .auth-form button[type="submit"]:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: rgba(141, 90, 53, 0.6);
+  background: color-mix(in oklab, var(--accent) 60%, transparent);
 }
 
 /* Spinner */
@@ -217,7 +217,7 @@
   -webkit-appearance: none;
   appearance: none;
   border: none;
-  background: #eee4d8;
+  background: var(--color-cream-dark);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -225,15 +225,15 @@
   background: transparent;
 }
 .password-strength progress::-webkit-progress-value {
-  background: #d1c0ad;
+  background: var(--color-complementary);
   transition: width var(--transition), background var(--transition);
 }
-.password-strength[data-score="0"] progress::-webkit-progress-value { background: #e4c4c3; }
-.password-strength[data-score="1"] progress::-webkit-progress-value { background: #e4c4c3; }
-.password-strength[data-score="2"] progress::-webkit-progress-value { background: #e7d3a9; }
-.password-strength[data-score="3"] progress::-webkit-progress-value { background: #d6e6a9; }
-.password-strength[data-score="4"] progress::-webkit-progress-value { background: #b5d99c; }
-.password-strength[data-score="5"] progress::-webkit-progress-value { background: #7fc37b; }
+.password-strength[data-score="0"] progress::-webkit-progress-value { background: #f0b6ac; }
+.password-strength[data-score="1"] progress::-webkit-progress-value { background: #f0b6ac; }
+.password-strength[data-score="2"] progress::-webkit-progress-value { background: #f4caa9; }
+.password-strength[data-score="3"] progress::-webkit-progress-value { background: #e0dca5; }
+.password-strength[data-score="4"] progress::-webkit-progress-value { background: #afc9ba; }
+.password-strength[data-score="5"] progress::-webkit-progress-value { background: #6f9f99; }
 .password-strength span {
   font-size: 0.8rem;
   color: var(--muted);

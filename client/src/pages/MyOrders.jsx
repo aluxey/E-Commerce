@@ -52,12 +52,36 @@ export default function MyOrders() {
 
   const statusMap = useMemo(
     () => ({
-      pending: { label: 'En attente', color: '#ffa500' },
-      paid: { label: 'Payée', color: '#4caf50' },
-      shipped: { label: 'Expédiée', color: '#9c27b0' },
-      refunded: { label: 'Remboursée', color: '#2196f3' },
-      canceled: { label: 'Annulée', color: '#f44336' },
-      failed: { label: 'Échec', color: '#b42318' },
+      pending: {
+        label: 'En attente',
+        color: 'var(--color-warning)',
+        text: 'var(--color-surface)',
+      },
+      paid: {
+        label: 'Payée',
+        color: 'var(--color-success)',
+        text: 'var(--color-surface)',
+      },
+      shipped: {
+        label: 'Expédiée',
+        color: 'var(--color-accent)',
+        text: 'var(--color-surface)',
+      },
+      refunded: {
+        label: 'Remboursée',
+        color: 'var(--color-complementary)',
+        text: 'var(--color-text-primary)',
+      },
+      canceled: {
+        label: 'Annulée',
+        color: 'var(--color-error)',
+        text: 'var(--color-surface)',
+      },
+      failed: {
+        label: 'Échec',
+        color: 'color-mix(in oklab, var(--color-error) 78%, black 12%)',
+        text: 'var(--color-surface)',
+      },
     }),
     []
   );
@@ -97,7 +121,7 @@ export default function MyOrders() {
       {loading ? (
         <p>Chargement…</p>
       ) : error ? (
-        <p style={{ color: '#b42318' }}>{error}</p>
+        <p style={{ color: 'var(--color-error)' }}>{error}</p>
       ) : orders.length === 0 ? (
         <div>
           <p>Aucune commande pour le moment.</p>
@@ -107,16 +131,39 @@ export default function MyOrders() {
         <div style={{ display: 'grid', gap: 16 }}>
           {orders.map(order => {
             const total = computeTotal(order);
-            const status = statusMap[order.status] || { label: order.status, color: '#666' };
+            const status = statusMap[order.status] || {
+              label: order.status,
+              color: 'var(--color-accent)',
+              text: 'var(--color-surface)',
+            };
             return (
-              <div key={order.id} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 16 }}>
+              <div
+                key={order.id}
+                style={{
+                  background: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 16,
+                  boxShadow: 'var(--shadow-sm)',
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                   <div>
                     <strong>Commande #{order.id.slice(0, 8)}</strong>
-                    <div style={{ color: '#6b7280' }}>{formatDate(order.created_at)}</div>
+                    <div style={{ color: 'var(--color-text-secondary)' }}>{formatDate(order.created_at)}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ background: status.color, color: '#fff', padding: '4px 8px', borderRadius: 6, fontSize: 12 }}>
+                    <span
+                      style={{
+                        background: status.color,
+                        color: status.text ?? 'var(--color-surface)',
+                        padding: '4px 8px',
+                        borderRadius: 6,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        letterSpacing: '0.3px',
+                      }}
+                    >
                       {status.label}
                     </span>
                     <strong>{total.toFixed(2)} €</strong>
@@ -126,14 +173,23 @@ export default function MyOrders() {
                   <div style={{ marginTop: 12, display: 'grid', gap: 8 }}>
                     {order.order_items.map((it, idx) => (
                       <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ width: 48, height: 48, borderRadius: 6, overflow: 'hidden', background: '#f3f4f6' }}>
+                        <div
+                          style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: 6,
+                            overflow: 'hidden',
+                            background: 'var(--color-cream-light)',
+                            border: '1px solid var(--color-border)',
+                          }}
+                        >
                           {it.items?.item_images?.[0]?.image_url ? (
                             <img src={it.items.item_images[0].image_url} alt={it.items?.name || 'Produit'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           ) : null}
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 600 }}>{it.items?.name || 'Produit supprimé'}</div>
-                          <div style={{ color: '#6b7280' }}>Qté: {it.quantity}</div>
+                          <div style={{ color: 'var(--color-text-secondary)' }}>Qté: {it.quantity}</div>
                         </div>
                         <div>{((Number(it.items?.price) || 0) * it.quantity).toFixed(2)} €</div>
                       </div>
@@ -148,4 +204,3 @@ export default function MyOrders() {
     </div>
   );
 }
-
