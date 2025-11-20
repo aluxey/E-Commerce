@@ -1,5 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
-import { supabase } from '../../supabase/supabaseClient';
+import {
+  deleteItem,
+  deleteItemImage,
+  deleteVariants,
+  fetchVariantsByItem,
+  getPublicImageUrl,
+  insertItemImage,
+  insertVariants,
+  listCategories,
+  listProducts,
+  removeProductImage,
+  updateItemPriceMeta,
+  upsertItem,
+  upsertVariants,
+  uploadProductImage,
+} from '../../services/adminProducts';
+import { pushToast } from '../ToastHost';
 
 export const TABLE_ITEMS = 'items';
 const TABLE_CATEGORIES = 'categories';
@@ -68,17 +84,7 @@ export default function ProductAdmin() {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase
-        .from(TABLE_ITEMS)
-        .select(
-          `
-          id, name, price, description, category_id, sizes, colors,
-          item_images ( id, image_url ),
-          categories ( id, name ),
-          item_variants ( id, size, color, price, stock, sku )
-        `
-        )
-        .order('id', { ascending: false });
+      const { data, error } = await listProducts();
       if (error) throw error;
       setProducts(data || []);
     } catch (err) {
@@ -90,14 +96,14 @@ export default function ProductAdmin() {
     }
   };
 
-  const fetchCategories = async () => {
-    const { data, error } = await supabase.from(TABLE_CATEGORIES).select('id, name').order('name');
+  const fetchCategoriesList = async () => {
+    const { data, error } = await listCategories();
     if (!error) setCategories(data || []);
   };
 
   useEffect(() => {
     fetchProducts();
-    fetchCategories();
+    fetchCategoriesList();
   }, []);
 
   const handleChange = e => {
@@ -241,10 +247,10 @@ export default function ProductAdmin() {
 
       let itemId = editingId;
       if (editingId) {
-        const { error } = await supabase.from(TABLE_ITEMS).update(itemPayload).eq('id', editingId);
+        const { error } = await upsertItem(itemPayload, editingId);
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.from(TABLE_ITEMS).insert([itemPayload]).select('id').single();
+        const { data, error } = await upsertItem(itemPayload, null);
         if (error) throw error;
         itemId = data.id;
       }
@@ -279,31 +285,24 @@ export default function ProductAdmin() {
       /* eslint-enable no-unused-vars */
 
       if (variantsToUpdate.length) {
-        const { error: updateError } = await supabase
-          .from(TABLE_VARIANTS)
-          .upsert(variantsToUpdate, { onConflict: 'id' });
+        const { error: updateError } = await upsertVariants(variantsToUpdate);
         if (updateError) throw updateError;
       }
 
       if (variantsToInsert.length) {
-        const { error: insertError } = await supabase
-          .from(TABLE_VARIANTS)
-          .insert(variantsToInsert);
+        const { error: insertError } = await insertVariants(variantsToInsert);
         if (insertError) throw insertError;
       }
 
       const keepIds = variantsToUpdate.map(v => v.id);
       const toDelete = existingIds.filter(id => !keepIds.includes(id));
       if (toDelete.length) {
-        const { error: deleteError } = await supabase.from(TABLE_VARIANTS).delete().in('id', toDelete);
+        const { error: deleteError } = await deleteVariants(toDelete);
         if (deleteError) throw deleteError;
       }
 
       // Assure que le prix min est bien répercuté
-      const { error: priceError } = await supabase
-        .from(TABLE_ITEMS)
-        .update({ price: minPrice, sizes: uniqueSizes, colors: uniqueColors })
-        .eq('id', itemId);
+      const { error: priceError } = await updateItemPriceMeta(itemId, minPrice, uniqueSizes, uniqueColors);
       if (priceError) throw priceError;
 
       if (newImages.length) {
@@ -312,21 +311,23 @@ export default function ProductAdmin() {
 
       resetForm();
       fetchProducts();
+      pushToast({ message: editingId ? 'Produit mis à jour' : 'Produit créé', variant: 'success' });
     } catch (err) {
       console.error('Erreur sauvegarde produit:', err.message);
-      alert("Erreur lors de l'enregistrement du produit.");
+      pushToast({ message: "Erreur lors de l'enregistrement du produit.", variant: 'error' });
     }
   };
 
   const handleDelete = async id => {
     if (!confirm('Supprimer ce produit ?')) return;
     try {
-      const { error } = await supabase.from(TABLE_ITEMS).delete().eq('id', id);
+      const { error } = await deleteItem(id);
       if (error) throw error;
       fetchProducts();
+      pushToast({ message: 'Produit supprimé', variant: 'success' });
     } catch (err) {
       console.error('Erreur lors de la suppression :', err.message);
-      alert('Erreur lors de la suppression.');
+      pushToast({ message: 'Erreur lors de la suppression.', variant: 'error' });
     }
   };
 
@@ -340,12 +341,7 @@ export default function ProductAdmin() {
     setNewImages([]);
     setImagePreviews([]);
 
-    const { data, error } = await supabase
-      .from(TABLE_VARIANTS)
-      .select('id, size, color, price, stock, sku')
-      .eq('item_id', product.id)
-      .order('price', { ascending: true })
-      .order('id', { ascending: true });
+    const { data, error } = await fetchVariantsByItem(product.id);
 
     if (!error) {
       const mapped = (data || []).map(v => ({
@@ -374,9 +370,9 @@ export default function ProductAdmin() {
       const idx = image.image_url.indexOf(marker);
       if (idx !== -1) {
         const path = image.image_url.substring(idx + marker.length);
-        await supabase.storage.from('product-images').remove([path]);
+        await removeProductImage(path);
       }
-      await supabase.from('item_images').delete().eq('id', image.id);
+      await deleteItemImage(image.id);
       setProducts(prev =>
         prev.map(p =>
           p.id === productId
@@ -384,9 +380,10 @@ export default function ProductAdmin() {
             : p
         )
       );
+      pushToast({ message: 'Image supprimée', variant: 'info' });
     } catch (err) {
       console.error('Erreur suppression image:', err.message);
-      alert("Impossible de supprimer l'image.");
+      pushToast({ message: "Impossible de supprimer l'image.", variant: 'error' });
     }
   };
 
@@ -399,49 +396,50 @@ export default function ProductAdmin() {
     <div className="product-manager">
       <h2>Gestion des Produits</h2>
 
-      <form onSubmit={handleSubmit} className="product-form" style={{ display: 'grid', gap: '10px' }}>
-        <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: '1fr 180px' }}>
-          <input name="name" value={form.name} onChange={handleChange} placeholder="Titre" required />
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <span style={{ fontSize: 12, color: 'var(--adm-muted)' }}>Prix min (auto)</span>
-            <strong>{minVariantPrice != null ? `${minVariantPrice.toFixed(2)} €` : '—'}</strong>
+      <form onSubmit={handleSubmit} className="product-form form-grid">
+        <div className="form-row two-col">
+          <div className="form-group">
+            <label>Nom du produit *</label>
+            <input name="name" value={form.name} onChange={handleChange} placeholder="Titre" required />
+          </div>
+          <div className="form-group">
+            <label>Prix min (auto)</label>
+            <div className="pill-display">{minVariantPrice != null ? `${minVariantPrice.toFixed(2)} €` : '—'}</div>
           </div>
         </div>
 
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Description"
-        />
-
-        <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: '1fr 1fr' }}>
-          <select name="category_id" value={form.category_id || ''} onChange={handleChange}>
-            <option value="">Catégorie...</option>
-            {categories.map(c => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+        <div className="form-group">
+          <label>Description</label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Description"
+          />
         </div>
 
-        <section
-          className="variant-editor"
-          style={{
-            border: '1px solid var(--adm-border)',
-            borderRadius: 8,
-            padding: 12,
-            background: 'var(--adm-surface)',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <h3 style={{ margin: 0 }}>Variantes</h3>
+        <div className="form-row two-col">
+          <div className="form-group">
+            <label>Catégorie</label>
+            <select name="category_id" value={form.category_id || ''} onChange={handleChange}>
+              <option value="">Catégorie...</option>
+              {categories.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <section className="variant-editor">
+          <div className="variant-editor__header">
+            <h3>Variantes</h3>
             <button type="button" onClick={addVariantRow} className="btn btn-outline">
               + Ajouter une variante
             </button>
           </div>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="variant-table-wrapper">
             <table className="variant-table">
               <thead>
                 <tr>
@@ -507,37 +505,30 @@ export default function ProductAdmin() {
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
-          style={{
-            border: '2px dashed color-mix(in oklab, var(--adm-border) 130%, transparent)',
-            borderRadius: 10,
-            padding: 16,
-            background: isDragging
-              ? 'color-mix(in oklab, var(--color-cream-light) 60%, var(--adm-surface) 40%)'
-              : 'transparent',
-          }}
+          className={`upload-dropzone${isDragging ? ' is-dragging' : ''}`}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
+          <div className="upload-cta">
             <span>Images: glisser-déposer des fichiers ou</span>
-            <label className="btn btn-outline">
+            <label className="btn btn-outline" htmlFor="file-input">
               Choisir
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={e => onFilesSelected(e.target.files)}
-                style={{ display: 'none' }}
-              />
             </label>
+            <input
+              id="file-input"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={e => onFilesSelected(e.target.files)}
+              style={{ display: 'none' }}
+            />
           </div>
           {(imagePreviews.length > 0 || newImages.length > 0) && (
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+            <div className="upload-previews">
               {imagePreviews.map((src, idx) => (
-                <div key={idx} style={{ position: 'relative' }}>
-                  <img src={src} alt="nouvelle" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} />
+                <div key={idx} className="upload-preview">
+                  <img src={src} alt="nouvelle" />
                   <button
                     type="button"
                     onClick={() => removeNewImage(idx)}
-                    style={{ position: 'absolute', top: 2, right: 2 }}
                     aria-label="Supprimer l’aperçu"
                   >
                     ×
@@ -561,12 +552,12 @@ export default function ProductAdmin() {
       </form>
 
       {loading && <p>Chargement en cours...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-msg">{error}</p>}
 
       {!loading && products.length === 0 && <p className="empty-state">Aucun produit disponible.</p>}
 
       {products.length > 0 && (
-        <div style={{ overflowX: 'auto', marginTop: 16 }}>
+        <div className="variant-table-wrapper">
           <table>
             <thead>
               <tr>

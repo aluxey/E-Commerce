@@ -7,9 +7,12 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
 
   const fetchUserData = useCallback(async user => {
     if (!user?.id) return;
+    setAuthError(null);
 
     const { data, error } = await supabase
       .from('users')
@@ -39,6 +42,7 @@ export const AuthProvider = ({ children }) => {
 
       if (insertError) {
         console.error('Erreur création profil utilisateur:', insertError);
+        setAuthError(insertError.message);
         return;
       }
 
@@ -51,22 +55,36 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        setAuthError(error.message);
+        setLoading(false);
+        return;
+      }
       setSession(data.session);
-      if (data.session) fetchUserData(data.session.user);
+      if (data.session) {
+        fetchUserData(data.session.user).finally(() => setLoading(false));
+      } else {
+        setLoading(false);
+      }
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoading(true);
       setSession(session);
-      if (session) fetchUserData(session.user);
-      else setUserData(null);
+      if (session) {
+        fetchUserData(session.user).finally(() => setLoading(false));
+      } else {
+        setUserData(null);
+        setLoading(false);
+      }
     });
 
     return () => listener?.subscription.unsubscribe();
   }, [fetchUserData]);
 
   return (
-    <AuthContext.Provider value={{ session, userData }}>
+    <AuthContext.Provider value={{ session, userData, loading, authError }}>
       {children}
     </AuthContext.Provider>
   );

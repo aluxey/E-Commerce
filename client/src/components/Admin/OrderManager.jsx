@@ -1,71 +1,54 @@
 import { useCallback, useEffect, useState } from 'react';
-import { supabase } from '../../supabase/supabaseClient';
+import { listOrders, updateOrderStatus } from '../../services/adminOrders';
+import { pushToast } from '../ToastHost';
+import { ErrorMessage, LoadingMessage } from '../StatusMessage';
 
-export const TABLE_ORDERS = 'orders';
+// Statuts alignés avec le schéma DB: ('pending','paid','failed','canceled','shipped','refunded')
+const statusOptions = [
+  { value: 'pending',  label: 'En attente',  color: 'var(--color-warning)', text: 'var(--color-surface)' },
+  { value: 'paid',     label: 'Payée',       color: 'var(--color-success)', text: 'var(--color-surface)' },
+  { value: 'shipped',  label: 'Expédiée',    color: 'var(--color-accent)', text: 'var(--color-surface)' },
+  { value: 'refunded', label: 'Remboursée',  color: 'var(--color-complementary)', text: 'var(--color-text-primary)' },
+  { value: 'canceled', label: 'Annulée',     color: 'var(--color-error)', text: 'var(--color-surface)' },
+  { value: 'failed',   label: 'Échec',       color: 'color-mix(in oklab, var(--color-error) 78%, black 12%)', text: 'var(--color-surface)' },
+];
 
 export default function OrderManager() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(false);
-
-  // Statuts alignés avec le schéma DB: ('pending','paid','failed','canceled','shipped','refunded')
-  const statusOptions = [
-    { value: 'pending',  label: 'En attente',  color: 'var(--color-warning)', text: 'var(--color-surface)' },
-    { value: 'paid',     label: 'Payée',       color: 'var(--color-success)', text: 'var(--color-surface)' },
-    { value: 'shipped',  label: 'Expédiée',    color: 'var(--color-accent)', text: 'var(--color-surface)' },
-    { value: 'refunded', label: 'Remboursée',  color: 'var(--color-complementary)', text: 'var(--color-text-primary)' },
-    { value: 'canceled', label: 'Annulée',     color: 'var(--color-error)', text: 'var(--color-surface)' },
-    { value: 'failed',   label: 'Échec',       color: 'color-mix(in oklab, var(--color-error) 78%, black 12%)', text: 'var(--color-surface)' },
-  ];
+  const [error, setError] = useState(null);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      let query = supabase
-        .from('orders')
-        .select(
-          `
-          *,
-          user:user_id (
-            email
-          ),
-          order_items (
-            quantity,
-            items (
-              name,
-              price
-            )
-          )
-        `
-        )
-        .order('created_at', { ascending: false });
-
-      if (filterStatus !== 'all') {
-        query = query.eq('status', filterStatus);
-      }
-
-      const { data } = await query;
-      setOrders(data || []);
-    } catch (error) {
-      console.error('Erreur lors du chargement des commandes:', error);
+      const { data, error: fetchErr } = await listOrders();
+      if (fetchErr) throw fetchErr;
+      const filtered = filterStatus === 'all' ? data : (data || []).filter(o => o.status === filterStatus);
+      setOrders(filtered || []);
+    } catch (err) {
+      console.error('Erreur lors du chargement des commandes:', err);
+      setError('Impossible de charger les commandes / Bestellungen konnten nicht geladen werden.');
     } finally {
       setLoading(false);
     }
   }, [filterStatus]);
 
-  const updateOrderStatus = async (orderId, newStatus) => {
+  const updateOrderStatusRecompute = async (orderId, newStatus) => {
     try {
-      await supabase.from(TABLE_ORDERS).update({ status: newStatus }).eq('id', orderId);
-
+      const { error: err } = await updateOrderStatus(orderId, newStatus);
+      if (err) throw err;
       fetchOrders();
 
-      // Mettre à jour la commande sélectionnée si c'est celle qui a été modifiée
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
       }
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du statut:', error);
+      pushToast({ message: 'Statut mis à jour / Status aktualisiert', variant: 'success' });
+    } catch (err) {
+      console.error('Erreur lors de la mise à jour du statut:', err);
+      pushToast({ message: 'Erreur lors de la mise à jour du statut / Aktualisierung fehlgeschlagen.', variant: 'error' });
     }
   };
 
@@ -106,28 +89,28 @@ export default function OrderManager() {
 
   return (
     <div className="order-manager">
-      <h2>Gestion des Commandes</h2>
+      <h2>Gestion des Commandes / Bestellungen</h2>
 
       <div className="order-filters">
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-          <option value="all">Tous les statuts</option>
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} aria-label="Filtrer par statut / Nach Status filtern">
+          <option value="all">Tous les statuts / Alle Status</option>
           {statusOptions.map(option => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
         </select>
-        <button onClick={fetchOrders}>Actualiser</button>
+        <button onClick={fetchOrders} aria-label="Actualiser / Aktualisieren">Actualiser / Aktualisieren</button>
       </div>
 
-      {loading ? (
-        <p>Chargement des commandes...</p>
-      ) : (
+      {loading && <LoadingMessage message="Chargement des commandes..." />}
+      {error && !loading && <ErrorMessage title="Erreur" message={error} onRetry={fetchOrders} />}
+      {!loading && !error && (
         <div className="orders-container">
           <div className="orders-list">
-            <h3>Liste des commandes ({orders.length})</h3>
+            <h3>Liste des commandes / Bestellungen ({orders.length})</h3>
             {orders.length === 0 ? (
-              <p>Aucune commande trouvée</p>
+              <p>Aucune commande trouvée / Keine Bestellungen</p>
             ) : (
               <table>
                 <thead>
@@ -158,9 +141,9 @@ export default function OrderManager() {
                         </span>
                       </td>
                       <td>
-                        <button onClick={() => setSelectedOrder(order)}>Détails</button>
-                      </td>
-                    </tr>
+                        <button onClick={() => setSelectedOrder(order)} aria-label="Détails / Details">Détails / Details</button>
+                  </td>
+                </tr>
                   ))}
                 </tbody>
               </table>
@@ -215,7 +198,7 @@ export default function OrderManager() {
                 <h4>Modifier le statut</h4>
                 <select
                   value={selectedOrder.status}
-                  onChange={e => updateOrderStatus(selectedOrder.id, e.target.value)}
+                  onChange={e => updateOrderStatusRecompute(selectedOrder.id, e.target.value)}
                 >
                   {statusOptions.map(option => (
                     <option key={option.value} value={option.value}>

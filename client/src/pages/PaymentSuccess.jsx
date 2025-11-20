@@ -46,7 +46,7 @@ const PaymentSuccess = () => {
     return (
       <div className="payment-status loading">
         <div className="loading-spinner"></div>
-        <p>Vérification du paiement...</p>
+        <p>Vérification du paiement... / Zahlung wird geprüft...</p>
       </div>
     );
   }
@@ -55,11 +55,11 @@ const PaymentSuccess = () => {
     return (
       <div className="payment-status success">
         <div className="success-icon">✅</div>
-        <h1>Paiement réussi !</h1>
-        <p>Merci pour votre commande. Vous recevrez bientôt un email de confirmation.</p>
-        <p className="transaction-id">Numéro de transaction : {paymentIntent?.id}</p>
+        <h1>Paiement réussi ! / Zahlung erfolgreich!</h1>
+        <p>Merci pour votre commande. Vous recevrez bientôt un email de confirmation. / Vielen Dank für Ihre Bestellung. Eine Bestätigung folgt.</p>
+        <p className="transaction-id">Numéro de transaction / Transaktionsnummer : {paymentIntent?.id}</p>
         <Link to="/client" className="btn-return">
-          Retour à l'accueil
+          Retour à l'accueil / Zur Startseite
         </Link>
       </div>
     );
@@ -69,13 +69,13 @@ const PaymentSuccess = () => {
     return (
       <div className="payment-status processing">
         <div className="processing-icon">⏳</div>
-        <h1>Paiement en cours</h1>
+        <h1>Paiement en cours / Zahlung läuft</h1>
         <p>
           Votre paiement est en cours de traitement. Nous vous enverrons un email de confirmation
-          une fois terminé.
+          une fois terminé. / Zahlung wird verarbeitet. Bestätigung folgt.
         </p>
         <Link to="/client" className="btn-return">
-          Retour à l'accueil
+          Retour à l'accueil / Zur Startseite
         </Link>
       </div>
     );
@@ -84,10 +84,10 @@ const PaymentSuccess = () => {
   return (
     <div className="payment-status error">
       <div className="error-icon">❌</div>
-      <h1>Erreur de paiement</h1>
-      <p>Une erreur est survenue lors du paiement. Veuillez réessayer.</p>
+      <h1>Erreur de paiement / Zahlungsfehler</h1>
+      <p>Une erreur est survenue lors du paiement. Veuillez réessayer. / Ein Fehler ist aufgetreten. Bitte erneut versuchen.</p>
       <Link to="/cart" className="btn-return">
-        Retour au panier
+        Retour au panier / Zurück zum Warenkorb
       </Link>
     </div>
   );

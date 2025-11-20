@@ -30,16 +30,16 @@ export default function MiniItemCard({ item }) {
           <div className="mini-card__price">{displayPrice.toFixed(2)} €</div>
         </div>
         <div className="mini-card__actions">
-          <Link to={`/item/${item?.id}`} className="btn btn-ghost" aria-label="Voir le détail du produit">
-            En savoir plus
+          <Link to={`/item/${item?.id}`} className="btn btn-ghost" aria-label="Details anzeigen / Voir le détail">
+            Details / Détails
           </Link>
           <button
             className="btn btn-primary"
             onClick={handleAdd}
-            aria-label="Ajouter au panier"
+            aria-label="In den Warenkorb / Ajouter au panier"
             disabled={!preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0)}
           >
-            Ajouter
+            In den Warenkorb / Ajouter
           </button>
         </div>
       </div>

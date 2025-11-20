@@ -18,9 +18,9 @@ const Cart = () => {
   if (cart.length === 0) {
     return (
       <div className="cart-empty">
-        <h2>Votre panier est vide</h2>
+        <h2>Votre panier est vide / Dein Warenkorb ist leer</h2>
         <Link to="/items" className="btn-shop">
-          Continuer mes achats
+          Continuer mes achats / Weiter einkaufen
         </Link>
       </div>
     );
@@ -28,7 +28,7 @@ const Cart = () => {
 
   return (
     <div className="cart-page">
-      <h1>Mon Panier</h1>
+      <h1>Mon Panier / Mein Warenkorb</h1>
 
       <div className="cart-items">
         {cart.map(item => {
@@ -50,15 +50,15 @@ const Cart = () => {
               {stock != null && <p className="item-stock">Stock: {stock}</p>}
             </div>
             <div className="quantity-controls">
-              <button onClick={() => decreaseItem(item)}>-</button>
+              <button onClick={() => decreaseItem(item)} aria-label="Réduire la quantité / Menge verringern">-</button>
               <span>{item.quantity}</span>
-              <button onClick={() => addItem(item)} disabled={cannotIncrease}>
+              <button onClick={() => addItem(item)} disabled={cannotIncrease} aria-label="Augmenter la quantité / Menge erhöhen">
                 +
               </button>
             </div>
             <div className="item-total">{(unitPrice * item.quantity).toFixed(2)}€</div>
-            <button onClick={() => removeItem(item)} className="remove-btn">
-              Supprimer
+            <button onClick={() => removeItem(item)} className="remove-btn" aria-label="Supprimer l'article / Artikel entfernen">
+              Supprimer / Entfernen
             </button>
             </div>
           );
@@ -72,13 +72,13 @@ const Cart = () => {
 
         {session ? (
           <Link to="/checkout" className="checkout-btn">
-            Procéder au paiement
+            Procéder au paiement / Zur Kasse
           </Link>
         ) : (
           <div className="auth-required">
-            <p>Connectez-vous pour finaliser votre commande</p>
+            <p>Connectez-vous pour finaliser votre commande / Bitte anmelden, um zu bezahlen</p>
             <Link to="/login" className="login-btn">
-              Se connecter
+              Se connecter / Anmelden
             </Link>
           </div>
         )}

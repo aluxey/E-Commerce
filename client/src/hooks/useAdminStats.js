@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { supabase } from '@/supabase/supabaseClient';
+import { fetchOrdersStats } from '@/services/orders';
 
 // Utilitaire: formatage monnaie EUR
 const fmtEUR = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
@@ -30,33 +30,9 @@ export function useAdminStats() {
         const d30Iso = d30.toISOString();
         const d60Iso = d60.toISOString();
 
-        // Revenus + nb commandes sur 30j
-        const {
-          data: ordersLast30,
-          count: ordersCountLast30,
-          error: err1,
-        } = await supabase
-          .from('orders')
-          .select('total, created_at, status', { count: 'exact' })
-          .gte('created_at', d30Iso)
-          .in('status', ['paid', 'shipped']);
-        if (err1) throw err1;
-
-        // Revenus + nb commandes 30j précédents (pour delta)
-        const { data: ordersPrev30, count: ordersCountPrev30, error: err2 } = await supabase
-          .from('orders')
-          .select('total, created_at, status', { count: 'exact' })
-          .gte('created_at', d60Iso)
-          .lt('created_at', d30Iso)
-          .in('status', ['paid', 'shipped']);
-        if (err2) throw err2;
-
-        // Commandes en attente (tous temps)
-        const { count: pendingCount, error: err3 } = await supabase
-          .from('orders')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'pending');
-        if (err3) throw err3;
+        const statsResponse = await fetchOrdersStats(d30Iso, d60Iso);
+        if (statsResponse.error) throw statsResponse.error;
+        const { ordersLast30, ordersPrev30, ordersCountLast30, ordersCountPrev30, pendingCount } = statsResponse;
 
         const revenue30d = (ordersLast30 || []).reduce(
           (sum, o) => sum + Number(o.total || 0),
@@ -66,8 +42,8 @@ export function useAdminStats() {
           (sum, o) => sum + Number(o.total || 0),
           0
         );
-        const orders30d = ordersCountLast30 || 0;
-        const ordersPrev30d = ordersCountPrev30 || 0;
+        const orders30d = ordersCountLast30;
+        const ordersPrev30d = ordersCountPrev30;
         const avgOrderValue30d = orders30d > 0 ? revenue30d / orders30d : 0;
 
         setStats({
@@ -101,7 +77,7 @@ export function useAdminStats() {
 
     return {
       loading,
-      error,
+      error: error || null,
       // valeurs prêtes à afficher
       revenue: fmtEUR.format(revenue30d || 0),
       revenueDeltaPct,
@@ -114,4 +90,3 @@ export function useAdminStats() {
 
   return computed;
 }
-

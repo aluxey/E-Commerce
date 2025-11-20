@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../../supabase/supabaseClient';
-import { TABLE_ITEMS } from './ProductManager';
-
-export const TABLE_VARIANTS = 'item_variants';
-export const TABLE_PRODUCTS = 'items';
+import { listItemsBasic, listVariants, upsertVariant, deleteVariant } from '../../services/adminVariants';
+import { pushToast } from '../ToastHost';
+import { ErrorMessage, LoadingMessage } from '../StatusMessage';
 
 export default function VariantManager() {
   const [variants, setVariants] = useState([]);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [form, setForm] = useState({
     item_id: '',
     color: '',
@@ -19,27 +19,23 @@ export default function VariantManager() {
   const [editingId, setEditingId] = useState(null);
 
   const fetchVariants = async () => {
-    const { data } = await supabase.from(TABLE_VARIANTS).select(`
-        *,
-        items (
-          name
-        )
-      `);
-    setVariants(data || []);
-  };
-
-  const fetchProducts = async () => {
-    const { data } = await supabase.from(TABLE_ITEMS).select('id, name');
-    setProducts(data || []);
+    setLoading(true);
+    setError(null);
+    const [variantsResp, itemsResp] = await Promise.all([listVariants(), listItemsBasic()]);
+    if (variantsResp.error || itemsResp.error) {
+      setError('Impossible de charger les variantes / Varianten konnten nicht geladen werden.');
+      setVariants([]);
+      setProducts([]);
+    } else {
+      setVariants(variantsResp.data || []);
+      setProducts(itemsResp.data || []);
+    }
+    setLoading(false);
   };
 
   const handleChange = e => {
-    const { name, value, type } = e.target;
-    if (type === 'number') {
-      setForm(prev => ({ ...prev, [name]: value }));
-    } else {
-      setForm(prev => ({ ...prev, [name]: value }));
-    }
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async e => {
@@ -54,19 +50,19 @@ export default function VariantManager() {
       };
 
       if (!payload.item_id || !payload.size || Number.isNaN(payload.price)) {
-        alert('Produit, taille et prix sont requis.');
+        pushToast({ message: 'Produit, taille et prix requis / Produkt, Größe und Preis erforderlich.', variant: 'error' });
         return;
       }
 
       if (payload.price < 0) {
-        alert('Le prix doit être positif.');
+        pushToast({ message: 'Le prix doit être positif / Preis muss positiv sein.', variant: 'error' });
         return;
       }
 
       if (editingId) {
         const updatePayload = { ...payload };
         if (form.sku) updatePayload.sku = form.sku;
-        const { error } = await supabase.from(TABLE_VARIANTS).update(updatePayload).eq('id', editingId);
+        const { error } = await upsertVariant({ ...updatePayload, id: editingId });
         if (error) throw error;
         setEditingId(null);
       } else {
@@ -77,7 +73,7 @@ export default function VariantManager() {
           ...payload,
           sku: skuBase,
         };
-        const { error } = await supabase.from(TABLE_VARIANTS).insert([insertPayload]);
+        const { error } = await upsertVariant(insertPayload);
         if (error) throw error;
       }
 
@@ -90,28 +86,32 @@ export default function VariantManager() {
         sku: '',
       });
       fetchVariants();
+      pushToast({ message: 'Variante sauvegardée / Variante gespeichert', variant: 'success' });
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      alert(error.message || 'Impossible de sauvegarder la variante.');
+      pushToast({ message: 'Impossible de sauvegarder la variante / Variante konnte nicht gespeichert werden.', variant: 'error' });
     }
   };
 
   const handleEdit = variant => {
     setForm({
       item_id: variant.item_id,
-      color: variant.color,
-      size: variant.size,
+      color: variant.color || '',
+      size: variant.size || '',
       price: variant.price,
       stock: variant.stock,
-      sku: variant.sku,
+      sku: variant.sku || '',
     });
     setEditingId(variant.id);
   };
 
   const handleDelete = async id => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette variante ?')) {
-      await supabase.from(TABLE_VARIANTS).delete().eq('id', id);
-      fetchVariants();
+      const { error } = await deleteVariant(id);
+      if (!error) {
+        fetchVariants();
+        pushToast({ message: 'Variante supprimée / Variante gelöscht', variant: 'success' });
+      }
     }
   };
 
@@ -129,16 +129,18 @@ export default function VariantManager() {
 
   useEffect(() => {
     fetchVariants();
-    fetchProducts();
   }, []);
+
+  if (loading) return <LoadingMessage message="Chargement des variantes..." />;
+  if (error) return <ErrorMessage title="Erreur" message={error} onRetry={fetchVariants} />;
 
   return (
     <div className="variant-manager">
-      <h2>Gestion des Variantes</h2>
+      <h2>Gestion des Variantes / Varianten</h2>
 
       <form onSubmit={handleSubmit} className="variant-form">
         <select name="item_id" value={form.item_id} onChange={handleChange} required>
-          <option value="">Sélectionner un produit</option>
+          <option value="">Sélectionner un produit / Produkt wählen</option>
           {products.map(product => (
             <option key={product.id} value={product.id}>
               {product.name}
@@ -151,7 +153,6 @@ export default function VariantManager() {
           value={form.color}
           onChange={handleChange}
           placeholder="Couleur"
-          required
         />
 
         <input
@@ -181,19 +182,19 @@ export default function VariantManager() {
         />
 
         <div className="form-buttons">
-          <button type="submit">{editingId ? 'Modifier' : 'Ajouter'}</button>
+          <button type="submit">{editingId ? 'Modifier / Aktualisieren' : 'Ajouter / Hinzufügen'}</button>
           {editingId && (
             <button type="button" onClick={cancelEdit}>
-              Annuler
+              Annuler / Abbrechen
             </button>
           )}
         </div>
       </form>
 
-        <div className="variants-list">
-          <h3>Variantes existantes</h3>
+      <div className="variants-list">
+        <h3>Variantes existantes</h3>
           {variants.length === 0 ? (
-            <p>Aucune variante trouvée</p>
+            <p>Aucune variante trouvée / Keine Variante gefunden</p>
           ) : (
           <table>
             <thead>
@@ -210,13 +211,13 @@ export default function VariantManager() {
               {variants.map(variant => (
                 <tr key={variant.id}>
                   <td>{variant.items?.name || 'N/A'}</td>
-                  <td>{variant.color}</td>
+                  <td>{variant.color || '—'}</td>
                   <td>{variant.size}</td>
                   <td>{Number(variant.price).toFixed(2)}€</td>
                   <td>{variant.stock}</td>
                   <td>
-                    <button onClick={() => handleEdit(variant)}>Modifier</button>
-                    <button onClick={() => handleDelete(variant.id)}>Supprimer</button>
+                    <button onClick={() => handleEdit(variant)} aria-label="Modifier / Bearbeiten">Modifier / Bearbeiten</button>
+                    <button onClick={() => handleDelete(variant.id)} aria-label="Supprimer / Löschen">Supprimer / Löschen</button>
                   </td>
                 </tr>
               ))}

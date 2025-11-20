@@ -4,7 +4,7 @@ import logo from "../assets/logo.jpg";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import "../styles/navbar.css";
-import { supabase } from "../supabase/supabaseClient";
+import { signOut } from "../services/auth";
 
 const Navbar = () => {
   const { session, userData } = useAuth();
@@ -40,7 +40,7 @@ const Navbar = () => {
   }, [location]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     navigate("/");
   };
 
@@ -110,11 +110,11 @@ const Navbar = () => {
           </div>
 
           <div className="navbar__actions">
-            <Link to="/items" className="navbar__icon-btn" aria-label="Produkte durchsuchen">
+            <Link to="/items" className="navbar__icon-btn" aria-label="Produkte durchsuchen / Parcourir les produits">
               🔍
             </Link>
 
-            <Link to="/cart" className="navbar__icon-btn navbar__icon-btn--cart" aria-label="Warenkorb">
+            <Link to="/cart" className="navbar__icon-btn navbar__icon-btn--cart" aria-label="Warenkorb / Panier">
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>

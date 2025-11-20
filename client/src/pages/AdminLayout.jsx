@@ -1,7 +1,9 @@
 import { NavLink, Outlet } from "react-router-dom";
 import PrivateRoute from "@/components/PrivateRoute";
 import { useAuth } from "@/context/AuthContext";
+import ToastHost from "@/components/ToastHost";
 import "../styles/Admin.css";
+import "../styles/adminForms.css";
 
 const navItems = [
   { to: "/admin", label: "Overview", icon: "📊", end: true },
@@ -43,6 +45,7 @@ const AdminLayout = () => {
             <Outlet />
           </div>
         </div>
+        <ToastHost />
       </div>
     </PrivateRoute>
   );

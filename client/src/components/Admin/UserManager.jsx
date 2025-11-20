@@ -1,8 +1,28 @@
-import { useCallback, useEffect, useState } from 'react';
-import { supabase } from '../../supabase/supabaseClient';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { listUsers, updateUserRole, deleteUser as deleteUserService } from '../../services/adminUsers';
+import { pushToast } from '../ToastHost';
+import { ErrorMessage, LoadingMessage } from '../StatusMessage';
 
-export const TABLE_USERS = 'users';
-export const TABLE_ORDERS = 'orders';
+const roleOptions = [
+  { value: 'client', label: 'Utilisateur' },
+  { value: 'admin', label: 'Administrateur' },
+];
+
+const getRoleStyle = role => {
+  const colors = {
+    admin: { bg: 'var(--adm-danger)', text: 'var(--color-surface)' },
+    client: { bg: 'var(--adm-success)', text: 'var(--color-surface)' },
+  };
+  const palette = colors[role] || { bg: 'var(--color-complementary)', text: 'var(--color-text-primary)' };
+  return {
+    backgroundColor: palette.bg,
+    color: palette.text,
+    padding: '4px 8px',
+    borderRadius: '4px',
+    fontSize: '12px',
+    fontWeight: 600,
+  };
+};
 
 export default function UserManager() {
   const [users, setUsers] = useState([]);
@@ -10,147 +30,93 @@ export default function UserManager() {
   const [filterRole, setFilterRole] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const roleOptions = [
-    { value: 'client', label: 'Utilisateur' },
-    { value: 'admin', label: 'Administrateur' },
-  ];
+  const [error, setError] = useState(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      let query = supabase
-        .from('users')
-        .select(
-          `
-          id,
-          email,
-          role,
-          created_at,
-          orders (
-            id,
-            status,
-            total,
-            created_at
-          )
-        `
-        )
-        .order('created_at', { ascending: false });
+      const { data, error: fetchErr } = await listUsers();
+      if (fetchErr) throw fetchErr;
 
+      let filtered = data || [];
       if (filterRole !== 'all') {
-        query = query.eq('role', filterRole);
+        filtered = filtered.filter(u => u.role === filterRole);
       }
-
-      const { data } = await query;
-
-      let filteredData = data || [];
-
-      // Filtrage par terme de recherche
       if (searchTerm) {
         const q = searchTerm.toLowerCase();
-        filteredData = filteredData.filter(user => user.email?.toLowerCase().includes(q));
+        filtered = filtered.filter(user => user.email?.toLowerCase().includes(q));
       }
 
-      setUsers(filteredData);
-    } catch (error) {
-      console.error('Erreur lors du chargement des utilisateurs:', error);
+      setUsers(filtered);
+    } catch (err) {
+      console.error('Erreur lors du chargement des utilisateurs:', err);
+      setError('Impossible de charger les utilisateurs / Benutzer konnten nicht geladen werden.');
     } finally {
       setLoading(false);
     }
   }, [filterRole, searchTerm]);
 
-  const updateUserRole = async (userId, newRole) => {
-    try {
-      await supabase.from(TABLE_USERS).update({ role: newRole }).eq('id', userId);
-
+  const handleRoleChange = async (userId, newRole) => {
+    const { error: roleErr } = await updateUserRole(userId, newRole);
+    if (roleErr) {
+      pushToast({ message: 'Erreur lors du changement de rôle / Rollenwechsel fehlgeschlagen.', variant: 'error' });
+    } else {
       fetchUsers();
-
-      // Mettre à jour l'utilisateur sélectionné si c'est celui qui a été modifié
       if (selectedUser && selectedUser.id === userId) {
         setSelectedUser({ ...selectedUser, role: newRole });
       }
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du rôle:', error);
+      pushToast({ message: 'Rôle mis à jour / Rolle aktualisiert', variant: 'success' });
     }
   };
 
-  // Statut utilisateur (active/suspended) non géré dans le schéma actuel
-
-  const deleteUser = async userId => {
-    if (
-      !confirm(
-        'Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.'
-      )
-    ) {
-      return;
-    }
-
-    try {
-      // D'abord, supprimer les commandes associées (ou les transférer)
-      await supabase.from(TABLE_ORDERS).delete().eq('user_id', userId);
-
-      // Ensuite, supprimer l'utilisateur
-      await supabase.from(TABLE_USERS).delete().eq('id', userId);
-
+  const handleDeleteUser = async userId => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) return;
+    const { error: delErr } = await deleteUserService(userId);
+    if (delErr) {
+      pushToast({ message: 'Suppression impossible / Löschen unmöglich.', variant: 'error' });
+    } else {
       fetchUsers();
-
-      if (selectedUser && selectedUser.id === userId) {
-        setSelectedUser(null);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-      alert("Erreur lors de la suppression de l'utilisateur.");
+      if (selectedUser && selectedUser.id === userId) setSelectedUser(null);
+      pushToast({ message: 'Utilisateur supprimé / Benutzer gelöscht', variant: 'success' });
     }
   };
 
-  const formatDate = dateString => {
+  const formatDate = useCallback(dateString => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
-  };
+  }, []);
 
-  const getUserStats = user => {
-    const orders = user.orders || [];
-    const totalOrders = orders.length;
-    const totalSpent = orders
-      .filter(order => ['paid', 'shipped'].includes(order.status))
-      .reduce((total, order) => total + (order.total || 0), 0);
-
-    return { totalOrders, totalSpent };
-  };
-
-  const getRoleStyle = role => {
-    const colors = {
-      admin: { bg: 'var(--adm-danger)', text: 'var(--color-surface)' },
-      moderator: { bg: 'var(--color-warning)', text: 'var(--color-text-primary)' },
-      user: { bg: 'var(--adm-success)', text: 'var(--color-surface)' },
-    };
-
-    const palette = colors[role] || { bg: 'var(--color-complementary)', text: 'var(--color-text-primary)' };
-
-    return {
-      backgroundColor: palette.bg,
-      color: palette.text,
-      padding: '4px 8px',
-      borderRadius: '4px',
-      fontSize: '12px',
-      fontWeight: 600,
-    };
-  };
+  const statsByUser = useMemo(() => {
+    const map = new Map();
+    users.forEach(user => {
+      const orders = user.orders || [];
+      const totalOrders = orders.length;
+      const totalSpent = orders
+        .filter(order => ['paid', 'shipped'].includes(order.status))
+        .reduce((total, order) => total + (order.total || 0), 0);
+      map.set(user.id, { totalOrders, totalSpent });
+    });
+    return map;
+  }, [users]);
 
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
 
+  if (loading) return <LoadingMessage message="Chargement des utilisateurs..." />;
+  if (error) return <ErrorMessage title="Erreur" message={error} onRetry={fetchUsers} />;
+
   return (
     <div>
-      <h2>Gestion des utilisateurs</h2>
+      <h2>Gestion des utilisateurs / Benutzer</h2>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-        <select value={filterRole} onChange={e => setFilterRole(e.target.value)}>
-          <option value="all">Tous les rôles</option>
+      <div className="user-filters">
+        <select value={filterRole} onChange={e => setFilterRole(e.target.value)} aria-label="Filtrer par rôle / Nach Rolle filtern">
+          <option value="all">Tous les rôles / Alle Rollen</option>
           {roleOptions.map(opt => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
@@ -160,66 +126,58 @@ export default function UserManager() {
 
         <input
           type="text"
-          placeholder="Rechercher par email"
+          placeholder="Rechercher par email / Nach Email suchen"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
       </div>
 
-      {loading ? (
-        <p>Chargement des utilisateurs...</p>
-      ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Créé le</th>
-              <th>Rôle</th>
-              <th>Commandes</th>
-              <th>Total Dépensé</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(user => {
-              const { totalOrders, totalSpent } = getUserStats(user);
-              return (
-                <tr
-                  key={user.id}
-                  style={{
-                    borderBottom: '1px solid var(--adm-border)',
-                  }}
-                >
+      <table className="users-table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Créé le</th>
+            <th>Rôle</th>
+            <th>Commandes</th>
+            <th>Total Dépensé</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map(user => {
+            const stats = statsByUser.get(user.id) || { totalOrders: 0, totalSpent: 0 };
+            return (
+                <tr key={user.id}>
                   <td>{user.email}</td>
-                  <td>{formatDate(user.created_at)}</td>
-                  <td>
-                    <span style={getRoleStyle(user.role)}>{user.role}</span>
-                    <br />
-                    <select
-                      value={user.role}
-                      onChange={e => updateUserRole(user.id, e.target.value)}
-                    >
-                      {roleOptions.map(opt => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td>{totalOrders}</td>
-                  <td>{totalSpent.toFixed(2)} €</td>
-                  <td>
-                    <button onClick={() => setSelectedUser(user)}>Détails</button>
-                    <button onClick={() => deleteUser(user.id)} style={{ color: 'var(--adm-danger)' }}>
-                      Supprimer
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+                <td>{formatDate(user.created_at)}</td>
+                <td>
+                  <span style={getRoleStyle(user.role)}>{user.role}</span>
+                  <br />
+                  <select
+                    value={user.role}
+                    onChange={e => handleRoleChange(user.id, e.target.value)}
+                    aria-label="Changer le rôle / Rolle ändern"
+                  >
+                    {roleOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td>{stats.totalOrders}</td>
+                <td>{stats.totalSpent.toFixed(2)} €</td>
+                <td>
+                  <button onClick={() => setSelectedUser(user)} aria-label="Détails / Details">Détails / Details</button>
+                  <button onClick={() => handleDeleteUser(user.id)} className="link-danger" aria-label="Supprimer / Löschen">
+                    Supprimer / Löschen
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
 
       {selectedUser && (
         <div
@@ -232,7 +190,7 @@ export default function UserManager() {
             boxShadow: 'var(--shadow-sm)',
           }}
         >
-          <h3>Détails de l'utilisateur</h3>
+          <h3>Détails de l'utilisateur / Nutzerdetails</h3>
           <p>
             <strong>Email :</strong> {selectedUser.email}
           </p>

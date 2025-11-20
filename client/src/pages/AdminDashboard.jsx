@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAdminStats } from '@/hooks/useAdminStats';
+import { ErrorMessage, LoadingMessage } from '@/components/StatusMessage';
 import '../styles/Admin.css';
 
 /* Widget KPI minimal (aucune dépendance, accessible) */
@@ -62,43 +63,47 @@ const AdminDashboard = () => {
             <p className="section-subtitle">Indicateurs clés sur 30 jours.</p>
           </div>
         </div>
-        <div className="dashboard-widgets">
-          <Widget
-            title="Revenus (30 j)"
-            value={isLoading ? '...' : stats.revenue}
-            delta={
-              isLoading || stats.revenueDeltaPct === null
-                ? null
-                : `${(stats.revenueDeltaPct > 0 ? '+' : '')}${stats.revenueDeltaPct.toFixed(1)} %`
-            }
-            deltaType={stats.revenueDeltaPct > 0 ? 'positive' : stats.revenueDeltaPct < 0 ? 'negative' : 'neutral'}
-            icon="💶"
-          />
-          <Widget
-            title="Commandes (30 j)"
-            value={isLoading ? '...' : String(stats.orders)}
-            delta={
-              isLoading || stats.ordersDeltaPct === null
-                ? null
-                : `${(stats.ordersDeltaPct > 0 ? '+' : '')}${stats.ordersDeltaPct.toFixed(1)} %`
-            }
-            deltaType={stats.ordersDeltaPct > 0 ? 'positive' : stats.ordersDeltaPct < 0 ? 'negative' : 'neutral'}
-            icon="🛒"
-          />
-          <Widget
-            title="Panier moyen"
-            value={isLoading ? '...' : stats.avgOrder}
-            icon="📊"
-          />
-          <Widget
-            title="Commandes en attente"
-            value={isLoading ? '...' : String(stats.pendingOrders)}
-            icon="⏳"
-            delta={stats.pendingOrders > 0 ? 'A traiter' : 'RAS'}
-            deltaType={stats.pendingOrders > 0 ? 'negative' : 'positive'}
-            progress={stats.pendingOrders > 10 ? 90 : stats.pendingOrders * 8}
-          />
-        </div>
+        {isLoading && <LoadingMessage message="Chargement des indicateurs..." />}
+        {stats.error && !isLoading && <ErrorMessage title="Indicateurs indisponibles" message={stats.error} />}
+        {!isLoading && !stats.error && (
+          <div className="dashboard-widgets">
+            <Widget
+              title="Revenus (30 j)"
+              value={isLoading ? '...' : stats.revenue}
+              delta={
+                isLoading || stats.revenueDeltaPct === null
+                  ? null
+                  : `${(stats.revenueDeltaPct > 0 ? '+' : '')}${stats.revenueDeltaPct.toFixed(1)} %`
+              }
+              deltaType={stats.revenueDeltaPct > 0 ? 'positive' : stats.revenueDeltaPct < 0 ? 'negative' : 'neutral'}
+              icon="💶"
+            />
+            <Widget
+              title="Commandes (30 j)"
+              value={isLoading ? '...' : String(stats.orders)}
+              delta={
+                isLoading || stats.ordersDeltaPct === null
+                  ? null
+                  : `${(stats.ordersDeltaPct > 0 ? '+' : '')}${stats.ordersDeltaPct.toFixed(1)} %`
+              }
+              deltaType={stats.ordersDeltaPct > 0 ? 'positive' : stats.ordersDeltaPct < 0 ? 'negative' : 'neutral'}
+              icon="🛒"
+            />
+            <Widget
+              title="Panier moyen"
+              value={isLoading ? '...' : stats.avgOrder}
+              icon="📊"
+            />
+            <Widget
+              title="Commandes en attente"
+              value={isLoading ? '...' : String(stats.pendingOrders)}
+              icon="⏳"
+              delta={stats.pendingOrders > 0 ? 'A traiter' : 'RAS'}
+              deltaType={stats.pendingOrders > 0 ? 'negative' : 'positive'}
+              progress={stats.pendingOrders > 10 ? 90 : stats.pendingOrders * 8}
+            />
+          </div>
+        )}
 
         <div className="admin-shortcuts">
           {shortcuts.map(card => (

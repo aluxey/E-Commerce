@@ -62,19 +62,19 @@ export default function Footer() {
 
       
 
-      <div className="footer-social">
-        <a href="#" aria-label="Facebook" className="social-icon">
+      <div className="footer-social" aria-label="Réseaux sociaux">
+        <a href="#" aria-label="Facebook (öffnet in neuem Tab)" className="social-icon" target="_blank" rel="noreferrer">
           {/* Remplace par tes SVG ou icônes */}
           <svg width="24" height="24">
             {/* … */}
           </svg>
         </a>
-        <a href="#" aria-label="Instagram" className="social-icon">
+        <a href="#" aria-label="Instagram (öffnet in neuem Tab)" className="social-icon" target="_blank" rel="noreferrer">
           <svg width="24" height="24">
             {/* … */}
           </svg>
         </a>
-        <a href="#" aria-label="Pinterest" className="social-icon">
+        <a href="#" aria-label="Pinterest (öffnet in neuem Tab)" className="social-icon" target="_blank" rel="noreferrer">
           <svg width="24" height="24">
             {/* … */}
           </svg>
@@ -82,10 +82,10 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <p>© {new Date().getFullYear()} Sabbels Handmade. Tous droits réservés.</p>
+        <p>© {new Date().getFullYear()} Sabbels Handmade. Tous droits réservés. / Alle Rechte vorbehalten.</p>
         <p>
-          <a href="/cgv">CGV</a> • <a href="/politique-confidentialite">Privacy</a> •{' '}
-          <a href="/mentions-legales">Mentions légales</a>
+          <a href="/cgv">CGV / AGB</a> • <a href="/politique-confidentialite">Privacy / Datenschutz</a> •{' '}
+          <a href="/mentions-legales">Mentions légales / Impressum</a>
         </p>
       </div>
     </footer>

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabase/supabaseClient';
+import '../styles/adminForms.css';
+import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
 
 export default function MyOrders() {
   const { session } = useAuth();
@@ -107,28 +109,28 @@ export default function MyOrders() {
 
   if (!session) {
     return (
-      <div style={{ maxWidth: 800, margin: '4rem auto', padding: '1rem' }}>
-        <h1>Mes commandes</h1>
-        <p>Veuillez vous connecter pour accéder à vos commandes.</p>
-        <Link className="btn btn--primary" to="/login">Se connecter</Link>
+      <div className="orders-shell">
+        <h1>Mes commandes / Meine Bestellungen</h1>
+        <p>Veuillez vous connecter pour accéder à vos commandes. / Bitte einloggen.</p>
+        <Link className="btn btn-primary" to="/login">Se connecter / Anmelden</Link>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 960, margin: '4rem auto', padding: '1rem' }}>
-      <h1>Mes commandes</h1>
+    <div className="orders-shell">
+      <h1>Mes commandes / Meine Bestellungen</h1>
       {loading ? (
-        <p>Chargement…</p>
+        <LoadingMessage message="Chargement... / Laden..." />
       ) : error ? (
-        <p style={{ color: 'var(--color-error)' }}>{error}</p>
+        <ErrorMessage message={error} />
       ) : orders.length === 0 ? (
-        <div>
-          <p>Aucune commande pour le moment.</p>
-          <Link to="/items" className="btn btn--primary">Voir les produits</Link>
+        <div className="order-card empty">
+          <p>Aucune commande pour le moment. / Keine Bestellungen.</p>
+          <Link to="/items" className="btn btn-primary">Voir les produits / Produkte ansehen</Link>
         </div>
       ) : (
-        <div style={{ display: 'grid', gap: 16 }}>
+        <div className="orders-grid">
           {orders.map(order => {
             const total = computeTotal(order);
             const status = statusMap[order.status] || {
@@ -139,20 +141,14 @@ export default function MyOrders() {
             return (
               <div
                 key={order.id}
-                style={{
-                  background: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-lg)',
-                  padding: 16,
-                  boxShadow: 'var(--shadow-sm)',
-                }}
+                className="order-card"
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                <div className="order-card__header">
                   <div>
                     <strong>Commande #{order.id.slice(0, 8)}</strong>
-                    <div style={{ color: 'var(--color-text-secondary)' }}>{formatDate(order.created_at)}</div>
+                    <div className="muted">{formatDate(order.created_at)}</div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div className="order-card__badge">
                     <span
                       style={{
                         background: status.color,
@@ -170,26 +166,17 @@ export default function MyOrders() {
                   </div>
                 </div>
                 {order.order_items?.length ? (
-                  <div style={{ marginTop: 12, display: 'grid', gap: 8 }}>
+                  <div className="order-items-list">
                     {order.order_items.map((it, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div
-                          style={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: 6,
-                            overflow: 'hidden',
-                            background: 'var(--color-cream-light)',
-                            border: '1px solid var(--color-border)',
-                          }}
-                        >
+                      <div key={idx} className="order-item-row">
+                        <div className="order-item-thumb">
                           {it.items?.item_images?.[0]?.image_url ? (
-                            <img src={it.items.item_images[0].image_url} alt={it.items?.name || 'Produit'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={it.items.item_images[0].image_url} alt={it.items?.name || 'Produit'} />
                           ) : null}
                         </div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 600 }}>{it.items?.name || 'Produit supprimé'}</div>
-                          <div style={{ color: 'var(--color-text-secondary)' }}>Qté: {it.quantity}</div>
+                        <div className="order-item-body">
+                          <div className="order-item-title">{it.items?.name || 'Produit supprimé'}</div>
+                          <div className="muted">Qté / Menge: {it.quantity}</div>
                         </div>
                         <div>{((Number(it.items?.price) || 0) * it.quantity).toFixed(2)} €</div>
                       </div>

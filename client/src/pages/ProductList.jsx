@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import ItemCard from '../components/ItemCard';
 import '../styles/ProductList.css';
-import { supabase } from '../supabase/supabaseClient';
+import { fetchCategories, fetchItemsWithRelations, fetchItemRatings } from '../services/items';
+import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
 
 export default function ProductList() {
   const location = useLocation();
@@ -10,6 +11,7 @@ export default function ProductList() {
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('name');
@@ -17,79 +19,57 @@ export default function ProductList() {
   const [reviewCounts, setReviewCounts] = useState({}); // { [itemId]: number }
 
   // Charger les items et catégories
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
+  const loadData = async () => {
+    setIsLoading(true);
+    setError(null);
 
-      // Charger les items
-      const { data: itemsData, error: itemsError } = await supabase.from('items').select(`
-          *,
-          item_images (
-            image_url
-          ),
-          item_variants (
-            id,
-            size,
-            color,
-            price,
-            stock
-          ),
-          categories (
-            id,
-            name
-          )
-        `);
+    const [itemsResp, categoriesResp] = await Promise.all([fetchItemsWithRelations(), fetchCategories()]);
 
-      // Charger les catégories
-      const { data: categoriesData, error: categoriesError } = await supabase
-        .from('categories')
-        .select('*');
-
-      if (!itemsError && !categoriesError) {
-        const safeItems = itemsData || [];
-        setItems(safeItems);
-        setCategories(categoriesData || []);
-        setFilteredItems(safeItems || []);
-
-        // Charger les ratings moyens pour les items chargés
-        try {
-          const ids = safeItems.map(i => i.id);
-          if (ids.length) {
-            const { data: ratingsData, error: ratingsError } = await supabase
-              .from('item_ratings')
-              .select('item_id, rating')
-              .in('item_id', ids);
-
-            if (!ratingsError && ratingsData) {
-              const sums = {};
-              const counts = {};
-              for (const r of ratingsData) {
-                sums[r.item_id] = (sums[r.item_id] || 0) + r.rating;
-                counts[r.item_id] = (counts[r.item_id] || 0) + 1;
-              }
-              const averages = {};
-              const reviewsCount = {};
-              ids.forEach(id => {
-                const c = counts[id] || 0;
-                const s = sums[id] || 0;
-                averages[id] = c ? s / c : 0;
-                reviewsCount[id] = c;
-              });
-              setAvgRatings(averages);
-              setReviewCounts(reviewsCount);
-            }
-          }
-        } catch (e) {
-          console.warn('Impossible de charger les ratings moyens:', e);
-        }
-      } else {
-        console.error('Erreur lors du chargement :', itemsError || categoriesError);
-      }
-
+    if (itemsResp.error || categoriesResp.error) {
+      setError('Impossible de charger les produits pour le moment.');
       setIsLoading(false);
-    };
+      return;
+    }
 
-    fetchData();
+    const safeItems = itemsResp.data || [];
+    setItems(safeItems);
+    setCategories(categoriesResp.data || []);
+    setFilteredItems(safeItems || []);
+
+    // Charger les ratings moyens pour les items chargés
+    try {
+      const ids = safeItems.map(i => i.id);
+      if (ids.length) {
+        const { data: ratingsData, error: ratingsError } = await fetchItemRatings(ids);
+
+        if (!ratingsError && ratingsData) {
+          const sums = {};
+          const counts = {};
+          for (const r of ratingsData) {
+            sums[r.item_id] = (sums[r.item_id] || 0) + r.rating;
+            counts[r.item_id] = (counts[r.item_id] || 0) + 1;
+          }
+          const averages = {};
+          const reviewsCount = {};
+          ids.forEach(id => {
+            const c = counts[id] || 0;
+            const s = sums[id] || 0;
+            averages[id] = c ? s / c : 0;
+            reviewsCount[id] = c;
+          });
+          setAvgRatings(averages);
+          setReviewCounts(reviewsCount);
+        }
+      }
+    } catch (e) {
+      console.warn('Impossible de charger les ratings moyens:', e);
+    }
+
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   // Synchroniser la recherche depuis l'URL (?search=...)
@@ -155,8 +135,15 @@ export default function ProductList() {
   if (isLoading) {
     return (
       <div className="products-loading">
-        <div className="loading-spinner-large"></div>
-        <p>Chargement des produits...</p>
+        <LoadingMessage message="Chargement des produits... / Produkte werden geladen..." />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="products-loading">
+        <ErrorMessage title="Chargement impossible / Laden fehlgeschlagen" message={error} onRetry={loadData} />
       </div>
     );
   }
@@ -261,10 +248,10 @@ export default function ProductList() {
         ) : (
           <div className="no-results">
             <div className="no-results-icon">📦</div>
-            <h3>Aucun produit trouvé</h3>
-            <p>Essayez de modifier vos critères de recherche</p>
+            <h3>Aucun produit trouvé / Kein Produkt gefunden</h3>
+            <p>Essayez de modifier vos critères de recherche / Bitte passe Filter oder Suche an.</p>
             <button onClick={handleClearFilters} className="btn primary">
-              Voir tous les produits
+              Voir tous les produits / Alle Produkte anzeigen
             </button>
           </div>
         )}

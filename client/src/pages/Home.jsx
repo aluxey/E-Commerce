@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import MiniItemCard from '../components/MiniItemCard';
 import '../styles/home.css';
-import { supabase } from '../supabase/supabaseClient';
+import { fetchLatestItems, fetchTopItems } from '../services/items';
+import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
 
 // Assets
 import purpleBlackBox from '../assets/mainPic.jpg';
@@ -13,6 +14,7 @@ export default function Home() {
   const [latestItems, setLatestItems] = useState([]);
   const [topItems, setTopItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const valueProps = [
     { icon: "🧶", title: "Handgemacht", text: "Mit Liebe gestrickt und gehäkelt in Schleswig-Holstein." },
     { icon: "🎨", title: "Wunschfarben", text: "Passe Farben und Größen unkompliziert an deine Einrichtung an." },
@@ -35,35 +37,15 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch Latest Items
-        const { data: latest } = await supabase
-          .from('items')
-          .select('*, item_images ( image_url ), item_variants ( id, size, color, price, stock )')
-          .order('created_at', { ascending: false })
-          .limit(4);
-
-        // Fetch Top Items (Simulated or RPC)
-        const { data: topAgg, error: topErr } = await supabase
-          .rpc('top_purchased_items', { limit_count: 4 });
-
-        let topDetailed = [];
-        if (topAgg?.length) {
-          const ids = topAgg.map(r => r.item_id);
-          const { data: items } = await supabase
-            .from('items')
-            .select('*, item_images ( image_url ), item_variants ( id, size, color, price, stock )')
-            .in('id', ids);
-
-          if (items) {
-            const map = new Map(items.map(i => [i.id, i]));
-            topDetailed = ids.map(id => map.get(id)).filter(Boolean);
-          }
-        }
-
-        setLatestItems(latest || []);
-        setTopItems(topDetailed || []);
+        setError(null);
+        const [latestResp, topResp] = await Promise.all([fetchLatestItems(4), fetchTopItems(4)]);
+        if (latestResp.error) throw latestResp.error;
+        if (topResp.error) throw topResp.error;
+        setLatestItems(latestResp.data || []);
+        setTopItems(topResp.data || []);
       } catch (error) {
         console.error("Error fetching home data:", error);
+        setError("Die Startseite konnte nicht geladen werden. Bitte versuche es erneut.");
       } finally {
         setLoading(false);
       }
@@ -169,16 +151,18 @@ export default function Home() {
             </div>
             <Link to="/items" className="link-cta">Alle Neuheiten</Link>
           </div>
-          {loading ? (
-            <div className="text-center">Laden...</div>
-          ) : latestItems.length ? (
-            <div className="product-grid">
-              {latestItems.map(item => (
-                <MiniItemCard key={item.id} item={item} />
-              ))}
-            </div>
-          ) : (
-            <div className="showcase-empty">Noch keine Neuheiten verfügbar.</div>
+          {loading && <LoadingMessage message="Laden..." />}
+          {error && <ErrorMessage message={error} />}
+          {!loading && !error && (
+            latestItems.length ? (
+              <div className="product-grid">
+                {latestItems.map(item => (
+                  <MiniItemCard key={item.id} item={item} />
+                ))}
+              </div>
+            ) : (
+              <div className="showcase-empty">Noch keine Neuheiten verfügbar.</div>
+            )
           )}
         </div>
       </section>
@@ -226,16 +210,18 @@ export default function Home() {
             </div>
             <Link to="/items" className="link-cta">Alle Bestseller</Link>
           </div>
-          {loading ? (
-            <div className="text-center">Laden...</div>
-          ) : topItems.length ? (
-            <div className="product-grid">
-              {topItems.map(item => (
-                <MiniItemCard key={item.id} item={item} />
-              ))}
-            </div>
-          ) : (
-            <div className="showcase-empty">Bald findest du hier unsere Bestseller.</div>
+          {loading && <LoadingMessage message="Laden..." />}
+          {error && <ErrorMessage message={error} />}
+          {!loading && !error && (
+            topItems.length ? (
+              <div className="product-grid">
+                {topItems.map(item => (
+                  <MiniItemCard key={item.id} item={item} />
+                ))}
+              </div>
+            ) : (
+              <div className="showcase-empty">Bald findest du hier unsere Bestseller.</div>
+            )
           )}
         </div>
       </section>

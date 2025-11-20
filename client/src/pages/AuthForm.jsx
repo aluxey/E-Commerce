@@ -2,10 +2,13 @@
 import { useState, useCallback, useMemo } from 'react';
 import { supabase } from '../supabase/supabaseClient';
 import '../styles/Authform.css';
+import { fetchUserProfile } from '../services/auth';
+import { useAuth } from '../context/AuthContext';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function AuthForm({ onSuccess }) {
+  const { authError } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [touched, setTouched] = useState({ email: false, password: false });
   const [loading, setLoading] = useState(false);
@@ -100,7 +103,15 @@ export default function AuthForm({ onSuccess }) {
           }
 
           setErrorMsg('');
+          // Récupère le rôle pour rediriger
+          let role = 'client';
+          if (user?.id) {
+            const { data: profile } = await fetchUserProfile(user.id);
+            role = profile?.role || 'client';
+            localStorage.setItem('last_role', role);
+          }
           onSuccess?.();
+          window.location.replace(role === 'admin' ? '/admin' : '/');
         }
       } catch (err) {
         console.error('Signup unexpected error:', err);
@@ -115,9 +126,9 @@ export default function AuthForm({ onSuccess }) {
   return (
     <div className="auth-wrapper">
       <form className="auth-form" onSubmit={handleSignup} noValidate aria-describedby="form-error">
-        <h2>Inscription</h2>
+        <h2>Inscription / Anmeldung</h2>
 
-        <label htmlFor="email">Adresse email</label>
+        <label htmlFor="email">Adresse email / E-Mail-Adresse</label>
         <input
           id="email"
           name="email"
@@ -131,14 +142,14 @@ export default function AuthForm({ onSuccess }) {
           aria-describedby={touched.email && !isEmailValid ? 'email-error' : undefined}
           autoComplete="email"
         />
-        <p className="muted" id="email-help">Nous ne partagerons jamais votre email.</p>
+        <p className="muted" id="email-help">Nous ne partagerons jamais votre email. / Deine E-Mail bleibt privat.</p>
         {touched.email && !isEmailValid && (
-          <p id="email-error" className="field-error" role="alert">
-            Format d'email invalide.
+        <p id="email-error" className="field-error" role="alert">
+          Format d'email invalide / Ungültige E-Mail.
           </p>
         )}
 
-        <label htmlFor="password">Mot de passe</label>
+        <label htmlFor="password">Mot de passe / Passwort</label>
         <div className="input-with-toggle">
           <input
             id="password"
@@ -160,12 +171,12 @@ export default function AuthForm({ onSuccess }) {
             aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
             onClick={togglePasswordVisibility}
           >
-            {showPassword ? 'Masquer' : 'Afficher'}
+            {showPassword ? 'Masquer / Verbergen' : 'Afficher / Anzeigen'}
           </button>
         </div>
         {touched.password && !isPasswordValid && (
           <p id="password-error" className="field-error" role="alert">
-            Le mot de passe doit contenir au moins 6 caractères.
+            Le mot de passe doit contenir au moins 6 caractères. / Mindestens 6 Zeichen.
           </p>
         )}
 
@@ -189,17 +200,17 @@ export default function AuthForm({ onSuccess }) {
           {loading ? (
             <>
               <span className="spinner" aria-hidden="true" />
-              <span className="sr-only">Chargement...</span>
+              <span className="sr-only">Chargement... / Laden...</span>
             </>
           ) : (
-            "S'inscrire"
+            "S'inscrire / Registrieren"
           )}
         </button>
 
         <div aria-live="assertive">
-          {errorMsg && (
+          {(authError || errorMsg) && (
             <p id="form-error" className="error" role="alert">
-              {errorMsg}
+              {authError || errorMsg}
             </p>
           )}
         </div>

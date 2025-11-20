@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Authform.css';
+import { fetchUserProfile } from '../services/auth';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,7 +22,7 @@ const mapSupabaseError = error => {
 };
 
 export default function Login({ onSuccess }) {
-  const { session } = useAuth();
+  const { session, userData, authError } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: '', password: '' });
@@ -31,10 +32,12 @@ export default function Login({ onSuccess }) {
 
   // redirect if already logged in
   useEffect(() => {
-    if (session) {
-      navigate('/', { replace: true });
+    if (session && userData) {
+      const role = userData.role;
+      const target = role === 'admin' ? '/admin' : '/';
+      navigate(target, { replace: true });
     }
-  }, [session, navigate]);
+  }, [session, userData, navigate]);
 
   const isEmailValid = emailRegex.test(form.email.trim());
   const isPasswordValid = form.password.length > 0;
@@ -65,7 +68,7 @@ export default function Login({ onSuccess }) {
       setErrorMsg('');
 
       try {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: normalizeEmail(form.email),
           password: form.password,
         });
@@ -73,8 +76,15 @@ export default function Login({ onSuccess }) {
         if (error) {
           setErrorMsg(mapSupabaseError(error));
         } else {
+          // Récupère le rôle pour rediriger
+          let role = 'client';
+          if (data?.user?.id) {
+            const { data: profile } = await fetchUserProfile(data.user.id);
+            role = profile?.role || 'client';
+            localStorage.setItem('last_role', role);
+          }
           onSuccess?.();
-          navigate('/', { replace: true });
+          navigate(role === 'admin' ? '/admin' : '/', { replace: true });
         }
       } catch (err) {
         console.error('Login unexpected error:', err);
@@ -89,9 +99,9 @@ export default function Login({ onSuccess }) {
   return (
     <div className="login-container">
       <form className="login-form" onSubmit={handleLogin} noValidate aria-describedby="form-error">
-        <h2>Connexion</h2>
+        <h2>Connexion / Anmelden</h2>
 
-        <label htmlFor="email">Adresse email</label>
+        <label htmlFor="email">Adresse email / E-Mail-Adresse</label>
         <input
           id="email"
           name="email"
@@ -107,11 +117,11 @@ export default function Login({ onSuccess }) {
         />
         {touched.email && !isEmailValid && (
           <p id="email-error" className="field-error">
-            Format d'email invalide.
+            Format d'email invalide / Ungültige E-Mail.
           </p>
         )}
 
-        <label htmlFor="password">Mot de passe</label>
+        <label htmlFor="password">Mot de passe / Passwort</label>
         <input
           id="password"
           name="password"
@@ -127,20 +137,20 @@ export default function Login({ onSuccess }) {
         />
         {touched.password && !isPasswordValid && (
           <p id="password-error" className="field-error">
-            Le mot de passe ne peut pas être vide.
+            Le mot de passe ne peut pas être vide. / Passwort darf nicht leer sein.
           </p>
         )}
 
         <div aria-live="polite">
-          {errorMsg && (
+          {(authError || errorMsg) && (
             <p id="form-error" className="error-msg">
-              {errorMsg}
+              {authError || errorMsg}
             </p>
           )}
         </div>
 
         <button type="submit" disabled={!canSubmit}>
-          {loading ? 'Connexion...' : 'Se connecter'}
+          {loading ? 'Connexion... / Anmeldung...' : 'Se connecter / Anmelden'}
         </button>
       </form>
     </div>

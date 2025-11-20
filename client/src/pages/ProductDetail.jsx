@@ -4,6 +4,8 @@ import { supabase } from '../supabase/supabaseClient';
 import '../styles/itemPage.css';
 import { CartContext } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { fetchItemDetail, fetchRelatedItems } from '../services/items';
+import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
 
 export default function ItemDetail() {
   const { id } = useParams();
@@ -22,6 +24,7 @@ export default function ItemDetail() {
   const [showNotification, setShowNotification] = useState(false);
   const [relatedItems, setRelatedItems] = useState([]);
   const [deliveryDate, setDeliveryDate] = useState('');
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
   const { addItem } = useContext(CartContext);
@@ -188,65 +191,52 @@ export default function ItemDetail() {
     if (data) setRelatedItems(data);
   }, [id]);
 
-  useEffect(() => {
-    const fetchItemWithImages = async () => {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('items')
-        .select(
-          `
-          *,
-          item_images (
-            image_url
-          ),
-          item_variants (
-            id,
-            size,
-            color,
-            price,
-            stock
-          )
-        `
-        )
-        .eq('id', id)
-        .single();
+  const loadItem = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
 
-      if (!error) {
-        setItem(data);
-        const first = data?.item_images?.[0]?.image_url || null;
-        setActiveImage(first);
-
-        const sortedVariants = (data?.item_variants || [])
-          .map(v => ({
-            ...v,
-            price: v.price != null ? Number(v.price) : null,
-          }))
-          .sort((a, b) => {
-            const ap = a.price ?? Number.POSITIVE_INFINITY;
-            const bp = b.price ?? Number.POSITIVE_INFINITY;
-            return ap - bp;
-          });
-
-        setVariants(sortedVariants);
-        const preferred = sortedVariants.find(v => (v.stock ?? 0) > 0) || sortedVariants[0] || null;
-        if (preferred) {
-          setSelectedSize(preferred.size || '');
-          setSelectedColor(preferred.color || '');
-        } else {
-          setSelectedSize('');
-          setSelectedColor('');
-        }
-
-        // Charger les produits similaires
-        fetchRelatedItems(data.category_id);
-      } else {
-        console.error("Erreur lors du chargement de l'item :", error);
-      }
+    const { data, error: itemError } = await fetchItemDetail(id);
+    if (itemError || !data) {
+      console.error("Erreur lors du chargement de l'item :", itemError);
+      setError("Le produit est introuvable ou temporairement indisponible.");
       setIsLoading(false);
-    };
+      return;
+    }
 
-    if (id) fetchItemWithImages();
-  }, [id, fetchRelatedItems]);
+    setItem(data);
+    const first = data?.item_images?.[0]?.image_url || null;
+    setActiveImage(first);
+
+    const sortedVariants = (data?.item_variants || [])
+      .map(v => ({
+        ...v,
+        price: v.price != null ? Number(v.price) : null,
+      }))
+      .sort((a, b) => {
+        const ap = a.price ?? Number.POSITIVE_INFINITY;
+        const bp = b.price ?? Number.POSITIVE_INFINITY;
+        return ap - bp;
+      });
+
+    setVariants(sortedVariants);
+    const preferred = sortedVariants.find(v => (v.stock ?? 0) > 0) || sortedVariants[0] || null;
+    if (preferred) {
+      setSelectedSize(preferred.size || '');
+      setSelectedColor(preferred.color || '');
+    } else {
+      setSelectedSize('');
+      setSelectedColor('');
+    }
+
+    const relatedResp = await fetchRelatedItems(data.category_id, data.id);
+    if (!relatedResp.error) setRelatedItems(relatedResp.data || []);
+
+    setIsLoading(false);
+  }, [id]);
+
+  useEffect(() => {
+    if (id) loadItem();
+  }, [id, loadItem]);
 
   const loadRatings = useCallback(async () => {
     // Charger les notes moyennes
@@ -331,15 +321,14 @@ export default function ItemDetail() {
   };
 
   if (isLoading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Chargement du produit...</p>
-      </div>
-    );
+    return <LoadingMessage message="Chargement du produit..." />;
   }
 
-  if (!item) return <p>Produit non trouvé.</p>;
+  if (error) {
+    return <ErrorMessage title="Produit indisponible / Produkt nicht verfügbar" message={error} onRetry={loadItem} />;
+  }
+
+  if (!item) return <ErrorMessage title="Produit non trouvé / Produkt nicht gefunden" />;
 
   return (
     <>
@@ -347,7 +336,7 @@ export default function ItemDetail() {
       {showNotification && (
         <div className="notification success">
           <div className="notification-content">
-            <span>✓ Produit ajouté au panier !</span>
+            <span>✓ Produit ajouté au panier ! / Zum Warenkorb hinzugefügt</span>
             <button onClick={() => setShowNotification(false)}>×</button>
           </div>
         </div>
@@ -556,10 +545,10 @@ export default function ItemDetail() {
             <div className="tab-panel">
               <div className="reviews-section">
                 <div className="rating-form">
-                  <h3>Donnez votre avis</h3>
+              <h3>Donnez votre avis / Bewerten</h3>
                   <div className="rating-input">
                     <label>
-                      Votre note:
+                      Votre note / Ihre Bewertung:
                       <select value={rating} onChange={e => setRating(Number(e.target.value))}>
                         <option value={0}>Choisir...</option>
                         {[1, 2, 3, 4, 5].map(n => (
@@ -593,7 +582,7 @@ export default function ItemDetail() {
                       </div>
                     ))
                   ) : (
-                    <p className="no-reviews">Aucun avis pour le moment.</p>
+                    <p className="no-reviews">Aucun avis pour le moment. / Noch keine Bewertungen.</p>
                   )}
                 </div>
               </div>
@@ -603,7 +592,7 @@ export default function ItemDetail() {
           {activeTab === 'delivery' && (
             <div className="tab-panel">
               <div className="delivery-info">
-                <h3>Informations de livraison</h3>
+              <h3>Informations de livraison / Lieferinfos</h3>
                 <div className="delivery-options">
                   <div className="delivery-option">
                     <strong>Livraison standard</strong>
@@ -627,7 +616,7 @@ export default function ItemDetail() {
       {/* Produits similaires */}
       {relatedItems.length > 0 && (
         <div className="related-products">
-          <h2>Produits similaires</h2>
+          <h2>Produits similaires / Ähnliche Produkte</h2>
           <div className="related-grid">
             {relatedItems.map(relatedItem => (
               <div key={relatedItem.id} className="related-item">

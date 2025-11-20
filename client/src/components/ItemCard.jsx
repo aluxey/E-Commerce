@@ -75,10 +75,10 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0 }) {
           onClick={handleAddToCart}
           disabled={!preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0)}
         >
-          Acheter
+          In den Warenkorb / Ajouter
         </button>
-        <Link to={`/item/${item.id}`} className="item-cta secondary" aria-label="Voir le détail">
-          Détail
+        <Link to={`/item/${item.id}`} className="item-cta secondary" aria-label="Details anzeigen / Voir le détail">
+          Details / Détails
         </Link>
       </div>
     </div>

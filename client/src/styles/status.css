@@ -1,0 +1,40 @@
+.status-block {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-main);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-block--error {
+  border-color: color-mix(in oklab, var(--color-primary) 35%, var(--color-border) 65%);
+  background: color-mix(in oklab, var(--color-primary) 8%, var(--color-surface) 92%);
+}
+
+.status-spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top: 3px solid var(--color-primary);
+  border-radius: 50%;
+  animation: status-spin 1s linear infinite;
+}
+
+.status-title {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.status-text {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+@keyframes status-spin {
+  to { transform: rotate(360deg); }
+}
