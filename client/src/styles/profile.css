@@ -1,0 +1,133 @@
+.profile-page {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1rem, 4vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.profile-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1.75rem;
+  border-radius: var(--radius-lg);
+  background: var(--gradient-soft);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-hero__text h1 {
+  margin: 0.35rem 0 0.5rem;
+  font-size: clamp(1.8rem, 3vw, 2.2rem);
+  color: var(--color-primary-dark);
+}
+
+.profile-lead {
+  margin: 0;
+  color: var(--color-text-muted);
+  max-width: 640px;
+  line-height: 1.5;
+}
+
+.profile-hero__cta {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.profile-tags {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 0.7rem;
+}
+
+.profile-tag {
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-pill);
+  background: #fff;
+  border: 1px solid var(--color-border);
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.profile-tag--ghost {
+  background: var(--color-surface-soft);
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
+}
+
+.profile-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  padding: 1.25rem 1.4rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+.profile-card--accent {
+  background: linear-gradient(135deg, rgba(183, 92, 59, 0.12), rgba(125, 154, 131, 0.12));
+  border-color: var(--color-border-strong);
+}
+
+.profile-card--empty {
+  text-align: center;
+}
+
+.profile-rows {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
+}
+
+.profile-label {
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.profile-value {
+  color: var(--color-text-muted);
+  text-align: right;
+  word-break: break-word;
+}
+
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .profile-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-value {
+    text-align: left;
+  }
+}

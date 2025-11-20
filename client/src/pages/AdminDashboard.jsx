@@ -1,57 +1,68 @@
-import PrivateRoute from '@/components/PrivateRoute';
-// Remplacé: ancien DashboardStats -> widgets locaux
-import ProductManager from '@/components/Admin/ProductManager';
-import VariantManager from '@/components/Admin/VariantManager';
-import CategoryManager from '@/components/Admin/CategoryManager';
-import OrderManager from '@/components/Admin/OrderManager';
-import UserManager from '@/components/Admin/UserManager';
+import { Link } from 'react-router-dom';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import '../styles/Admin.css';
 
 /* Widget KPI minimal (aucune dépendance, accessible) */
-const Widget = ({ title, value, delta, deltaType = 'neutral', progress, icon = '📈' }) => (
-  <div className="widget" role="group" aria-label={title}>
-    <div className="widget-header">
-      <span className="widget-title">{title}</span>
-      <div className="widget-icon" aria-hidden="true">
-        {icon}
+const Widget = ({ title, value, delta, deltaType = 'neutral', progress, icon = '📈' }) => {
+  const pct = typeof progress === 'number' ? Math.max(0, Math.min(100, progress)) : null;
+  return (
+    <div className="widget" role="group" aria-label={title}>
+      <div className="widget-header">
+        <span className="widget-title">{title}</span>
+        <div className="widget-icon" aria-hidden="true">
+          {icon}
+        </div>
       </div>
+
+      <div className="widget-value">{value}</div>
+
+      {delta && (
+        <div className={`widget-delta ${deltaType}`}>
+          <span className="marker" aria-hidden="true"></span>
+          {delta}
+        </div>
+      )}
+
+      {pct !== null && (
+        <div className="widget-progress" aria-label="progression">
+          <span style={{ width: `${pct}%` }} />
+        </div>
+      )}
     </div>
+  );
+};
 
-    <div className="widget-value">{value}</div>
-
-    {delta && (
-      <div className={`widget-delta ${deltaType}`}>
-        <span className="marker" aria-hidden="true"></span>
-        {delta}
-      </div>
-    )}
-
-    {typeof progress === 'number' && (
-      <div className="widget-progress" aria-label="progression">
-        <span style={{ width: `${Math.max(0, Math.min(100, progress))}%` }} />
-      </div>
-    )}
-  </div>
-);
-
-const AdminPage = () => {
+const AdminDashboard = () => {
   const stats = useAdminStats();
   const isLoading = stats.loading;
+  const shortcuts = [
+    { to: '/admin/products', title: 'Produits', desc: 'Créer et mettre à jour les fiches', icon: '🧺' },
+    { to: '/admin/orders', title: 'Commandes', desc: 'Suivre et expédier', icon: '📦' },
+    { to: '/admin/users', title: 'Utilisateurs', desc: 'Gérer les rôles et comptes', icon: '👥' },
+    { to: '/admin/categories', title: 'Catégories', desc: 'Structurer le catalogue', icon: '🗂️' },
+    { to: '/admin/variants', title: 'Variantes', desc: 'Tailles, couleurs et stocks', icon: '🎯' },
+  ];
 
   return (
-    <PrivateRoute role="admin">
-      <main className="admin-container">
-        <h1>Panneau d’administration</h1>
-        <p className="admin-subtitle">
-          Suivi des indicateurs et gestion du catalogue, des commandes et des utilisateurs.
-        </p>
+    <div className="admin-page">
+      <header className="admin-hero admin-hero--lite">
+        <div>
+          <span className="eyebrow">Admin</span>
+          <h1>Panneau d’administration</h1>
+          <p className="admin-subtitle">
+            Vue d’ensemble et accès rapide aux espaces de gestion.
+          </p>
+        </div>
+      </header>
 
-        {/* DASHBOARD — Widgets KPI */}
-        <section aria-labelledby="stats-heading" className="dashboard-widgets">
-          <h2 id="stats-heading" className="sr-only">
-            Indicateurs clés
-          </h2>
+      <section aria-labelledby="stats-heading" className="section section--overview">
+        <div className="section-header">
+          <div>
+            <h2 id="stats-heading" className="section-title">Récapitulatif</h2>
+            <p className="section-subtitle">Indicateurs clés sur 30 jours.</p>
+          </div>
+        </div>
+        <div className="dashboard-widgets">
           <Widget
             title="Revenus (30 j)"
             value={isLoading ? '...' : stats.revenue}
@@ -75,7 +86,7 @@ const AdminPage = () => {
             icon="🛒"
           />
           <Widget
-            title="Panier moyen (30 j)"
+            title="Panier moyen"
             value={isLoading ? '...' : stats.avgOrder}
             icon="📊"
           />
@@ -83,51 +94,27 @@ const AdminPage = () => {
             title="Commandes en attente"
             value={isLoading ? '...' : String(stats.pendingOrders)}
             icon="⏳"
+            delta={stats.pendingOrders > 0 ? 'A traiter' : 'RAS'}
+            deltaType={stats.pendingOrders > 0 ? 'negative' : 'positive'}
+            progress={stats.pendingOrders > 10 ? 90 : stats.pendingOrders * 8}
           />
-        </section>
+        </div>
 
-        {/* PRODUITS */}
-        <section aria-labelledby="products-heading" className="section section--products">
-          <div className="section-header">
-            <h2 id="products-heading" className="section-title">Produits</h2>
-          </div>
-          <ProductManager />
-        </section>
-
-        {/* VARIANTES */}
-        <section aria-labelledby="variants-heading" className="section section--variants">
-          <div className="section-header">
-            <h2 id="variants-heading" className="section-title">Variantes</h2>
-          </div>
-          <VariantManager />
-        </section>
-
-        {/* CATÉGORIES */}
-        <section aria-labelledby="categories-heading" className="section section--categories">
-          <div className="section-header">
-            <h2 id="categories-heading" className="section-title">Catégories</h2>
-          </div>
-          <CategoryManager />
-        </section>
-
-        {/* COMMANDES */}
-        <section aria-labelledby="orders-heading" className="section section--orders">
-          <div className="section-header">
-            <h2 id="orders-heading" className="section-title">Commandes</h2>
-          </div>
-          <OrderManager />
-        </section>
-
-        {/* UTILISATEURS */}
-        <section aria-labelledby="users-heading" className="section section--users">
-          <div className="section-header">
-            <h2 id="users-heading" className="section-title">Utilisateurs</h2>
-          </div>
-          <UserManager />
-        </section>
-      </main>
-    </PrivateRoute>
+        <div className="admin-shortcuts">
+          {shortcuts.map(card => (
+            <Link key={card.to} to={card.to} className="shortcut-card">
+              <span className="shortcut-icon" aria-hidden="true">{card.icon}</span>
+              <div>
+                <p className="shortcut-title">{card.title}</p>
+                <p className="shortcut-desc">{card.desc}</p>
+              </div>
+              <span className="shortcut-cta">Ouvrir →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 };
 
-export default AdminPage;
+export default AdminDashboard;

@@ -1,77 +1,60 @@
-import React from 'react';
-import '../styles/home.css';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../supabase/supabaseClient';
-import ItemCard from '../components/ItemCard';
 import MiniItemCard from '../components/MiniItemCard';
+import '../styles/home.css';
+import { supabase } from '../supabase/supabaseClient';
 
-// Import des images pour le carousel
+// Assets
+import purpleBlackBox from '../assets/mainPic.jpg';
 import deskOrganizer from '../assets/products/desk_organizer.jpg';
 import greyBasket from '../assets/products/grey_basket.jpg';
-import purpleBlackBox from '../assets/mainPic.jpg';
 
-const carouselImages = [deskOrganizer, greyBasket, purpleBlackBox];
-
-// Page d'accueil publique affichant les dernières nouveautés et les best sellers
 export default function Home() {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [latestItems, setLatestItems] = useState([]);
   const [topItems, setTopItems] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Auto-slide toutes les 4 sec
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex(prev => (prev + 2) % carouselImages.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const prevSlide = () => {
-    setCurrentIndex(prev => (prev - 2 + carouselImages.length) % carouselImages.length);
-  };
-
-  const nextSlide = () => {
-    setCurrentIndex(prev => (prev + 2) % carouselImages.length);
-  };
-
-  const goToSlide = idx => {
-    // Affiche idx et idx+1
-    setCurrentIndex(idx);
-  };
-
-  // Les deux images à afficher
-  const slideImages = [
-    carouselImages[currentIndex],
-    carouselImages[(currentIndex + 1) % carouselImages.length],
+  const valueProps = [
+    { icon: "🧶", title: "Handgemacht", text: "Mit Liebe gestrickt und gehäkelt in Schleswig-Holstein." },
+    { icon: "🎨", title: "Wunschfarben", text: "Passe Farben und Größen unkompliziert an deine Einrichtung an." },
+    { icon: "🌿", title: "Natürliche Garne", text: "Wir nutzen weiche, langlebige Materialien ohne Kompromisse." },
+    { icon: "💌", title: "Persönlich", text: "Direkter Kontakt und Updates bis dein Lieblingsstück ankommt." },
   ];
 
-  // Fetch sections content
+  const categories = [
+    { name: "Wohntextilien", image: deskOrganizer, link: "/items?category=Home", blurb: "Körbe, Ordnungshilfen und gemütliche Akzente." },
+    { name: "Kids & Baby", image: greyBasket, link: "/items?category=Kids", blurb: "Sanfte Garne für die Kleinsten – sicher und kuschelig." },
+    { name: "Accessoires", image: purpleBlackBox, link: "/items?category=Accessories", blurb: "Kleine Lieblingsstücke für jeden Tag." },
+  ];
+
+  const heroHighlights = [
+    { icon: "🤲", title: "Kleine Auflagen", text: "Jedes Stück ein Unikat" },
+    { icon: "⏱️", title: "Fix versandbereit", text: "Innerhalb von 3–5 Werktagen" },
+    { icon: "📦", title: "Liebevoll verpackt", text: "Versand mit Sendungsverfolgung" },
+  ];
+
   useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
       try {
-        // Derniers articles
-        const { data: latest, error: latestErr } = await supabase
+        // Fetch Latest Items
+        const { data: latest } = await supabase
           .from('items')
           .select('*, item_images ( image_url ), item_variants ( id, size, color, price, stock )')
           .order('created_at', { ascending: false })
-          .limit(8);
-        if (latestErr) console.error(latestErr);
+          .limit(4);
 
-        // Top achats via RPC puis fetch des items correspondants
+        // Fetch Top Items (Simulated or RPC)
         const { data: topAgg, error: topErr } = await supabase
-          .rpc('top_purchased_items', { limit_count: 8 });
-        if (topErr) console.warn('RPC top_purchased_items indisponible:', topErr?.message);
+          .rpc('top_purchased_items', { limit_count: 4 });
 
         let topDetailed = [];
         if (topAgg?.length) {
           const ids = topAgg.map(r => r.item_id);
-          const { data: items, error: itemsErr } = await supabase
+          const { data: items } = await supabase
             .from('items')
             .select('*, item_images ( image_url ), item_variants ( id, size, color, price, stock )')
             .in('id', ids);
-          if (!itemsErr && items) {
+
+          if (items) {
             const map = new Map(items.map(i => [i.id, i]));
             topDetailed = ids.map(id => map.get(id)).filter(Boolean);
           }
@@ -79,151 +62,198 @@ export default function Home() {
 
         setLatestItems(latest || []);
         setTopItems(topDetailed || []);
-      } catch (e) {
-        console.error(e);
+      } catch (error) {
+        console.error("Error fetching home data:", error);
       } finally {
         setLoading(false);
       }
-    })();
+    };
+
+    fetchData();
   }, []);
 
   return (
-    <div className="home-page container">
-      {/* Sous‑navbar dédiée aux items */}
-      <nav className="home-subnav" aria-label="Accès rapide produits">
-        <Link to="/items" className="home-subnav__link">
-          Unsere Bestseller
-        </Link>
-        <Link to="/items" className="home-subnav__link">
-          Alles fürs Kinderzimmer
-        </Link>
-        <Link to="/items" className="home-subnav__link">
-          Für jede Saison
-        </Link>
-        <Link to="/items" className="home-subnav__link">
-          Sets
-        </Link>
-        <Link to={`/items?category=${encodeURIComponent('Maison')}`} className="home-subnav__link">
-          Über das Produkt
-        </Link>
-      </nav>
+    <div className="home-page">
+      <section className="hero-section">
+        <div className="hero-shape" />
+        <div className="hero-grid container">
+          <div className="hero-copy animate-slide-up">
+            <span className="eyebrow">Warm. Handgemacht. Persönlich.</span>
+            <h1 className="hero-title">Weiche Maschen für gemütliche Momente.</h1>
+            <p className="hero-subtitle">
+              Körbe, Accessoires und Lieblingsstücke aus liebevoller Handarbeit – gefertigt in kleinen Auflagen
+              und mit natürlichen Garnen.
+            </p>
+            <div className="hero-actions">
+              <Link to="/items" className="btn btn-primary">
+                Kollektion ansehen
+              </Link>
+              <Link to="/items?category=Custom" className="btn btn-secondary">
+                Individuelle Anfrage
+              </Link>
+            </div>
+            <div className="hero-highlights">
+              {heroHighlights.map(highlight => (
+                <div className="hero-highlight" key={highlight.title}>
+                  <span className="hero-highlight__icon" aria-hidden="true">{highlight.icon}</span>
+                  <div>
+                    <p className="hero-highlight__title">{highlight.title}</p>
+                    <p className="hero-highlight__text">{highlight.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      {/* Hero image + slogan */}
-      <section className="home-hero" aria-label="Présentation">
-        <div className="hero-media">
-          <img src={purpleBlackBox} alt="Produit artisanal en vedette" />
-        </div>
-        <div className="hero-content">
-          <h1>Willkommen in meiner Häkelwelt</h1>
-          <p className="hero-tagline">Deine Größe ist nicht dabei? Sende mir deinen Wunsch!</p>
-          <div className="hero-actions">
-            <Link to="/items" className="btn btn--primary">
-              Siehe alle Produkte
-            </Link>
-            <a
-              href="mailto:contact@sabbels-handmade.com?subject=Commande%20personnalis%C3%A9e"
-              className="btn btn--ghost"
-            >
-              Anfragen
-            </a>
+          <div className="hero-visual animate-fade-in">
+            <div className="hero-photo">
+              <img src={purpleBlackBox} alt="Handgemachte Körbe und Strick" />
+            </div>
+            <div className="hero-floating-card">
+              <p className="hero-floating-title">Liebe zum Detail</p>
+              <p className="hero-floating-text">Jedes Paket wird mit persönlicher Karte und nachhaltiger Verpackung verschickt.</p>
+            </div>
+            <div className="hero-badge">✨ Neue Farbtöne verfügbar</div>
           </div>
         </div>
       </section>
 
-      {/* Zone catégories (accès rapide) */}
-      <section className="home-categories" aria-label="Accès rapide catégories">
-        <Link className="category-card" to="/items">
-          <span className="category-title">Favoris</span>
-        </Link>
-        <Link className="category-card" to="/items">
-          <span className="category-title">Saison</span>
-        </Link>
-        <Link className="category-card" to={`/items?category=${encodeURIComponent('Maison')}`}>
-          <span className="category-title">Maison</span>
-        </Link>
-        <Link className="category-card" to={`/items?category=${encodeURIComponent('Vêtement')}`}>
-          <span className="category-title">Vêtements</span>
-        </Link>
-      </section>
-
-      {/* Carousel double */}
-      <div className="carousel double">
-        <button className="carousel-btn prev" onClick={prevSlide} aria-label="Précédent">
-          ‹
-        </button>
-        <div className="carousel-slide">
-          {slideImages.map((src, idx) => {
-            // idx ici vaut 0 ou 1, mais on veut comparer avec currentIndex réel
-            const globalIdx = (currentIndex + idx) % carouselImages.length;
-            const isActive =
-              globalIdx === currentIndex ||
-              globalIdx === (currentIndex + 1) % carouselImages.length;
-            return (
-              <img
-                key={globalIdx}
-                src={src}
-                alt={`Slide ${globalIdx + 1}`}
-                className={isActive ? 'active' : 'inactive'}
-              />
-            );
-          })}
-        </div>
-        <button className="carousel-btn next" onClick={nextSlide} aria-label="Suivant">
-          ›
-        </button>
-        <div className="carousel-dots">
-          {carouselImages.map((_, idx) => (
-            <button
-              key={idx}
-              className={`dot${idx === currentIndex ? ' dot--active' : ''}`}
-              onClick={() => goToSlide(idx)}
-              aria-label={`Aller au slide ${idx + 1}`}
-            />
+      <section className="value-strip">
+        <div className="container value-grid">
+          {valueProps.map(feature => (
+            <div className="value-card" key={feature.title}>
+              <span className="value-icon" aria-hidden="true">{feature.icon}</span>
+              <div>
+                <h3>{feature.title}</h3>
+                <p>{feature.text}</p>
+              </div>
+            </div>
           ))}
         </div>
-      </div>
-
-      {/* Sections dynamiques */}
-      <HomeSections loading={loading} latestItems={latestItems} topItems={topItems} />
-    </div>
-  );
-}
-
-function HomeSections({ loading, latestItems, topItems }) {
-  return (
-    <div className="home-sections">
-      <section className="home-section">
-        <div className="section-header">
-          <h2>Derniers articles</h2>
-          <Link to="/items" className="see-all">Voir tout</Link>
-        </div>
-        {loading ? (
-          <div className="section-loading">Chargement…</div>
-        ) : (
-          <div className="home-row">
-            {(latestItems || []).slice(0, 4).map(item => (
-              <MiniItemCard key={`latest-${item.id}`} item={item} />
-            ))}
-          </div>
-        )}
       </section>
 
-      <section className="home-section">
-        <div className="section-header">
-          <h2>Best sellers</h2>
-          <Link to="/items" className="see-all">Voir tout</Link>
-        </div>
-        {loading ? (
-          <div className="section-loading">Chargement…</div>
-        ) : topItems.length ? (
-          <div className="home-row">
-            {(topItems || []).slice(0, 5).map(item => (
-              <MiniItemCard key={`top-${item.id}`} item={item} />
+      <section className="categories-section" id="kategorien">
+        <div className="container">
+          <div className="section-header">
+            <div>
+              <span className="eyebrow">Kategorien</span>
+              <h2>Finde dein Lieblingsstück</h2>
+              <p className="text-muted">Wähle die Kategorie, die zu deinem Zuhause oder Anlass passt.</p>
+            </div>
+            <Link to="/items" className="link-cta">Alle Produkte ansehen →</Link>
+          </div>
+          <div className="categories-grid">
+            {categories.map(cat => (
+              <Link to={cat.link} className="category-card" key={cat.name}>
+                <img src={cat.image} alt={cat.name} className="category-bg" />
+                <div className="category-overlay">
+                  <div className="category-text">
+                    <p className="category-blurb">{cat.blurb}</p>
+                    <span className="category-name">{cat.name}</span>
+                  </div>
+                  <span className="category-cta">Jetzt entdecken</span>
+                </div>
+              </Link>
             ))}
           </div>
-        ) : (
-          <div className="section-empty">Pas encore de best-sellers</div>
-        )}
+        </div>
+      </section>
+
+      <section className="product-section">
+        <div className="container">
+          <div className="section-header">
+            <div>
+              <span className="eyebrow">Neu im Shop</span>
+              <h2>Frisch von der Nadel</h2>
+              <p className="text-muted">Neue Farben, neue Formen – direkt aus dem Atelier.</p>
+            </div>
+            <Link to="/items" className="link-cta">Alle Neuheiten</Link>
+          </div>
+          {loading ? (
+            <div className="text-center">Laden...</div>
+          ) : latestItems.length ? (
+            <div className="product-grid">
+              {latestItems.map(item => (
+                <MiniItemCard key={item.id} item={item} />
+              ))}
+            </div>
+          ) : (
+            <div className="showcase-empty">Noch keine Neuheiten verfügbar.</div>
+          )}
+        </div>
+      </section>
+
+      <section className="story-section" id="story">
+        <div className="container story-grid">
+          <div className="story-visual">
+            <img src={deskOrganizer} alt="Garn und Accessoires" />
+            <div className="story-note">
+              <span>Handmade Studio</span>
+              <p>Jede Bestellung wird in kleinen Serien gefertigt und von Hand geprüft.</p>
+            </div>
+          </div>
+          <div className="story-content">
+            <span className="eyebrow">Die Geschichte</span>
+            <h2>Von der ersten Masche bis zu deinem Paket.</h2>
+            <p>
+              Ich bin Sabbel – Makerin, Garnliebhaberin und Detailverliebte. Was als Abendprojekt begann,
+              ist heute ein kleines Label, das Wärme und Ruhe in den Alltag bringt.
+            </p>
+            <p>
+              Meine Stücke entstehen in ruhiger Handarbeit, mit Fokus auf langlebige Materialien und eine moderne,
+              nordische Ästhetik.
+            </p>
+            <div className="story-pills">
+              <span className="story-pill">Kleine Auflagen</span>
+              <span className="story-pill">Individuell anpassbar</span>
+              <span className="story-pill">Nachhaltig verpackt</span>
+            </div>
+            <div className="story-actions">
+              <Link to="/items" className="btn btn-primary">Kollektion entdecken</Link>
+              <a href="mailto:contact@sabbels-handmade.com" className="btn btn-ghost">Kontakt aufnehmen</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="product-section product-section--alt">
+        <div className="container">
+          <div className="section-header">
+            <div>
+              <span className="eyebrow">Bestseller</span>
+              <h2>Lieblinge unserer Kund:innen</h2>
+              <p className="text-muted">Bewährte Klassiker, die besonders oft bestellt werden.</p>
+            </div>
+            <Link to="/items" className="link-cta">Alle Bestseller</Link>
+          </div>
+          {loading ? (
+            <div className="text-center">Laden...</div>
+          ) : topItems.length ? (
+            <div className="product-grid">
+              {topItems.map(item => (
+                <MiniItemCard key={item.id} item={item} />
+              ))}
+            </div>
+          ) : (
+            <div className="showcase-empty">Bald findest du hier unsere Bestseller.</div>
+          )}
+        </div>
+      </section>
+
+      <section className="newsletter-section" id="newsletter">
+        <div className="container newsletter-content">
+          <div>
+            <span className="eyebrow">Newsletter</span>
+            <h2>Bleib auf dem Laufenden</h2>
+            <p className="text-muted">
+              Einmal im Monat erhältst du News zu neuen Farben, limitierten Drops und kleinen Einblicken in das Atelier.
+            </p>
+          </div>
+          <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
+            <input type="email" placeholder="Deine E-Mail Adresse" className="newsletter-input" required />
+            <button type="submit" className="btn btn-primary">Anmelden</button>
+          </form>
+        </div>
       </section>
     </div>
   );

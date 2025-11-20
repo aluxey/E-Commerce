@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
 import { useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 
 export default function MiniItemCard({ item }) {
@@ -30,11 +30,11 @@ export default function MiniItemCard({ item }) {
           <div className="mini-card__price">{displayPrice.toFixed(2)} €</div>
         </div>
         <div className="mini-card__actions">
-          <Link to={`/item/${item?.id}`} className="btn btn--ghost" aria-label="Voir le détail du produit">
+          <Link to={`/item/${item?.id}`} className="btn btn-ghost" aria-label="Voir le détail du produit">
             En savoir plus
           </Link>
           <button
-            className="btn btn--primary"
+            className="btn btn-primary"
             onClick={handleAdd}
             aria-label="Ajouter au panier"
             disabled={!preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0)}
