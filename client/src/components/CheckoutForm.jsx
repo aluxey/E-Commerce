@@ -42,7 +42,8 @@ const CheckoutForm = ({ onSuccess }) => {
 
         // Rediriger vers une page de confirmation
         setTimeout(() => {
-          navigate('/payment-success');
+          const cs = paymentIntent.client_secret;
+          navigate(cs ? `/payment-success?payment_intent_client_secret=${cs}` : '/payment-success');
         }, 2000);
       }
     } catch (err) {
