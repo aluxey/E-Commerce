@@ -67,12 +67,16 @@ export default function Home() {
               und mit natürlichen Garnen.
             </p>
             <div className="hero-actions">
-              <Link to="/items" className="btn btn-primary">
+              <Link to="/items" className="btn btn-primary" aria-label="Kollektion ansehen">
                 Kollektion ansehen
               </Link>
-              <Link to="/items?category=Custom" className="btn btn-secondary">
+              <a
+                href="mailto:contact@sabbels-handmade.com?subject=Individuelle%20Anfrage%20-%20Sabbels%20Handmade"
+                className="btn btn-secondary"
+                aria-label="Individuelle Anfrage"
+              >
                 Individuelle Anfrage
-              </Link>
+              </a>
             </div>
             <div className="hero-highlights">
               {heroHighlights.map(highlight => (

@@ -1,6 +1,6 @@
 // components/Login.jsx
 import { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../supabase/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Authform.css';
@@ -152,6 +152,11 @@ export default function Login({ onSuccess }) {
         <button type="submit" disabled={!canSubmit}>
           {loading ? 'Connexion... / Anmeldung...' : 'Se connecter / Anmelden'}
         </button>
+
+        <p className="auth-switch">
+          Pas encore de compte ? / Noch kein Konto?{' '}
+          <Link to="/signup#register">Créer un compte</Link>
+        </p>
       </form>
     </div>
   );

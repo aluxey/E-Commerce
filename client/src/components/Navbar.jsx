@@ -99,9 +99,14 @@ const Navbar = () => {
                   </button>
                 </>
               ) : (
-                <Link to="/login" className="navbar__pill navbar__pill--primary" onClick={closeMenu}>
-                  Login
-                </Link>
+                <div className="navbar__pill-group">
+                  <Link to="/signup" className="navbar__pill navbar__pill--ghost" onClick={closeMenu}>
+                    Inscription
+                  </Link>
+                  <Link to="/login" className="navbar__pill navbar__pill--primary" onClick={closeMenu}>
+                    Login
+                  </Link>
+                </div>
               )}
               <a className="navbar__mobile-contact" href="mailto:contact@sabbels-handmade.com" onClick={closeMenu}>
                 Schreib uns eine Mail
@@ -129,9 +134,14 @@ const Navbar = () => {
                 </button>
               </div>
             ) : (
-              <Link to="/login" className="navbar__pill navbar__pill--primary">
-                Login
-              </Link>
+              <div className="navbar__profile">
+                <Link to="/signup" className="navbar__pill navbar__pill--ghost">
+                  Inscription
+                </Link>
+                <Link to="/login" className="navbar__pill navbar__pill--primary">
+                  Login
+                </Link>
+              </div>
             )}
           </div>
 

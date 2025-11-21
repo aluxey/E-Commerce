@@ -185,6 +185,12 @@
   border-color: color-mix(in oklab, var(--color-border) 70%, transparent 30%);
 }
 
+.navbar__pill-group {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
 .navbar__profile {
   display: inline-flex;
   align-items: center;
@@ -318,6 +324,11 @@
   .navbar__mobile-actions .navbar__pill {
     width: 100%;
     justify-content: center;
+  }
+
+  .navbar__pill-group {
+    width: 100%;
+    flex-direction: column;
   }
 }
 

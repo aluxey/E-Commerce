@@ -214,6 +214,11 @@ export default function AuthForm({ onSuccess }) {
             </p>
           )}
         </div>
+
+        <p className="auth-switch">
+          Déjà un compte ? / Bereits registriert?{' '}
+          <a href="/login">Se connecter</a>
+        </p>
       </form>
     </div>
   );
