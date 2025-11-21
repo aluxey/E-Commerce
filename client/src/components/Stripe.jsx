@@ -37,7 +37,14 @@ const StripeCheckout = () => {
         return;
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const rawApiUrl =
+        import.meta.env.VITE_API_URL ||
+        import.meta.env.VITE_API_URL_PROD ||
+        import.meta.env.VITE_API_URL_LOCAL ||
+        'http://localhost:3000';
+      const apiUrl = rawApiUrl
+        .replace(/\/api\/health\/?$/i, '') // tolère une URL fournie vers /api/health
+        .replace(/\/$/, '');
       const minimalCart = cart.map(i => ({
         item_id: i.itemId || i.id,
         quantity: i.quantity,
