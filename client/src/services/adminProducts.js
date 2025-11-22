@@ -13,7 +13,7 @@ export const listProducts = async () => {
         item_images ( id, image_url ),
         categories ( id, name ),
         item_variants ( id, size, color_id, price, stock, sku ),
-        item_colors ( color_id, colors ( id, name, hex_code ) )
+        item_colors:item_colors!item_id ( color_id, colors ( id, name, hex_code ) )
       `
     )
     .order('id', { ascending: false });
@@ -36,21 +36,6 @@ export const upsertItem = async (itemPayload, editingId) => {
     return supabase.from(TABLE_ITEMS).update(itemPayload).eq('id', editingId);
   }
   return supabase.from(TABLE_ITEMS).insert([itemPayload]).select('id').single();
-};
-
-export const insertItemWithColors = async (itemPayload, colorIds) => {
-  return supabase
-    .from(TABLE_ITEMS)
-    .insert([
-      {
-        ...itemPayload,
-        item_colors: {
-          data: (colorIds || []).map(id => ({ color_id: id })),
-        },
-      },
-    ])
-    .select('id')
-    .single();
 };
 
 export const syncItemColors = async (itemId, colorIds) => {

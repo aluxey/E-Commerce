@@ -12,7 +12,6 @@ import {
   removeProductImage,
   updateItemPriceMeta,
   upsertItem,
-  insertItemWithColors,
   syncItemColors,
   upsertVariants,
   uploadProductImage,
@@ -96,7 +95,24 @@ export default function ProductAdmin() {
     setError(null);
     try {
       const { data, error } = await listProducts();
-      if (error) throw error;
+      if (error) {
+        // Fallback sans relation item_colors si la table n'est pas connue du schéma
+        if (String(error.message || '').includes('item_colors')) {
+          const { data: fallbackData, error: fbError } = await supabase
+            .from(TABLE_ITEMS)
+            .select(`
+              id, name, price, description, category_id, status,
+              item_images ( id, image_url ),
+              categories ( id, name ),
+              item_variants ( id, size, color_id, price, stock, sku )
+            `)
+            .order('id', { ascending: false });
+          if (fbError) throw fbError;
+          setProducts(fallbackData || []);
+          return;
+        }
+        throw error;
+      }
       setProducts(data || []);
     } catch (err) {
       console.error('Erreur lors du chargement des produits :', err.message);
@@ -311,8 +327,10 @@ export default function ProductAdmin() {
         return;
       }
 
-      const normalizedColorIds = Array.from(new Set(selectedColors.map(id => Number(id)))).filter(Boolean);
-      if (!normalizedColorIds.length) {
+      const normalizedColorIds = colors.length
+        ? Array.from(new Set(selectedColors.map(id => Number(id)))).filter(Boolean)
+        : [];
+      if (colors.length && !normalizedColorIds.length) {
         alert('Sélectionne au moins une couleur pour ce produit.');
         return;
       }
@@ -336,12 +354,30 @@ export default function ProductAdmin() {
       if (editingId) {
         const { error } = await upsertItem(itemPayload, editingId);
         if (error) throw error;
-        const { error: colorsError } = await syncItemColors(editingId, normalizedColorIds);
-        if (colorsError) throw colorsError;
+        if (normalizedColorIds.length) {
+          const { error: colorsError } = await syncItemColors(editingId, normalizedColorIds);
+          if (colorsError) {
+            if (String(colorsError.message || '').includes('item_colors')) {
+              pushToast({ message: 'Couleurs non synchronisées (table absente ?)', variant: 'error' });
+            } else {
+              throw colorsError;
+            }
+          }
+        }
       } else {
-        const { data, error } = await insertItemWithColors(itemPayload, normalizedColorIds);
+        const { data, error } = await upsertItem(itemPayload, null);
         if (error) throw error;
         itemId = data.id;
+        if (normalizedColorIds.length) {
+          const { error: colorsError } = await syncItemColors(itemId, normalizedColorIds);
+          if (colorsError) {
+            if (String(colorsError.message || '').includes('item_colors')) {
+              pushToast({ message: 'Couleurs non synchronisées (table absente ?)', variant: 'error' });
+            } else {
+              throw colorsError;
+            }
+          }
+        }
       }
 
       // Fetch existing variants to detect deletions
