@@ -9,6 +9,7 @@ const navItems = [
   { to: "/admin", label: "Overview", icon: "📊", end: true },
   { to: "/admin/products", label: "Produits", icon: "🧺" },
   { to: "/admin/variants", label: "Variantes", icon: "🎯" },
+  { to: "/admin/colors", label: "Couleurs", icon: "🎨" },
   { to: "/admin/categories", label: "Catégories", icon: "🗂️" },
   { to: "/admin/orders", label: "Commandes", icon: "📦" },
   { to: "/admin/users", label: "Utilisateurs", icon: "👥" },

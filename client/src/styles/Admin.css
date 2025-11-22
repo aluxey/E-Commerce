@@ -628,6 +628,22 @@
 .admin-container tbody tr:nth-child(odd) { background: color-mix(in oklab, var(--color-cream-light) 70%, var(--adm-surface) 30%); }
 .admin-container tbody tr:hover { background: color-mix(in oklab, var(--color-cream-light) 75%, transparent); }
 
+/* Couleurs */
+.color-manager { display: grid; gap: var(--s-3); }
+.color-manager__header { display: flex; align-items: center; justify-content: space-between; }
+.color-form { border: 1px solid var(--adm-border); padding: var(--s-3); border-radius: 12px; background: var(--adm-surface-alt); }
+.color-field { display: inline-flex; align-items: center; gap: .75rem; }
+.color-swatch { width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--adm-border); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 0 0 1px color-mix(in oklab, var(--adm-border) 60%, transparent); }
+.color-legend { color: var(--adm-muted); font-size: .9rem; }
+.color-cell { display: inline-flex; align-items: center; gap: .65rem; }
+.color-actions { display: flex; gap: .5rem; }
+.color-table__wrapper { overflow-x: auto; }
+.color-table code { padding: .1rem .35rem; border-radius: 6px; background: var(--adm-surface-alt); border: 1px solid var(--adm-border); }
+
+/* Form helpers */
+.form-buttons { display: flex; gap: .5rem; align-items: center; }
+.input-hint { margin: .35rem 0 0; color: var(--adm-muted); font-size: .9rem; }
+
 /* États et utilitaires */
 .loading-container { display: flex; justify-content: center; align-items: center; padding: var(--s-6); }
 .empty-state { text-align: center; padding: var(--s-6) var(--s-4); color: var(--adm-muted); }

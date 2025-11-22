@@ -19,6 +19,13 @@ insert into public.categories (name) values
   ('Accessoires')
 on conflict (name) do nothing;
 
+-- 2bis) Couleurs de textile disponibles
+insert into public.colors (name, hex_code) values
+  ('BLEU', '#1E90FF'),
+  ('ORANGE', '#F97316'),
+  ('VERT', '#22C55E')
+on conflict (name) do nothing;
+
 -- 3) Items
 insert into public.items (name, description, price, image_url, category_id)
 select 'Écharpe laine', 'Écharpe tricotée main', 29.90, null, c.id
@@ -26,6 +33,21 @@ from public.categories c where c.name='Accessoires'
 union all
 select 'Amigurumi renard', 'Peluche crochet renard', 19.90, null, c.id
 from public.categories c where c.name='Crochet';
+
+-- 3bis) Couleurs liées aux items (minimum 1 couleur par item)
+insert into public.item_colors (item_id, color_id)
+select i.id, c.id
+from public.items i
+join public.colors c on c.name in ('BLEU','VERT')
+where i.name = 'Écharpe laine'
+on conflict do nothing;
+
+insert into public.item_colors (item_id, color_id)
+select i.id, c.id
+from public.items i
+join public.colors c on c.name = 'ORANGE'
+where i.name = 'Amigurumi renard'
+on conflict do nothing;
 
 -- 4) Variants (exemples)
 insert into public.item_variants (item_id, sku, color, size, stock, price)
@@ -85,6 +107,14 @@ insert into public.categories (name) values
   ('Peluches')
 on conflict (name) do nothing;
 
+-- ========= COLORS =========
+insert into public.colors (name, hex_code) values
+  ('BLEU', '#1E90FF'),
+  ('ORANGE', '#F97316'),
+  ('VERT', '#22C55E'),
+  ('BLANC', '#FFFFFF')
+on conflict (name) do nothing;
+
 -- ========= ITEMS (noms nouveaux vs. ton précédent seed) =========
 -- On prépare une table virtuelle d'items à insérer
 ;
@@ -101,6 +131,25 @@ from items_src s
 join public.categories c on c.name = s.category_name
 where not exists (
   select 1 from public.items i where i.name = s.name
+);
+
+-- ========= ITEM COLORS (au moins une couleur par item)
+with item_color_src(item_name, color_name) as (
+  values
+    ('Bonnet torsadé', 'BLEU'),
+    ('Bonnet torsadé', 'VERT'),
+    ('Plaid cocoon',   'ORANGE'),
+    ('Chaussons bébé', 'BLEU'),
+    ('Amigurumi lapin','BLANC')
+)
+insert into public.item_colors (item_id, color_id)
+select i.id, c.id
+from item_color_src s
+join public.items i on i.name = s.item_name
+join public.colors c on c.name = s.color_name
+where not exists (
+  select 1 from public.item_colors ic
+  where ic.item_id = i.id and ic.color_id = c.id
 );
 
 -- ========= VARIANTS (avec SKUs uniques ; UPSERT par SKU) =========

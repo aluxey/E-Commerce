@@ -15,11 +15,13 @@ import {
   upsertVariants,
   uploadProductImage,
 } from '../../services/adminProducts';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { pushToast } from '../ToastHost';
 
 export const TABLE_ITEMS = 'items';
 const TABLE_CATEGORIES = 'categories';
 const TABLE_VARIANTS = 'item_variants';
+const PRODUCT_DRAFT_KEY = 'admin-product-draft';
 
 const createEmptyVariant = () => ({
   id: null,
@@ -67,6 +69,7 @@ export default function ProductAdmin() {
   const [variants, setVariants] = useState([createEmptyVariant()]);
   const [newImages, setNewImages] = useState([]); // File[]
   const [imagePreviews, setImagePreviews] = useState([]); // local URL previews
+  const [isDirty, setIsDirty] = useState(false);
 
   const resetForm = () => {
     setForm({
@@ -78,6 +81,7 @@ export default function ProductAdmin() {
     setEditingId(null);
     setNewImages([]);
     setImagePreviews([]);
+    setIsDirty(false);
   };
 
   const fetchProducts = async () => {
@@ -106,17 +110,69 @@ export default function ProductAdmin() {
     fetchCategoriesList();
   }, []);
 
+  useUnsavedChanges(isDirty, 'Des modifications produit ne sont pas sauvegardées. Quitter la page ?');
+
+  // Charger un brouillon si on n'est pas en mode édition
+  useEffect(() => {
+    if (editingId) return;
+    const raw = localStorage.getItem(PRODUCT_DRAFT_KEY);
+    if (!raw) return;
+    try {
+      const draft = JSON.parse(raw);
+      if (draft && typeof draft === 'object') {
+        setForm({
+          name: draft.form?.name || '',
+          description: draft.form?.description || '',
+          category_id: draft.form?.category_id || '',
+        });
+        const draftVariants = Array.isArray(draft.variants) && draft.variants.length
+          ? draft.variants.map(v => ({
+              id: null,
+              size: v.size || '',
+              color: v.color || '',
+              price: v.price || '',
+              stock: v.stock ?? 0,
+              sku: v.sku || '',
+            }))
+          : [createEmptyVariant()];
+        setVariants(draftVariants);
+        setIsDirty(true);
+      }
+    } catch (err) {
+      console.warn('Impossible de charger le brouillon produit', err);
+    }
+  }, [editingId]);
+
+  // Sauvegarde du brouillon (uniquement pour un nouveau produit)
+  useEffect(() => {
+    if (!isDirty || editingId) return;
+    const payload = {
+      form,
+      variants: variants.map(v => ({
+        size: v.size,
+        color: v.color,
+        price: v.price,
+        stock: v.stock,
+        sku: v.sku,
+      })),
+    };
+    localStorage.setItem(PRODUCT_DRAFT_KEY, JSON.stringify(payload));
+  }, [form, variants, isDirty, editingId]);
+
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
+    setIsDirty(true);
   };
 
   const addVariantRow = () => {
     setVariants(prev => [...prev, createEmptyVariant()]);
+    setIsDirty(true);
   };
 
   const updateVariantField = (index, field, value) => {
     setVariants(prev => prev.map((variant, idx) => (idx === index ? { ...variant, [field]: value } : variant)));
+    setIsDirty(true);
   };
 
   const removeVariantRow = index => {
@@ -124,6 +180,7 @@ export default function ProductAdmin() {
       if (prev.length === 1) return [createEmptyVariant()];
       return prev.filter((_, idx) => idx !== index);
     });
+    setIsDirty(true);
   };
 
   const onFilesSelected = files => {
@@ -132,6 +189,7 @@ export default function ProductAdmin() {
     setNewImages(prev => [...prev, ...list]);
     const previews = list.map(f => URL.createObjectURL(f));
     setImagePreviews(prev => [...prev, ...previews]);
+    setIsDirty(true);
   };
 
   const onDrop = e => {
@@ -312,6 +370,7 @@ export default function ProductAdmin() {
       resetForm();
       fetchProducts();
       pushToast({ message: editingId ? 'Produit mis à jour' : 'Produit créé', variant: 'success' });
+      localStorage.removeItem(PRODUCT_DRAFT_KEY);
     } catch (err) {
       console.error('Erreur sauvegarde produit:', err.message);
       pushToast({ message: "Erreur lors de l'enregistrement du produit.", variant: 'error' });
@@ -340,6 +399,8 @@ export default function ProductAdmin() {
     });
     setNewImages([]);
     setImagePreviews([]);
+    setIsDirty(false);
+    localStorage.removeItem(PRODUCT_DRAFT_KEY);
 
     const { data, error } = await fetchVariantsByItem(product.id);
 
@@ -357,11 +418,14 @@ export default function ProductAdmin() {
       console.error('Erreur chargement variantes:', error.message);
       setVariants([createEmptyVariant()]);
     }
+    setIsDirty(false);
+    localStorage.removeItem(PRODUCT_DRAFT_KEY);
   };
 
   const removeNewImage = idx => {
     setNewImages(prev => prev.filter((_, i) => i !== idx));
     setImagePreviews(prev => prev.filter((_, i) => i !== idx));
+    setIsDirty(true);
   };
 
   const deleteExistingImage = async (productId, image) => {

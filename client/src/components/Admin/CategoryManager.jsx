@@ -9,8 +9,10 @@ import {
 } from '../../services/adminCategories';
 import { pushToast } from '../ToastHost';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 export default function CategoryManager() {
+  const DRAFT_KEY = 'admin-category-draft';
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     name: '',
@@ -20,6 +22,7 @@ export default function CategoryManager() {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isDirty, setIsDirty] = useState(false);
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -37,6 +40,7 @@ export default function CategoryManager() {
   const handleChange = e => {
     const value = e.target.value === '' ? null : e.target.value;
     setForm({ ...form, [e.target.name]: value });
+    setIsDirty(true);
   };
 
   const handleSubmit = async e => {
@@ -58,6 +62,8 @@ export default function CategoryManager() {
       });
       fetchCategories();
       pushToast({ message: editingId ? 'Catégorie mise à jour / Kategorie aktualisiert' : 'Catégorie créée / Kategorie erstellt', variant: 'success' });
+      setIsDirty(false);
+      localStorage.removeItem(DRAFT_KEY);
     } catch (err) {
       console.error('Erreur lors de la sauvegarde:', err);
       pushToast({ message: 'Erreur lors de la sauvegarde / Speicherung fehlgeschlagen.', variant: 'error' });
@@ -71,6 +77,7 @@ export default function CategoryManager() {
       parent_id: category.parent_id,
     });
     setEditingId(category.id);
+    setIsDirty(false);
   };
 
   const handleDelete = async id => {
@@ -106,14 +113,37 @@ export default function CategoryManager() {
       description: '',
       parent_id: null,
     });
+    setIsDirty(false);
+    localStorage.removeItem(DRAFT_KEY);
   };
 
   const getMainCategories = () => categories.filter(cat => !cat.parent_id);
   const getSubcategories = parentId => categories.filter(cat => cat.parent_id === parentId);
 
   useEffect(() => {
+    const draftRaw = localStorage.getItem(DRAFT_KEY);
+    if (draftRaw) {
+      try {
+        const draft = JSON.parse(draftRaw);
+        setForm({
+          name: draft.name || '',
+          description: draft.description || '',
+          parent_id: draft.parent_id ?? null,
+        });
+        setIsDirty(true);
+      } catch (err) {
+        console.warn('Impossible de charger le brouillon catégorie', err);
+      }
+    }
     fetchCategories();
   }, []);
+
+  useUnsavedChanges(isDirty, 'Des modifications catégories ne sont pas sauvegardées. Quitter la page ?');
+
+  useEffect(() => {
+    if (!isDirty) return;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(form));
+  }, [form, isDirty]);
 
   if (loading) return <LoadingMessage message="Chargement des catégories..." />;
   if (error) return <ErrorMessage title="Erreur" message={error} onRetry={fetchCategories} />;

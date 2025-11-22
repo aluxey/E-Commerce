@@ -40,6 +40,7 @@ const AdminDashboard = () => {
     { to: '/admin/products', title: 'Produits', desc: 'Créer et mettre à jour les fiches', icon: '🧺' },
     { to: '/admin/orders', title: 'Commandes', desc: 'Suivre et expédier', icon: '📦' },
     { to: '/admin/users', title: 'Utilisateurs', desc: 'Gérer les rôles et comptes', icon: '👥' },
+    { to: '/admin/colors', title: 'Couleurs', desc: 'Référentiel des coloris', icon: '🎨' },
     { to: '/admin/categories', title: 'Catégories', desc: 'Structurer le catalogue', icon: '🗂️' },
     { to: '/admin/variants', title: 'Variantes', desc: 'Tailles, couleurs et stocks', icon: '🎯' },
   ];

@@ -4,6 +4,8 @@
 
 -- 1) Activer RLS sur les tables public
 alter table public.users          enable row level security;
+alter table public.colors         enable row level security;
+alter table public.item_colors    enable row level security;
 alter table public.items          enable row level security;
 alter table public.item_images    enable row level security;
 alter table public.item_variants  enable row level security;
@@ -39,6 +41,20 @@ create policy "Users: update self or admin" on public.users for update
 
 create policy "Users: delete admin only" on public.users for delete
   to authenticated using ( public.is_admin(auth.uid()) );
+
+create policy "Colors: public read" on public.colors for select
+  to anon, authenticated using (true);
+
+create policy "Colors: admin write" on public.colors for all
+  to authenticated using ( public.is_admin(auth.uid()) )
+  with check ( public.is_admin(auth.uid()) );
+
+create policy "ItemColors: public read" on public.item_colors for select
+  to anon, authenticated using (true);
+
+create policy "ItemColors: admin write" on public.item_colors for all
+  to authenticated using ( public.is_admin(auth.uid()) )
+  with check ( public.is_admin(auth.uid()) );
 
 create policy "Items: public read" on public.items for select
   to anon, authenticated using (true);

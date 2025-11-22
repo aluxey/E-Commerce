@@ -10,13 +10,14 @@ La base est organisée autour de 4 grands blocs : **Catalogue**, **Commandes**
 
 ### 🛍️ Catalogue
 - **Catégories** : les familles de produits (ex. *Accessoires*, *Décoration*…).
+- **Couleurs** : référentiel des coloris textiles disponibles (nom + code couleur) pour harmoniser le catalogue.
 - **Produits** : chaque fiche produit (nom, description, prix de base, image principale, lien vers une catégorie).
 - **Variantes** : déclinaisons d’un produit (taille, couleur, stock et prix propres).
 - **Images de produit** : plusieurs images possibles pour un même produit.
 - **Notes & avis** : une évaluation (1 à 5 étoiles) par utilisateur et par produit, avec commentaire.
 
 **Idée clé** :
-Un **produit** peut avoir **plusieurs variantes** (ex. tailles/couleurs), **plusieurs images**, et **plusieurs avis**. Les variantes portent le **stock** réel vendu.
+Un **produit** peut avoir **plusieurs variantes** (ex. tailles/couleurs), **plusieurs images**, et **plusieurs avis**. Les variantes portent le **stock** réel vendu et s’appuient sur un référentiel de **couleurs** centralisé. Chaque produit est relié via `item_colors` à **au moins une couleur**, contrainte garantie par la base.
 
 ### 🧾 Commandes
 - **Commandes** : une commande appartient à **un utilisateur**, possède un **statut** (en attente, payée, expédiée, etc.), un **montant total** et une **adresse de livraison**.
