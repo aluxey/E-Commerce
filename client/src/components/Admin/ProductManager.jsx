@@ -68,6 +68,7 @@ export default function ProductAdmin() {
     name: '',
     description: '',
     category_id: '',
+    status: 'active',
   });
 
   const [variants, setVariants] = useState([createEmptyVariant()]);
@@ -81,6 +82,7 @@ export default function ProductAdmin() {
       name: '',
       description: '',
       category_id: '',
+      status: 'active',
     });
     setVariants([createEmptyVariant()]);
     setSelectedColors([]);
@@ -153,6 +155,7 @@ export default function ProductAdmin() {
           name: draft.form?.name || '',
           description: draft.form?.description || '',
           category_id: draft.form?.category_id || '',
+          status: draft.form?.status || 'active',
         });
         const draftVariants = Array.isArray(draft.variants) && draft.variants.length
           ? draft.variants.map(v => ({
@@ -378,6 +381,7 @@ export default function ProductAdmin() {
             }
           }
         }
+        // Si aucune couleur dispo dans le schéma, on continue sans bloquer
       }
 
       // Fetch existing variants to detect deletions
@@ -463,6 +467,7 @@ export default function ProductAdmin() {
       name: product.name || '',
       description: product.description || '',
       category_id: product.category_id || '',
+      status: product.status || 'active',
     });
     setSelectedColors(
       (product.item_colors || [])
