@@ -172,7 +172,7 @@ export default function CategoryManager() {
         <select name="parent_id" value={form.parent_id || ''} onChange={handleChange}>
           <option value="">Catégorie principale / Hauptkategorie</option>
           {getMainCategories().map(category => (
-            <option key={category.id} value={category.id}>
+            <option key={category.id} value={category.id} disabled={editingId === category.id}>
               {category.name}
             </option>
           ))}

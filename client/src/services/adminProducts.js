@@ -11,7 +11,12 @@ export const listProducts = async () => {
       `
         id, name, price, description, category_id, status,
         item_images ( id, image_url ),
-        categories ( id, name ),
+        categories (
+          id,
+          name,
+          parent_id,
+          parent:parent_id ( id, name )
+        ),
         item_variants ( id, size, color_id, price, stock, sku ),
         item_colors:item_colors!item_id ( color_id, colors ( id, name, hex_code ) )
       `
@@ -20,7 +25,18 @@ export const listProducts = async () => {
 };
 
 export const listCategories = async () => {
-  return supabase.from(TABLE_CATEGORIES).select('id, name').order('name');
+  return supabase
+    .from(TABLE_CATEGORIES)
+    .select(
+      `
+        id,
+        name,
+        parent_id,
+        parent:parent_id ( id, name )
+      `
+    )
+    .order('parent_id', { nullsFirst: true })
+    .order('name');
 };
 
 export const fetchVariantsByItem = async itemId =>

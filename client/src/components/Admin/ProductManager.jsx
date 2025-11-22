@@ -529,10 +529,49 @@ export default function ProductAdmin() {
     }
   };
 
-  const categoryName = useMemo(() => {
-    const map = new Map(categories.map(c => [c.id, c.name]));
-    return id => map.get(id) || '—';
+  const categoryTree = useMemo(() => {
+    const parents = [];
+    const children = new Map();
+    const byId = new Map();
+
+    categories.forEach(cat => {
+      byId.set(cat.id, cat);
+      if (!cat.parent_id) {
+        parents.push(cat);
+        return;
+      }
+      const arr = children.get(cat.parent_id) || [];
+      arr.push(cat);
+      children.set(cat.parent_id, arr);
+    });
+
+    parents.sort((a, b) => a.name.localeCompare(b.name));
+    children.forEach(arr => arr.sort((a, b) => a.name.localeCompare(b.name)));
+
+    return { parents, children, byId };
   }, [categories]);
+
+  const { groupedCategories, orphanCategories } = useMemo(() => {
+    const seen = new Set();
+    const groups = categoryTree.parents.map(parent => {
+      const subs = categoryTree.children.get(parent.id) || [];
+      seen.add(parent.id);
+      subs.forEach(s => seen.add(s.id));
+      return { parent, children: subs };
+    });
+    const orphans = categories.filter(cat => !seen.has(cat.id));
+    return { groupedCategories: groups, orphanCategories: orphans };
+  }, [categoryTree, categories]);
+
+  const categoryName = useMemo(() => {
+    const byId = categoryTree.byId;
+    return id => {
+      const cat = byId.get(id);
+      if (!cat) return '—';
+      const parent = cat.parent_id ? byId.get(cat.parent_id) || cat.parent : null;
+      return parent ? `${parent.name} › ${cat.name}` : cat.name;
+    };
+  }, [categoryTree]);
 
   const colorById = useMemo(() => {
     const map = new Map(colors.map(c => [c.id, c]));
@@ -570,11 +609,25 @@ export default function ProductAdmin() {
             <label>Catégorie</label>
             <select name="category_id" value={form.category_id || ''} onChange={handleChange}>
               <option value="">Catégorie...</option>
-              {categories.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
+              {groupedCategories.map(group => (
+                <optgroup key={group.parent.id} label={group.parent.name}>
+                  <option value={group.parent.id}>{group.parent.name} — toutes</option>
+                  {group.children.map(sub => (
+                    <option key={sub.id} value={sub.id}>
+                      {group.parent.name} › {sub.name}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
+              {orphanCategories.length > 0 && (
+                <optgroup label="Autres">
+                  {orphanCategories.map(cat => (
+                    <option key={cat.id} value={cat.id}>
+                      {categoryName(cat.id)}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </div>
         </div>

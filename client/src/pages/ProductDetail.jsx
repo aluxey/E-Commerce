@@ -86,6 +86,14 @@ export default function ItemDetail() {
       : false
     : !variants.length;
 
+  const formatCategoryPath = cat => {
+    if (!cat) return '';
+    const parentName = cat.parent?.name;
+    return parentName ? `${parentName} › ${cat.name}` : cat.name;
+  };
+
+  const categoryPath = useMemo(() => formatCategoryPath(item?.categories), [item]);
+
   useEffect(() => {
     if (!colorOptions.length) {
       setSelectedColor('');
@@ -469,7 +477,7 @@ export default function ItemDetail() {
               <div className="pd-meta">
                 <div className="meta-item">
                   <span>Catégorie:</span>
-                  <span>{item.category_id ?? '—'}</span>
+                  <span>{categoryPath || '—'}</span>
                 </div>
                 <div className="meta-item">
                   <span>Référence:</span>

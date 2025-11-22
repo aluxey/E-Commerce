@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import ItemCard from '../components/ItemCard';
 import '../styles/ProductList.css';
@@ -72,6 +72,89 @@ export default function ProductList() {
     loadData();
   }, []);
 
+  const categoryMeta = useMemo(() => {
+    const byId = new Map();
+    const parents = [];
+    const children = new Map();
+
+    categories.forEach(cat => {
+      byId.set(cat.id, cat);
+      if (!cat.parent_id) {
+        parents.push(cat);
+        return;
+      }
+      const arr = children.get(cat.parent_id) || [];
+      arr.push(cat);
+      children.set(cat.parent_id, arr);
+    });
+
+    parents.sort((a, b) => a.name.localeCompare(b.name));
+    children.forEach(arr => arr.sort((a, b) => a.name.localeCompare(b.name)));
+
+    return { byId, parents, children };
+  }, [categories]);
+
+  const formatCategoryPath = cat => {
+    if (!cat) return '';
+    const parent =
+      cat.parent_id != null
+        ? categoryMeta.byId.get(cat.parent_id) || cat.parent || null
+        : null;
+    return parent ? `${parent.name} › ${cat.name}` : cat.name;
+  };
+
+  const listDescendants = id => {
+    const stack = [id];
+    const collected = [];
+    while (stack.length) {
+      const current = stack.pop();
+      const subs = categoryMeta.children.get(current) || [];
+      for (const child of subs) {
+        collected.push(child.id);
+        stack.push(child.id);
+      }
+    }
+    return collected;
+  };
+
+  const categoryOptions = useMemo(() => {
+    const options = [];
+    const seen = new Set();
+
+    categoryMeta.parents.forEach(parent => {
+      options.push({ value: String(parent.id), label: parent.name });
+      seen.add(parent.id);
+
+      const subs = categoryMeta.children.get(parent.id) || [];
+      subs.forEach(sub => {
+        options.push({
+          value: String(sub.id),
+          label: `${parent.name} › ${sub.name}`,
+        });
+        seen.add(sub.id);
+      });
+    });
+
+    // Catégories orphelines ou non triées
+    categories.forEach(cat => {
+      if (seen.has(cat.id)) return;
+      const parent =
+        cat.parent_id != null
+          ? categoryMeta.byId.get(cat.parent_id) || cat.parent || null
+          : null;
+      const label = parent ? `${parent.name} › ${cat.name}` : cat.name;
+      options.push({ value: String(cat.id), label });
+    });
+
+    return options;
+  }, [categories, categoryMeta]);
+
+  const activeCategoryLabel = useMemo(() => {
+    if (!selectedCategory) return '';
+    const cat = categoryMeta.byId.get(Number(selectedCategory));
+    return cat ? formatCategoryPath(cat) : '';
+  }, [categoryMeta, selectedCategory]);
+
   // Synchroniser la recherche depuis l'URL (?search=...)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -82,12 +165,22 @@ export default function ProductList() {
   // Appliquer une catégorie à partir des query params
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const categoryIdParam = params.get('categoryId');
     const categoryName = params.get('category');
-    if (categoryName && categories.length) {
-      const cat = categories.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
-      if (cat) setSelectedCategory(String(cat.id));
+
+    if (!categories.length || (!categoryIdParam && !categoryName)) return;
+
+    const byId = categoryMeta.byId;
+    let cat = null;
+
+    if (categoryIdParam && byId.has(Number(categoryIdParam))) {
+      cat = byId.get(Number(categoryIdParam));
+    } else if (categoryName) {
+      cat = categories.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
     }
-  }, [categories, location.search]);
+
+    if (cat) setSelectedCategory(String(cat.id));
+  }, [categories, location.search, categoryMeta]);
 
   // Filtrer et trier les items
   useEffect(() => {
@@ -104,7 +197,9 @@ export default function ProductList() {
 
     // Filtre par catégorie
     if (selectedCategory) {
-      filtered = filtered.filter(item => item.category_id === parseInt(selectedCategory));
+      const selectedId = Number(selectedCategory);
+      const scopedCategories = [selectedId, ...listDescendants(selectedId)];
+      filtered = filtered.filter(item => scopedCategories.includes(item.category_id));
     }
 
     // Tri
@@ -122,7 +217,7 @@ export default function ProductList() {
     });
 
     setFilteredItems(filtered);
-  }, [items, searchTerm, selectedCategory, sortBy, location.search]);
+  }, [items, searchTerm, selectedCategory, sortBy, location.search, categoryMeta]);
 
   const handleClearFilters = () => {
     setSearchTerm('');
@@ -207,9 +302,9 @@ export default function ProductList() {
                 aria-label="Catégorie"
               >
                 <option value="">Toutes catégories</option>
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
+                {categoryOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>
@@ -229,7 +324,7 @@ export default function ProductList() {
           <div className="results-info">
             {filteredItems.length} produit{filteredItems.length !== 1 ? 's' : ''} trouvé
             {filteredItems.length !== 1 ? 's' : ''}
-            {selectedCategory && ' dans cette catégorie'}
+            {activeCategoryLabel && ` dans "${activeCategoryLabel}"`}
             {searchTerm && ` pour "${searchTerm}"`}
           </div>
         )}
@@ -240,6 +335,7 @@ export default function ProductList() {
               <ItemCard
                 key={item.id}
                 item={item}
+                categoryLabel={formatCategoryPath(item.categories || categoryMeta.byId.get(item.category_id))}
                 avgRating={avgRatings[item.id] || 0}
                 reviewCount={reviewCounts[item.id] || 0}
               />

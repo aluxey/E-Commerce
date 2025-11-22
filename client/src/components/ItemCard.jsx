@@ -3,7 +3,7 @@ import { useContext, useMemo } from 'react';
 import { CartContext } from '../context/CartContext';
 import '../styles/Item.css';
 
-export default function ItemCard({ item, avgRating = 0, reviewCount = 0 }) {
+export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categoryLabel = '' }) {
   const { addItem } = useContext(CartContext); // ✅ utilisation directe
   const imageUrl = item.item_images?.[0]?.image_url;
   const variants = useMemo(() => item.item_variants || [], [item.item_variants]);
@@ -56,7 +56,9 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0 }) {
         </div>
         <div className="item-content">
           <h2 className="item-title">{item.name}</h2>
-          
+
+          {categoryLabel && <div className="item-category">{categoryLabel}</div>}
+
           <div className="item-meta">
             <div className="item-price">{displayPrice.toFixed(2)} €</div>
             <div className="item-rating" aria-label={`Note moyenne ${roundedRating} sur 5`}>

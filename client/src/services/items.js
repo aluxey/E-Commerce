@@ -47,14 +47,30 @@ export const fetchItemsWithRelations = async () => {
       item_images ( image_url ),
       item_variants ( id, size, color_id, price, stock ),
       item_colors:item_colors!item_id ( colors ( id, name, hex_code ) ),
-      categories ( id, name )
+      categories (
+        id,
+        name,
+        parent_id,
+        parent:parent_id ( id, name )
+      )
     `
   );
   return { data: data || [], error };
 };
 
 export const fetchCategories = async () => {
-  const { data, error } = await supabase.from('categories').select('*');
+  const { data, error } = await supabase
+    .from('categories')
+    .select(
+      `
+        id,
+        name,
+        parent_id,
+        parent:parent_id ( id, name )
+      `
+    )
+    .order('parent_id', { nullsFirst: true })
+    .order('name');
   return { data: data || [], error };
 };
 
@@ -64,7 +80,13 @@ export const fetchItemDetail = async id => {
       *,
       item_images ( image_url ),
       item_variants ( id, size, color_id, price, stock ),
-      item_colors:item_colors!item_id ( colors ( id, name, hex_code ) )
+      item_colors:item_colors!item_id ( colors ( id, name, hex_code ) ),
+      categories (
+        id,
+        name,
+        parent_id,
+        parent:parent_id ( id, name )
+      )
     `,
     { eq: ['id', id], single: true }
   );

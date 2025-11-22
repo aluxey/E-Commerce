@@ -7,18 +7,25 @@ export const listCategoriesWithParent = async () => {
       `
         *,
         parent:parent_id (
+          id,
           name
         )
       `
     )
+    .order('parent_id', { nullsFirst: true })
     .order('name');
 };
 
+const normalizePayload = payload => ({
+  ...payload,
+  parent_id: payload.parent_id ? Number(payload.parent_id) : null,
+});
+
 export const insertCategory = async payload =>
-  supabase.from('categories').insert([payload]);
+  supabase.from('categories').insert([normalizePayload(payload)]);
 
 export const updateCategory = async (id, payload) =>
-  supabase.from('categories').update(payload).eq('id', id);
+  supabase.from('categories').update(normalizePayload(payload)).eq('id', id);
 
 export const deleteCategory = async id =>
   supabase.from('categories').delete().eq('id', id);
