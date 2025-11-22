@@ -42,6 +42,12 @@ Supabase Auth gère la connexion, cette table stocke le rôle.
 - `order_id`, `item_id`, `variant_id`
 - `quantity`, `unit_price`, `total_price` (généré), `customization` (jsonb)
 
+## `categories`
+
+- `id`, `name`
+- `parent_id` — hiérarchie (cascade sur suppression)
+- unicité sur `(name, parent_id)` pour autoriser le même nom sous des parents différents
+
 ## Sécurité (RLS)
 
 Les règles de Supabase limitent la lecture/écriture selon `auth.uid()` et le

@@ -17,7 +17,7 @@ with params as (
 insert into public.categories (name) values
   ('Crochet'),
   ('Accessoires')
-on conflict (name) do nothing;
+on conflict (name, parent_id) do nothing;
 
 -- 2bis) Couleurs de textile disponibles
 insert into public.colors (name, hex_code) values
@@ -105,7 +105,7 @@ insert into public.categories (name) values
   ('Décoration'),
   ('Bébé'),
   ('Peluches')
-on conflict (name) do nothing;
+on conflict (name, parent_id) do nothing;
 
 -- ========= COLORS =========
 insert into public.colors (name, hex_code) values

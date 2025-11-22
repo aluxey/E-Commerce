@@ -3,9 +3,13 @@ create extension if not exists "pgcrypto"; -- gen_random_uuid()
 -- Tables
 create table public.categories (
   id          bigserial primary key,
-  name        text not null unique,
+  name        text not null,
+  parent_id   bigint references public.categories(id) on delete cascade,
   created_at  timestamp without time zone default now()
 );
+create unique index if not exists ux_categories_name_parent
+  on public.categories (name, parent_id);
+create index if not exists idx_categories_parent on public.categories(parent_id);
 
 create table public.colors (
   id         bigserial primary key,
