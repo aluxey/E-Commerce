@@ -31,11 +31,20 @@ export const fetchVariantsByItem = async itemId =>
     .order('price', { ascending: true })
     .order('id', { ascending: true });
 
+const sanitizeItemPayload = payload => ({
+  name: payload.name ?? null,
+  description: payload.description ?? null,
+  category_id: payload.category_id ?? null,
+  price: payload.price ?? null,
+  status: payload.status ?? undefined,
+});
+
 export const upsertItem = async (itemPayload, editingId) => {
+  const payload = sanitizeItemPayload(itemPayload);
   if (editingId) {
-    return supabase.from(TABLE_ITEMS).update(itemPayload).eq('id', editingId);
+    return supabase.from(TABLE_ITEMS).update(payload).eq('id', editingId);
   }
-  return supabase.from(TABLE_ITEMS).insert([itemPayload]).select('id').single();
+  return supabase.from(TABLE_ITEMS).insert([payload]).select('id').single();
 };
 
 export const syncItemColors = async (itemId, colorIds) => {
