@@ -12,11 +12,15 @@ import {
   removeProductImage,
   updateItemPriceMeta,
   upsertItem,
+  insertItemWithColors,
+  syncItemColors,
   upsertVariants,
   uploadProductImage,
 } from '../../services/adminProducts';
+import { listColors } from '@/services/adminColors';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { pushToast } from '../ToastHost';
+import { supabase } from '@/supabase/supabaseClient';
 
 export const TABLE_ITEMS = 'items';
 const TABLE_CATEGORIES = 'categories';
@@ -26,7 +30,7 @@ const PRODUCT_DRAFT_KEY = 'admin-product-draft';
 const createEmptyVariant = () => ({
   id: null,
   size: '',
-  color: '',
+  color_id: '',
   price: '',
   stock: 0,
   sku: '',
@@ -47,13 +51,14 @@ const randomSuffix = () =>
 
 const buildSku = (itemId, variant) => {
   const sizeSlug = slugify(variant.size) || 'std';
-  const colorSlug = slugify(variant.color || '') || 'def';
+  const colorSlug = slugify(variant.color_label || '') || 'def';
   return `SKU-${itemId}-${sizeSlug}-${colorSlug}-${randomSuffix()}`.toUpperCase();
 };
 
 export default function ProductAdmin() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -67,6 +72,7 @@ export default function ProductAdmin() {
   });
 
   const [variants, setVariants] = useState([createEmptyVariant()]);
+  const [selectedColors, setSelectedColors] = useState([]);
   const [newImages, setNewImages] = useState([]); // File[]
   const [imagePreviews, setImagePreviews] = useState([]); // local URL previews
   const [isDirty, setIsDirty] = useState(false);
@@ -78,6 +84,7 @@ export default function ProductAdmin() {
       category_id: '',
     });
     setVariants([createEmptyVariant()]);
+    setSelectedColors([]);
     setEditingId(null);
     setNewImages([]);
     setImagePreviews([]);
@@ -105,9 +112,15 @@ export default function ProductAdmin() {
     if (!error) setCategories(data || []);
   };
 
+  const fetchColors = async () => {
+    const { data, error } = await listColors();
+    if (!error) setColors(data || []);
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchCategoriesList();
+    fetchColors();
   }, []);
 
   useUnsavedChanges(isDirty, 'Des modifications produit ne sont pas sauvegardées. Quitter la page ?');
@@ -129,13 +142,14 @@ export default function ProductAdmin() {
           ? draft.variants.map(v => ({
               id: null,
               size: v.size || '',
-              color: v.color || '',
+              color_id: v.color_id || '',
               price: v.price || '',
               stock: v.stock ?? 0,
               sku: v.sku || '',
             }))
           : [createEmptyVariant()];
         setVariants(draftVariants);
+        setSelectedColors(Array.isArray(draft.selectedColors) ? draft.selectedColors : []);
         setIsDirty(true);
       }
     } catch (err) {
@@ -150,14 +164,15 @@ export default function ProductAdmin() {
       form,
       variants: variants.map(v => ({
         size: v.size,
-        color: v.color,
+        color_id: v.color_id,
         price: v.price,
         stock: v.stock,
         sku: v.sku,
       })),
+      selectedColors,
     };
     localStorage.setItem(PRODUCT_DRAFT_KEY, JSON.stringify(payload));
-  }, [form, variants, isDirty, editingId]);
+  }, [form, variants, selectedColors, isDirty, editingId]);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -167,6 +182,16 @@ export default function ProductAdmin() {
 
   const addVariantRow = () => {
     setVariants(prev => [...prev, createEmptyVariant()]);
+    setIsDirty(true);
+  };
+
+  const toggleColor = colorId => {
+    setSelectedColors(prev => {
+      const idNum = Number(colorId);
+      const exists = prev.includes(idNum);
+      const next = exists ? prev.filter(id => id !== idNum) : [...prev, idNum];
+      return next;
+    });
     setIsDirty(true);
   };
 
@@ -241,8 +266,9 @@ export default function ProductAdmin() {
     const combos = new Set();
     const cleaned = variants.map((variant, index) => {
       const size = sanitizeText(variant.size);
-      const colorText = sanitizeText(variant.color);
-      const color = colorText || null;
+      const colorId = variant.color_id ? Number(variant.color_id) : null;
+      const colorObj = colorId ? colors.find(c => c.id === colorId) : null;
+      const colorLabel = colorObj?.name || '';
       const price = parseFloat(String(variant.price).replace(',', '.'));
       const stock = Math.max(0, parseInt(variant.stock, 10) || 0);
 
@@ -250,10 +276,10 @@ export default function ProductAdmin() {
       if (Number.isNaN(price)) errors.push(`Variante #${index + 1}: prix invalide.`);
       if (!Number.isNaN(price) && price < 0) errors.push(`Variante #${index + 1}: le prix doit être positif.`);
 
-      const key = `${size}::${color || ''}`;
+      const key = `${size}`;
       if (size && !Number.isNaN(price)) {
         if (combos.has(key)) {
-          errors.push(`Variante #${index + 1}: combinaison taille/couleur déjà utilisée.`);
+          errors.push(`Variante #${index + 1}: la taille est déjà utilisée.`);
         } else {
           combos.add(key);
         }
@@ -262,7 +288,8 @@ export default function ProductAdmin() {
       return {
         ...variant,
         size,
-        color,
+        color_id: colorId,
+        color_label: colorLabel,
         price,
         stock,
         index,
@@ -284,6 +311,12 @@ export default function ProductAdmin() {
         return;
       }
 
+      const normalizedColorIds = Array.from(new Set(selectedColors.map(id => Number(id)))).filter(Boolean);
+      if (!normalizedColorIds.length) {
+        alert('Sélectionne au moins une couleur pour ce produit.');
+        return;
+      }
+
       const { errors: variantErrors, validVariants } = validateVariants();
       if (variantErrors.length) {
         alert(variantErrors.join('\n'));
@@ -291,24 +324,22 @@ export default function ProductAdmin() {
       }
 
       const minPrice = Math.min(...validVariants.map(v => v.price));
-      const uniqueSizes = Array.from(new Set(validVariants.map(v => v.size))).sort();
-      const uniqueColors = Array.from(new Set(validVariants.map(v => v.color).filter(Boolean))).sort();
 
       const itemPayload = {
         name: trimmedName,
         description: sanitizeText(form.description) || null,
         category_id: form.category_id ? Number(form.category_id) : null,
         price: minPrice,
-        sizes: uniqueSizes,
-        colors: uniqueColors,
       };
 
       let itemId = editingId;
       if (editingId) {
         const { error } = await upsertItem(itemPayload, editingId);
         if (error) throw error;
+        const { error: colorsError } = await syncItemColors(editingId, normalizedColorIds);
+        if (colorsError) throw colorsError;
       } else {
-        const { data, error } = await upsertItem(itemPayload, null);
+        const { data, error } = await insertItemWithColors(itemPayload, normalizedColorIds);
         if (error) throw error;
         itemId = data.id;
       }
@@ -325,7 +356,7 @@ export default function ProductAdmin() {
         const payload = {
           item_id: itemId,
           size: variant.size,
-          color: variant.color,
+          color_id: variant.color_id,
           price: variant.price,
           stock: variant.stock,
           sku: variant.sku || buildSku(itemId, variant),
@@ -360,7 +391,7 @@ export default function ProductAdmin() {
       }
 
       // Assure que le prix min est bien répercuté
-      const { error: priceError } = await updateItemPriceMeta(itemId, minPrice, uniqueSizes, uniqueColors);
+      const { error: priceError } = await updateItemPriceMeta(itemId, minPrice);
       if (priceError) throw priceError;
 
       if (newImages.length) {
@@ -397,6 +428,12 @@ export default function ProductAdmin() {
       description: product.description || '',
       category_id: product.category_id || '',
     });
+    setSelectedColors(
+      (product.item_colors || [])
+        .map(ic => ic.color_id || ic.colors?.id)
+        .filter(Boolean)
+        .map(Number)
+    );
     setNewImages([]);
     setImagePreviews([]);
     setIsDirty(false);
@@ -408,7 +445,7 @@ export default function ProductAdmin() {
       const mapped = (data || []).map(v => ({
         id: v.id,
         size: v.size || '',
-        color: v.color || '',
+        color_id: v.color_id || '',
         price: v.price != null ? Number(v.price).toFixed(2) : '',
         stock: v.stock ?? 0,
         sku: v.sku || '',
@@ -456,6 +493,11 @@ export default function ProductAdmin() {
     return id => map.get(id) || '—';
   }, [categories]);
 
+  const colorById = useMemo(() => {
+    const map = new Map(colors.map(c => [c.id, c]));
+    return id => map.get(id) || null;
+  }, [colors]);
+
   return (
     <div className="product-manager">
       <h2>Gestion des Produits</h2>
@@ -496,12 +538,53 @@ export default function ProductAdmin() {
           </div>
         </div>
 
+        <section className="color-selector">
+          <div className="variant-editor__header">
+            <h3>Couleurs du produit</h3>
+            <p className="input-hint">Sélectionne une ou plusieurs couleurs disponibles.</p>
+          </div>
+          <div className="color-select-grid">
+            {colors.length === 0 && <p className="input-hint">Aucune couleur disponible. Crée-les dans l’onglet Couleurs.</p>}
+            {colors.map(color => {
+              const checked = selectedColors.includes(color.id);
+              return (
+                <label
+                  key={color.id}
+                  className={`color-pill ${checked ? 'is-selected' : ''}`}
+                  title={color.name}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggleColor(color.id)}
+                    aria-label={color.name}
+                  />
+                  <span className="color-swatch" style={{ backgroundColor: color.hex_code }} aria-hidden="true" />
+                  <span>{color.name}</span>
+                </label>
+              );
+            })}
+          </div>
+        </section>
+
         <section className="variant-editor">
           <div className="variant-editor__header">
             <h3>Variantes</h3>
             <button type="button" onClick={addVariantRow} className="btn btn-outline">
               + Ajouter une variante
             </button>
+          </div>
+          <div className="variant-palette">
+            {colors.length === 0 ? (
+              <p className="input-hint">Aucune couleur disponible. Ajoutez-en dans l’onglet Couleurs.</p>
+            ) : (
+              colors.map(c => (
+                <span key={c.id} className="color-chip">
+                  <span className="color-swatch" style={{ backgroundColor: c.hex_code }} aria-hidden="true" />
+                  {c.name}
+                </span>
+              ))
+            )}
           </div>
           <div className="variant-table-wrapper">
             <table className="variant-table">
@@ -527,11 +610,31 @@ export default function ProductAdmin() {
                       />
                     </td>
                     <td>
-                      <input
-                        value={variant.color}
-                        onChange={e => updateVariantField(index, 'color', e.target.value)}
-                        placeholder="Couleur"
-                      />
+                      <div className="color-select-cell">
+                        <select
+                          value={variant.color_id || ''}
+                          onChange={e => updateVariantField(index, 'color_id', e.target.value)}
+                          disabled={!colors.length}
+                        >
+                          <option value="">Couleur...</option>
+                          {colors.map(color => (
+                            <option key={color.id} value={color.id}>
+                              {color.name}
+                            </option>
+                          ))}
+                        </select>
+                        {variant.color_id && (
+                          <span
+                            className="color-swatch"
+                            style={{
+                              backgroundColor: colorById(Number(variant.color_id))?.hex_code || '#ccc',
+                              width: 24,
+                              height: 24,
+                            }}
+                            title={colorById(Number(variant.color_id))?.name || ''}
+                          />
+                        )}
+                      </div>
                     </td>
                     <td>
                       <input
@@ -630,11 +733,11 @@ export default function ProductAdmin() {
                 <th>Titre</th>
                 <th>Prix (min)</th>
                 <th>Catégorie</th>
-                <th>Variantes</th>
-                <th>Images</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+                  <th>Variantes</th>
+                  <th>Images</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
             <tbody>
               {products.map(p => (
                 <tr key={p.id}>
@@ -656,12 +759,21 @@ export default function ProductAdmin() {
                   <td>
                     {(p.item_variants || []).length ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {p.item_variants.slice(0, 3).map(v => (
-                          <span key={v.id}>
-                            {v.size}
-                            {v.color ? ` / ${v.color}` : ''} — {Number(v.price).toFixed(2)}€
-                          </span>
-                        ))}
+                        {p.item_variants.slice(0, 3).map(v => {
+                          const col = colorById(v.color_id);
+                          return (
+                            <span key={v.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                              {v.size} / {col?.name || '—'}
+                              {col?.hex_code && (
+                                <span
+                                  className="color-swatch"
+                                  style={{ backgroundColor: col.hex_code, width: 14, height: 14 }}
+                                />
+                              )}{' '}
+                              — {Number(v.price).toFixed(2)}€
+                            </span>
+                          );
+                        })}
                         {p.item_variants.length > 3 && <span>… (+{p.item_variants.length - 3})</span>}
                       </div>
                     ) : (

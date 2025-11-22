@@ -3,27 +3,16 @@ import { supabase } from "../supabase/supabaseClient";
 export const fetchLatestItems = async (limit = 4) => {
   const { data, error } = await supabase
     .from('items')
-    .select('*, item_images ( image_url ), item_variants ( id, size, color, price, stock )')
+    .select('*, item_images ( image_url ), item_variants ( id, size, color_id, price, stock ), item_colors ( colors ( id, name, hex_code ) )')
     .order('created_at', { ascending: false })
     .limit(limit);
   return { data: data || [], error };
 };
 
 export const fetchTopItems = async (limit = 4) => {
-  const { data: topAgg, error } = await supabase.rpc('top_purchased_items', { limit_count: limit });
-  if (error) return { data: [], error };
-  if (!topAgg?.length) return { data: [], error: null };
-
-  const ids = topAgg.map(r => r.item_id);
-  const { data: items, error: itemsErr } = await supabase
-    .from('items')
-    .select('*, item_images ( image_url ), item_variants ( id, size, color, price, stock )')
-    .in('id', ids);
-
-  return {
-    data: items ? ids.map(id => items.find(i => i.id === id)).filter(Boolean) : [],
-    error: itemsErr,
-  };
+  // Fallback: juste les derniers produits si la RPC n'est pas dispo
+  const { data, error } = await fetchLatestItems(limit);
+  return { data, error };
 };
 
 export const fetchItemsWithRelations = async () => {
@@ -32,7 +21,8 @@ export const fetchItemsWithRelations = async () => {
     .select(`
       *,
       item_images ( image_url ),
-      item_variants ( id, size, color, price, stock ),
+      item_variants ( id, size, color_id, price, stock ),
+      item_colors ( colors ( id, name, hex_code ) ),
       categories ( id, name )
     `);
   return { data: data || [], error };
@@ -50,7 +40,8 @@ export const fetchItemDetail = async id => {
       `
         *,
         item_images ( image_url ),
-        item_variants ( id, size, color, price, stock )
+        item_variants ( id, size, color_id, price, stock ),
+        item_colors ( colors ( id, name, hex_code ) )
       `
     )
     .eq('id', id)
@@ -65,7 +56,8 @@ export const fetchRelatedItems = async (categoryId, excludeId, limit = 4) => {
     .select(`
       *,
       item_images ( image_url ),
-      item_variants ( id, size, color, price, stock )
+      item_variants ( id, size, color_id, price, stock ),
+      item_colors ( colors ( id, name, hex_code ) )
     `)
     .eq('category_id', categoryId)
     .limit(limit);

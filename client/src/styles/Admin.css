@@ -639,6 +639,15 @@
 .color-actions { display: flex; gap: .5rem; }
 .color-table__wrapper { overflow-x: auto; }
 .color-table code { padding: .1rem .35rem; border-radius: 6px; background: var(--adm-surface-alt); border: 1px solid var(--adm-border); }
+.color-chip { display: inline-flex; align-items: center; gap: .5rem; padding: .35rem .6rem; border: 1px solid var(--adm-border); border-radius: 999px; background: var(--adm-surface); font-weight: 600; }
+.variant-palette { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .6rem; }
+.color-select-cell { display: flex; align-items: center; gap: .6rem; }
+.color-selector { border: 1px solid var(--adm-border); border-radius: 12px; padding: var(--s-3); background: var(--adm-surface); }
+.color-select-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+.color-pill { display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .75rem; border: 1px solid var(--adm-border); border-radius: 12px; cursor: pointer; background: var(--adm-surface); transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease; }
+.color-pill input { display: none; }
+.color-pill.is-selected { border-color: var(--adm-brand); box-shadow: 0 0 0 3px var(--adm-ring); background: color-mix(in oklab, var(--adm-brand) 8%, var(--adm-surface) 92%); }
+.color-pill .color-swatch { width: 28px; height: 28px; }
 
 /* Form helpers */
 .form-buttons { display: flex; gap: .5rem; align-items: center; }

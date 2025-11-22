@@ -14,7 +14,7 @@ export default function ItemDetail() {
   const [quantity, setQuantity] = useState(1);
   const [variants, setVariants] = useState([]);
   const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedColor, setSelectedColor] = useState(null);
   const [rating, setRating] = useState(0);
   const [avgRating, setAvgRating] = useState(0);
   const [reviews, setReviews] = useState([]);
@@ -30,6 +30,22 @@ export default function ItemDetail() {
   const { addItem } = useContext(CartContext);
   const { session } = useAuth();
 
+  const colorOptions = useMemo(() => {
+    const map = new Map();
+    (item?.item_colors || []).forEach(ic => {
+      if (ic.colors) {
+        map.set(ic.colors.id, {
+          value: ic.colors.id,
+          label: ic.colors.name,
+          hex: ic.colors.hex_code,
+          hasStock: true,
+          compatible: true,
+        });
+      }
+    });
+    return Array.from(map.values());
+  }, [item]);
+
   const sizeOptions = useMemo(() => {
     if (!variants.length) return [];
     const map = new Map();
@@ -41,83 +57,26 @@ export default function ItemDetail() {
       if (inStock) entry.hasStock = true;
       map.set(key, entry);
     }
-    // Set compatibility against currently selected color when color dimension exists
     const result = Array.from(map.values());
-    if (variants.length) {
-      const colorSet = new Set(variants.map(v => (v.color || '').trim()));
-      colorSet.delete('');
-      const hasColorDim = colorSet.size > 0;
-      if (hasColorDim && selectedColor !== undefined) {
-        for (const opt of result) {
-          opt.compatible = variants.some(
-            v => (v.size || '') === opt.value && (v.color || '') === (selectedColor || '')
-          );
-        }
-      }
-    }
     return result;
-  }, [variants, selectedColor]);
+  }, [variants]);
 
-  const colorOptions = useMemo(() => {
-    if (!variants.length) return [];
-    const map = new Map();
-    for (const v of variants) {
-      const key = v.color || '';
-      const label = v.color || 'Sans couleur';
-      const entry = map.get(key) || { value: key, label, hasStock: false, compatible: true };
-      const inStock = v.stock == null || v.stock > 0;
-      if (inStock) entry.hasStock = true;
-      map.set(key, entry);
-    }
-    const result = Array.from(map.values());
-    // Set compatibility against currently selected size when size dimension exists
-    if (variants.length) {
-      const sizeSet = new Set(variants.map(v => (v.size || '').trim()));
-      sizeSet.delete('');
-      const hasSizeDim = sizeSet.size > 0;
-      if (hasSizeDim && selectedSize !== undefined) {
-        for (const opt of result) {
-          opt.compatible = variants.some(
-            v => (v.color || '') === opt.value && (v.size || '') === (selectedSize || '')
-          );
-        }
-      }
-    }
-    return result;
-  }, [variants, selectedSize]);
-
-  const { hasSizeDimension, hasColorDimension } = useMemo(() => {
+  const { hasSizeDimension } = useMemo(() => {
     const sizeSet = new Set(variants.map(v => (v.size || '').trim()));
-    const colorSet = new Set(variants.map(v => (v.color || '').trim()));
     sizeSet.delete('');
-    colorSet.delete('');
     return {
       hasSizeDimension: sizeSet.size > 0,
-      hasColorDimension: colorSet.size > 0,
     };
   }, [variants]);
 
   const selectedVariant = useMemo(() => {
     if (!variants.length) return null;
-    // Both size and color dimensions
-    if (hasSizeDimension && hasColorDimension) {
-      return (
-        variants.find(
-          v => (v.size || '') === selectedSize && (v.color || '') === selectedColor
-        ) || null
-      );
-    }
-    // Only size dimension
-    if (hasSizeDimension && !hasColorDimension) {
+    if (hasSizeDimension) {
       return variants.find(v => (v.size || '') === selectedSize) || null;
     }
-    // Only color dimension
-    if (!hasSizeDimension && hasColorDimension) {
-      return variants.find(v => (v.color || '') === selectedColor) || null;
-    }
-    // No dimension (single variant)
+    // No size dimension: pick first variant
     return variants[0] || null;
-  }, [variants, selectedSize, selectedColor, hasSizeDimension, hasColorDimension]);
+  }, [variants, selectedSize, hasSizeDimension]);
 
   const showColorSelect = colorOptions.length > 1 || (colorOptions.length === 1 && colorOptions[0].value !== '');
   const priceToDisplay = selectedVariant?.price != null ? Number(selectedVariant.price) : item?.price != null ? Number(item.price) : 0;
@@ -273,9 +232,23 @@ export default function ItemDetail() {
     const stock = selectedVariant.stock ?? null;
     const safeQuantity = Math.max(1, stock != null ? Math.min(quantity, stock) : quantity);
 
+    const colorObj = item?.item_colors?.find(ic => ic.colors?.id === selectedColor)?.colors || null;
+
     // Simulation d'un délai pour l'UX
     setTimeout(() => {
-      addItem({ item, variant: selectedVariant, quantity: safeQuantity });
+      addItem({
+        item: {
+          ...item,
+          selectedColor: colorObj,
+        },
+        variant: {
+          ...selectedVariant,
+          color: colorObj?.name || selectedVariant.color,
+          color_id: colorObj?.id || selectedVariant.color_id,
+          color_hex: colorObj?.hex_code || null,
+        },
+        quantity: safeQuantity,
+      });
 
       setIsAddingToCart(false);
       setShowNotification(true);
