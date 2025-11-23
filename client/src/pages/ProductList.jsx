@@ -1,110 +1,120 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import ItemCard from '../components/ItemCard';
-import '../styles/ProductList.css';
-import { fetchCategories, fetchItemsWithRelations, fetchItemRatings } from '../services/items';
+import ProductFilters from '../components/ProductFilters';
 import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
+import { listColors } from '../services/adminColors';
+import { fetchCategories, fetchItemRatings, fetchItemsWithRelations } from '../services/items';
+import '../styles/ProductList.css';
 
 export default function ProductList() {
   const location = useLocation();
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [colors, setColors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Filter States
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [sortBy, setSortBy] = useState('name');
-  const [avgRatings, setAvgRatings] = useState({}); // { [itemId]: number }
-  const [reviewCounts, setReviewCounts] = useState({}); // { [itemId]: number }
 
-  // Charger les items et catégories
+  // UI States
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
+  // Ratings Data
+  const [avgRatings, setAvgRatings] = useState({});
+  const [reviewCounts, setReviewCounts] = useState({});
+
+  // Load initial data
   const loadData = async () => {
     setIsLoading(true);
     setError(null);
 
-    const [itemsResp, categoriesResp] = await Promise.all([fetchItemsWithRelations(), fetchCategories()]);
-
-    if (itemsResp.error || categoriesResp.error) {
-      setError('Impossible de charger les produits pour le moment.');
-      setIsLoading(false);
-      return;
-    }
-
-    const safeItems = itemsResp.data || [];
-    setItems(safeItems);
-    setCategories(categoriesResp.data || []);
-    setFilteredItems(safeItems || []);
-
-    // Charger les ratings moyens pour les items chargés
     try {
+      const [itemsResp, categoriesResp, colorsResp] = await Promise.all([
+        fetchItemsWithRelations(),
+        fetchCategories(),
+        listColors()
+      ]);
+
+      if (itemsResp.error || categoriesResp.error) {
+        throw new Error(itemsResp.error?.message || categoriesResp.error?.message || 'Erreur de chargement');
+      }
+
+      const safeItems = itemsResp.data || [];
+      setItems(safeItems);
+      setCategories(categoriesResp.data || []);
+      setColors(colorsResp.data || []);
+
+      // Load ratings
       const ids = safeItems.map(i => i.id);
       if (ids.length) {
-        const { data: ratingsData, error: ratingsError } = await fetchItemRatings(ids);
-
-        if (!ratingsError && ratingsData) {
+        const { data: ratingsData } = await fetchItemRatings(ids);
+        if (ratingsData) {
           const sums = {};
           const counts = {};
-          for (const r of ratingsData) {
+          ratingsData.forEach(r => {
             sums[r.item_id] = (sums[r.item_id] || 0) + r.rating;
             counts[r.item_id] = (counts[r.item_id] || 0) + 1;
-          }
+          });
+
           const averages = {};
           const reviewsCount = {};
           ids.forEach(id => {
             const c = counts[id] || 0;
-            const s = sums[id] || 0;
-            averages[id] = c ? s / c : 0;
+            averages[id] = c ? sums[id] / c : 0;
             reviewsCount[id] = c;
           });
           setAvgRatings(averages);
           setReviewCounts(reviewsCount);
         }
       }
-    } catch (e) {
-      console.warn('Impossible de charger les ratings moyens:', e);
+    } catch (err) {
+      console.error(err);
+      setError('Impossible de charger les produits. Veuillez réessayer plus tard.');
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   useEffect(() => {
     loadData();
   }, []);
 
+  // Sync search from URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('search') || '';
+    setSearchTerm(q);
+
+    const catId = params.get('categoryId');
+    if (catId) setSelectedCategory(catId);
+  }, [location.search]);
+
+  // Category Helpers
   const categoryMeta = useMemo(() => {
     const byId = new Map();
-    const parents = [];
     const children = new Map();
 
     categories.forEach(cat => {
       byId.set(cat.id, cat);
-      if (!cat.parent_id) {
-        parents.push(cat);
-        return;
+      if (cat.parent_id) {
+        const arr = children.get(cat.parent_id) || [];
+        arr.push(cat);
+        children.set(cat.parent_id, arr);
       }
-      const arr = children.get(cat.parent_id) || [];
-      arr.push(cat);
-      children.set(cat.parent_id, arr);
     });
 
-    parents.sort((a, b) => a.name.localeCompare(b.name));
-    children.forEach(arr => arr.sort((a, b) => a.name.localeCompare(b.name)));
-
-    return { byId, parents, children };
+    return { byId, children };
   }, [categories]);
 
-  const formatCategoryPath = cat => {
-    if (!cat) return '';
-    const parent =
-      cat.parent_id != null
-        ? categoryMeta.byId.get(cat.parent_id) || cat.parent || null
-        : null;
-    return parent ? `${parent.name} › ${cat.name}` : cat.name;
-  };
-
-  const listDescendants = id => {
-    const stack = [id];
+  const listDescendants = (id) => {
+    const stack = [Number(id)];
     const collected = [];
     while (stack.length) {
       const current = stack.pop();
@@ -117,240 +127,158 @@ export default function ProductList() {
     return collected;
   };
 
-  const categoryOptions = useMemo(() => {
-    const options = [];
-    const seen = new Set();
+  const formatCategoryPath = (cat) => {
+    if (!cat) return '';
+    const parent = cat.parent_id ? categoryMeta.byId.get(cat.parent_id) : null;
+    return parent ? `${parent.name} › ${cat.name}` : cat.name;
+  };
 
-    categoryMeta.parents.forEach(parent => {
-      options.push({ value: String(parent.id), label: parent.name });
-      seen.add(parent.id);
-
-      const subs = categoryMeta.children.get(parent.id) || [];
-      subs.forEach(sub => {
-        options.push({
-          value: String(sub.id),
-          label: `${parent.name} › ${sub.name}`,
-        });
-        seen.add(sub.id);
-      });
-    });
-
-    // Catégories orphelines ou non triées
-    categories.forEach(cat => {
-      if (seen.has(cat.id)) return;
-      const parent =
-        cat.parent_id != null
-          ? categoryMeta.byId.get(cat.parent_id) || cat.parent || null
-          : null;
-      const label = parent ? `${parent.name} › ${cat.name}` : cat.name;
-      options.push({ value: String(cat.id), label });
-    });
-
-    return options;
-  }, [categories, categoryMeta]);
-
-  const activeCategoryLabel = useMemo(() => {
-    if (!selectedCategory) return '';
-    const cat = categoryMeta.byId.get(Number(selectedCategory));
-    return cat ? formatCategoryPath(cat) : '';
-  }, [categoryMeta, selectedCategory]);
-
-  // Synchroniser la recherche depuis l'URL (?search=...)
+  // Filtering Logic
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const q = params.get('search') || '';
-    setSearchTerm(q);
-  }, [location.search]);
+    let result = [...items];
 
-  // Appliquer une catégorie à partir des query params
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const categoryIdParam = params.get('categoryId');
-    const categoryName = params.get('category');
-
-    if (!categories.length || (!categoryIdParam && !categoryName)) return;
-
-    const byId = categoryMeta.byId;
-    let cat = null;
-
-    if (categoryIdParam && byId.has(Number(categoryIdParam))) {
-      cat = byId.get(Number(categoryIdParam));
-    } else if (categoryName) {
-      cat = categories.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
-    }
-
-    if (cat) setSelectedCategory(String(cat.id));
-  }, [categories, location.search, categoryMeta]);
-
-  // Filtrer et trier les items
-  useEffect(() => {
-    let filtered = [...items];
-
-    // Filtre par recherche
+    // 1. Search
     if (searchTerm) {
-      filtered = filtered.filter(
-        item =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      const lower = searchTerm.toLowerCase();
+      result = result.filter(item =>
+        item.name.toLowerCase().includes(lower) ||
+        item.description?.toLowerCase().includes(lower)
       );
     }
 
-    // Filtre par catégorie
+    // 2. Category (including subcategories)
     if (selectedCategory) {
-      const selectedId = Number(selectedCategory);
-      const scopedCategories = [selectedId, ...listDescendants(selectedId)];
-      filtered = filtered.filter(item => scopedCategories.includes(item.category_id));
+      const catId = Number(selectedCategory);
+      const validIds = new Set([catId, ...listDescendants(catId)]);
+      result = result.filter(item => validIds.has(item.category_id));
     }
 
-    // Tri
-    filtered.sort((a, b) => {
+    // 3. Price
+    if (priceRange.min !== '' || priceRange.max !== '') {
+      const min = priceRange.min === '' ? 0 : Number(priceRange.min);
+      const max = priceRange.max === '' ? Infinity : Number(priceRange.max);
+
+      result = result.filter(item => {
+        // Check base price
+        if (item.price >= min && item.price <= max) return true;
+        // Check variants prices
+        if (item.item_variants?.length) {
+          return item.item_variants.some(v => v.price >= min && v.price <= max);
+        }
+        return false;
+      });
+    }
+
+    // 4. Color
+    if (selectedColor) {
+      const colorId = Number(selectedColor);
+      result = result.filter(item =>
+        item.item_colors?.some(ic => ic.colors?.id === colorId)
+      );
+    }
+
+    // 5. Sort
+    result.sort((a, b) => {
       switch (sortBy) {
-        case 'price':
-          return Number(a.price) - Number(b.price);
-        case 'price-desc':
-          return Number(b.price) - Number(a.price);
-        case 'name':
-          return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-        default:
-          return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+        case 'price': return (a.price || 0) - (b.price || 0);
+        case 'price-desc': return (b.price || 0) - (a.price || 0);
+        default: return a.name.localeCompare(b.name);
       }
     });
 
-    setFilteredItems(filtered);
-  }, [items, searchTerm, selectedCategory, sortBy, location.search, categoryMeta]);
+    setFilteredItems(result);
+  }, [items, searchTerm, selectedCategory, selectedColor, priceRange, sortBy, categoryMeta]);
 
   const handleClearFilters = () => {
     setSearchTerm('');
     setSelectedCategory('');
+    setSelectedColor('');
+    setPriceRange({ min: '', max: '' });
     setSortBy('name');
   };
 
-  // Suppression des filtres obsolètes (promo/mois) non supportés par le schéma
-
-  if (isLoading) {
-    return (
-      <div className="products-loading">
-        <LoadingMessage message="Chargement des produits... / Produkte werden geladen..." />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="products-loading">
-        <ErrorMessage title="Chargement impossible / Laden fehlgeschlagen" message={error} onRetry={loadData} />
-      </div>
-    );
-  }
+  if (isLoading) return <div className="page-loading"><LoadingMessage /></div>;
+  if (error) return <div className="page-error"><ErrorMessage message={error} onRetry={loadData} /></div>;
 
   return (
-    <div className="products-page simple">
-      {/* En-tête simplifié */}
-      <div className="products-header">
-        <h1>Notre Collection</h1>
-        <p className="products-subtitle">{items.length} produits disponibles</p>
-      </div>
+    <div className="product-list-page">
+      <div className="product-list-container">
+        {/* Filters Sidebar */}
+        <ProductFilters
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          priceRange={priceRange}
+          onPriceChange={setPriceRange}
+          colors={colors}
+          selectedColor={selectedColor}
+          onColorChange={setSelectedColor}
+          onClearFilters={handleClearFilters}
+          isOpen={isFiltersOpen}
+          onClose={() => setIsFiltersOpen(false)}
+        />
 
-      {/* Mini‑navbar: recherche + filtres */}
-      <div className="products-controls">
-        <nav className="products-subnav" aria-label="Navigation des filtres produits">
-          <div className="subnav-left">
-            <div className="search-box">
-              <input
-                type="text"
-                placeholder="Rechercher un produit..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="search-input"
-                aria-label="Rechercher"
-              />
-              <span className="search-icon">🔍</span>
-            </div>
-          </div>
-          <div className="subnav-right">
-            <ul className="sort-list" aria-label="Tri">
-              <li>
-                <button
-                  className={`sort-chip${sortBy === 'name' ? ' active' : ''}`}
-                  onClick={() => setSortBy('name')}
-                >
-                  Nom
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`sort-chip${sortBy === 'price' ? ' active' : ''}`}
-                  onClick={() => setSortBy('price')}
-                >
-                  Prix ↑
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`sort-chip${sortBy === 'price-desc' ? ' active' : ''}`}
-                  onClick={() => setSortBy('price-desc')}
-                >
-                  Prix ↓
-                </button>
-              </li>
-            </ul>
-            <div className="subnav-selects">
-              <select
-                value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
-                className="category-select"
-                aria-label="Catégorie"
+        {/* Main Content */}
+        <main className="product-list-main">
+          <div className="product-list-header">
+            <div className="header-left">
+              <button
+                className="mobile-filter-btn"
+                onClick={() => setIsFiltersOpen(true)}
               >
-                <option value="">Toutes catégories</option>
-                {categoryOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
+                Filtres / Filter
+              </button>
+              <span className="result-count">
+                {filteredItems.length} produit{filteredItems.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+
+            <div className="header-right">
+              <div className="search-box">
+                <input
+                  type="text"
+                  placeholder="Rechercher..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+                <span className="icon">🔍</span>
+              </div>
+
+              <select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                className="sort-select"
+              >
+                <option value="name">Nom (A-Z)</option>
+                <option value="price">Prix croissant</option>
+                <option value="price-desc">Prix décroissant</option>
               </select>
-              {(searchTerm || selectedCategory) && (
-                <button onClick={handleClearFilters} className="clear-btn">
-                  Effacer
-                </button>
-              )}
             </div>
           </div>
-        </nav>
-      </div>
 
-      {/* Résultats */}
-      <div className="products-results">
-        {(searchTerm || selectedCategory) && (
-          <div className="results-info">
-            {filteredItems.length} produit{filteredItems.length !== 1 ? 's' : ''} trouvé
-            {filteredItems.length !== 1 ? 's' : ''}
-            {activeCategoryLabel && ` dans "${activeCategoryLabel}"`}
-            {searchTerm && ` pour "${searchTerm}"`}
-          </div>
-        )}
-
-        {filteredItems.length > 0 ? (
-          <div className="products-grid">
-            {filteredItems.map(item => (
-              <ItemCard
-                key={item.id}
-                item={item}
-                categoryLabel={formatCategoryPath(item.categories || categoryMeta.byId.get(item.category_id))}
-                avgRating={avgRatings[item.id] || 0}
-                reviewCount={reviewCounts[item.id] || 0}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="no-results">
-            <div className="no-results-icon">📦</div>
-            <h3>Aucun produit trouvé / Kein Produkt gefunden</h3>
-            <p>Essayez de modifier vos critères de recherche / Bitte passe Filter oder Suche an.</p>
-            <button onClick={handleClearFilters} className="btn primary">
-              Voir tous les produits / Alle Produkte anzeigen
-            </button>
-          </div>
-        )}
+          {filteredItems.length > 0 ? (
+            <div className="products-grid">
+              {filteredItems.map(item => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  categoryLabel={formatCategoryPath(categoryMeta.byId.get(item.category_id))}
+                  avgRating={avgRatings[item.id] || 0}
+                  reviewCount={reviewCounts[item.id] || 0}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="no-results">
+              <div className="icon">📦</div>
+              <h3>Aucun résultat</h3>
+              <p>Essayez de modifier vos filtres</p>
+              <button onClick={handleClearFilters} className="btn primary">
+                Tout effacer
+              </button>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );

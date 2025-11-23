@@ -1,12 +1,30 @@
-import { Link } from 'react-router-dom';
 import { useContext, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import '../styles/Item.css';
 
 export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categoryLabel = '' }) {
-  const { addItem } = useContext(CartContext); // ✅ utilisation directe
+  const { addItem } = useContext(CartContext);
   const imageUrl = item.item_images?.[0]?.image_url;
   const variants = useMemo(() => item.item_variants || [], [item.item_variants]);
+
+  // Get unique colors from variants or item_colors
+  const availableColors = useMemo(() => {
+    const colors = [];
+    const seen = new Set();
+
+    // Check item_colors first (direct relation)
+    if (item.item_colors) {
+      item.item_colors.forEach(ic => {
+        if (ic.colors && !seen.has(ic.colors.id)) {
+          colors.push(ic.colors);
+          seen.add(ic.colors.id);
+        }
+      });
+    }
+
+    return colors;
+  }, [item.item_colors]);
 
   const preferredVariant = useMemo(() => {
     if (!variants.length) return null;
@@ -53,36 +71,47 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categor
           ) : (
             <div className="placeholder-img">Image indisponible</div>
           )}
+          {/* Quick Add Button Overlay */}
+          <button
+            className="quick-add-btn"
+            onClick={handleAddToCart}
+            disabled={!preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0)}
+            title="Ajouter au panier"
+          >
+            +
+          </button>
         </div>
-        <div className="item-content">
-          <h2 className="item-title">{item.name}</h2>
 
-          {categoryLabel && <div className="item-category">{categoryLabel}</div>}
+        <div className="item-content">
+          <div className="item-header">
+            <h2 className="item-title">{item.name}</h2>
+            <div className="item-price">{displayPrice.toFixed(2)} €</div>
+          </div>
+
+          {categoryLabel && <div className="item-category-label">{categoryLabel}</div>}
+
+          {availableColors.length > 0 && (
+            <div className="item-colors-preview">
+              {availableColors.slice(0, 5).map(color => (
+                <span
+                  key={color.id}
+                  className="color-dot"
+                  style={{ backgroundColor: color.hex_code }}
+                  title={color.name}
+                />
+              ))}
+              {availableColors.length > 5 && <span className="more-colors">+{availableColors.length - 5}</span>}
+            </div>
+          )}
 
           <div className="item-meta">
-            <div className="item-price">{displayPrice.toFixed(2)} €</div>
             <div className="item-rating" aria-label={`Note moyenne ${roundedRating} sur 5`}>
               <span className="stars">{renderStars(roundedRating)}</span>
-              <span className="rating-value">{roundedRating || 0}</span>
-              {typeof reviewCount === 'number' && (
-                <span className="rating-count">({reviewCount})</span>
-              )}
+              <span className="rating-count">({reviewCount})</span>
             </div>
           </div>
         </div>
       </Link>
-      <div className="item-actions">
-        <button
-          className="item-cta"
-          onClick={handleAddToCart}
-          disabled={!preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0)}
-        >
-          In den Warenkorb / Ajouter
-        </button>
-        <Link to={`/item/${item.id}`} className="item-cta secondary" aria-label="Details anzeigen / Voir le détail">
-          Details / Détails
-        </Link>
-      </div>
     </div>
   );
 }
