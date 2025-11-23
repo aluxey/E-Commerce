@@ -1,11 +1,10 @@
-import { Link } from 'react-router-dom';
-import { useAdminStats } from '@/hooks/useAdminStats';
 import { ErrorMessage, LoadingMessage } from '@/components/StatusMessage';
+import { useAdminStats } from '@/hooks/useAdminStats';
+import { Link } from 'react-router-dom';
 import '../styles/Admin.css';
 
 /* Widget KPI minimal (aucune dépendance, accessible) */
-const Widget = ({ title, value, delta, deltaType = 'neutral', progress, icon = '📈' }) => {
-  const pct = typeof progress === 'number' ? Math.max(0, Math.min(100, progress)) : null;
+const Widget = ({ title, value, delta, deltaType = 'neutral', icon }) => {
   return (
     <div className="widget" role="group" aria-label={title}>
       <div className="widget-header">
@@ -19,14 +18,7 @@ const Widget = ({ title, value, delta, deltaType = 'neutral', progress, icon = '
 
       {delta && (
         <div className={`widget-delta ${deltaType}`}>
-          <span className="marker" aria-hidden="true"></span>
           {delta}
-        </div>
-      )}
-
-      {pct !== null && (
-        <div className="widget-progress" aria-label="progression">
-          <span style={{ width: `${pct}%` }} />
         </div>
       )}
     </div>
@@ -36,76 +28,64 @@ const Widget = ({ title, value, delta, deltaType = 'neutral', progress, icon = '
 const AdminDashboard = () => {
   const stats = useAdminStats();
   const isLoading = stats.loading;
+
   const shortcuts = [
-    { to: '/admin/products', title: 'Produits', desc: 'Créer et mettre à jour les fiches', icon: '🧺' },
-    { to: '/admin/orders', title: 'Commandes', desc: 'Suivre et expédier', icon: '📦' },
-    { to: '/admin/users', title: 'Utilisateurs', desc: 'Gérer les rôles et comptes', icon: '👥' },
-    { to: '/admin/colors', title: 'Couleurs', desc: 'Référentiel des coloris', icon: '🎨' },
-    { to: '/admin/categories', title: 'Catégories', desc: 'Structurer le catalogue', icon: '🗂️' },
-    { to: '/admin/variants', title: 'Variantes', desc: 'Tailles, couleurs et stocks', icon: '🎯' },
+    { to: '/admin/products', title: 'Produits', desc: 'Gérer le catalogue et les stocks', icon: '🧺' },
+    { to: '/admin/orders', title: 'Commandes', desc: 'Suivi des expéditions', icon: '📦' },
+    { to: '/admin/users', title: 'Clients', desc: 'Base de données utilisateurs', icon: '👥' },
+    { to: '/admin/colors', title: 'Couleurs', desc: 'Palette de couleurs', icon: '🎨' },
+    { to: '/admin/categories', title: 'Catégories', desc: 'Organisation du site', icon: '🗂️' },
+    { to: '/admin/variants', title: 'Variantes', desc: 'Gestion des déclinaisons', icon: '🎯' },
   ];
 
   return (
     <div className="admin-page">
-      <header className="admin-hero admin-hero--lite">
+      <div className="admin-page__header">
         <div>
-          <span className="eyebrow">Admin</span>
-          <h1>Panneau d’administration</h1>
+          <span className="eyebrow">Vue d'ensemble</span>
+          <h1>Tableau de bord</h1>
           <p className="admin-subtitle">
-            Vue d’ensemble et accès rapide aux espaces de gestion.
+            Bienvenue sur votre espace d'administration. Voici ce qu'il se passe aujourd'hui.
           </p>
         </div>
-      </header>
+      </div>
 
-      <section aria-labelledby="stats-heading" className="section section--overview">
-        <div className="section-header">
-          <div>
-            <h2 id="stats-heading" className="section-title">Récapitulatif</h2>
-            <p className="section-subtitle">Indicateurs clés sur 30 jours.</p>
-          </div>
-        </div>
+      <section className="section">
         {isLoading && <LoadingMessage message="Chargement des indicateurs..." />}
-        {stats.error && !isLoading && <ErrorMessage title="Indicateurs indisponibles" message={stats.error} />}
+        {stats.error && !isLoading && <ErrorMessage title="Erreur" message={stats.error} />}
+
         {!isLoading && !stats.error && (
           <div className="dashboard-widgets">
             <Widget
-              title="Revenus (30 j)"
-              value={isLoading ? '...' : stats.revenue}
-              delta={
-                isLoading || stats.revenueDeltaPct === null
-                  ? null
-                  : `${(stats.revenueDeltaPct > 0 ? '+' : '')}${stats.revenueDeltaPct.toFixed(1)} %`
-              }
-              deltaType={stats.revenueDeltaPct > 0 ? 'positive' : stats.revenueDeltaPct < 0 ? 'negative' : 'neutral'}
+              title="Chiffre d'affaires (30j)"
+              value={stats.revenue}
+              delta={stats.revenueDeltaPct ? `${stats.revenueDeltaPct > 0 ? '+' : ''}${stats.revenueDeltaPct}%` : null}
+              deltaType={stats.revenueDeltaPct > 0 ? 'positive' : 'negative'}
               icon="💶"
             />
             <Widget
-              title="Commandes (30 j)"
-              value={isLoading ? '...' : String(stats.orders)}
-              delta={
-                isLoading || stats.ordersDeltaPct === null
-                  ? null
-                  : `${(stats.ordersDeltaPct > 0 ? '+' : '')}${stats.ordersDeltaPct.toFixed(1)} %`
-              }
-              deltaType={stats.ordersDeltaPct > 0 ? 'positive' : stats.ordersDeltaPct < 0 ? 'negative' : 'neutral'}
+              title="Commandes (30j)"
+              value={stats.orders}
+              delta={stats.ordersDeltaPct ? `${stats.ordersDeltaPct > 0 ? '+' : ''}${stats.ordersDeltaPct}%` : null}
+              deltaType={stats.ordersDeltaPct > 0 ? 'positive' : 'negative'}
               icon="🛒"
             />
             <Widget
               title="Panier moyen"
-              value={isLoading ? '...' : stats.avgOrder}
+              value={stats.avgOrder}
               icon="📊"
             />
             <Widget
-              title="Commandes en attente"
-              value={isLoading ? '...' : String(stats.pendingOrders)}
-              icon="⏳"
-              delta={stats.pendingOrders > 0 ? 'A traiter' : 'RAS'}
+              title="À traiter"
+              value={stats.pendingOrders}
+              delta={stats.pendingOrders > 0 ? `${stats.pendingOrders} en attente` : 'Tout est à jour'}
               deltaType={stats.pendingOrders > 0 ? 'negative' : 'positive'}
-              progress={stats.pendingOrders > 10 ? 90 : stats.pendingOrders * 8}
+              icon="⏳"
             />
           </div>
         )}
 
+        <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontFamily: 'Cormorant Garamond, serif' }}>Accès Rapide</h2>
         <div className="admin-shortcuts">
           {shortcuts.map(card => (
             <Link key={card.to} to={card.to} className="shortcut-card">
@@ -113,8 +93,8 @@ const AdminDashboard = () => {
               <div>
                 <p className="shortcut-title">{card.title}</p>
                 <p className="shortcut-desc">{card.desc}</p>
+                <span className="shortcut-cta">Gérer →</span>
               </div>
-              <span className="shortcut-cta">Ouvrir →</span>
             </Link>
           ))}
         </div>
