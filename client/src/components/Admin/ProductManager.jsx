@@ -1,25 +1,22 @@
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { listColors } from '@/services/adminColors';
+import { supabase } from '@/supabase/supabaseClient';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  deleteItem,
-  deleteItemImage,
-  deleteVariants,
-  fetchVariantsByItem,
-  getPublicImageUrl,
-  insertItemImage,
-  insertVariants,
-  listCategories,
-  listProducts,
-  removeProductImage,
-  updateItemPriceMeta,
-  upsertItem,
-  syncItemColors,
-  upsertVariants,
-  uploadProductImage,
+    deleteItem,
+    deleteItemImage,
+    deleteVariants,
+    fetchVariantsByItem,
+    insertVariants,
+    listCategories,
+    listProducts,
+    removeProductImage,
+    syncItemColors,
+    updateItemPriceMeta,
+    upsertItem,
+    upsertVariants
 } from '../../services/adminProducts';
-import { listColors } from '@/services/adminColors';
-import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { pushToast } from '../ToastHost';
-import { supabase } from '@/supabase/supabaseClient';
 
 export const TABLE_ITEMS = 'items';
 const TABLE_CATEGORIES = 'categories';
@@ -351,6 +348,7 @@ export default function ProductAdmin() {
         description: sanitizeText(form.description) || null,
         category_id: form.category_id ? Number(form.category_id) : null,
         price: minPrice,
+        status: form.status,
       };
 
       let itemId = editingId;
@@ -589,8 +587,12 @@ export default function ProductAdmin() {
             <input name="name" value={form.name} onChange={handleChange} placeholder="Titre" required />
           </div>
           <div className="form-group">
-            <label>Prix min (auto)</label>
-            <div className="pill-display">{minVariantPrice != null ? `${minVariantPrice.toFixed(2)} €` : '—'}</div>
+            <label>Statut</label>
+            <select name="status" value={form.status} onChange={handleChange}>
+              <option value="active">Actif</option>
+              <option value="draft">Brouillon</option>
+              <option value="archived">Archivé</option>
+            </select>
           </div>
         </div>
 
@@ -629,6 +631,10 @@ export default function ProductAdmin() {
                 </optgroup>
               )}
             </select>
+          </div>
+          <div className="form-group">
+            <label>Prix min (auto)</label>
+            <div className="pill-display">{minVariantPrice != null ? `${minVariantPrice.toFixed(2)} €` : '—'}</div>
           </div>
         </div>
 
