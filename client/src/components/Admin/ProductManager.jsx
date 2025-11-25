@@ -701,7 +701,7 @@ export default function ProductAdmin() {
               <tbody>
                 {variants.map((variant, index) => (
                   <tr key={variant.id ?? `new-${index}`}>
-                    <td>
+                    <td data-label="Taille">
                       <input
                         value={variant.size}
                         onChange={e => updateVariantField(index, 'size', e.target.value)}
@@ -709,7 +709,7 @@ export default function ProductAdmin() {
                         required
                       />
                     </td>
-                    <td>
+                    <td data-label="Couleur">
                       <div className="color-select-cell">
                         <select
                           value={variant.color_id || ''}
@@ -736,7 +736,7 @@ export default function ProductAdmin() {
                         )}
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Prix (€)">
                       <input
                         type="number"
                         step="0.01"
@@ -746,7 +746,7 @@ export default function ProductAdmin() {
                         required
                       />
                     </td>
-                    <td>
+                    <td data-label="Stock">
                       <input
                         type="number"
                         min={0}
@@ -755,8 +755,8 @@ export default function ProductAdmin() {
                         placeholder="Stock"
                       />
                     </td>
-                    <td>{variant.sku || 'Auto'}</td>
-                    <td>
+                    <td data-label="SKU">{variant.sku || 'Auto'}</td>
+                    <td data-label="Actions">
                       <button type="button" onClick={() => removeVariantRow(index)} className="btn btn-outline">
                         Retirer
                       </button>

@@ -1,10 +1,11 @@
-import { NavLink, Outlet } from "react-router-dom";
 import PrivateRoute from "@/components/PrivateRoute";
-import { useAuth } from "@/context/AuthContext";
 import ToastHost from "@/components/ToastHost";
+import { useAuth } from "@/context/AuthContext";
+import { useState } from 'react';
+import { useTranslation } from "react-i18next";
+import { NavLink, Outlet } from "react-router-dom";
 import "../styles/Admin.css";
 import "../styles/adminForms.css";
-import { useTranslation } from "react-i18next";
 
 const navItems = (t) => [
   { to: "/admin", label: t("admin.nav.overview"), icon: "📊", end: true },
@@ -20,11 +21,20 @@ const AdminLayout = () => {
   const { userData } = useAuth();
   const { t } = useTranslation();
   const items = navItems(t);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <PrivateRoute role="admin">
       <div className="admin-shell">
-        <aside className="admin-sidebar" aria-label={t("admin.nav.label")}>
+        <button
+          className="admin-mobile-toggle"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          aria-label={isSidebarOpen ? t("admin.nav.close") : t("admin.nav.open")}
+        >
+          {isSidebarOpen ? '✕' : '☰'}
+        </button>
+
+        <aside className={`admin-sidebar ${isSidebarOpen ? 'is-open' : ''}`} aria-label={t("admin.nav.label")}>
           <div className="admin-sidebar__brand">
             <span className="admin-sidebar__title">{t("admin.nav.brand")}</span>
             {userData?.email && <span className="admin-sidebar__subtitle">{userData.email}</span>}
@@ -36,6 +46,7 @@ const AdminLayout = () => {
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) => `admin-nav__link${isActive ? " is-active" : ""}`}
+                onClick={() => setIsSidebarOpen(false)}
               >
                 <span className="admin-nav__icon" aria-hidden="true">{item.icon}</span>
                 <span>{item.label}</span>
@@ -43,6 +54,10 @@ const AdminLayout = () => {
             ))}
           </nav>
         </aside>
+
+        {isSidebarOpen && (
+          <div className="admin-sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />
+        )}
 
         <div className="admin-shell__content">
           <div className="admin-container">

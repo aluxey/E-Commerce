@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { listOrders, updateOrderStatus } from '../../services/adminOrders';
-import { pushToast } from '../ToastHost';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
+import { pushToast } from '../ToastHost';
 
 // Statuts alignés avec le schéma DB: ('pending','paid','failed','canceled','shipped','refunded')
 const statusOptions = [
@@ -144,20 +144,20 @@ export default function OrderManager() {
                   <tbody>
                     {orders.map(order => (
                       <tr key={order.id}>
-                        <td>#{order.id.slice(0, 8)}</td>
-                        <td>
+                        <td data-label="ID">#{order.id.slice(0, 8)}</td>
+                        <td data-label="Client">
                           {order.user ? order.user.email : order.customer_email}
                         </td>
-                        <td>{formatDate(order.created_at)}</td>
-                        <td>
+                        <td data-label="Date">{formatDate(order.created_at)}</td>
+                        <td data-label="Total">
                           {formatMoney(order.total ?? calculateOrderTotal(order.order_items), order.currency || 'EUR')}
                         </td>
-                        <td>
+                        <td data-label="Statut">
                           <span style={getStatusStyle(order.status)}>
                             {statusOptions.find(s => s.value === order.status)?.label || order.status}
                           </span>
                         </td>
-                        <td>
+                        <td data-label="Actions">
                           <button onClick={() => setSelectedOrder(order)} aria-label="Détails / Details">Détails / Details</button>
                         </td>
                       </tr>

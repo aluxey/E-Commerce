@@ -171,3 +171,82 @@
   object-fit: cover;
   border-radius: 8px;
 }
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  .form-row.two-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* Responsive Tables (Card View) */
+  .variant-table thead,
+  .orders-list table thead {
+    display: none;
+  }
+
+  .variant-table tbody,
+  .orders-list table tbody {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .variant-table tr,
+  .orders-list table tr {
+    display: flex;
+    flex-direction: column;
+    background: var(--adm-surface);
+    border: 1px solid var(--adm-border);
+    border-radius: var(--rad-md);
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  .variant-table td,
+  .orders-list table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    border: none;
+    font-size: 0.95rem;
+  }
+
+  .variant-table td::before,
+  .orders-list table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--adm-muted);
+    margin-right: 1rem;
+  }
+
+  .variant-table td:last-child,
+  .orders-list table td:last-child {
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--adm-border);
+    justify-content: flex-end;
+  }
+
+  /* Modal Mobile */
+  .order-modal {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .order-modal__grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .order-modal__header {
+    position: sticky;
+    top: 0;
+    background: var(--adm-surface);
+    z-index: 10;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--adm-border);
+  }
+}

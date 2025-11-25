@@ -560,16 +560,38 @@
 
 @media (max-width: 600px) {
   .hero-title {
-    font-size: 2.4rem;
+    font-size: clamp(2.2rem, 10vw, 2.8rem);
+    line-height: 1.1;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
   }
 
   .value-card,
   .hero-highlight {
     flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .value-card {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .newsletter-form {
     flex-direction: column;
+    width: 100%;
+  }
+
+  .newsletter-input {
+    width: 100%;
+    flex: none;
+  }
+
+  .newsletter-form .btn {
+    width: 100%;
   }
 
   .mini-card__actions .btn {
@@ -578,8 +600,26 @@
   }
 
   .mini-card__body { gap: 0.7rem; }
-  .mini-card__image { height: 170px; }
-  .hero-section { padding: 3.2rem 0 2.4rem; }
-  .hero-badge { top: 6%; right: 6%; }
-  .hero-floating-card { margin-top: 0.6rem; padding: 0.85rem 0.95rem; width: 100%; }
+  .mini-card__image { height: 180px; }
+
+  .hero-section {
+    padding: 2.5rem 0 3rem;
+  }
+
+  .hero-badge {
+    top: -10px;
+    right: 10px;
+    transform: rotate(5deg);
+  }
+
+  .hero-floating-card {
+    margin-top: 1rem;
+    padding: 1rem;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .category-card {
+    height: 220px;
+  }
 }

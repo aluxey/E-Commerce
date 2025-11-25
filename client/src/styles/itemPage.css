@@ -787,17 +787,45 @@
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .pd-badges {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .pd-main-image {
+    height: 320px;
   }
 
   .qty-controls {
     width: 100%;
+    justify-content: space-between;
   }
 
   .qty-input {
     flex: 1;
+    width: auto;
+  }
+
+  .qty-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .cta-group {
+    position: sticky;
+    bottom: 1rem;
+    z-index: 100;
+    background: var(--color-surface);
+    padding: 0.5rem;
+    border-radius: 12px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    margin: 0 -0.5rem; /* Negative margin to offset padding if needed, or just normal */
+  }
+
+  .btn.primary {
+    padding: 1rem;
+    font-size: 1.1rem;
   }
 
   .notification {

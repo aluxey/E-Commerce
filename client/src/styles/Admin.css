@@ -56,6 +56,10 @@
   font-family: 'Work Sans', sans-serif; /* Ensure font consistency */
 }
 
+.admin-mobile-toggle {
+  display: none;
+}
+
 /* Sidebar - Elegant & Fixed */
 .admin-sidebar {
   position: sticky;
@@ -193,6 +197,13 @@ h1 {
   padding: var(--s-5);
   margin-bottom: var(--s-5);
   transition: box-shadow var(--trans-smooth);
+}
+
+@media (max-width: 768px) {
+  .admin-card {
+    padding: var(--s-3);
+    overflow-x: auto;
+  }
 }
 
 .admin-card:hover {
@@ -452,39 +463,71 @@ tr:hover td {
 /* Responsive */
 @media (max-width: 1024px) {
   .admin-shell {
-    grid-template-columns: 80px 1fr;
-  }
-
-  .admin-sidebar {
-    padding: var(--s-4) var(--s-2);
-    align-items: center;
-  }
-
-  .admin-sidebar__title, .admin-sidebar__subtitle, .admin-nav__link span:not(.admin-nav__icon) {
-    display: none;
-  }
-
-  .admin-nav__link {
-    justify-content: center;
-    padding: 0.8rem;
-  }
-
-  .admin-nav__icon {
-    font-size: 1.4rem;
-    margin: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  .admin-shell {
     grid-template-columns: 1fr;
   }
 
   .admin-sidebar {
-    display: none; /* Or implement a mobile drawer */
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    transform: translateX(-100%);
+    transition: transform var(--trans-smooth);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    padding: var(--s-5) var(--s-4);
+    align-items: stretch;
+  }
+
+  .admin-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .admin-sidebar__title, .admin-sidebar__subtitle, .admin-nav__link span:not(.admin-nav__icon) {
+    display: block;
+  }
+
+  .admin-nav__link {
+    justify-content: flex-start;
+    padding: 0.85rem 1rem;
+  }
+
+  .admin-nav__icon {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .admin-mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--adm-brand);
+    color: #fff;
+    border: none;
+    box-shadow: var(--shadow-lg);
+    z-index: 1100;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  .admin-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(2px);
+    z-index: 900;
+    animation: fadeIn 0.3s ease;
   }
 
   .admin-shell__content {
     padding: var(--s-4);
+    padding-bottom: 80px; /* Space for FAB */
   }
 }
