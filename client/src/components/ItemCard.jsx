@@ -2,11 +2,13 @@ import { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import '../styles/Item.css';
+import { useTranslation } from 'react-i18next';
 
 export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categoryLabel = '' }) {
   const { addItem } = useContext(CartContext);
   const imageUrl = item.item_images?.[0]?.image_url;
   const variants = useMemo(() => item.item_variants || [], [item.item_variants]);
+  const { t } = useTranslation();
 
   // Get unique colors from variants or item_colors
   const availableColors = useMemo(() => {
@@ -69,14 +71,14 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categor
           {imageUrl ? (
             <img src={imageUrl} alt={item.name} className="card-img" />
           ) : (
-            <div className="placeholder-img">Image indisponible</div>
+            <div className="placeholder-img">{t('itemCard.imageUnavailable')}</div>
           )}
           {/* Quick Add Button Overlay */}
           <button
             className="quick-add-btn"
             onClick={handleAddToCart}
             disabled={!preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0)}
-            title="Ajouter au panier"
+            title={t('itemCard.quickAdd')}
           >
             +
           </button>
@@ -105,7 +107,7 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categor
           )}
 
           <div className="item-meta">
-            <div className="item-rating" aria-label={`Note moyenne ${roundedRating} sur 5`}>
+            <div className="item-rating" aria-label={t('itemCard.ratingLabel', { rating: roundedRating })}>
               <span className="stars">{renderStars(roundedRating)}</span>
               <span className="rating-count">({reviewCount})</span>
             </div>

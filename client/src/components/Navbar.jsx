@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import "../styles/navbar.css";
 import { signOut } from "../services/auth";
+import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
   const { session, userData } = useAuth();
@@ -13,17 +14,18 @@ const Navbar = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { t, i18n } = useTranslation();
   const navLinks = useMemo(() => {
     const links = [
-      { to: "/", label: "Home" },
-      { to: "/items", label: "Shop" },
-      { href: "mailto:contact@sabbels-handmade.com", label: "Kontakt" },
+      { to: "/", label: t('nav.home') },
+      { to: "/items", label: t('nav.shop') },
+      { href: "mailto:contact@sabbels-handmade.com", label: t('nav.contact') },
     ];
     if (userData?.role === "admin") {
-      links.push({ to: "/admin", label: "Admin" });
+      links.push({ to: "/admin", label: t('nav.admin') });
     }
     return links;
-  }, [userData]);
+  }, [t, userData]);
 
   // Handle scroll effect
   useEffect(() => {
@@ -50,6 +52,28 @@ const Navbar = () => {
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const isActive = path =>
     location.pathname === path || (path !== "/" && location.pathname.startsWith(path));
+  const languages = [
+    { code: "de", label: "DE", title: t('nav.languageDe') },
+    { code: "fr", label: "FR", title: t('nav.languageFr') },
+  ];
+  const renderLanguageSwitcher = () => (
+    <div className="navbar__lang-switch">
+      {languages.map(lang => (
+        <button
+          key={lang.code}
+          className={`navbar__pill navbar__pill--ghost ${i18n.language === lang.code ? 'is-active' : ''}`}
+          onClick={() => {
+            i18n.changeLanguage(lang.code);
+            closeMenu();
+          }}
+          aria-label={`${t('nav.languageLabel')}: ${lang.title}`}
+          aria-pressed={i18n.language === lang.code}
+        >
+          {lang.label}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <>
@@ -61,7 +85,7 @@ const Navbar = () => {
             </div>
             <div className="navbar__brand-text">
               <span className="navbar__brand-title">Sabbels Handmade</span>
-              <span className="navbar__brand-subtitle">Handgestricktes aus Schleswig</span>
+              <span className="navbar__brand-subtitle">{t('nav.brandSubtitle')}</span>
             </div>
           </Link>
 
@@ -92,63 +116,65 @@ const Navbar = () => {
               {session ? (
                 <>
                   <Link to="/profile" className="navbar__pill" onClick={closeMenu}>
-                    Mein Profil
+                    {t('nav.profile')}
                   </Link>
                   <button className="navbar__pill navbar__pill--ghost" onClick={handleLogout}>
-                    Logout
+                    {t('nav.logout')}
                   </button>
                 </>
               ) : (
                 <div className="navbar__pill-group">
                   <Link to="/signup" className="navbar__pill navbar__pill--ghost" onClick={closeMenu}>
-                    Inscription
+                    {t('nav.signup')}
                   </Link>
                   <Link to="/login" className="navbar__pill navbar__pill--primary" onClick={closeMenu}>
-                    Login
+                    {t('nav.login')}
                   </Link>
                 </div>
               )}
               <a className="navbar__mobile-contact" href="mailto:contact@sabbels-handmade.com" onClick={closeMenu}>
-                Schreib uns eine Mail
+                {t('nav.emailUs')}
               </a>
+              {renderLanguageSwitcher()}
             </div>
           </div>
 
           <div className="navbar__actions">
-            <Link to="/items" className="navbar__icon-btn" aria-label="Produkte durchsuchen / Parcourir les produits">
+            <Link to="/items" className="navbar__icon-btn" aria-label={t('nav.searchLabel')}>
               🔍
             </Link>
 
-            <Link to="/cart" className="navbar__icon-btn navbar__icon-btn--cart" aria-label="Warenkorb / Panier">
+            <Link to="/cart" className="navbar__icon-btn navbar__icon-btn--cart" aria-label={t('nav.cartLabel')}>
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
 
             {session ? (
               <div className="navbar__profile">
-                <Link to="/profile" className="navbar__pill navbar__pill--ghost" title={userData?.full_name || 'Profil'}>
-                  👤 Profil
+                <Link to="/profile" className="navbar__pill navbar__pill--ghost" title={userData?.full_name || t('nav.profileTitle')}>
+                  👤 {t('nav.profile')}
                 </Link>
                 <button onClick={handleLogout} className="navbar__pill navbar__pill--ghost">
-                  Logout
+                  {t('nav.logout')}
                 </button>
               </div>
             ) : (
               <div className="navbar__profile">
                 <Link to="/signup" className="navbar__pill navbar__pill--ghost">
-                  Inscription
+                  {t('nav.signup')}
                 </Link>
                 <Link to="/login" className="navbar__pill navbar__pill--primary">
-                  Login
+                  {t('nav.login')}
                 </Link>
               </div>
             )}
+            {renderLanguageSwitcher()}
           </div>
 
           <button
             className={`navbar__toggle ${isMenuOpen ? 'is-open' : ''}`}
             onClick={toggleMenu}
-            aria-label="Navigation öffnen oder schließen"
+            aria-label={t('nav.menuToggle')}
             aria-expanded={isMenuOpen}
             aria-controls="main-navigation"
           >

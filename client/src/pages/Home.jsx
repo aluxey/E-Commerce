@@ -4,6 +4,7 @@ import MiniItemCard from '../components/MiniItemCard';
 import '../styles/home.css';
 import { fetchLatestItems, fetchTopItems } from '../services/items';
 import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
+import { useTranslation } from 'react-i18next';
 
 // Assets
 import purpleBlackBox from '../assets/mainPic.jpg';
@@ -14,30 +15,19 @@ export default function Home() {
   const [latestItems, setLatestItems] = useState([]);
   const [topItems, setTopItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const valueProps = [
-    { icon: "🧶", title: "Handgemacht", text: "Mit Liebe gestrickt und gehäkelt in Schleswig-Holstein." },
-    { icon: "🎨", title: "Wunschfarben", text: "Passe Farben und Größen unkompliziert an deine Einrichtung an." },
-    { icon: "🌿", title: "Natürliche Garne", text: "Wir nutzen weiche, langlebige Materialien ohne Kompromisse." },
-    { icon: "💌", title: "Persönlich", text: "Direkter Kontakt und Updates bis dein Lieblingsstück ankommt." },
-  ];
-
-  const categories = [
-    { name: "Wohntextilien", image: deskOrganizer, link: "/items?category=Home", blurb: "Körbe, Ordnungshilfen und gemütliche Akzente." },
-    { name: "Kids & Baby", image: greyBasket, link: "/items?category=Kids", blurb: "Sanfte Garne für die Kleinsten – sicher und kuschelig." },
-    { name: "Accessoires", image: purpleBlackBox, link: "/items?category=Accessories", blurb: "Kleine Lieblingsstücke für jeden Tag." },
-  ];
-
-  const heroHighlights = [
-    { icon: "🤲", title: "Kleine Auflagen", text: "Jedes Stück ein Unikat" },
-    { icon: "⏱️", title: "Fix versandbereit", text: "Innerhalb von 3–5 Werktagen" },
-    { icon: "📦", title: "Liebevoll verpackt", text: "Versand mit Sendungsverfolgung" },
-  ];
+  const [error, setError] = useState(false);
+  const { t } = useTranslation();
+  const valueProps = t('home.valueProps', { returnObjects: true }) || [];
+  const categories = (t('home.categories.cards', { returnObjects: true }) || []).map((cat, idx) => ({
+    ...cat,
+    image: [deskOrganizer, greyBasket, purpleBlackBox][idx] || purpleBlackBox,
+  }));
+  const heroHighlights = t('home.highlights', { returnObjects: true }) || [];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setError(null);
+        setError(false);
         const [latestResp, topResp] = await Promise.all([fetchLatestItems(4), fetchTopItems(4)]);
         if (latestResp.error) throw latestResp.error;
         if (topResp.error) throw topResp.error;
@@ -45,7 +35,7 @@ export default function Home() {
         setTopItems(topResp.data || []);
       } catch (error) {
         console.error("Error fetching home data:", error);
-        setError("Die Startseite konnte nicht geladen werden. Bitte versuche es erneut.");
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -60,22 +50,21 @@ export default function Home() {
         <div className="hero-shape" />
         <div className="hero-grid container">
           <div className="hero-copy animate-slide-up">
-            <span className="eyebrow">Warm. Handgemacht. Persönlich.</span>
-            <h1 className="hero-title">Weiche Maschen für gemütliche Momente.</h1>
+            <span className="eyebrow">{t('home.hero.eyebrow')}</span>
+            <h1 className="hero-title">{t('home.hero.title')}</h1>
             <p className="hero-subtitle">
-              Körbe, Accessoires und Lieblingsstücke aus liebevoller Handarbeit – gefertigt in kleinen Auflagen
-              und mit natürlichen Garnen.
+              {t('home.hero.subtitle')}
             </p>
             <div className="hero-actions">
-              <Link to="/items" className="btn btn-primary" aria-label="Kollektion ansehen">
-                Kollektion ansehen
+              <Link to="/items" className="btn btn-primary" aria-label={t('home.hero.ctaShop')}>
+                {t('home.hero.ctaShop')}
               </Link>
               <a
                 href="mailto:contact@sabbels-handmade.com?subject=Individuelle%20Anfrage%20-%20Sabbels%20Handmade"
                 className="btn btn-secondary"
-                aria-label="Individuelle Anfrage"
+                aria-label={t('home.hero.ctaCustom')}
               >
-                Individuelle Anfrage
+                {t('home.hero.ctaCustom')}
               </a>
             </div>
             <div className="hero-highlights">
@@ -96,10 +85,10 @@ export default function Home() {
               <img src={purpleBlackBox} alt="Handgemachte Körbe und Strick" />
             </div>
             <div className="hero-floating-card">
-              <p className="hero-floating-title">Liebe zum Detail</p>
-              <p className="hero-floating-text">Jedes Paket wird mit persönlicher Karte und nachhaltiger Verpackung verschickt.</p>
+              <p className="hero-floating-title">{t('home.hero.floatingTitle')}</p>
+              <p className="hero-floating-text">{t('home.hero.floatingText')}</p>
             </div>
-            <div className="hero-badge">✨ Neue Farbtöne verfügbar</div>
+            <div className="hero-badge">✨ {t('home.hero.badge')}</div>
           </div>
         </div>
       </section>
@@ -122,11 +111,11 @@ export default function Home() {
         <div className="container">
           <div className="section-header">
             <div>
-              <span className="eyebrow">Kategorien</span>
-              <h2>Finde dein Lieblingsstück</h2>
-              <p className="text-muted">Wähle die Kategorie, die zu deinem Zuhause oder Anlass passt.</p>
+              <span className="eyebrow">{t('home.categories.eyebrow')}</span>
+              <h2>{t('home.categories.title')}</h2>
+              <p className="text-muted">{t('home.categories.subtitle')}</p>
             </div>
-            <Link to="/items" className="link-cta">Alle Produkte ansehen →</Link>
+            <Link to="/items" className="link-cta">{t('home.categories.viewAll')}</Link>
           </div>
           <div className="categories-grid">
             {categories.map(cat => (
@@ -137,7 +126,7 @@ export default function Home() {
                     <p className="category-blurb">{cat.blurb}</p>
                     <span className="category-name">{cat.name}</span>
                   </div>
-                  <span className="category-cta">Jetzt entdecken</span>
+                  <span className="category-cta">{t('home.categories.cta')}</span>
                 </div>
               </Link>
             ))}
@@ -149,14 +138,14 @@ export default function Home() {
         <div className="container">
           <div className="section-header">
             <div>
-              <span className="eyebrow">Neu im Shop</span>
-              <h2>Frisch von der Nadel</h2>
-              <p className="text-muted">Neue Farben, neue Formen – direkt aus dem Atelier.</p>
+              <span className="eyebrow">{t('home.new.eyebrow')}</span>
+              <h2>{t('home.new.title')}</h2>
+              <p className="text-muted">{t('home.new.subtitle')}</p>
             </div>
-            <Link to="/items" className="link-cta">Alle Neuheiten</Link>
+            <Link to="/items" className="link-cta">{t('home.new.viewAll')}</Link>
           </div>
-          {loading && <LoadingMessage message="Laden..." />}
-          {error && <ErrorMessage message={error} />}
+          {loading && <LoadingMessage />}
+          {error && <ErrorMessage message={t('home.loadError')} />}
           {!loading && !error && (
             latestItems.length ? (
               <div className="product-grid">
@@ -165,7 +154,7 @@ export default function Home() {
                 ))}
               </div>
             ) : (
-              <div className="showcase-empty">Noch keine Neuheiten verfügbar.</div>
+              <div className="showcase-empty">{t('home.new.empty')}</div>
             )
           )}
         </div>
@@ -176,29 +165,23 @@ export default function Home() {
           <div className="story-visual">
             <img src={deskOrganizer} alt="Garn und Accessoires" />
             <div className="story-note">
-              <span>Handmade Studio</span>
-              <p>Jede Bestellung wird in kleinen Serien gefertigt und von Hand geprüft.</p>
+              <span>{t('home.story.noteTitle')}</span>
+              <p>{t('home.story.noteText')}</p>
             </div>
           </div>
           <div className="story-content">
-            <span className="eyebrow">Die Geschichte</span>
-            <h2>Von der ersten Masche bis zu deinem Paket.</h2>
-            <p>
-              Ich bin Sabbel – Makerin, Garnliebhaberin und Detailverliebte. Was als Abendprojekt begann,
-              ist heute ein kleines Label, das Wärme und Ruhe in den Alltag bringt.
-            </p>
-            <p>
-              Meine Stücke entstehen in ruhiger Handarbeit, mit Fokus auf langlebige Materialien und eine moderne,
-              nordische Ästhetik.
-            </p>
+            <span className="eyebrow">{t('home.story.eyebrow')}</span>
+            <h2>{t('home.story.title')}</h2>
+            <p>{t('home.story.paragraph1')}</p>
+            <p>{t('home.story.paragraph2')}</p>
             <div className="story-pills">
-              <span className="story-pill">Kleine Auflagen</span>
-              <span className="story-pill">Individuell anpassbar</span>
-              <span className="story-pill">Nachhaltig verpackt</span>
+              {(t('home.story.pills', { returnObjects: true }) || []).map(pill => (
+                <span className="story-pill" key={pill}>{pill}</span>
+              ))}
             </div>
             <div className="story-actions">
-              <Link to="/items" className="btn btn-primary">Kollektion entdecken</Link>
-              <a href="mailto:contact@sabbels-handmade.com" className="btn btn-ghost">Kontakt aufnehmen</a>
+              <Link to="/items" className="btn btn-primary">{t('home.story.ctaShop')}</Link>
+              <a href="mailto:contact@sabbels-handmade.com" className="btn btn-ghost">{t('home.story.ctaContact')}</a>
             </div>
           </div>
         </div>
@@ -208,14 +191,14 @@ export default function Home() {
         <div className="container">
           <div className="section-header">
             <div>
-              <span className="eyebrow">Bestseller</span>
-              <h2>Lieblinge unserer Kund:innen</h2>
-              <p className="text-muted">Bewährte Klassiker, die besonders oft bestellt werden.</p>
+              <span className="eyebrow">{t('home.bestsellers.eyebrow')}</span>
+              <h2>{t('home.bestsellers.title')}</h2>
+              <p className="text-muted">{t('home.bestsellers.subtitle')}</p>
             </div>
-            <Link to="/items" className="link-cta">Alle Bestseller</Link>
+            <Link to="/items" className="link-cta">{t('home.bestsellers.viewAll')}</Link>
           </div>
-          {loading && <LoadingMessage message="Laden..." />}
-          {error && <ErrorMessage message={error} />}
+          {loading && <LoadingMessage />}
+          {error && <ErrorMessage message={t('home.loadError')} />}
           {!loading && !error && (
             topItems.length ? (
               <div className="product-grid">
@@ -224,7 +207,7 @@ export default function Home() {
                 ))}
               </div>
             ) : (
-              <div className="showcase-empty">Bald findest du hier unsere Bestseller.</div>
+              <div className="showcase-empty">{t('home.bestsellers.empty')}</div>
             )
           )}
         </div>
@@ -233,15 +216,15 @@ export default function Home() {
       <section className="newsletter-section" id="newsletter">
         <div className="container newsletter-content">
           <div>
-            <span className="eyebrow">Newsletter</span>
-            <h2>Bleib auf dem Laufenden</h2>
+            <span className="eyebrow">{t('home.newsletter.eyebrow')}</span>
+            <h2>{t('home.newsletter.title')}</h2>
             <p className="text-muted">
-              Einmal im Monat erhältst du News zu neuen Farben, limitierten Drops und kleinen Einblicken in das Atelier.
+              {t('home.newsletter.text')}
             </p>
           </div>
           <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
-            <input type="email" placeholder="Deine E-Mail Adresse" className="newsletter-input" required />
-            <button type="submit" className="btn btn-primary">Anmelden</button>
+            <input type="email" placeholder={t('home.newsletter.placeholder')} className="newsletter-input" required />
+            <button type="submit" className="btn btn-primary">{t('home.newsletter.submit')}</button>
           </form>
         </div>
       </section>

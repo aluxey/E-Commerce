@@ -6,6 +6,7 @@ import { CartContext } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { fetchItemDetail, fetchRelatedItems } from '../services/items';
 import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
+import { useTranslation } from 'react-i18next';
 
 export default function ItemDetail() {
   const { id } = useParams();
@@ -24,11 +25,13 @@ export default function ItemDetail() {
   const [showNotification, setShowNotification] = useState(false);
   const [relatedItems, setRelatedItems] = useState([]);
   const [deliveryDate, setDeliveryDate] = useState('');
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(false);
 
   const navigate = useNavigate();
   const { addItem } = useContext(CartContext);
   const { session } = useAuth();
+  const { t, i18n } = useTranslation();
+  const locale = useMemo(() => (i18n.language === 'fr' ? 'fr-FR' : 'de-DE'), [i18n.language]);
 
   const colorOptions = useMemo(() => {
     const map = new Map();
@@ -51,7 +54,7 @@ export default function ItemDetail() {
     const map = new Map();
     for (const v of variants) {
       const key = v.size || '';
-      const label = v.size || 'Unique';
+      const label = v.size || t('productDetail.oneSize');
       const entry = map.get(key) || { value: key, label, hasStock: false, compatible: true };
       const inStock = v.stock == null || v.stock > 0;
       if (inStock) entry.hasStock = true;
@@ -59,7 +62,7 @@ export default function ItemDetail() {
     }
     const result = Array.from(map.values());
     return result;
-  }, [variants]);
+  }, [t, variants]);
 
   const { hasSizeDimension } = useMemo(() => {
     const sizeSet = new Set(variants.map(v => (v.size || '').trim()));
@@ -123,22 +126,22 @@ export default function ItemDetail() {
     const deliveryDateCalc = new Date();
     deliveryDateCalc.setDate(deliveryDateCalc.getDate() + 3); // +3 jours
     setDeliveryDate(
-      deliveryDateCalc.toLocaleDateString('fr-FR', {
+      deliveryDateCalc.toLocaleDateString(locale, {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
       })
     );
-  }, []);
+  }, [locale]);
 
   const loadItem = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
+    setError(false);
 
     const { data, error: itemError } = await fetchItemDetail(id);
     if (itemError || !data) {
       console.error("Erreur lors du chargement de l'item :", itemError);
-      setError("Le produit est introuvable ou temporairement indisponible.");
+      setError(true);
       setIsLoading(false);
       return;
     }
@@ -275,14 +278,14 @@ export default function ItemDetail() {
   };
 
   if (isLoading) {
-    return <LoadingMessage message="Chargement du produit..." />;
+    return <LoadingMessage message={t('productDetail.loading')} />;
   }
 
   if (error) {
-    return <ErrorMessage title="Produit indisponible / Produkt nicht verfügbar" message={error} onRetry={loadItem} />;
+    return <ErrorMessage title={t('productDetail.unavailableTitle')} message={t('productDetail.errors.load')} onRetry={loadItem} />;
   }
 
-  if (!item) return <ErrorMessage title="Produit non trouvé / Produkt nicht gefunden" />;
+  if (!item) return <ErrorMessage title={t('productDetail.notFoundTitle')} />;
 
   return (
     <>
@@ -290,21 +293,21 @@ export default function ItemDetail() {
       {showNotification && (
         <div className="notification success">
           <div className="notification-content">
-            <span>✓ Produit ajouté au panier ! / Zum Warenkorb hinzugefügt</span>
+            <span>✓ {t('productDetail.notificationAdded')}</span>
             <button onClick={() => setShowNotification(false)}>×</button>
           </div>
         </div>
       )}
 
       <div className="product-detail">
-        <div className="pd-gallery">
-          <div className="pd-main-image">
-            {activeImage ? (
-              <img src={activeImage} alt={item.name} />
-            ) : (
-              <div className="pd-placeholder">Image indisponible</div>
-            )}
-          </div>
+          <div className="pd-gallery">
+            <div className="pd-main-image">
+              {activeImage ? (
+                <img src={activeImage} alt={item.name} />
+              ) : (
+                <div className="pd-placeholder">{t('productDetail.imageUnavailable')}</div>
+              )}
+            </div>
           {item.item_images?.length > 0 && (
             <div className="pd-thumbs">
               {item.item_images.map((img, idx) => (
@@ -327,7 +330,7 @@ export default function ItemDetail() {
             <div className="pd-rating-summary">
               <div className="stars">{renderStars(Math.round(avgRating))}</div>
               <span className="rating-text">
-                {avgRating.toFixed(1)} ({reviews.length} avis)
+                {t('productDetail.ratingSummary', { rating: avgRating.toFixed(1), count: reviews.length })}
               </span>
             </div>
           </div>
@@ -339,17 +342,17 @@ export default function ItemDetail() {
             <div className="pd-badges">
               {selectedVariant && selectedVariant.stock != null && (
                 <span className={`badge ${isOutOfStock ? 'badge--danger' : ''}`}>
-                  {isOutOfStock ? 'Rupture de stock' : `Stock : ${selectedVariant.stock}`}
+                  {isOutOfStock ? t('productDetail.outOfStock') : t('productDetail.stock', { count: selectedVariant.stock })}
                 </span>
               )}
-              <span className="badge delivery">Livraison {deliveryDate}</span>
+              <span className="badge delivery">{t('productDetail.delivery', { date: deliveryDate })}</span>
             </div>
           </div>
 
           <div className="pd-options">
             <div className="option-group">
               <label>
-                Taille:
+                {t('productDetail.size')}:
                 <select
                   value={selectedSize}
                   onChange={e => setSelectedSize(e.target.value)}
@@ -358,8 +361,8 @@ export default function ItemDetail() {
                   {sizeOptions.map(option => (
                     <option key={option.value || 'unique'} value={option.value}>
                       {option.label}
-                      {!option.hasStock ? ' (épuisé)' : ''}
-                      {!option.compatible ? ' (indisponible)' : ''}
+                      {!option.hasStock ? ` (${t('productDetail.soldOut')})` : ''}
+                      {!option.compatible ? ` (${t('productDetail.notCompatible')})` : ''}
                     </option>
                   ))}
                 </select>
@@ -369,7 +372,7 @@ export default function ItemDetail() {
             {showColorSelect && (
               <div className="option-group">
                 <label>
-                  Couleur:
+                  {t('productDetail.color')}:
                   <select
                     value={selectedColor}
                     onChange={e => setSelectedColor(e.target.value)}
@@ -377,8 +380,8 @@ export default function ItemDetail() {
                     {colorOptions.map(option => (
                       <option key={option.value || 'default'} value={option.value}>
                         {option.label}
-                        {!option.hasStock ? ' (épuisé)' : ''}
-                        {!option.compatible ? ' (indisponible)' : ''}
+                        {!option.hasStock ? ` (${t('productDetail.soldOut')})` : ''}
+                        {!option.compatible ? ` (${t('productDetail.notCompatible')})` : ''}
                       </option>
                     ))}
                   </select>
@@ -389,7 +392,7 @@ export default function ItemDetail() {
 
           <div className="pd-actions">
             <div className="qty-group">
-              <label className="qty-label">Quantité:</label>
+              <label className="qty-label">{t('productDetail.quantity')}:</label>
               <div className="qty-controls">
                 <button
                   className="qty-btn"
@@ -435,10 +438,10 @@ export default function ItemDetail() {
                 {isAddingToCart ? (
                   <>
                     <div className="btn-spinner"></div>
-                    Ajout...
+                    {t('productDetail.adding')}
                   </>
                 ) : (
-                  'Ajouter au panier'
+                  t('productDetail.addToCart')
                 )}
               </button>
             </div>
@@ -455,19 +458,19 @@ export default function ItemDetail() {
             className={`tab-btn ${activeTab === 'details' ? 'active' : ''}`}
             onClick={() => setActiveTab('details')}
           >
-            Détails
+            {t('productDetail.tabs.details')}
           </button>
           <button
             className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
             onClick={() => setActiveTab('reviews')}
           >
-            Avis ({reviews.length})
+            {t('productDetail.tabs.reviews')} ({reviews.length})
           </button>
           <button
             className={`tab-btn ${activeTab === 'delivery' ? 'active' : ''}`}
             onClick={() => setActiveTab('delivery')}
           >
-            Livraison
+            {t('productDetail.tabs.delivery')}
           </button>
         </div>
 
@@ -476,20 +479,20 @@ export default function ItemDetail() {
             <div className="tab-panel">
               <div className="pd-meta">
                 <div className="meta-item">
-                  <span>Catégorie:</span>
+                  <span>{t('productDetail.meta.category')}:</span>
                   <span>{categoryPath || '—'}</span>
                 </div>
                 <div className="meta-item">
-                  <span>Référence:</span>
+                  <span>{t('productDetail.meta.reference')}:</span>
                   <span>#{item.id}</span>
                 </div>
                 <div className="meta-item">
-                  <span>Matière:</span>
-                  <span>Coton bio 100%</span>
+                  <span>{t('productDetail.meta.material')}:</span>
+                  <span>{t('productDetail.materialText')}</span>
                 </div>
                 <div className="meta-item">
-                  <span>Entretien:</span>
-                  <span>Lavage machine 30°C</span>
+                  <span>{t('productDetail.meta.care')}:</span>
+                  <span>{t('productDetail.careText')}</span>
                 </div>
               </div>
             </div>
@@ -499,44 +502,44 @@ export default function ItemDetail() {
             <div className="tab-panel">
               <div className="reviews-section">
                 <div className="rating-form">
-              <h3>Donnez votre avis / Bewerten</h3>
+              <h3>{t('productDetail.reviews.title')}</h3>
                   <div className="rating-input">
                     <label>
-                      Votre note / Ihre Bewertung:
+                      {t('productDetail.reviews.label')}:
                       <select value={rating} onChange={e => setRating(Number(e.target.value))}>
-                        <option value={0}>Choisir...</option>
+                        <option value={0}>{t('productDetail.reviews.placeholder')}</option>
                         {[1, 2, 3, 4, 5].map(n => (
                           <option key={n} value={n}>
-                            {n} étoile{n > 1 ? 's' : ''}
+                            {t('productDetail.reviews.option', { count: n })}
                           </option>
                         ))}
                       </select>
                     </label>
                     <button className="btn secondary" onClick={handleRatingSubmit}>
-                      Noter
+                      {t('productDetail.reviews.submit')}
                     </button>
                   </div>
                 </div>
 
                 <div className="reviews-list">
-                  <h3>Avis clients</h3>
+                  <h3>{t('productDetail.reviews.listTitle')}</h3>
                   {reviews.length > 0 ? (
                     reviews.map((review, idx) => (
                       <div key={idx} className="review-item">
                         <div className="review-header">
                           <div className="reviewer-info">
-                            <strong>{review.users?.email || 'Anonyme'}</strong>
+                            <strong>{review.users?.email || t('productDetail.reviews.anonymous')}</strong>
                             <div className="stars">{renderStars(review.rating)}</div>
                           </div>
                           <span className="review-date">
-                            {new Date(review.created_at).toLocaleDateString('fr-FR')}
+                            {new Date(review.created_at).toLocaleDateString(locale)}
                           </span>
                         </div>
                         {review.comment && <p className="review-comment">{review.comment}</p>}
                       </div>
                     ))
                   ) : (
-                    <p className="no-reviews">Aucun avis pour le moment. / Noch keine Bewertungen.</p>
+                    <p className="no-reviews">{t('productDetail.reviews.noReviews')}</p>
                   )}
                 </div>
               </div>
@@ -546,19 +549,19 @@ export default function ItemDetail() {
           {activeTab === 'delivery' && (
             <div className="tab-panel">
               <div className="delivery-info">
-              <h3>Informations de livraison / Lieferinfos</h3>
+              <h3>{t('productDetail.deliveryInfo.title')}</h3>
                 <div className="delivery-options">
                   <div className="delivery-option">
-                    <strong>Livraison standard</strong>
-                    <p>3-5 jours ouvrés - Gratuite dès 50€</p>
+                    <strong>{t('productDetail.deliveryInfo.standard.title')}</strong>
+                    <p>{t('productDetail.deliveryInfo.standard.text')}</p>
                   </div>
                   <div className="delivery-option">
-                    <strong>Livraison express</strong>
-                    <p>1-2 jours ouvrés - 9,99€</p>
+                    <strong>{t('productDetail.deliveryInfo.express.title')}</strong>
+                    <p>{t('productDetail.deliveryInfo.express.text')}</p>
                   </div>
                   <div className="delivery-option">
-                    <strong>Point relais</strong>
-                    <p>3-4 jours ouvrés - 3,99€</p>
+                    <strong>{t('productDetail.deliveryInfo.pickup.title')}</strong>
+                    <p>{t('productDetail.deliveryInfo.pickup.text')}</p>
                   </div>
                 </div>
               </div>
@@ -570,7 +573,7 @@ export default function ItemDetail() {
       {/* Produits similaires */}
       {relatedItems.length > 0 && (
         <div className="related-products">
-          <h2>Produits similaires / Ähnliche Produkte</h2>
+          <h2>{t('productDetail.related.title')}</h2>
           <div className="related-grid">
             {relatedItems.map(relatedItem => (
               <div key={relatedItem.id} className="related-item">
@@ -588,7 +591,7 @@ export default function ItemDetail() {
                     className="btn small"
                     onClick={() => navigate(`/item/${relatedItem.id}`)}
                   >
-                    Voir le produit
+                    {t('productDetail.related.cta')}
                   </button>
                 </div>
               </div>

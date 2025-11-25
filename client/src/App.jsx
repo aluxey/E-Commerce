@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { CartProvider } from "./context/CartContext";
+import { useTranslation } from "react-i18next";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
@@ -28,10 +29,12 @@ const MyOrders = lazy(() => import("./pages/MyOrders"));
 import './styles/global.css';
 
 function App() {
+  const { t } = useTranslation();
+
   return (
     <CartProvider>
       <Navbar />
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>{t('status.loading')}</div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<AuthForm />} />

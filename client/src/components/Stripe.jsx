@@ -4,6 +4,7 @@ import { useState, useEffect, useContext, useCallback } from 'react';
 import { CartContext } from '../context/CartContext'; // Correction du chemin
 import { useAuth } from '../context/AuthContext'; // Correction du chemin
 import CheckoutForm from './CheckoutForm';
+import { useTranslation } from 'react-i18next';
 
 import '../styles/Stripe.css';
 // Initialize Stripe (utilise ta clé publique)
@@ -15,6 +16,7 @@ const StripeCheckout = () => {
   const [error, setError] = useState(null);
   const { cart, clearCart } = useContext(CartContext);
   const { userData, session } = useAuth();
+  const { t } = useTranslation();
 
   // Calculer le total du panier
   const calculateTotal = useCallback(() => {
@@ -32,7 +34,7 @@ const StripeCheckout = () => {
       const total = calculateTotal();
 
       if (total <= 0) {
-        setError('Le panier est vide');
+        setError(t('cart.emptyTitle'));
         setLoading(false);
         return;
       }
@@ -65,7 +67,7 @@ const StripeCheckout = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la création du paiement');
+        throw new Error(errorData.error || t('checkout.paymentError'));
       }
 
       const data = await response.json();
@@ -76,7 +78,7 @@ const StripeCheckout = () => {
     } finally {
       setLoading(false);
     }
-  }, [cart, session, userData, calculateTotal]);
+  }, [cart, session, t, userData, calculateTotal]);
 
   useEffect(() => {
     if (cart.length > 0 && session) {
@@ -104,7 +106,7 @@ const StripeCheckout = () => {
     return (
       <div className="stripe-loading">
         <div className="loading-spinner"></div>
-        <p>Préparation du paiement...</p>
+        <p>{t('stripe.preparing')}</p>
       </div>
     );
   }
@@ -112,9 +114,9 @@ const StripeCheckout = () => {
   if (error) {
     return (
       <div className="stripe-error">
-        <p>Erreur: {error}</p>
+        <p>{t('stripe.error')}: {error}</p>
         <button onClick={createPaymentIntent} className="retry-btn">
-          Réessayer
+          {t('stripe.retry')}
         </button>
       </div>
     );
@@ -124,18 +126,18 @@ const StripeCheckout = () => {
     return (
       <div className="stripe-waiting">
         <div className="loading-spinner"></div>
-        <p>Initialisation du paiement...</p>
+        <p>{t('stripe.initializing')}</p>
       </div>
     );
   }
 
   return (
     <div className="stripe-checkout">
-      <h2>Finaliser votre commande</h2>
+      <h2>{t('stripe.title')}</h2>
 
       {/* Résumé de la commande */}
       <div className="order-summary">
-        <h3>Résumé de votre commande</h3>
+        <h3>{t('stripe.summary')}</h3>
         {cart.map(item => {
           const unit = Number(item.unit_price) || 0;
           return (
@@ -143,7 +145,7 @@ const StripeCheckout = () => {
               <div className="order-item-main">
                 <span className="item-name">{item.name}</span>
                 <span className="item-variant">
-                  Taille: {item.size || '—'} | Couleur: {item.color || '—'}
+                  {t('stripe.size')}: {item.size || '—'} | {t('stripe.color')}: {item.color || '—'}
                 </span>
               </div>
               <span className="item-quantity">{item.quantity}x</span>
@@ -152,7 +154,7 @@ const StripeCheckout = () => {
           );
         })}
         <div className="order-total">
-          <strong>Total: {calculateTotal().toFixed(2)}€</strong>
+          <strong>{t('stripe.total', { total: calculateTotal().toFixed(2) })}</strong>
         </div>
       </div>
 

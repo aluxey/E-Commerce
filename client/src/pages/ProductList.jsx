@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import ItemCard from '../components/ItemCard';
 import ProductFilters from '../components/ProductFilters';
@@ -6,6 +6,7 @@ import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
 import { listColors } from '../services/adminColors';
 import { fetchCategories, fetchItemRatings, fetchItemsWithRelations } from '../services/items';
 import '../styles/ProductList.css';
+import { useTranslation } from 'react-i18next';
 
 export default function ProductList() {
   const location = useLocation();
@@ -14,7 +15,7 @@ export default function ProductList() {
   const [categories, setCategories] = useState([]);
   const [colors, setColors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(false);
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,11 +30,12 @@ export default function ProductList() {
   // Ratings Data
   const [avgRatings, setAvgRatings] = useState({});
   const [reviewCounts, setReviewCounts] = useState({});
+  const { t } = useTranslation();
 
   // Load initial data
   const loadData = async () => {
     setIsLoading(true);
-    setError(null);
+    setError(false);
 
     try {
       const [itemsResp, categoriesResp, colorsResp] = await Promise.all([
@@ -76,7 +78,7 @@ export default function ProductList() {
       }
     } catch (err) {
       console.error(err);
-      setError('Impossible de charger les produits. Veuillez réessayer plus tard.');
+      setError(true);
     } finally {
       setIsLoading(false);
     }
@@ -113,6 +115,11 @@ export default function ProductList() {
     return { byId, children };
   }, [categories]);
 
+  const translateCategoryName = useCallback(cat => {
+    const key = (cat?.slug || cat?.name || '').replace(/[^a-zA-Z0-9_-]/g, '_');
+    return t(`categoryNames.${key}`, { defaultValue: cat?.name || '' });
+  }, [t]);
+
   const listDescendants = (id) => {
     const stack = [Number(id)];
     const collected = [];
@@ -130,7 +137,9 @@ export default function ProductList() {
   const formatCategoryPath = (cat) => {
     if (!cat) return '';
     const parent = cat.parent_id ? categoryMeta.byId.get(cat.parent_id) : null;
-    return parent ? `${parent.name} › ${cat.name}` : cat.name;
+    const name = translateCategoryName(cat);
+    const parentName = parent ? translateCategoryName(parent) : null;
+    return parentName ? `${parentName} › ${name}` : name;
   };
 
   // Filtering Logic
@@ -198,7 +207,7 @@ export default function ProductList() {
   };
 
   if (isLoading) return <div className="page-loading"><LoadingMessage /></div>;
-  if (error) return <div className="page-error"><ErrorMessage message={error} onRetry={loadData} /></div>;
+  if (error) return <div className="page-error"><ErrorMessage message={t('status.error')} onRetry={loadData} /></div>;
 
   return (
     <div className="product-list-page">
@@ -226,10 +235,10 @@ export default function ProductList() {
                 className="mobile-filter-btn"
                 onClick={() => setIsFiltersOpen(true)}
               >
-                Filtres / Filter
+                {t('productList.filtersButton')}
               </button>
               <span className="result-count">
-                {filteredItems.length} produit{filteredItems.length !== 1 ? 's' : ''}
+                {t('productList.resultCount', { count: filteredItems.length })}
               </span>
             </div>
 
@@ -237,7 +246,7 @@ export default function ProductList() {
               <div className="search-box">
                 <input
                   type="text"
-                  placeholder="Rechercher..."
+                  placeholder={t('productList.searchPlaceholder')}
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
@@ -249,9 +258,9 @@ export default function ProductList() {
                 onChange={e => setSortBy(e.target.value)}
                 className="sort-select"
               >
-                <option value="name">Nom (A-Z)</option>
-                <option value="price">Prix croissant</option>
-                <option value="price-desc">Prix décroissant</option>
+                <option value="name">{t('productList.sortName')}</option>
+                <option value="price">{t('productList.sortPrice')}</option>
+                <option value="price-desc">{t('productList.sortPriceDesc')}</option>
               </select>
             </div>
           </div>
@@ -271,10 +280,10 @@ export default function ProductList() {
           ) : (
             <div className="no-results">
               <div className="icon">📦</div>
-              <h3>Aucun résultat</h3>
-              <p>Essayez de modifier vos filtres</p>
+              <h3>{t('productList.noResultsTitle')}</h3>
+              <p>{t('productList.noResultsText')}</p>
               <button onClick={handleClearFilters} className="btn primary">
-                Tout effacer
+                {t('productList.clearAll')}
               </button>
             </div>
           )}

@@ -4,17 +4,20 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabase/supabaseClient';
 import '../styles/adminForms.css';
 import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
+import { useTranslation } from 'react-i18next';
 
 export default function MyOrders() {
   const { session } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(false);
+  const { t, i18n } = useTranslation();
+  const locale = useMemo(() => (i18n.language === 'fr' ? 'fr-FR' : 'de-DE'), [i18n.language]);
 
   const fetchOrders = useCallback(async () => {
     if (!session?.user?.id) return;
     setLoading(true);
-    setError('');
+    setError(false);
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -42,11 +45,11 @@ export default function MyOrders() {
       setOrders(data || []);
     } catch (e) {
       console.error('[MyOrders] load error:', e);
-      setError("Impossible de charger vos commandes.");
+      setError(true);
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id]);
+  }, [session?.user?.id, t]);
 
   useEffect(() => {
     fetchOrders();
@@ -55,41 +58,41 @@ export default function MyOrders() {
   const statusMap = useMemo(
     () => ({
       pending: {
-        label: 'En attente',
+        label: t('orders.statuses.pending'),
         color: 'var(--color-warning)',
         text: 'var(--color-surface)',
       },
       paid: {
-        label: 'Payée',
+        label: t('orders.statuses.paid'),
         color: 'var(--color-success)',
         text: 'var(--color-surface)',
       },
       shipped: {
-        label: 'Expédiée',
+        label: t('orders.statuses.shipped'),
         color: 'var(--color-accent)',
         text: 'var(--color-surface)',
       },
       refunded: {
-        label: 'Remboursée',
+        label: t('orders.statuses.refunded'),
         color: 'var(--color-complementary)',
         text: 'var(--color-text-primary)',
       },
       canceled: {
-        label: 'Annulée',
+        label: t('orders.statuses.canceled'),
         color: 'var(--color-error)',
         text: 'var(--color-surface)',
       },
       failed: {
-        label: 'Échec',
+        label: t('orders.statuses.failed'),
         color: 'color-mix(in oklab, var(--color-error) 78%, black 12%)',
         text: 'var(--color-surface)',
       },
     }),
-    []
+    [t]
   );
 
   const formatDate = d =>
-    new Date(d).toLocaleDateString('fr-FR', {
+    new Date(d).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -110,24 +113,24 @@ export default function MyOrders() {
   if (!session) {
     return (
       <div className="orders-shell">
-        <h1>Mes commandes / Meine Bestellungen</h1>
-        <p>Veuillez vous connecter pour accéder à vos commandes. / Bitte einloggen.</p>
-        <Link className="btn btn-primary" to="/login">Se connecter / Anmelden</Link>
+        <h1>{t('orders.title')}</h1>
+        <p>{t('orders.loginPrompt')}</p>
+        <Link className="btn btn-primary" to="/login">{t('orders.login')}</Link>
       </div>
     );
   }
 
   return (
     <div className="orders-shell">
-      <h1>Mes commandes / Meine Bestellungen</h1>
+      <h1>{t('orders.title')}</h1>
       {loading ? (
-        <LoadingMessage message="Chargement... / Laden..." />
+        <LoadingMessage message={t('orders.loading')} />
       ) : error ? (
-        <ErrorMessage message={error} />
+        <ErrorMessage message={t('orders.loadError')} />
       ) : orders.length === 0 ? (
         <div className="order-card empty">
-          <p>Aucune commande pour le moment. / Keine Bestellungen.</p>
-          <Link to="/items" className="btn btn-primary">Voir les produits / Produkte ansehen</Link>
+          <p>{t('orders.empty')}</p>
+          <Link to="/items" className="btn btn-primary">{t('orders.viewProducts')}</Link>
         </div>
       ) : (
         <div className="orders-grid">
@@ -145,7 +148,7 @@ export default function MyOrders() {
               >
                 <div className="order-card__header">
                   <div>
-                    <strong>Commande #{order.id.slice(0, 8)}</strong>
+                    <strong>{t('orders.orderNumber', { id: order.id.slice(0, 8) })}</strong>
                     <div className="muted">{formatDate(order.created_at)}</div>
                   </div>
                   <div className="order-card__badge">
@@ -175,8 +178,8 @@ export default function MyOrders() {
                           ) : null}
                         </div>
                         <div className="order-item-body">
-                          <div className="order-item-title">{it.items?.name || 'Produit supprimé'}</div>
-                          <div className="muted">Qté / Menge: {it.quantity}</div>
+                          <div className="order-item-title">{it.items?.name || '—'}</div>
+                          <div className="muted">{t('orders.quantity', { count: it.quantity })}</div>
                         </div>
                         <div>{((Number(it.items?.price) || 0) * it.quantity).toFixed(2)} €</div>
                       </div>

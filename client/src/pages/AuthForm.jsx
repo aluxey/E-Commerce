@@ -4,11 +4,13 @@ import { supabase } from '../supabase/supabaseClient';
 import '../styles/Authform.css';
 import { fetchUserProfile } from '../services/auth';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function AuthForm({ onSuccess }) {
   const { authError } = useAuth();
+  const { t } = useTranslation();
   const [form, setForm] = useState({ email: '', password: '' });
   const [touched, setTouched] = useState({ email: false, password: false });
   const [loading, setLoading] = useState(false);
@@ -42,9 +44,9 @@ export default function AuthForm({ onSuccess }) {
     if (/[a-z]/.test(pwd)) score++;
     if (/[0-9]/.test(pwd)) score++;
     if (/[^A-Za-z0-9]/.test(pwd)) score++;
-    const labels = ['Très faible', 'Faible', 'Moyen', 'Bon', 'Fort', 'Excellent'];
-    return { score, label: labels[score] || 'Très faible' };
-  }, [form.password]);
+    const labels = t('signup.passwordStrength', { returnObjects: true }) || [];
+    return { score, label: labels[score] || labels[0] || '' };
+  }, [form.password, t]);
 
   const normalizeEmail = email => email.trim().toLowerCase();
 
@@ -52,13 +54,13 @@ export default function AuthForm({ onSuccess }) {
     // Tu peux étendre selon les codes que tu observes
     if (!error) return '';
     if (error.message?.toLowerCase().includes('already registered')) {
-      return 'Cet email est déjà utilisé.';
+      return t('signup.errors.alreadyUsed');
     }
     if (error.message?.toLowerCase().includes('invalid email')) {
-      return "Format d'email invalide.";
+      return t('signup.errors.invalidEmail');
     }
     // fallback générique
-    return "Échec de l'inscription. Réessaie plus tard.";
+    return t('signup.errors.fallback');
   };
 
   const handleSignup = useCallback(
@@ -115,20 +117,20 @@ export default function AuthForm({ onSuccess }) {
         }
       } catch (err) {
         console.error('Signup unexpected error:', err);
-        setErrorMsg('Une erreur inattendue est survenue.');
+        setErrorMsg(t('signup.errors.unexpected'));
       } finally {
         setLoading(false);
       }
     },
-    [form, loading, canSubmit, onSuccess]
+    [form, loading, canSubmit, onSuccess, t]
   );
 
   return (
     <div className="auth-wrapper">
       <form className="auth-form" onSubmit={handleSignup} noValidate aria-describedby="form-error">
-        <h2>Inscription / Anmeldung</h2>
+        <h2>{t('signup.title')}</h2>
 
-        <label htmlFor="email">Adresse email / E-Mail-Adresse</label>
+        <label htmlFor="email">{t('signup.emailLabel')}</label>
         <input
           id="email"
           name="email"
@@ -142,14 +144,14 @@ export default function AuthForm({ onSuccess }) {
           aria-describedby={touched.email && !isEmailValid ? 'email-error' : undefined}
           autoComplete="email"
         />
-        <p className="muted" id="email-help">Nous ne partagerons jamais votre email. / Deine E-Mail bleibt privat.</p>
+        <p className="muted" id="email-help">{t('signup.emailHelp')}</p>
         {touched.email && !isEmailValid && (
         <p id="email-error" className="field-error" role="alert">
-          Format d'email invalide / Ungültige E-Mail.
+          {t('signup.errors.invalidEmail')}
           </p>
         )}
 
-        <label htmlFor="password">Mot de passe / Passwort</label>
+        <label htmlFor="password">{t('signup.passwordLabel')}</label>
         <div className="input-with-toggle">
           <input
             id="password"
@@ -168,15 +170,15 @@ export default function AuthForm({ onSuccess }) {
           <button
             type="button"
             className="password-toggle"
-            aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+            aria-label={showPassword ? t('signup.passwordToggleHide') : t('signup.passwordToggleShow')}
             onClick={togglePasswordVisibility}
           >
-            {showPassword ? 'Masquer / Verbergen' : 'Afficher / Anzeigen'}
+            {showPassword ? t('signup.passwordToggleHide') : t('signup.passwordToggleShow')}
           </button>
         </div>
         {touched.password && !isPasswordValid && (
           <p id="password-error" className="field-error" role="alert">
-            Le mot de passe doit contenir au moins 6 caractères. / Mindestens 6 Zeichen.
+            {t('signup.passwordError')}
           </p>
         )}
 
@@ -200,10 +202,10 @@ export default function AuthForm({ onSuccess }) {
           {loading ? (
             <>
               <span className="spinner" aria-hidden="true" />
-              <span className="sr-only">Chargement... / Laden...</span>
+              <span className="sr-only">{t('signup.submitting')}</span>
             </>
           ) : (
-            "S'inscrire / Registrieren"
+            t('signup.submit')
           )}
         </button>
 
@@ -216,8 +218,8 @@ export default function AuthForm({ onSuccess }) {
         </div>
 
         <p className="auth-switch">
-          Déjà un compte ? / Bereits registriert?{' '}
-          <a href="/login">Se connecter</a>
+          {t('signup.switchQuestion')}{' '}
+          <a href="/login">{t('signup.switchCta')}</a>
         </p>
       </form>
     </div>

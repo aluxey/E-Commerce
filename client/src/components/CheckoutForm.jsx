@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { PaymentElement, AddressElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const CheckoutForm = ({ onSuccess }) => {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const defaultCountry = i18n.language === 'fr' ? 'FR' : 'DE';
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -33,11 +37,13 @@ const CheckoutForm = ({ onSuccess }) => {
         if (error.type === 'card_error' || error.type === 'validation_error') {
           setMessage(error.message);
         } else {
-          setMessage('Une erreur inattendue est survenue.');
+          setMessage(t('checkout.unexpectedError'));
         }
+        setMessageType('error');
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         // Paiement réussi
-        setMessage('Paiement réussi ! Redirection...');
+        setMessage(t('checkout.successMessage'));
+        setMessageType('success');
         onSuccess?.();
 
         // Rediriger vers une page de confirmation
@@ -48,7 +54,8 @@ const CheckoutForm = ({ onSuccess }) => {
       }
     } catch (err) {
       console.error('Erreur lors du paiement:', err);
-      setMessage('Une erreur est survenue lors du paiement.');
+      setMessage(t('checkout.paymentError'));
+      setMessageType('error');
     } finally {
       setIsLoading(false);
     }
@@ -62,18 +69,18 @@ const CheckoutForm = ({ onSuccess }) => {
     <form id="payment-form" onSubmit={handleSubmit} className="checkout-form">
       {/* Adresse de livraison */}
       <div className="address-section">
-        <h4>Adresse de livraison</h4>
+        <h4>{t('checkout.shippingAddress')}</h4>
         <AddressElement
           options={{
             mode: 'shipping',
-            defaultCountry: 'FR',
+            defaultCountry,
           }}
         />
       </div>
 
       {/* Informations de paiement */}
       <div className="payment-section">
-        <h4>Informations de paiement</h4>
+        <h4>{t('checkout.paymentInfo')}</h4>
         <PaymentElement id="payment-element" options={paymentElementOptions} />
       </div>
 
@@ -84,7 +91,7 @@ const CheckoutForm = ({ onSuccess }) => {
         type="submit"
       >
         <span id="button-text">
-          {isLoading ? <div className="spinner" id="spinner"></div> : 'Payer maintenant'}
+          {isLoading ? <div className="spinner" id="spinner"></div> : t('checkout.payNow')}
         </span>
       </button>
 
@@ -92,7 +99,7 @@ const CheckoutForm = ({ onSuccess }) => {
       {message && (
         <div
           id="payment-message"
-          className={`payment-message ${message.includes('réussi') ? 'success' : 'error'}`}
+          className={`payment-message ${messageType === 'success' ? 'success' : 'error'}`}
         >
           {message}
         </div>

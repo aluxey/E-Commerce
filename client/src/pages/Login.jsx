@@ -5,25 +5,27 @@ import { supabase } from '../supabase/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Authform.css';
 import { fetchUserProfile } from '../services/auth';
+import { useTranslation } from 'react-i18next';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const mapSupabaseError = error => {
+const mapSupabaseError = (error, t) => {
   if (!error) return '';
   const msg = error.message?.toLowerCase();
   if (msg.includes('invalid login credentials') || msg.includes('invalid password')) {
-    return 'Email ou mot de passe incorrect.';
+    return t('login.errors.invalidCredentials');
   }
   if (msg.includes('user not found')) {
-    return 'Aucun compte associé à cet email.';
+    return t('login.errors.notFound');
   }
   // fallback générique
-  return 'Échec de la connexion. Réessaie plus tard.';
+  return t('login.errors.fallback');
 };
 
 export default function Login({ onSuccess }) {
   const { session, userData, authError } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [touched, setTouched] = useState({ email: false, password: false });
@@ -74,7 +76,7 @@ export default function Login({ onSuccess }) {
         });
 
         if (error) {
-          setErrorMsg(mapSupabaseError(error));
+          setErrorMsg(mapSupabaseError(error, t));
         } else {
           // Récupère le rôle pour rediriger
           let role = 'client';
@@ -88,20 +90,20 @@ export default function Login({ onSuccess }) {
         }
       } catch (err) {
         console.error('Login unexpected error:', err);
-        setErrorMsg('Une erreur inattendue est survenue.');
+        setErrorMsg(t('login.errors.unexpected'));
       } finally {
         setLoading(false);
       }
     },
-    [form, loading, canSubmit, navigate, onSuccess]
+    [form, loading, canSubmit, navigate, onSuccess, t]
   );
 
   return (
     <div className="login-container">
       <form className="login-form" onSubmit={handleLogin} noValidate aria-describedby="form-error">
-        <h2>Connexion / Anmelden</h2>
+        <h2>{t('login.title')}</h2>
 
-        <label htmlFor="email">Adresse email / E-Mail-Adresse</label>
+        <label htmlFor="email">{t('login.emailLabel')}</label>
         <input
           id="email"
           name="email"
@@ -117,11 +119,11 @@ export default function Login({ onSuccess }) {
         />
         {touched.email && !isEmailValid && (
           <p id="email-error" className="field-error">
-            Format d'email invalide / Ungültige E-Mail.
+            {t('login.invalidEmail')}
           </p>
         )}
 
-        <label htmlFor="password">Mot de passe / Passwort</label>
+        <label htmlFor="password">{t('login.passwordLabel')}</label>
         <input
           id="password"
           name="password"
@@ -137,7 +139,7 @@ export default function Login({ onSuccess }) {
         />
         {touched.password && !isPasswordValid && (
           <p id="password-error" className="field-error">
-            Le mot de passe ne peut pas être vide. / Passwort darf nicht leer sein.
+            {t('login.passwordRequired')}
           </p>
         )}
 
@@ -150,12 +152,12 @@ export default function Login({ onSuccess }) {
         </div>
 
         <button type="submit" disabled={!canSubmit}>
-          {loading ? 'Connexion... / Anmeldung...' : 'Se connecter / Anmelden'}
+          {loading ? t('login.submitting') : t('login.submit')}
         </button>
 
         <p className="auth-switch">
-          Pas encore de compte ? / Noch kein Konto?{' '}
-          <Link to="/signup#register">Créer un compte</Link>
+          {t('login.switchQuestion')}{' '}
+          <Link to="/signup#register">{t('login.switchCta')}</Link>
         </p>
       </form>
     </div>

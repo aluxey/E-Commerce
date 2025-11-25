@@ -1,47 +1,51 @@
+import { useTranslation } from "react-i18next";
 import '../styles/footer.css';
 
 export default function Footer() {
+  const { t } = useTranslation();
+  const year = new Date().getFullYear();
+
   return (
     <footer className="site-footer">
       <div className="footer-top">
         <div className="footer-section">
-          <h4>Boutique</h4>
+          <h4>{t('footer.shop')}</h4>
           <ul>
             <li>
-              <a href="/collections">Collections</a>
+              <a href="/collections">{t('footer.collections')}</a>
             </li>
             <li>
-              <a href="/nouveautes">Nouveautés</a>
+              <a href="/nouveautes">{t('footer.new')}</a>
             </li>
             <li>
-              <a href="/meilleures-ventes">Best Sellers</a>
+              <a href="/meilleures-ventes">{t('footer.best')}</a>
             </li>
           </ul>
         </div>
         <div className="footer-section">
-          <h4>À propos</h4>
+          <h4>{t('footer.about')}</h4>
           <ul>
             <li>
-              <a href="/qui-sommes-nous">Qui sommes-nous ?</a>
+              <a href="/qui-sommes-nous">{t('footer.who')}</a>
             </li>
             <li>
-              <a href="/notre-histoire">Notre histoire</a>
+              <a href="/notre-histoire">{t('footer.story')}</a>
             </li>
           </ul>
         </div>
         <div className="footer-section">
-          <h4>Support</h4>
+          <h4>{t('footer.support')}</h4>
           <ul>
             <li>
-              <a href="/faq">FAQ</a>
+              <a href="/faq">{t('footer.faq')}</a>
             </li>
             <li>
-              <a href="/livraison-retours">Livraison &amp; Retours</a>
+              <a href="/livraison-retours">{t('footer.shipping')}</a>
             </li>
           </ul>
         </div>
         <div className="footer-section">
-          <h4>Contact</h4>
+          <h4>{t('footer.contact')}</h4>
           <ul>
             <li>
               <a href="mailto:contact@sabbels-handmade.com">contact@sabbels-handmade.com</a>
@@ -52,40 +56,37 @@ export default function Footer() {
           </ul>
         </div>
         <div className="footer-newsletter">
-          <h4>Newsletter</h4>
+          <h4>{t('footer.newsletter')}</h4>
           <form onSubmit={e => e.preventDefault()}>
-            <input type="email" placeholder="Votre e-mail" required />
-            <button type="submit">OK</button>
+            <input type="email" placeholder={t('footer.emailPlaceholder')} required />
+            <button type="submit">{t('footer.submit')}</button>
           </form>
         </div>
       </div>
 
-      
-
-      <div className="footer-social" aria-label="Réseaux sociaux">
-        <a href="#" aria-label="Facebook (öffnet in neuem Tab)" className="social-icon" target="_blank" rel="noreferrer">
-          {/* Remplace par tes SVG ou icônes */}
+      <div className="footer-social" aria-label={t('footer.socialLabel')}>
+        <a href="#" aria-label={`${t('footer.socialLabel')} - Facebook`} className="social-icon" target="_blank" rel="noreferrer">
           <svg width="24" height="24">
-            {/* … */}
+            <title>Facebook</title>
           </svg>
         </a>
-        <a href="#" aria-label="Instagram (öffnet in neuem Tab)" className="social-icon" target="_blank" rel="noreferrer">
+        <a href="#" aria-label={`${t('footer.socialLabel')} - Instagram`} className="social-icon" target="_blank" rel="noreferrer">
           <svg width="24" height="24">
-            {/* … */}
+            <title>Instagram</title>
           </svg>
         </a>
-        <a href="#" aria-label="Pinterest (öffnet in neuem Tab)" className="social-icon" target="_blank" rel="noreferrer">
+        <a href="#" aria-label={`${t('footer.socialLabel')} - Pinterest`} className="social-icon" target="_blank" rel="noreferrer">
           <svg width="24" height="24">
-            {/* … */}
+            <title>Pinterest</title>
           </svg>
         </a>
       </div>
 
       <div className="footer-bottom">
-        <p>© {new Date().getFullYear()} Sabbels Handmade. Tous droits réservés. / Alle Rechte vorbehalten.</p>
+        <p>© {year} Sabbels Handmade. {t('footer.copyright')}</p>
         <p>
-          <a href="/cgv">CGV / AGB</a> • <a href="/politique-confidentialite">Privacy / Datenschutz</a> •{' '}
-          <a href="/mentions-legales">Mentions légales / Impressum</a>
+          <a href="/cgv">{t('footer.terms')}</a> • <a href="/politique-confidentialite">{t('footer.privacy')}</a> •{' '}
+          <a href="/mentions-legales">{t('footer.imprint')}</a>
         </p>
       </div>
     </footer>

@@ -2,6 +2,7 @@ import { ErrorMessage, LoadingMessage } from '@/components/StatusMessage';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { Link } from 'react-router-dom';
 import '../styles/Admin.css';
+import { useTranslation } from 'react-i18next';
 
 /* Widget KPI minimal (aucune dépendance, accessible) */
 const Widget = ({ title, value, delta, deltaType = 'neutral', icon }) => {
@@ -28,64 +29,65 @@ const Widget = ({ title, value, delta, deltaType = 'neutral', icon }) => {
 const AdminDashboard = () => {
   const stats = useAdminStats();
   const isLoading = stats.loading;
+  const { t } = useTranslation();
 
   const shortcuts = [
-    { to: '/admin/products', title: 'Produits', desc: 'Gérer le catalogue et les stocks', icon: '🧺' },
-    { to: '/admin/orders', title: 'Commandes', desc: 'Suivi des expéditions', icon: '📦' },
-    { to: '/admin/users', title: 'Clients', desc: 'Base de données utilisateurs', icon: '👥' },
-    { to: '/admin/colors', title: 'Couleurs', desc: 'Palette de couleurs', icon: '🎨' },
-    { to: '/admin/categories', title: 'Catégories', desc: 'Organisation du site', icon: '🗂️' },
-    { to: '/admin/variants', title: 'Variantes', desc: 'Gestion des déclinaisons', icon: '🎯' },
+    { to: '/admin/products', title: t('admin.dashboard.shortcuts.products.title'), desc: t('admin.dashboard.shortcuts.products.desc'), icon: '🧺' },
+    { to: '/admin/orders', title: t('admin.dashboard.shortcuts.orders.title'), desc: t('admin.dashboard.shortcuts.orders.desc'), icon: '📦' },
+    { to: '/admin/users', title: t('admin.dashboard.shortcuts.users.title'), desc: t('admin.dashboard.shortcuts.users.desc'), icon: '👥' },
+    { to: '/admin/colors', title: t('admin.dashboard.shortcuts.colors.title'), desc: t('admin.dashboard.shortcuts.colors.desc'), icon: '🎨' },
+    { to: '/admin/categories', title: t('admin.dashboard.shortcuts.categories.title'), desc: t('admin.dashboard.shortcuts.categories.desc'), icon: '🗂️' },
+    { to: '/admin/variants', title: t('admin.dashboard.shortcuts.variants.title'), desc: t('admin.dashboard.shortcuts.variants.desc'), icon: '🎯' },
   ];
 
   return (
     <div className="admin-page">
       <div className="admin-page__header">
         <div>
-          <span className="eyebrow">Vue d'ensemble</span>
-          <h1>Tableau de bord</h1>
+          <span className="eyebrow">{t('admin.dashboard.eyebrow')}</span>
+          <h1>{t('admin.dashboard.title')}</h1>
           <p className="admin-subtitle">
-            Bienvenue sur votre espace d'administration. Voici ce qu'il se passe aujourd'hui.
+            {t('admin.dashboard.subtitle')}
           </p>
         </div>
       </div>
 
       <section className="section">
-        {isLoading && <LoadingMessage message="Chargement des indicateurs..." />}
-        {stats.error && !isLoading && <ErrorMessage title="Erreur" message={stats.error} />}
+        {isLoading && <LoadingMessage message={t('admin.dashboard.loading')} />}
+        {stats.error && !isLoading && <ErrorMessage title={t('status.error')} message={stats.error} />}
 
         {!isLoading && !stats.error && (
           <div className="dashboard-widgets">
             <Widget
-              title="Chiffre d'affaires (30j)"
+              title={t('admin.dashboard.widgets.revenue')}
               value={stats.revenue}
               delta={stats.revenueDeltaPct ? `${stats.revenueDeltaPct > 0 ? '+' : ''}${stats.revenueDeltaPct}%` : null}
               deltaType={stats.revenueDeltaPct > 0 ? 'positive' : 'negative'}
               icon="💶"
             />
             <Widget
-              title="Commandes (30j)"
+              title={t('admin.dashboard.widgets.orders')}
               value={stats.orders}
               delta={stats.ordersDeltaPct ? `${stats.ordersDeltaPct > 0 ? '+' : ''}${stats.ordersDeltaPct}%` : null}
               deltaType={stats.ordersDeltaPct > 0 ? 'positive' : 'negative'}
               icon="🛒"
             />
             <Widget
-              title="Panier moyen"
+              title={t('admin.dashboard.widgets.avgOrder')}
               value={stats.avgOrder}
               icon="📊"
             />
             <Widget
-              title="À traiter"
+              title={t('admin.dashboard.widgets.pending')}
               value={stats.pendingOrders}
-              delta={stats.pendingOrders > 0 ? `${stats.pendingOrders} en attente` : 'Tout est à jour'}
+              delta={stats.pendingOrders > 0 ? t('admin.dashboard.widgets.pendingDelta', { count: stats.pendingOrders }) : t('admin.dashboard.widgets.pendingDone')}
               deltaType={stats.pendingOrders > 0 ? 'negative' : 'positive'}
               icon="⏳"
             />
           </div>
         )}
 
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontFamily: 'Cormorant Garamond, serif' }}>Accès Rapide</h2>
+        <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontFamily: 'Cormorant Garamond, serif' }}>{t('admin.dashboard.quickAccess')}</h2>
         <div className="admin-shortcuts">
           {shortcuts.map(card => (
             <Link key={card.to} to={card.to} className="shortcut-card">
@@ -93,7 +95,7 @@ const AdminDashboard = () => {
               <div>
                 <p className="shortcut-title">{card.title}</p>
                 <p className="shortcut-desc">{card.desc}</p>
-                <span className="shortcut-cta">Gérer →</span>
+                <span className="shortcut-cta">{t('admin.dashboard.manageCta')}</span>
               </div>
             </Link>
           ))}

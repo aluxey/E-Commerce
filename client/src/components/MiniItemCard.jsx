@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+import { useTranslation } from 'react-i18next';
 
 export default function MiniItemCard({ item }) {
   const { addItem } = useContext(CartContext);
@@ -8,6 +9,7 @@ export default function MiniItemCard({ item }) {
   const variants = item?.item_variants || [];
   const preferredVariant = variants.find(v => (v.stock ?? 0) > 0) || variants[0] || null;
   const displayPrice = item?.price != null ? Number(item.price) : preferredVariant?.price != null ? Number(preferredVariant.price) : 0;
+  const { t } = useTranslation();
 
   const handleAdd = e => {
     e.preventDefault();
@@ -21,7 +23,7 @@ export default function MiniItemCard({ item }) {
         {imageUrl ? (
           <img src={imageUrl} alt={item?.name || 'Produit'} />
         ) : (
-          <div className="mini-card__placeholder">Image indisponible</div>
+          <div className="mini-card__placeholder">{t('miniCard.imageUnavailable')}</div>
         )}
       </div>
       <div className="mini-card__body">
@@ -30,16 +32,16 @@ export default function MiniItemCard({ item }) {
           <div className="mini-card__price">{displayPrice.toFixed(2)} €</div>
         </div>
         <div className="mini-card__actions">
-          <Link to={`/item/${item?.id}`} className="btn btn-ghost" aria-label="Details anzeigen / Voir le détail">
-            Details / Détails
+          <Link to={`/item/${item?.id}`} className="btn btn-ghost" aria-label={t('miniCard.detailsAria')}>
+            {t('miniCard.details')}
           </Link>
           <button
             className="btn btn-primary"
             onClick={handleAdd}
-            aria-label="In den Warenkorb / Ajouter au panier"
+            aria-label={t('miniCard.addAria')}
             disabled={!preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0)}
           >
-            In den Warenkorb / Ajouter
+            {t('miniCard.add')}
           </button>
         </div>
       </div>

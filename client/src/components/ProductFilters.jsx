@@ -1,5 +1,6 @@
 import React from 'react';
 import '../styles/ProductFilters.css';
+import { useTranslation } from 'react-i18next';
 
 export default function ProductFilters({
   categories,
@@ -14,6 +15,11 @@ export default function ProductFilters({
   isOpen,
   onClose
 }) {
+  const { t } = useTranslation();
+  const translateCategoryName = React.useCallback(cat => {
+    const key = (cat?.slug || cat?.name || '').replace(/[^a-zA-Z0-9_-]/g, '_');
+    return t(`categoryNames.${key}`, { defaultValue: cat?.name || '' });
+  }, [t]);
   // Helper to render categories recursively
   const renderCategories = (cats, level = 0) => {
     return cats.map(cat => (
@@ -22,7 +28,7 @@ export default function ProductFilters({
           className={`filter-category-item level-${level} ${selectedCategory === String(cat.id) ? 'active' : ''}`}
           onClick={() => onCategoryChange(String(cat.id))}
         >
-          {cat.name}
+          {translateCategoryName(cat)}
         </div>
         {cat.children && cat.children.length > 0 && (
           <div className="filter-category-children">
@@ -65,28 +71,28 @@ export default function ProductFilters({
 
       <aside className={`product-filters ${isOpen ? 'open' : ''}`}>
         <div className="filter-header">
-          <h3>Filtres / Filter</h3>
-          <button className="close-filters-btn" onClick={onClose}>×</button>
+          <h3>{t('filters.title')}</h3>
+          <button className="close-filters-btn" onClick={onClose} aria-label={t('filters.close')}>×</button>
         </div>
 
         <div className="filter-section">
-          <h4>Catégories / Kategorien</h4>
+          <h4>{t('filters.categories')}</h4>
           <div className="filter-categories">
             <div
               className={`filter-category-item ${!selectedCategory ? 'active' : ''}`}
               onClick={() => onCategoryChange('')}
             >
-              Tout / Alle
+              {t('filters.all')}
             </div>
             {renderCategories(categoryTree)}
           </div>
         </div>
 
         <div className="filter-section">
-          <h4>Prix / Preis</h4>
+          <h4>{t('filters.price')}</h4>
           <div className="price-inputs">
             <div className="price-group">
-              <label>Min (€)</label>
+              <label>{t('filters.min')}</label>
               <input
                 type="number"
                 min="0"
@@ -96,7 +102,7 @@ export default function ProductFilters({
               />
             </div>
             <div className="price-group">
-              <label>Max (€)</label>
+              <label>{t('filters.max')}</label>
               <input
                 type="number"
                 min="0"
@@ -110,12 +116,12 @@ export default function ProductFilters({
 
         {colors && colors.length > 0 && (
           <div className="filter-section">
-            <h4>Couleurs / Farben</h4>
+            <h4>{t('filters.colors')}</h4>
             <div className="color-options">
               <button
                 className={`color-swatch all ${!selectedColor ? 'active' : ''}`}
                 onClick={() => onColorChange('')}
-                title="Toutes les couleurs"
+                title={t('filters.allColors')}
               >
                 <span className="swatch-inner"></span>
               </button>
@@ -138,7 +144,7 @@ export default function ProductFilters({
 
         <div className="filter-actions">
           <button className="btn secondary full-width" onClick={onClearFilters}>
-            Réinitialiser / Zurücksetzen
+            {t('filters.reset')}
           </button>
         </div>
       </aside>

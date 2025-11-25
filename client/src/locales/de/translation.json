@@ -1,0 +1,365 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "shop": "Shop",
+    "contact": "Kontakt",
+    "admin": "Admin",
+    "profile": "Profil",
+    "logout": "Abmelden",
+    "signup": "Registrieren",
+    "login": "Login",
+    "emailUs": "Schreib uns eine Mail",
+    "searchLabel": "Produkte durchsuchen",
+    "cartLabel": "Warenkorb öffnen",
+    "profileTitle": "Profil",
+    "menuToggle": "Navigation öffnen oder schließen",
+    "brandSubtitle": "Handgestricktes aus Schleswig",
+    "languageLabel": "Sprache",
+    "languageDe": "Deutsch",
+    "languageFr": "Französisch"
+  },
+  "footer": {
+    "shop": "Shop",
+    "collections": "Kollektionen",
+    "new": "Neuheiten",
+    "best": "Bestseller",
+    "about": "Über uns",
+    "who": "Wer wir sind",
+    "story": "Unsere Geschichte",
+    "support": "Support",
+    "faq": "FAQ",
+    "shipping": "Versand & Rücksendungen",
+    "contact": "Kontakt",
+    "newsletter": "Newsletter",
+    "emailPlaceholder": "Deine E-Mail",
+    "submit": "OK",
+    "socialLabel": "Social Media",
+    "copyright": "Alle Rechte vorbehalten.",
+    "terms": "AGB",
+    "privacy": "Datenschutz",
+    "imprint": "Impressum"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Warm. Handgemacht. Persönlich.",
+      "title": "Weiche Maschen für gemütliche Momente.",
+      "subtitle": "Körbe, Accessoires und Lieblingsstücke aus liebevoller Handarbeit – gefertigt in kleinen Auflagen und mit natürlichen Garnen.",
+      "ctaShop": "Kollektion ansehen",
+      "ctaCustom": "Individuelle Anfrage",
+      "floatingTitle": "Liebe zum Detail",
+      "floatingText": "Jedes Paket wird mit persönlicher Karte und nachhaltiger Verpackung verschickt.",
+      "badge": "Neue Farbtöne verfügbar"
+    },
+    "highlights": [
+      { "icon": "🤲", "title": "Kleine Auflagen", "text": "Jedes Stück ein Unikat" },
+      { "icon": "⏱️", "title": "Fix versandbereit", "text": "Innerhalb von 3–5 Werktagen" },
+      { "icon": "📦", "title": "Liebevoll verpackt", "text": "Versand mit Sendungsverfolgung" }
+    ],
+    "valueProps": [
+      { "icon": "🧶", "title": "Handgemacht", "text": "Mit Liebe gestrickt und gehäkelt in Schleswig-Holstein." },
+      { "icon": "🎨", "title": "Wunschfarben", "text": "Passe Farben und Größen unkompliziert an deine Einrichtung an." },
+      { "icon": "🌿", "title": "Natürliche Garne", "text": "Wir nutzen weiche, langlebige Materialien ohne Kompromisse." },
+      { "icon": "💌", "title": "Persönlich", "text": "Direkter Kontakt und Updates bis dein Lieblingsstück ankommt." }
+    ],
+    "categories": {
+      "eyebrow": "Kategorien",
+      "title": "Finde dein Lieblingsstück",
+      "subtitle": "Wähle die Kategorie, die zu deinem Zuhause oder Anlass passt.",
+      "viewAll": "Alle Produkte ansehen",
+      "cards": [
+        { "name": "Wohntextilien", "blurb": "Körbe, Ordnungshilfen und gemütliche Akzente.", "link": "/items?category=Home" },
+        { "name": "Kids & Baby", "blurb": "Sanfte Garne für die Kleinsten – sicher und kuschelig.", "link": "/items?category=Kids" },
+        { "name": "Accessoires", "blurb": "Kleine Lieblingsstücke für jeden Tag.", "link": "/items?category=Accessories" }
+      ],
+      "cta": "Jetzt entdecken"
+    },
+    "new": {
+      "eyebrow": "Neu im Shop",
+      "title": "Frisch von der Nadel",
+      "subtitle": "Neue Farben, neue Formen – direkt aus dem Atelier.",
+      "viewAll": "Alle Neuheiten",
+      "empty": "Noch keine Neuheiten verfügbar."
+    },
+    "story": {
+      "eyebrow": "Die Geschichte",
+      "title": "Von der ersten Masche bis zu deinem Paket.",
+      "paragraph1": "Ich bin Sabbel – Makerin, Garnliebhaberin und Detailverliebte. Was als Abendprojekt begann, ist heute ein kleines Label, das Wärme und Ruhe in den Alltag bringt.",
+      "paragraph2": "Meine Stücke entstehen in ruhiger Handarbeit, mit Fokus auf langlebige Materialien und eine moderne, nordische Ästhetik.",
+      "pills": ["Kleine Auflagen", "Individuell anpassbar", "Nachhaltig verpackt"],
+      "ctaShop": "Kollektion entdecken",
+      "ctaContact": "Kontakt aufnehmen",
+      "noteTitle": "Handmade Studio",
+      "noteText": "Jede Bestellung wird in kleinen Serien gefertigt und von Hand geprüft."
+    },
+    "bestsellers": {
+      "eyebrow": "Bestseller",
+      "title": "Lieblinge unserer Kund:innen",
+      "subtitle": "Bewährte Klassiker, die besonders oft bestellt werden.",
+      "viewAll": "Alle Bestseller",
+      "empty": "Bald findest du hier unsere Bestseller."
+    },
+    "newsletter": {
+      "eyebrow": "Newsletter",
+      "title": "Bleib auf dem Laufenden",
+      "text": "Einmal im Monat erhältst du News zu neuen Farben, limitierten Drops und kleinen Einblicken in das Atelier.",
+      "placeholder": "Deine E-Mail Adresse",
+      "submit": "Anmelden"
+    },
+    "loadError": "Die Startseite konnte nicht geladen werden. Bitte versuche es erneut."
+  },
+  "productList": {
+    "filtersButton": "Filter",
+    "resultCount": "{{count}} Produkt",
+    "resultCount_plural": "{{count}} Produkte",
+    "searchPlaceholder": "Suchen...",
+    "sortName": "Name (A–Z)",
+    "sortPrice": "Preis aufsteigend",
+    "sortPriceDesc": "Preis absteigend",
+    "noResultsTitle": "Keine Ergebnisse",
+    "noResultsText": "Passe deine Filter an",
+    "clearAll": "Alles zurücksetzen"
+  },
+  "filters": {
+    "title": "Filter",
+    "categories": "Kategorien",
+    "all": "Alle",
+    "price": "Preis",
+    "min": "Min (€)",
+    "max": "Max (€)",
+    "colors": "Farben",
+    "reset": "Zurücksetzen",
+    "close": "Schließen",
+    "allColors": "Alle Farben"
+  },
+  "itemCard": {
+    "imageUnavailable": "Bild nicht verfügbar",
+    "quickAdd": "In den Warenkorb",
+    "ratingLabel": "Durchschnittliche Bewertung {{rating}} von 5"
+  },
+  "miniCard": {
+    "imageUnavailable": "Bild nicht verfügbar",
+    "details": "Details",
+    "detailsAria": "Details ansehen",
+    "add": "In den Warenkorb",
+    "addAria": "Zum Warenkorb hinzufügen"
+  },
+  "categoryNames": {
+    "Home": "Wohntextilien",
+    "Kids": "Kids & Baby",
+    "Accessories": "Accessoires"
+  },
+  "status": {
+    "loading": "Laden...",
+    "error": "Ein Fehler ist aufgetreten",
+    "retry": "Erneut versuchen"
+  },
+  "productDetail": {
+    "loading": "Produkt wird geladen...",
+    "unavailableTitle": "Produkt nicht verfügbar",
+    "unavailableMessage": "Das Produkt ist nicht verfügbar oder vorübergehend offline.",
+    "notFoundTitle": "Produkt nicht gefunden",
+    "notificationAdded": "Zum Warenkorb hinzugefügt",
+    "imageUnavailable": "Bild nicht verfügbar",
+    "ratingSummary": "{{rating}} ({{count}} Bewertung)",
+    "ratingSummary_plural": "{{rating}} ({{count}} Bewertungen)",
+    "outOfStock": "Ausverkauft",
+    "stock": "Bestand: {{count}}",
+    "delivery": "Lieferung {{date}}",
+    "size": "Größe",
+    "color": "Farbe",
+    "oneSize": "Einheitsgröße",
+    "soldOut": "ausverkauft",
+    "notCompatible": "nicht verfügbar",
+    "quantity": "Menge",
+    "adding": "Wird hinzugefügt...",
+    "addToCart": "In den Warenkorb",
+    "tabs": { "details": "Details", "reviews": "Bewertungen", "delivery": "Lieferung" },
+    "meta": { "category": "Kategorie", "reference": "Referenz", "material": "Material", "care": "Pflege" },
+    "materialText": "100% Bio-Baumwolle",
+    "careText": "Maschinenwäsche bei 30°C",
+    "reviews": {
+      "title": "Bewertung abgeben",
+      "label": "Deine Bewertung",
+      "placeholder": "Auswählen...",
+      "option": "{{count}} Stern",
+      "option_plural": "{{count}} Sterne",
+      "submit": "Bewerten",
+      "listTitle": "Kundenstimmen",
+      "noReviews": "Noch keine Bewertungen.",
+      "anonymous": "Anonym"
+    },
+    "deliveryInfo": {
+      "title": "Lieferinformationen",
+      "standard": { "title": "Standardversand", "text": "3-5 Werktage - Kostenlos ab 50€" },
+      "express": { "title": "Expressversand", "text": "1-2 Werktage - 9,99€" },
+      "pickup": { "title": "Paketshop", "text": "3-4 Werktage - 3,99€" }
+    },
+    "related": { "title": "Ähnliche Produkte", "cta": "Produkt ansehen" },
+    "errors": {
+      "load": "Das Produkt ist nicht verfügbar oder vorübergehend offline."
+    }
+  },
+  "cart": {
+    "emptyTitle": "Dein Warenkorb ist leer",
+    "emptyCta": "Weiter einkaufen",
+    "title": "Mein Warenkorb",
+    "size": "Größe",
+    "color": "Farbe",
+    "stock": "Bestand: {{count}}",
+    "remove": "Entfernen",
+    "quantityDecrease": "Menge verringern",
+    "quantityIncrease": "Menge erhöhen",
+    "itemTotal": "Zwischensumme",
+    "total": "Gesamt: {{total}}€",
+    "checkout": "Zur Kasse",
+    "loginPrompt": "Bitte anmelden, um zu bezahlen",
+    "login": "Anmelden",
+    "continueShopping": "Weiter einkaufen"
+  },
+  "payment": {
+    "verifying": "Zahlung wird geprüft...",
+    "successTitle": "Zahlung erfolgreich!",
+    "successText": "Vielen Dank für deine Bestellung. Eine Bestätigung folgt per E-Mail.",
+    "transaction": "Transaktionsnummer: {{id}}",
+    "backHome": "Zur Startseite",
+    "processingTitle": "Zahlung wird verarbeitet",
+    "processingText": "Deine Zahlung wird verarbeitet. Wir senden dir eine Bestätigung, sobald sie abgeschlossen ist.",
+    "errorTitle": "Zahlungsfehler",
+    "errorText": "Beim Bezahlen ist ein Fehler aufgetreten. Bitte versuche es erneut.",
+    "backToCart": "Zurück zum Warenkorb"
+  },
+  "checkout": {
+    "shippingAddress": "Lieferadresse",
+    "paymentInfo": "Zahlungsinformationen",
+    "payNow": "Jetzt bezahlen",
+    "successMessage": "Zahlung erfolgreich! Weiterleitung...",
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+    "paymentError": "Beim Bezahlen ist ein Fehler aufgetreten."
+  },
+  "stripe": {
+    "preparing": "Zahlung wird vorbereitet...",
+    "error": "Fehler",
+    "retry": "Erneut versuchen",
+    "initializing": "Zahlung wird initialisiert...",
+    "title": "Bestellung abschließen",
+    "summary": "Deine Bestellung",
+    "size": "Größe",
+    "color": "Farbe",
+    "total": "Gesamt: {{total}}€"
+  },
+  "login": {
+    "title": "Anmelden",
+    "emailLabel": "E-Mail-Adresse",
+    "passwordLabel": "Passwort",
+    "invalidEmail": "Ungültige E-Mail-Adresse.",
+    "passwordRequired": "Passwort darf nicht leer sein.",
+    "submitting": "Anmeldung...",
+    "submit": "Anmelden",
+    "switchQuestion": "Noch kein Konto?",
+    "switchCta": "Konto erstellen",
+    "errors": {
+      "invalidCredentials": "E-Mail oder Passwort ist falsch.",
+      "notFound": "Kein Konto mit dieser E-Mail gefunden.",
+      "fallback": "Anmeldung fehlgeschlagen. Bitte später erneut versuchen.",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten."
+    }
+  },
+  "signup": {
+    "title": "Registrieren",
+    "emailLabel": "E-Mail-Adresse",
+    "passwordLabel": "Passwort",
+    "emailHelp": "Wir teilen deine E-Mail nie mit Dritten.",
+    "passwordToggleShow": "Passwort anzeigen",
+    "passwordToggleHide": "Passwort verbergen",
+    "passwordError": "Das Passwort muss mindestens 6 Zeichen enthalten.",
+    "passwordStrength": ["Sehr schwach", "Schwach", "Mittel", "Gut", "Stark", "Sehr stark"],
+    "submit": "Registrieren",
+    "submitting": "Wird geladen...",
+    "switchQuestion": "Bereits registriert?",
+    "switchCta": "Anmelden",
+    "errors": {
+      "alreadyUsed": "Diese E-Mail wird bereits verwendet.",
+      "invalidEmail": "Ungültiges E-Mail-Format.",
+      "fallback": "Registrierung fehlgeschlagen. Bitte später erneut versuchen.",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten."
+    }
+  },
+  "orders": {
+    "title": "Meine Bestellungen",
+    "loginPrompt": "Bitte einloggen, um deine Bestellungen zu sehen.",
+    "login": "Anmelden",
+    "loading": "Laden...",
+    "empty": "Noch keine Bestellungen.",
+    "viewProducts": "Produkte ansehen",
+    "orderNumber": "Bestellung #{{id}}",
+    "quantity": "Menge: {{count}}",
+    "statuses": {
+      "pending": "Ausstehend",
+      "paid": "Bezahlt",
+      "shipped": "Versendet",
+      "refunded": "Erstattet",
+      "canceled": "Storniert",
+      "failed": "Fehlgeschlagen"
+    },
+    "loadError": "Bestellungen konnten nicht geladen werden."
+  },
+  "admin": {
+    "dashboard": {
+      "eyebrow": "Überblick",
+      "title": "Dashboard",
+      "subtitle": "Willkommen im Admin-Bereich. Hier siehst du, was heute passiert.",
+      "loading": "Kennzahlen werden geladen...",
+      "widgets": {
+        "revenue": "Umsatz (30T)",
+        "orders": "Bestellungen (30T)",
+        "avgOrder": "Warenkorb Ø",
+        "pending": "Zu bearbeiten",
+        "pendingDelta": "{{count}} offen",
+        "pendingDone": "Alles erledigt"
+      },
+      "quickAccess": "Schnellzugriff",
+      "manageCta": "Verwalten →",
+      "shortcuts": {
+        "products": { "title": "Produkte", "desc": "Katalog und Lagerbestand" },
+        "orders": { "title": "Bestellungen", "desc": "Versand nachverfolgen" },
+        "users": { "title": "Kunden", "desc": "Nutzerverwaltung" },
+        "colors": { "title": "Farben", "desc": "Farbpalette pflegen" },
+        "categories": { "title": "Kategorien", "desc": "Struktur der Website" },
+        "variants": { "title": "Varianten", "desc": "Ausführungen verwalten" }
+      }
+    }
+    ,
+    "nav": {
+      "label": "Admin Navigation",
+      "brand": "Sabbels Admin",
+      "overview": "Übersicht",
+      "products": "Produkte",
+      "variants": "Varianten",
+      "colors": "Farben",
+      "categories": "Kategorien",
+      "orders": "Bestellungen",
+      "users": "Benutzer"
+    }
+  },
+  "profile": {
+    "eyebrow": "Profil",
+    "welcome": "Willkommen bei Sabbels Handmade",
+    "leadLoggedOut": "Melde dich an, um deine Bestellungen zu sehen und Lieblingsstücke zu speichern.",
+    "login": "Login",
+    "signup": "Konto erstellen",
+    "hello": "Hallo {{name}}",
+    "lead": "Verwalte dein Konto, prüfe Bestellungen und gönn dir neue handgemachte Stücke.",
+    "memberSince": "Mitglied seit {{date}}",
+    "role": "Rolle: {{role}}",
+    "account": "Kontodaten",
+    "email": "E-Mail",
+    "username": "Benutzername",
+    "fullName": "Name",
+    "actions": "Aktionen",
+    "orders": "Meine Bestellungen",
+    "collection": "Zur Kollektion",
+    "viewCart": "Warenkorb ansehen",
+    "shop": "Shop entdecken",
+    "roleLabel": "Rolle"
+  }
+}

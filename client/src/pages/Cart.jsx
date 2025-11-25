@@ -2,12 +2,14 @@ import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 import '../styles/cart.css';
 
 const Cart = () => {
   const { cart, removeItem, decreaseItem, addItem } = useContext(CartContext);
   const { session } = useAuth();
+  const { t } = useTranslation();
 
   const calculateTotal = () => {
     return cart.reduce((total, item) => {
@@ -18,9 +20,9 @@ const Cart = () => {
   if (cart.length === 0) {
     return (
       <div className="cart-empty">
-        <h2>Votre panier est vide / Dein Warenkorb ist leer</h2>
+        <h2>{t('cart.emptyTitle')}</h2>
         <Link to="/items" className="btn-shop">
-          Continuer mes achats / Weiter einkaufen
+          {t('cart.emptyCta')}
         </Link>
       </div>
     );
@@ -28,7 +30,7 @@ const Cart = () => {
 
   return (
     <div className="cart-page">
-      <h1>Mon Panier / Mein Warenkorb</h1>
+      <h1>{t('cart.title')}</h1>
 
       <div className="cart-items">
         {cart.map(item => {
@@ -45,20 +47,20 @@ const Cart = () => {
               <h3>{item.name}</h3>
               <p>{unitPrice.toFixed(2)}€</p>
               <p>
-                Taille: {item.size || '—'} | Couleur: {item.color || '—'}
+                {t('cart.size')}: {item.size || '—'} | {t('cart.color')}: {item.color || '—'}
               </p>
-              {stock != null && <p className="item-stock">Stock: {stock}</p>}
+              {stock != null && <p className="item-stock">{t('cart.stock', { count: stock })}</p>}
             </div>
             <div className="quantity-controls">
-              <button onClick={() => decreaseItem(item)} aria-label="Réduire la quantité / Menge verringern">-</button>
+              <button onClick={() => decreaseItem(item)} aria-label={t('cart.quantityDecrease')}>-</button>
               <span>{item.quantity}</span>
-              <button onClick={() => addItem(item)} disabled={cannotIncrease} aria-label="Augmenter la quantité / Menge erhöhen">
+              <button onClick={() => addItem(item)} disabled={cannotIncrease} aria-label={t('cart.quantityIncrease')}>
                 +
               </button>
             </div>
             <div className="item-total">{(unitPrice * item.quantity).toFixed(2)}€</div>
-            <button onClick={() => removeItem(item)} className="remove-btn" aria-label="Supprimer l'article / Artikel entfernen">
-              Supprimer / Entfernen
+            <button onClick={() => removeItem(item)} className="remove-btn" aria-label={t('cart.remove')}>
+              {t('cart.remove')}
             </button>
             </div>
           );
@@ -67,18 +69,18 @@ const Cart = () => {
 
       <div className="cart-summary">
         <div className="total">
-          <strong>Total: {calculateTotal().toFixed(2)}€</strong>
+          <strong>{t('cart.total', { total: calculateTotal().toFixed(2) })}</strong>
         </div>
 
         {session ? (
           <Link to="/checkout" className="checkout-btn">
-            Procéder au paiement / Zur Kasse
+            {t('cart.checkout')}
           </Link>
         ) : (
           <div className="auth-required">
-            <p>Connectez-vous pour finaliser votre commande / Bitte anmelden, um zu bezahlen</p>
+            <p>{t('cart.loginPrompt')}</p>
             <Link to="/login" className="login-btn">
-              Se connecter / Anmelden
+              {t('cart.login')}
             </Link>
           </div>
         )}
