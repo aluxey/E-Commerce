@@ -51,15 +51,43 @@
       "badge": "Nouvelles couleurs disponibles"
     },
     "highlights": [
-      { "icon": "🤲", "title": "Petites séries", "text": "Chaque pièce est unique" },
-      { "icon": "⏱️", "title": "Prêt à envoyer", "text": "Sous 3 à 5 jours ouvrés" },
-      { "icon": "📦", "title": "Emballé avec soin", "text": "Expédition avec suivi" }
+      {
+        "icon": "🤲",
+        "title": "Petites séries",
+        "text": "Chaque pièce est unique"
+      },
+      {
+        "icon": "⏱️",
+        "title": "Prêt à envoyer",
+        "text": "Sous 3 à 5 jours ouvrés"
+      },
+      {
+        "icon": "📦",
+        "title": "Emballé avec soin",
+        "text": "Expédition avec suivi"
+      }
     ],
     "valueProps": [
-      { "icon": "🧶", "title": "Fait main", "text": "Tricoté et crocheté avec soin au Schleswig-Holstein." },
-      { "icon": "🎨", "title": "Couleurs à la carte", "text": "Adapte couleurs et tailles à ton intérieur sans effort." },
-      { "icon": "🌿", "title": "Fibres naturelles", "text": "Des matières douces et durables, sans compromis." },
-      { "icon": "💌", "title": "Contact direct", "text": "Des nouvelles personnelles jusqu'à l'arrivée de ta pièce." }
+      {
+        "icon": "🧶",
+        "title": "Fait main",
+        "text": "Tricoté et crocheté avec soin au Schleswig-Holstein."
+      },
+      {
+        "icon": "🎨",
+        "title": "Couleurs à la carte",
+        "text": "Adapte couleurs et tailles à ton intérieur sans effort."
+      },
+      {
+        "icon": "🌿",
+        "title": "Fibres naturelles",
+        "text": "Des matières douces et durables, sans compromis."
+      },
+      {
+        "icon": "💌",
+        "title": "Contact direct",
+        "text": "Des nouvelles personnelles jusqu'à l'arrivée de ta pièce."
+      }
     ],
     "categories": {
       "eyebrow": "Catégories",
@@ -67,9 +95,21 @@
       "subtitle": "Choisis la catégorie qui correspond à ton chez-toi ou à l'occasion.",
       "viewAll": "Voir tous les produits",
       "cards": [
-        { "name": "Textiles déco", "blurb": "Paniers, rangements et touches cosy.", "link": "/items?category=Home" },
-        { "name": "Kids & Baby", "blurb": "Des fils doux pour les tout-petits – sûrs et moelleux.", "link": "/items?category=Kids" },
-        { "name": "Accessoires", "blurb": "Petites pièces coup de cœur pour chaque jour.", "link": "/items?category=Accessories" }
+        {
+          "name": "Textiles déco",
+          "blurb": "Paniers, rangements et touches cosy.",
+          "link": "/items?category=Home"
+        },
+        {
+          "name": "Kids & Baby",
+          "blurb": "Des fils doux pour les tout-petits – sûrs et moelleux.",
+          "link": "/items?category=Kids"
+        },
+        {
+          "name": "Accessoires",
+          "blurb": "Petites pièces coup de cœur pour chaque jour.",
+          "link": "/items?category=Accessories"
+        }
       ],
       "cta": "Découvrir maintenant"
     },
@@ -85,7 +125,11 @@
       "title": "De la première maille jusqu'à ton colis.",
       "paragraph1": "Je suis Sabbel – passionnée de fil et de détails. Ce qui a commencé comme projet du soir est devenu un petit label qui apporte chaleur et calme au quotidien.",
       "paragraph2": "Chaque pièce est façonnée à la main, avec des matières durables et une esthétique nordique moderne.",
-      "pills": ["Petites séries", "Personnalisable", "Emballage durable"],
+      "pills": [
+        "Petites séries",
+        "Personnalisable",
+        "Emballage durable"
+      ],
       "ctaShop": "Découvrir la collection",
       "ctaContact": "Nous écrire",
       "noteTitle": "Atelier Handmade",
@@ -173,8 +217,17 @@
     "quantity": "Quantité",
     "adding": "Ajout...",
     "addToCart": "Ajouter au panier",
-    "tabs": { "details": "Détails", "reviews": "Avis", "delivery": "Livraison" },
-    "meta": { "category": "Catégorie", "reference": "Référence", "material": "Matière", "care": "Entretien" },
+    "tabs": {
+      "details": "Détails",
+      "reviews": "Avis",
+      "delivery": "Livraison"
+    },
+    "meta": {
+      "category": "Catégorie",
+      "reference": "Référence",
+      "material": "Matière",
+      "care": "Entretien"
+    },
     "materialText": "Coton bio 100%",
     "careText": "Lavage machine 30°C",
     "reviews": {
@@ -190,11 +243,23 @@
     },
     "deliveryInfo": {
       "title": "Informations de livraison",
-      "standard": { "title": "Livraison standard", "text": "3-5 jours ouvrés - Gratuite dès 50€" },
-      "express": { "title": "Livraison express", "text": "1-2 jours ouvrés - 9,99€" },
-      "pickup": { "title": "Point relais", "text": "3-4 jours ouvrés - 3,99€" }
+      "standard": {
+        "title": "Livraison standard",
+        "text": "3-5 jours ouvrés - Gratuite dès 50€"
+      },
+      "express": {
+        "title": "Livraison express",
+        "text": "1-2 jours ouvrés - 9,99€"
+      },
+      "pickup": {
+        "title": "Point relais",
+        "text": "3-4 jours ouvrés - 3,99€"
+      }
     },
-    "related": { "title": "Produits similaires", "cta": "Voir le produit" },
+    "related": {
+      "title": "Produits similaires",
+      "cta": "Voir le produit"
+    },
     "errors": {
       "load": "Le produit est introuvable ou temporairement indisponible."
     }
@@ -272,7 +337,14 @@
     "passwordToggleShow": "Afficher le mot de passe",
     "passwordToggleHide": "Masquer le mot de passe",
     "passwordError": "Le mot de passe doit contenir au moins 6 caractères.",
-    "passwordStrength": ["Très faible", "Faible", "Moyen", "Bon", "Fort", "Excellent"],
+    "passwordStrength": [
+      "Très faible",
+      "Faible",
+      "Moyen",
+      "Bon",
+      "Fort",
+      "Excellent"
+    ],
     "submit": "S'inscrire",
     "submitting": "Chargement...",
     "switchQuestion": "Déjà un compte ?",
@@ -320,12 +392,30 @@
       "quickAccess": "Accès rapide",
       "manageCta": "Gérer →",
       "shortcuts": {
-        "products": { "title": "Produits", "desc": "Gérer catalogue et stocks" },
-        "orders": { "title": "Commandes", "desc": "Suivi des expéditions" },
-        "users": { "title": "Clients", "desc": "Base utilisateurs" },
-        "colors": { "title": "Couleurs", "desc": "Palette de couleurs" },
-        "categories": { "title": "Catégories", "desc": "Organisation du site" },
-        "variants": { "title": "Variantes", "desc": "Gestion des déclinaisons" }
+        "products": {
+          "title": "Produits",
+          "desc": "Gérer catalogue et stocks"
+        },
+        "orders": {
+          "title": "Commandes",
+          "desc": "Suivi des expéditions"
+        },
+        "users": {
+          "title": "Clients",
+          "desc": "Base utilisateurs"
+        },
+        "colors": {
+          "title": "Couleurs",
+          "desc": "Palette de couleurs"
+        },
+        "categories": {
+          "title": "Catégories",
+          "desc": "Organisation du site"
+        },
+        "variants": {
+          "title": "Variantes",
+          "desc": "Gestion des déclinaisons"
+        }
       }
     },
     "nav": {
@@ -337,7 +427,168 @@
       "colors": "Couleurs",
       "categories": "Catégories",
       "orders": "Commandes",
-      "users": "Utilisateurs"
+      "users": "Utilisateurs",
+      "open": "Ouvrir le menu",
+      "close": "Fermer le menu"
+    },
+    "products": {
+      "eyebrow": "Catalogue",
+      "title": "Produits",
+      "subtitle": "Gérez votre catalogue de produits avec un assistant de création simplifié.",
+      "search": "Rechercher un produit...",
+      "newProduct": "+ Nouveau produit",
+      "editProduct": "Modifier le produit",
+      "deleteConfirm": "Supprimer ce produit ?",
+      "wizard": {
+        "steps": {
+          "info": "Informations",
+          "colors": "Couleurs",
+          "variants": "Variantes",
+          "images": "Images",
+          "review": "Résumé"
+        },
+        "info": {
+          "title": "Informations de base",
+          "description": "Commençons par les informations essentielles de votre produit.",
+          "nameLabel": "Nom du produit",
+          "namePlaceholder": "Ex: Panier tressé coton bio",
+          "categoryLabel": "Catégorie",
+          "statusLabel": "Statut",
+          "statusActive": "Actif (visible)",
+          "statusDraft": "Brouillon",
+          "statusArchived": "Archivé",
+          "descriptionLabel": "Description",
+          "descriptionPlaceholder": "Décrivez votre produit en quelques phrases..."
+        },
+        "colors": {
+          "title": "Couleurs disponibles",
+          "description": "Sélectionnez les couleurs dans lesquelles ce produit est disponible.",
+          "noColors": "Aucune couleur disponible.",
+          "createColors": "Créer des couleurs",
+          "selected": "{{count}} couleur sélectionnée",
+          "selected_plural": "{{count}} couleurs sélectionnées",
+          "selectWarning": "Sélectionnez au moins une couleur"
+        },
+        "variants": {
+          "title": "Variantes (Tailles & Prix)",
+          "description": "Définissez les déclinaisons de votre produit.",
+          "quickGenTitle": "Génération rapide",
+          "quickGenDesc": "Sélectionnez les tailles et définissez un prix de base pour générer automatiquement toutes les variantes.",
+          "sizesLabel": "Tailles",
+          "basePriceLabel": "Prix de base (€)",
+          "baseStockLabel": "Stock par variante",
+          "generateBtn": "Générer {{count}} variantes",
+          "addManually": "+ Ajouter manuellement",
+          "noVariants": "Aucune variante. Utilisez la génération rapide ou ajoutez manuellement.",
+          "minPrice": "Prix minimum affiché",
+          "sizeLabel": "Taille",
+          "colorLabel": "Couleur",
+          "priceLabel": "Prix (€)",
+          "stockLabel": "Stock"
+        },
+        "images": {
+          "title": "Images du produit",
+          "description": "Ajoutez des photos de votre produit. La première sera l'image principale.",
+          "dropzone": "Glissez-déposez vos images ici",
+          "browse": "Parcourir",
+          "hint": "Les images sont optionnelles mais recommandées pour une meilleure conversion.",
+          "primary": "Principal"
+        },
+        "review": {
+          "title": "Résumé",
+          "description": "Vérifiez les informations avant de créer le produit.",
+          "infoSection": "Informations",
+          "colorsSection": "Couleurs",
+          "variantsSection": "Variantes",
+          "imagesSection": "Images",
+          "noColor": "Aucune couleur",
+          "noImage": "Aucune image",
+          "displayPrice": "Prix affiché"
+        },
+        "prev": "Précédent",
+        "next": "Suivant",
+        "create": "Créer le produit",
+        "update": "Mettre à jour"
+      },
+      "messages": {
+        "created": "Produit créé",
+        "updated": "Produit mis à jour",
+        "deleted": "Produit supprimé",
+        "error": "Erreur lors de l'enregistrement du produit.",
+        "nameRequired": "Le nom du produit est requis.",
+        "variantRequired": "Au moins une variante valide est requise.",
+        "variantsGenerated": "{{count}} variantes générées",
+        "selectSizeColor": "Sélectionnez au moins une taille et une couleur",
+        "validPrice": "Définissez un prix de base valide"
+      },
+      "empty": {
+        "title": "Aucun produit",
+        "description": "Commencez par créer votre premier produit.",
+        "cta": "+ Créer un produit"
+      }
+    },
+    "variants": {
+      "eyebrow": "Déclinaisons",
+      "title": "Variantes",
+      "subtitle": "Gérez les variantes (tailles, couleurs, prix) de vos produits.",
+      "search": "Rechercher...",
+      "filterAll": "Tous les produits",
+      "newVariant": "+ Nouvelle variante",
+      "editVariant": "Modifier la variante",
+      "deleteConfirm": "Supprimer cette variante ?",
+      "productLabel": "Produit",
+      "selectProduct": "Sélectionner un produit",
+      "sizeLabel": "Taille",
+      "colorLabel": "Couleur",
+      "priceLabel": "Prix (€)",
+      "stockLabel": "Stock",
+      "skuLabel": "SKU",
+      "messages": {
+        "created": "Variante créée",
+        "updated": "Variante mise à jour",
+        "deleted": "Variante supprimée",
+        "error": "Impossible de sauvegarder la variante.",
+        "required": "Produit, taille et prix sont requis.",
+        "positivePrice": "Le prix doit être positif."
+      },
+      "empty": {
+        "title": "Aucune variante",
+        "description": "Commencez par créer une variante pour vos produits.",
+        "filtered": "Aucun résultat pour ces filtres.",
+        "cta": "+ Créer une variante"
+      }
+    },
+    "colors": {
+      "eyebrow": "Personnalisation",
+      "title": "Couleurs",
+      "subtitle": "Gérez la palette de couleurs disponibles pour vos produits."
+    },
+    "categories": {
+      "eyebrow": "Organisation",
+      "title": "Catégories",
+      "subtitle": "Organisez vos produits par catégories et sous-catégories."
+    },
+    "orders": {
+      "eyebrow": "Ventes",
+      "title": "Commandes",
+      "subtitle": "Suivez et gérez les commandes de vos clients."
+    },
+    "users": {
+      "eyebrow": "Clients",
+      "title": "Utilisateurs",
+      "subtitle": "Gérez les comptes utilisateurs et leurs rôles."
+    },
+    "common": {
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "create": "Créer",
+      "update": "Mettre à jour",
+      "search": "Rechercher",
+      "loading": "Chargement...",
+      "noResults": "Aucun résultat",
+      "required": "Requis"
     }
   },
   "profile": {

@@ -3,26 +3,28 @@ import { listColors } from '@/services/adminColors';
 import { supabase } from '@/supabase/supabaseClient';
 import { useEffect, useMemo, useState } from 'react';
 import {
-    deleteItem,
-    deleteItemImage,
-    deleteVariants,
-    fetchVariantsByItem,
-    insertVariants,
-    listCategories,
-    listProducts,
-    createItemWithColors,
-    removeProductImage,
-    syncItemColors,
-    updateItemPriceMeta,
-    upsertItem,
-    upsertVariants
+  createItemWithColors,
+  deleteItem,
+  deleteItemImage,
+  deleteVariants,
+  fetchVariantsByItem,
+  insertVariants,
+  listCategories,
+  listProducts,
+  removeProductImage,
+  syncItemColors,
+  updateItemPriceMeta,
+  upsertItem,
+  upsertVariants
 } from '../../services/adminProducts';
 import { pushToast } from '../ToastHost';
 
 export const TABLE_ITEMS = 'items';
-const TABLE_CATEGORIES = 'categories';
 const TABLE_VARIANTS = 'item_variants';
 const PRODUCT_DRAFT_KEY = 'admin-product-draft';
+
+// Tailles prédéfinies communes
+const PRESET_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Unique'];
 
 const createEmptyVariant = () => ({
   id: null,
@@ -52,7 +54,18 @@ const buildSku = (itemId, variant) => {
   return `SKU-${itemId}-${sizeSlug}-${colorSlug}-${randomSuffix()}`.toUpperCase();
 };
 
-export default function ProductAdmin() {
+// Wizard Steps
+const STEPS = {
+  INFO: 0,
+  COLORS: 1,
+  VARIANTS: 2,
+  IMAGES: 3,
+  REVIEW: 4
+};
+
+const STEP_LABELS = ['Informations', 'Couleurs', 'Variantes', 'Images', 'Résumé'];
+
+export default function ProductManager() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [colors, setColors] = useState([]);
@@ -61,6 +74,8 @@ export default function ProductAdmin() {
 
   const [editingId, setEditingId] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [currentStep, setCurrentStep] = useState(STEPS.INFO);
+  const [showWizard, setShowWizard] = useState(false);
 
   const [form, setForm] = useState({
     name: '',
@@ -71,9 +86,13 @@ export default function ProductAdmin() {
 
   const [variants, setVariants] = useState([createEmptyVariant()]);
   const [selectedColors, setSelectedColors] = useState([]);
-  const [newImages, setNewImages] = useState([]); // File[]
-  const [imagePreviews, setImagePreviews] = useState([]); // local URL previews
+  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [basePrice, setBasePrice] = useState('');
+  const [baseStock, setBaseStock] = useState(10);
+  const [newImages, setNewImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const resetForm = () => {
     setForm({
@@ -84,10 +103,15 @@ export default function ProductAdmin() {
     });
     setVariants([createEmptyVariant()]);
     setSelectedColors([]);
+    setSelectedSizes([]);
+    setBasePrice('');
+    setBaseStock(10);
     setEditingId(null);
     setNewImages([]);
     setImagePreviews([]);
     setIsDirty(false);
+    setCurrentStep(STEPS.INFO);
+    setShowWizard(false);
   };
 
   const fetchProducts = async () => {
@@ -96,7 +120,6 @@ export default function ProductAdmin() {
     try {
       const { data, error } = await listProducts();
       if (error) {
-        // Fallback sans relation item_colors si la table n'est pas connue du schéma
         if (String(error.message || '').includes('item_colors')) {
           const { data: fallbackData, error: fbError } = await supabase
             .from(TABLE_ITEMS)
@@ -167,6 +190,9 @@ export default function ProductAdmin() {
           : [createEmptyVariant()];
         setVariants(draftVariants);
         setSelectedColors(Array.isArray(draft.selectedColors) ? draft.selectedColors : []);
+        setSelectedSizes(Array.isArray(draft.selectedSizes) ? draft.selectedSizes : []);
+        setBasePrice(draft.basePrice || '');
+        setBaseStock(draft.baseStock ?? 10);
         setIsDirty(true);
       }
     } catch (err) {
@@ -174,7 +200,7 @@ export default function ProductAdmin() {
     }
   }, [editingId]);
 
-  // Sauvegarde du brouillon (uniquement pour un nouveau produit)
+  // Sauvegarde du brouillon
   useEffect(() => {
     if (!isDirty || editingId) return;
     const payload = {
@@ -187,14 +213,60 @@ export default function ProductAdmin() {
         sku: v.sku,
       })),
       selectedColors,
+      selectedSizes,
+      basePrice,
+      baseStock,
     };
     localStorage.setItem(PRODUCT_DRAFT_KEY, JSON.stringify(payload));
-  }, [form, variants, selectedColors, isDirty, editingId]);
+  }, [form, variants, selectedColors, selectedSizes, basePrice, baseStock, isDirty, editingId]);
 
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
     setIsDirty(true);
+  };
+
+  // Toggle taille prédéfinie
+  const toggleSize = size => {
+    setSelectedSizes(prev => {
+      const exists = prev.includes(size);
+      return exists ? prev.filter(s => s !== size) : [...prev, size];
+    });
+    setIsDirty(true);
+  };
+
+  // Génération automatique de variantes
+  const generateVariants = () => {
+    if (!selectedSizes.length || !selectedColors.length) {
+      pushToast({ message: 'Sélectionnez au moins une taille et une couleur', variant: 'warning' });
+      return;
+    }
+
+    const price = parseFloat(String(basePrice).replace(',', '.'));
+    if (Number.isNaN(price) || price < 0) {
+      pushToast({ message: 'Définissez un prix de base valide', variant: 'warning' });
+      return;
+    }
+
+    const newVariants = [];
+    selectedSizes.forEach(size => {
+      selectedColors.forEach(colorId => {
+        const colorObj = colors.find(c => c.id === colorId);
+        newVariants.push({
+          id: null,
+          size,
+          color_id: colorId,
+          color_label: colorObj?.name || '',
+          price: price.toFixed(2),
+          stock: baseStock,
+          sku: '',
+        });
+      });
+    });
+
+    setVariants(newVariants);
+    setIsDirty(true);
+    pushToast({ message: `${newVariants.length} variantes générées`, variant: 'success' });
   };
 
   const addVariantRow = () => {
@@ -206,8 +278,7 @@ export default function ProductAdmin() {
     setSelectedColors(prev => {
       const idNum = Number(colorId);
       const exists = prev.includes(idNum);
-      const next = exists ? prev.filter(id => id !== idNum) : [...prev, idNum];
-      return next;
+      return exists ? prev.filter(id => id !== idNum) : [...prev, idNum];
     });
     setIsDirty(true);
   };
@@ -240,11 +311,13 @@ export default function ProductAdmin() {
     setIsDragging(false);
     onFilesSelected(e.dataTransfer.files);
   };
+
   const onDragOver = e => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
   };
+
   const onDragLeave = e => {
     e.preventDefault();
     e.stopPropagation();
@@ -293,10 +366,10 @@ export default function ProductAdmin() {
       if (Number.isNaN(price)) errors.push(`Variante #${index + 1}: prix invalide.`);
       if (!Number.isNaN(price) && price < 0) errors.push(`Variante #${index + 1}: le prix doit être positif.`);
 
-      const key = `${size}`;
+      const key = `${size}-${colorId || 'none'}`;
       if (size && !Number.isNaN(price)) {
         if (combos.has(key)) {
-          errors.push(`Variante #${index + 1}: la taille est déjà utilisée.`);
+          errors.push(`Variante #${index + 1}: cette combinaison taille/couleur existe déjà.`);
         } else {
           combos.add(key);
         }
@@ -319,26 +392,56 @@ export default function ProductAdmin() {
     return { errors, validVariants: valid };
   };
 
+  // Navigation wizard
+  const canProceed = step => {
+    switch (step) {
+      case STEPS.INFO:
+        return sanitizeText(form.name).length > 0;
+      case STEPS.COLORS:
+        return selectedColors.length > 0 || colors.length === 0;
+      case STEPS.VARIANTS:
+        return variants.some(v => v.size && v.price);
+      case STEPS.IMAGES:
+        return true;
+      default:
+        return true;
+    }
+  };
+
+  const nextStep = () => {
+    if (currentStep < STEPS.REVIEW && canProceed(currentStep)) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > STEPS.INFO) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const goToStep = step => {
+    if (step <= currentStep || canProceed(currentStep)) {
+      setCurrentStep(step);
+    }
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
     try {
       const trimmedName = sanitizeText(form.name);
       if (!trimmedName) {
-        alert('Le nom du produit est requis.');
+        pushToast({ message: 'Le nom du produit est requis.', variant: 'error' });
         return;
       }
 
       const normalizedColorIds = colors.length
         ? Array.from(new Set(selectedColors.map(id => Number(id)))).filter(Boolean)
         : [];
-      if (colors.length && !normalizedColorIds.length) {
-        alert('Sélectionne au moins une couleur pour ce produit.');
-        return;
-      }
 
       const { errors: variantErrors, validVariants } = validateVariants();
       if (variantErrors.length) {
-        alert(variantErrors.join('\n'));
+        pushToast({ message: variantErrors[0], variant: 'error' });
         return;
       }
 
@@ -358,12 +461,8 @@ export default function ProductAdmin() {
         if (error) throw error;
         if (normalizedColorIds.length) {
           const { error: colorsError } = await syncItemColors(editingId, normalizedColorIds);
-          if (colorsError) {
-            if (String(colorsError.message || '').includes('item_colors')) {
-              pushToast({ message: 'Couleurs non synchronisées (table absente ?)', variant: 'error' });
-            } else {
-              throw colorsError;
-            }
+          if (colorsError && !String(colorsError.message || '').includes('item_colors')) {
+            throw colorsError;
           }
         }
       } else {
@@ -372,7 +471,7 @@ export default function ProductAdmin() {
         itemId = data.id;
       }
 
-      // Fetch existing variants to detect deletions
+      // Fetch existing variants
       const { data: existingVariants, error: existingError } = await supabase
         .from(TABLE_VARIANTS)
         .select('id')
@@ -394,12 +493,9 @@ export default function ProductAdmin() {
       });
 
       const variantsToUpdate = variantsPayload.filter(v => v.id);
-      /* eslint-disable no-unused-vars */
       const variantsToInsert = variantsPayload
         .filter(v => !v.id)
-        // Drop `id` if present to avoid conflicts on insert
         .map(({ id, ...rest }) => rest);
-      /* eslint-enable no-unused-vars */
 
       if (variantsToUpdate.length) {
         const { error: updateError } = await upsertVariants(variantsToUpdate);
@@ -418,7 +514,6 @@ export default function ProductAdmin() {
         if (deleteError) throw deleteError;
       }
 
-      // Assure que le prix min est bien répercuté
       const { error: priceError } = await updateItemPriceMeta(itemId, minPrice);
       if (priceError) throw priceError;
 
@@ -480,12 +575,17 @@ export default function ProductAdmin() {
         sku: v.sku || '',
       }));
       setVariants(mapped.length ? mapped : [createEmptyVariant()]);
+
+      // Extraire les tailles uniques
+      const sizes = [...new Set(mapped.map(v => v.size).filter(Boolean))];
+      setSelectedSizes(sizes);
     } else {
-      console.error('Erreur chargement variantes:', error.message);
       setVariants([createEmptyVariant()]);
     }
+
+    setCurrentStep(STEPS.INFO);
+    setShowWizard(true);
     setIsDirty(false);
-    localStorage.removeItem(PRODUCT_DRAFT_KEY);
   };
 
   const removeNewImage = idx => {
@@ -566,345 +666,624 @@ export default function ProductAdmin() {
     return id => map.get(id) || null;
   }, [colors]);
 
-  return (
-    <div className="product-manager">
-      <h2>Gestion des Produits</h2>
+  // Produits filtrés
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) return products;
+    const q = searchQuery.toLowerCase();
+    return products.filter(p =>
+      p.name?.toLowerCase().includes(q) ||
+      p.id?.toString().includes(q)
+    );
+  }, [products, searchQuery]);
 
-      <form onSubmit={handleSubmit} className="product-form form-grid">
-        <div className="form-row two-col">
-          <div className="form-group">
-            <label>Nom du produit *</label>
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Titre" required />
-          </div>
-          <div className="form-group">
-            <label>Statut</label>
-            <select name="status" value={form.status} onChange={handleChange}>
-              <option value="active">Actif</option>
-              <option value="draft">Brouillon</option>
-              <option value="archived">Archivé</option>
-            </select>
-          </div>
-        </div>
+  // Render des étapes du wizard
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case STEPS.INFO:
+        return (
+          <div className="wizard-step">
+            <div className="step-header">
+              <h3>📝 Informations de base</h3>
+              <p className="step-description">Commençons par les informations essentielles de votre produit.</p>
+            </div>
 
-        <div className="form-group">
-          <label>Description</label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Description"
-          />
-        </div>
+            <div className="form-grid">
+              <div className="form-group form-group--full">
+                <label>Nom du produit <span className="required">*</span></label>
+                <input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Ex: Panier tressé coton bio"
+                  className="input-lg"
+                  required
+                />
+              </div>
 
-        <div className="form-row two-col">
-          <div className="form-group">
-            <label>Catégorie</label>
-            <select name="category_id" value={form.category_id || ''} onChange={handleChange}>
-              <option value="">Catégorie...</option>
-              {groupedCategories.map(group => (
-                <optgroup key={group.parent.id} label={group.parent.name}>
-                  <option value={group.parent.id}>{group.parent.name} — toutes</option>
-                  {group.children.map(sub => (
-                    <option key={sub.id} value={sub.id}>
-                      {group.parent.name} › {sub.name}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-              {orphanCategories.length > 0 && (
-                <optgroup label="Autres">
-                  {orphanCategories.map(cat => (
-                    <option key={cat.id} value={cat.id}>
-                      {categoryName(cat.id)}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Prix min (auto)</label>
-            <div className="pill-display">{minVariantPrice != null ? `${minVariantPrice.toFixed(2)} €` : '—'}</div>
-          </div>
-        </div>
+              <div className="form-row two-col">
+                <div className="form-group">
+                  <label>Catégorie</label>
+                  <select name="category_id" value={form.category_id || ''} onChange={handleChange}>
+                    <option value="">Choisir une catégorie...</option>
+                    {groupedCategories.map(group => (
+                      <optgroup key={group.parent.id} label={group.parent.name}>
+                        <option value={group.parent.id}>{group.parent.name} — toutes</option>
+                        {group.children.map(sub => (
+                          <option key={sub.id} value={sub.id}>
+                            {group.parent.name} › {sub.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                    {orphanCategories.length > 0 && (
+                      <optgroup label="Autres">
+                        {orphanCategories.map(cat => (
+                          <option key={cat.id} value={cat.id}>
+                            {categoryName(cat.id)}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                  </select>
+                </div>
 
-        <section className="color-selector">
-          <div className="variant-editor__header">
-            <h3>Couleurs du produit</h3>
-            <p className="input-hint">Sélectionne une ou plusieurs couleurs disponibles.</p>
-          </div>
-          <div className="color-select-grid">
-            {colors.length === 0 && <p className="input-hint">Aucune couleur disponible. Crée-les dans l’onglet Couleurs.</p>}
-            {colors.map(color => {
-              const checked = selectedColors.includes(color.id);
-              return (
-                <label
-                  key={color.id}
-                  className={`color-pill ${checked ? 'is-selected' : ''}`}
-                  title={color.name}
-                >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => toggleColor(color.id)}
-                    aria-label={color.name}
-                  />
-                  <span className="color-swatch" style={{ backgroundColor: color.hex_code }} aria-hidden="true" />
-                  <span>{color.name}</span>
-                </label>
-              );
-            })}
-          </div>
-        </section>
+                <div className="form-group">
+                  <label>Statut</label>
+                  <select name="status" value={form.status} onChange={handleChange}>
+                    <option value="active">✅ Actif (visible)</option>
+                    <option value="draft">📝 Brouillon</option>
+                    <option value="archived">📦 Archivé</option>
+                  </select>
+                </div>
+              </div>
 
-        <section className="variant-editor">
-          <div className="variant-editor__header">
-            <h3>Variantes</h3>
-            <button type="button" onClick={addVariantRow} className="btn btn-outline">
-              + Ajouter une variante
-            </button>
+              <div className="form-group form-group--full">
+                <label>Description</label>
+                <textarea
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  placeholder="Décrivez votre produit en quelques phrases..."
+                  rows={4}
+                />
+              </div>
+            </div>
           </div>
-          <div className="variant-palette">
+        );
+
+      case STEPS.COLORS:
+        return (
+          <div className="wizard-step">
+            <div className="step-header">
+              <h3>🎨 Couleurs disponibles</h3>
+              <p className="step-description">Sélectionnez les couleurs dans lesquelles ce produit est disponible.</p>
+            </div>
+
             {colors.length === 0 ? (
-              <p className="input-hint">Aucune couleur disponible. Ajoutez-en dans l’onglet Couleurs.</p>
+              <div className="empty-state-inline">
+                <span className="empty-icon">🎨</span>
+                <p>Aucune couleur disponible.</p>
+                <a href="/admin/colors" className="btn btn-outline btn-sm">Créer des couleurs</a>
+              </div>
             ) : (
-              colors.map(c => (
-                <span key={c.id} className="color-chip">
-                  <span className="color-swatch" style={{ backgroundColor: c.hex_code }} aria-hidden="true" />
-                  {c.name}
-                </span>
-              ))
+              <div className="color-grid">
+                {colors.map(color => {
+                  const checked = selectedColors.includes(color.id);
+                  return (
+                    <button
+                      key={color.id}
+                      type="button"
+                      className={`color-card ${checked ? 'is-selected' : ''}`}
+                      onClick={() => toggleColor(color.id)}
+                    >
+                      <span
+                        className="color-preview"
+                        style={{ backgroundColor: color.hex_code }}
+                      />
+                      <span className="color-name">{color.name}</span>
+                      {checked && <span className="check-icon">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
             )}
-          </div>
-          <div className="variant-table-wrapper">
-            <table className="variant-table">
-              <thead>
-                <tr>
-                  <th>Taille</th>
-                  <th>Couleur</th>
-                  <th>Prix (€)</th>
-                  <th>Stock</th>
-                  <th>SKU</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {variants.map((variant, index) => (
-                  <tr key={variant.id ?? `new-${index}`}>
-                    <td data-label="Taille">
-                      <input
-                        value={variant.size}
-                        onChange={e => updateVariantField(index, 'size', e.target.value)}
-                        placeholder="Ex: S, M, L"
-                        required
-                      />
-                    </td>
-                    <td data-label="Couleur">
-                      <div className="color-select-cell">
-                        <select
-                          value={variant.color_id || ''}
-                          onChange={e => updateVariantField(index, 'color_id', e.target.value)}
-                          disabled={!colors.length}
-                        >
-                          <option value="">Couleur...</option>
-                          {colors.map(color => (
-                            <option key={color.id} value={color.id}>
-                              {color.name}
-                            </option>
-                          ))}
-                        </select>
-                        {variant.color_id && (
-                          <span
-                            className="color-swatch"
-                            style={{
-                              backgroundColor: colorById(Number(variant.color_id))?.hex_code || '#ccc',
-                              width: 24,
-                              height: 24,
-                            }}
-                            title={colorById(Number(variant.color_id))?.name || ''}
-                          />
-                        )}
-                      </div>
-                    </td>
-                    <td data-label="Prix (€)">
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={variant.price}
-                        onChange={e => updateVariantField(index, 'price', e.target.value)}
-                        placeholder="Prix"
-                        required
-                      />
-                    </td>
-                    <td data-label="Stock">
-                      <input
-                        type="number"
-                        min={0}
-                        value={variant.stock}
-                        onChange={e => updateVariantField(index, 'stock', e.target.value)}
-                        placeholder="Stock"
-                      />
-                    </td>
-                    <td data-label="SKU">{variant.sku || 'Auto'}</td>
-                    <td data-label="Actions">
-                      <button type="button" onClick={() => removeVariantRow(index)} className="btn btn-outline">
-                        Retirer
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
 
-        <div
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          className={`upload-dropzone${isDragging ? ' is-dragging' : ''}`}
-        >
-          <div className="upload-cta">
-            <span>Images: glisser-déposer des fichiers ou</span>
-            <label className="btn btn-outline" htmlFor="file-input">
-              Choisir
-            </label>
-            <input
-              id="file-input"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={e => onFilesSelected(e.target.files)}
-              style={{ display: 'none' }}
-            />
+            <div className="selection-summary">
+              {selectedColors.length > 0 ? (
+                <p>✓ {selectedColors.length} couleur{selectedColors.length > 1 ? 's' : ''} sélectionnée{selectedColors.length > 1 ? 's' : ''}</p>
+              ) : (
+                <p className="warning">⚠️ Sélectionnez au moins une couleur</p>
+              )}
+            </div>
           </div>
-          {(imagePreviews.length > 0 || newImages.length > 0) && (
-            <div className="upload-previews">
-              {imagePreviews.map((src, idx) => (
-                <div key={idx} className="upload-preview">
-                  <img src={src} alt="nouvelle" />
+        );
+
+      case STEPS.VARIANTS:
+        return (
+          <div className="wizard-step">
+            <div className="step-header">
+              <h3>📐 Variantes (Tailles & Prix)</h3>
+              <p className="step-description">Définissez les déclinaisons de votre produit.</p>
+            </div>
+
+            {/* Génération automatique */}
+            <div className="variant-generator">
+              <div className="generator-header">
+                <h4>⚡ Génération rapide</h4>
+                <p>Sélectionnez les tailles et définissez un prix de base pour générer automatiquement toutes les variantes.</p>
+              </div>
+
+              <div className="generator-controls">
+                <div className="size-selector">
+                  <label>Tailles</label>
+                  <div className="size-chips">
+                    {PRESET_SIZES.map(size => (
+                      <button
+                        key={size}
+                        type="button"
+                        className={`size-chip ${selectedSizes.includes(size) ? 'is-selected' : ''}`}
+                        onClick={() => toggleSize(size)}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="price-stock-row">
+                  <div className="form-group">
+                    <label>Prix de base (€)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={basePrice}
+                      onChange={e => { setBasePrice(e.target.value); setIsDirty(true); }}
+                      placeholder="29.90"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Stock par variante</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={baseStock}
+                      onChange={e => { setBaseStock(parseInt(e.target.value) || 0); setIsDirty(true); }}
+                      placeholder="10"
+                    />
+                  </div>
                   <button
                     type="button"
-                    onClick={() => removeNewImage(idx)}
-                    aria-label="Supprimer l’aperçu"
+                    className="btn btn-primary"
+                    onClick={generateVariants}
+                    disabled={!selectedSizes.length || !selectedColors.length}
                   >
-                    ×
+                    ⚡ Générer {selectedSizes.length * selectedColors.length || 0} variantes
                   </button>
                 </div>
-              ))}
+              </div>
             </div>
-          )}
-        </div>
 
-        <div className="btn-group">
-          <button type="submit" className="btn btn-primary">
-            {editingId ? 'Mettre à jour' : 'Ajouter'}
-          </button>
-          {editingId && (
-            <button type="button" onClick={resetForm} className="btn btn-outline">
-              Annuler
-            </button>
-          )}
-        </div>
-      </form>
+            {/* Liste des variantes */}
+            <div className="variants-list-section">
+              <div className="section-header">
+                <h4>📋 Variantes ({variants.filter(v => v.size).length})</h4>
+                <button type="button" onClick={addVariantRow} className="btn btn-outline btn-sm">
+                  + Ajouter manuellement
+                </button>
+              </div>
 
-      {loading && <p>Chargement en cours...</p>}
-      {error && <p className="error-msg">{error}</p>}
-
-      {!loading && products.length === 0 && <p className="empty-state">Aucun produit disponible.</p>}
-
-      {products.length > 0 && (
-        <div className="variant-table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Image</th>
-                <th>Titre</th>
-                <th>Prix (min)</th>
-                <th>Catégorie</th>
-                  <th>Variantes</th>
-                  <th>Images</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-            <tbody>
-              {products.map(p => (
-                <tr key={p.id}>
-                  <td>{p.id}</td>
-                  <td>
-                    {p.item_images?.[0]?.image_url ? (
-                      <img
-                        src={p.item_images[0].image_url}
-                        alt={p.name}
-                        style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }}
-                      />
-                    ) : (
-                      <span style={{ color: 'color-mix(in oklab, var(--adm-muted) 65%, transparent)' }}>—</span>
-                    )}
-                  </td>
-                  <td>{p.name}</td>
-                  <td>{Number(p.price).toFixed(2)}€</td>
-                  <td>{categoryName(p.category_id)}</td>
-                  <td>
-                    {(p.item_variants || []).length ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {p.item_variants.slice(0, 3).map(v => {
-                          const col = colorById(v.color_id);
-                          return (
-                            <span key={v.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                              {v.size} / {col?.name || '—'}
-                              {col?.hex_code && (
-                                <span
-                                  className="color-swatch"
-                                  style={{ backgroundColor: col.hex_code, width: 14, height: 14 }}
-                                />
-                              )}{' '}
-                              — {Number(v.price).toFixed(2)}€
-                            </span>
-                          );
-                        })}
-                        {p.item_variants.length > 3 && <span>… (+{p.item_variants.length - 3})</span>}
-                      </div>
-                    ) : (
-                      <span style={{ color: 'color-mix(in oklab, var(--adm-muted) 65%, transparent)' }}>—</span>
-                    )}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      {(p.item_images || []).map(img => (
-                        <div key={img.id} style={{ position: 'relative' }}>
-                          <img
-                            src={img.image_url}
-                            alt="img"
-                            style={{ width: 42, height: 42, objectFit: 'cover', borderRadius: 6 }}
-                          />
+              {variants.length > 0 && variants.some(v => v.size) ? (
+                <div className="variants-cards">
+                  {variants.map((variant, index) => {
+                    const colorObj = colorById(Number(variant.color_id));
+                    return (
+                      <div key={variant.id ?? `new-${index}`} className="variant-card">
+                        <div className="variant-card__header">
+                          <span className="variant-number">#{index + 1}</span>
                           <button
                             type="button"
-                            onClick={() => deleteExistingImage(p.id, img)}
-                            title="Supprimer"
-                            style={{ position: 'absolute', top: -6, right: -6, fontSize: 12 }}
+                            onClick={() => removeVariantRow(index)}
+                            className="btn-icon btn-remove"
+                            aria-label="Supprimer"
                           >
                             ×
                           </button>
                         </div>
-                      ))}
+
+                        <div className="variant-card__fields">
+                          <div className="field-row">
+                            <div className="form-group">
+                              <label>Taille</label>
+                              <input
+                                value={variant.size}
+                                onChange={e => updateVariantField(index, 'size', e.target.value)}
+                                placeholder="M"
+                                required
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Couleur</label>
+                              <div className="color-select-wrapper">
+                                <select
+                                  value={variant.color_id || ''}
+                                  onChange={e => updateVariantField(index, 'color_id', e.target.value)}
+                                >
+                                  <option value="">—</option>
+                                  {colors.map(color => (
+                                    <option key={color.id} value={color.id}>{color.name}</option>
+                                  ))}
+                                </select>
+                                {colorObj && (
+                                  <span
+                                    className="color-dot"
+                                    style={{ backgroundColor: colorObj.hex_code }}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="field-row">
+                            <div className="form-group">
+                              <label>Prix (€)</label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={variant.price}
+                                onChange={e => updateVariantField(index, 'price', e.target.value)}
+                                placeholder="29.90"
+                                required
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Stock</label>
+                              <input
+                                type="number"
+                                min={0}
+                                value={variant.stock}
+                                onChange={e => updateVariantField(index, 'stock', e.target.value)}
+                                placeholder="10"
+                              />
+                            </div>
+                          </div>
+
+                          {variant.sku && (
+                            <div className="variant-sku">
+                              <span className="sku-label">SKU:</span>
+                              <code>{variant.sku}</code>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="empty-state-inline">
+                  <p>Aucune variante. Utilisez la génération rapide ou ajoutez manuellement.</p>
+                </div>
+              )}
+            </div>
+
+            {minVariantPrice != null && (
+              <div className="price-summary">
+                <span>Prix minimum affiché:</span>
+                <strong>{minVariantPrice.toFixed(2)} €</strong>
+              </div>
+            )}
+          </div>
+        );
+
+      case STEPS.IMAGES:
+        return (
+          <div className="wizard-step">
+            <div className="step-header">
+              <h3>📷 Images du produit</h3>
+              <p className="step-description">Ajoutez des photos de votre produit. La première sera l'image principale.</p>
+            </div>
+
+            <div
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              className={`upload-zone ${isDragging ? 'is-dragging' : ''}`}
+            >
+              <div className="upload-zone__content">
+                <span className="upload-icon">📁</span>
+                <p>Glissez-déposez vos images ici</p>
+                <span className="upload-or">ou</span>
+                <label className="btn btn-outline" htmlFor="file-input-wizard">
+                  Parcourir
+                </label>
+                <input
+                  id="file-input-wizard"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={e => onFilesSelected(e.target.files)}
+                  style={{ display: 'none' }}
+                />
+              </div>
+            </div>
+
+            {imagePreviews.length > 0 && (
+              <div className="image-grid">
+                {imagePreviews.map((src, idx) => (
+                  <div key={idx} className="image-card">
+                    <img src={src} alt={`Aperçu ${idx + 1}`} />
+                    {idx === 0 && <span className="image-badge">Principal</span>}
+                    <button
+                      type="button"
+                      onClick={() => removeNewImage(idx)}
+                      className="btn-remove-image"
+                      aria-label="Supprimer"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {imagePreviews.length === 0 && (
+              <p className="hint">💡 Les images sont optionnelles mais recommandées pour une meilleure conversion.</p>
+            )}
+          </div>
+        );
+
+      case STEPS.REVIEW:
+        return (
+          <div className="wizard-step">
+            <div className="step-header">
+              <h3>✅ Résumé</h3>
+              <p className="step-description">Vérifiez les informations avant de créer le produit.</p>
+            </div>
+
+            <div className="review-grid">
+              <div className="review-section">
+                <h4>Informations</h4>
+                <dl className="review-list">
+                  <div className="review-item">
+                    <dt>Nom</dt>
+                    <dd>{form.name || '—'}</dd>
+                  </div>
+                  <div className="review-item">
+                    <dt>Catégorie</dt>
+                    <dd>{categoryName(Number(form.category_id)) || '—'}</dd>
+                  </div>
+                  <div className="review-item">
+                    <dt>Statut</dt>
+                    <dd>
+                      <span className={`status-badge status-${form.status}`}>
+                        {form.status === 'active' ? 'Actif' : form.status === 'draft' ? 'Brouillon' : 'Archivé'}
+                      </span>
+                    </dd>
+                  </div>
+                  {form.description && (
+                    <div className="review-item review-item--full">
+                      <dt>Description</dt>
+                      <dd>{form.description}</dd>
                     </div>
-                  </td>
-                  <td>
-                    <div className="btn-group">
-                      <button onClick={() => handleEdit(p)} className="btn btn-outline">
-                        Modifier
-                      </button>
-                      <button onClick={() => handleDelete(p.id)} className="btn btn-danger">
-                        Supprimer
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                  )}
+                </dl>
+              </div>
+
+              <div className="review-section">
+                <h4>Couleurs ({selectedColors.length})</h4>
+                <div className="review-colors">
+                  {selectedColors.map(id => {
+                    const c = colorById(id);
+                    return c ? (
+                      <span key={id} className="review-color">
+                        <span className="color-dot" style={{ backgroundColor: c.hex_code }} />
+                        {c.name}
+                      </span>
+                    ) : null;
+                  })}
+                  {selectedColors.length === 0 && <span className="muted">Aucune couleur</span>}
+                </div>
+              </div>
+
+              <div className="review-section">
+                <h4>Variantes ({variants.filter(v => v.size).length})</h4>
+                <div className="review-variants">
+                  {variants.filter(v => v.size).slice(0, 6).map((v, i) => {
+                    const c = colorById(Number(v.color_id));
+                    return (
+                      <div key={i} className="review-variant">
+                        <span>{v.size}</span>
+                        {c && <span className="color-dot" style={{ backgroundColor: c.hex_code }} />}
+                        <span>{Number(v.price).toFixed(2)}€</span>
+                        <span className="stock">Stock: {v.stock}</span>
+                      </div>
+                    );
+                  })}
+                  {variants.filter(v => v.size).length > 6 && (
+                    <span className="muted">+{variants.filter(v => v.size).length - 6} autres</span>
+                  )}
+                </div>
+                {minVariantPrice != null && (
+                  <p className="price-highlight">Prix affiché: <strong>{minVariantPrice.toFixed(2)}€</strong></p>
+                )}
+              </div>
+
+              <div className="review-section">
+                <h4>Images ({imagePreviews.length})</h4>
+                {imagePreviews.length > 0 ? (
+                  <div className="review-images">
+                    {imagePreviews.slice(0, 4).map((src, i) => (
+                      <img key={i} src={src} alt={`Image ${i + 1}`} />
+                    ))}
+                    {imagePreviews.length > 4 && <span className="muted">+{imagePreviews.length - 4}</span>}
+                  </div>
+                ) : (
+                  <span className="muted">Aucune image</span>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="product-manager">
+      {/* Header avec actions */}
+      <div className="manager-header">
+        <div className="manager-header__left">
+          <h2>Gestion des Produits</h2>
+          <span className="product-count">{products.length} produit{products.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div className="manager-header__right">
+          <div className="search-box">
+            <input
+              type="search"
+              placeholder="Rechercher un produit..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+            <span className="search-icon">🔍</span>
+          </div>
+          <button
+            className="btn btn-primary"
+            onClick={() => { resetForm(); setShowWizard(true); }}
+          >
+            + Nouveau produit
+          </button>
+        </div>
+      </div>
+
+      {/* Wizard Modal */}
+      {showWizard && (
+        <div className="wizard-overlay" onClick={e => e.target === e.currentTarget && resetForm()}>
+          <div className="wizard-modal">
+            <div className="wizard-header">
+              <h2>{editingId ? 'Modifier le produit' : 'Nouveau produit'}</h2>
+              <button className="btn-close" onClick={resetForm}>×</button>
+            </div>
+
+            {/* Progress bar */}
+            <div className="wizard-progress">
+              {STEP_LABELS.map((label, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className={`progress-step ${idx === currentStep ? 'is-current' : ''} ${idx < currentStep ? 'is-completed' : ''}`}
+                  onClick={() => goToStep(idx)}
+                  disabled={idx > currentStep && !canProceed(currentStep)}
+                >
+                  <span className="step-number">{idx < currentStep ? '✓' : idx + 1}</span>
+                  <span className="step-label">{label}</span>
+                </button>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Content */}
+            <form onSubmit={handleSubmit} className="wizard-content">
+              {renderStepContent()}
+
+              {/* Navigation */}
+              <div className="wizard-footer">
+                <div className="wizard-footer__left">
+                  {currentStep > STEPS.INFO && (
+                    <button type="button" className="btn btn-outline" onClick={prevStep}>
+                      ← Précédent
+                    </button>
+                  )}
+                </div>
+                <div className="wizard-footer__right">
+                  {currentStep < STEPS.REVIEW ? (
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={nextStep}
+                      disabled={!canProceed(currentStep)}
+                    >
+                      Suivant →
+                    </button>
+                  ) : (
+                    <button type="submit" className="btn btn-primary btn-lg">
+                      {editingId ? '✓ Mettre à jour' : '✓ Créer le produit'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Liste des produits */}
+      {loading && <p className="loading-state">Chargement en cours...</p>}
+      {error && <p className="error-msg">{error}</p>}
+
+      {!loading && filteredProducts.length === 0 && (
+        <div className="empty-state">
+          <span className="empty-icon">📦</span>
+          <h3>Aucun produit</h3>
+          <p>Commencez par créer votre premier produit.</p>
+          <button className="btn btn-primary" onClick={() => setShowWizard(true)}>
+            + Créer un produit
+          </button>
+        </div>
+      )}
+
+      {filteredProducts.length > 0 && (
+        <div className="products-grid">
+          {filteredProducts.map(p => {
+            const variantCount = p.item_variants?.length || 0;
+
+            return (
+              <div key={p.id} className="product-card">
+                <div className="product-card__image">
+                  {p.item_images?.[0]?.image_url ? (
+                    <img src={p.item_images[0].image_url} alt={p.name} />
+                  ) : (
+                    <div className="no-image">📷</div>
+                  )}
+                  <span className={`status-indicator status-${p.status || 'active'}`} />
+                </div>
+
+                <div className="product-card__content">
+                  <h3 className="product-title">{p.name}</h3>
+                  <p className="product-meta">
+                    {categoryName(p.category_id)} • {variantCount} variante{variantCount !== 1 ? 's' : ''}
+                  </p>
+                  <p className="product-price">{Number(p.price).toFixed(2)}€</p>
+                </div>
+
+                <div className="product-card__actions">
+                  <button onClick={() => handleEdit(p)} className="btn btn-outline btn-sm">
+                    ✏️ Modifier
+                  </button>
+                  <button onClick={() => handleDelete(p.id)} className="btn btn-danger btn-sm">
+                    🗑️
+                  </button>
+                </div>
+
+                {p.item_images?.length > 1 && (
+                  <div className="product-card__gallery">
+                    {p.item_images.slice(1, 4).map(img => (
+                      <div key={img.id} className="mini-thumb">
+                        <img src={img.image_url} alt="" />
+                        <button
+                          type="button"
+                          onClick={e => { e.stopPropagation(); deleteExistingImage(p.id, img); }}
+                          className="btn-remove-thumb"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    {p.item_images.length > 4 && <span className="more-images">+{p.item_images.length - 4}</span>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

@@ -51,15 +51,43 @@
       "badge": "Neue Farbtöne verfügbar"
     },
     "highlights": [
-      { "icon": "🤲", "title": "Kleine Auflagen", "text": "Jedes Stück ein Unikat" },
-      { "icon": "⏱️", "title": "Fix versandbereit", "text": "Innerhalb von 3–5 Werktagen" },
-      { "icon": "📦", "title": "Liebevoll verpackt", "text": "Versand mit Sendungsverfolgung" }
+      {
+        "icon": "🤲",
+        "title": "Kleine Auflagen",
+        "text": "Jedes Stück ein Unikat"
+      },
+      {
+        "icon": "⏱️",
+        "title": "Fix versandbereit",
+        "text": "Innerhalb von 3–5 Werktagen"
+      },
+      {
+        "icon": "📦",
+        "title": "Liebevoll verpackt",
+        "text": "Versand mit Sendungsverfolgung"
+      }
     ],
     "valueProps": [
-      { "icon": "🧶", "title": "Handgemacht", "text": "Mit Liebe gestrickt und gehäkelt in Schleswig-Holstein." },
-      { "icon": "🎨", "title": "Wunschfarben", "text": "Passe Farben und Größen unkompliziert an deine Einrichtung an." },
-      { "icon": "🌿", "title": "Natürliche Garne", "text": "Wir nutzen weiche, langlebige Materialien ohne Kompromisse." },
-      { "icon": "💌", "title": "Persönlich", "text": "Direkter Kontakt und Updates bis dein Lieblingsstück ankommt." }
+      {
+        "icon": "🧶",
+        "title": "Handgemacht",
+        "text": "Mit Liebe gestrickt und gehäkelt in Schleswig-Holstein."
+      },
+      {
+        "icon": "🎨",
+        "title": "Wunschfarben",
+        "text": "Passe Farben und Größen unkompliziert an deine Einrichtung an."
+      },
+      {
+        "icon": "🌿",
+        "title": "Natürliche Garne",
+        "text": "Wir nutzen weiche, langlebige Materialien ohne Kompromisse."
+      },
+      {
+        "icon": "💌",
+        "title": "Persönlich",
+        "text": "Direkter Kontakt und Updates bis dein Lieblingsstück ankommt."
+      }
     ],
     "categories": {
       "eyebrow": "Kategorien",
@@ -67,9 +95,21 @@
       "subtitle": "Wähle die Kategorie, die zu deinem Zuhause oder Anlass passt.",
       "viewAll": "Alle Produkte ansehen",
       "cards": [
-        { "name": "Wohntextilien", "blurb": "Körbe, Ordnungshilfen und gemütliche Akzente.", "link": "/items?category=Home" },
-        { "name": "Kids & Baby", "blurb": "Sanfte Garne für die Kleinsten – sicher und kuschelig.", "link": "/items?category=Kids" },
-        { "name": "Accessoires", "blurb": "Kleine Lieblingsstücke für jeden Tag.", "link": "/items?category=Accessories" }
+        {
+          "name": "Wohntextilien",
+          "blurb": "Körbe, Ordnungshilfen und gemütliche Akzente.",
+          "link": "/items?category=Home"
+        },
+        {
+          "name": "Kids & Baby",
+          "blurb": "Sanfte Garne für die Kleinsten – sicher und kuschelig.",
+          "link": "/items?category=Kids"
+        },
+        {
+          "name": "Accessoires",
+          "blurb": "Kleine Lieblingsstücke für jeden Tag.",
+          "link": "/items?category=Accessories"
+        }
       ],
       "cta": "Jetzt entdecken"
     },
@@ -85,7 +125,11 @@
       "title": "Von der ersten Masche bis zu deinem Paket.",
       "paragraph1": "Ich bin Sabbel – Makerin, Garnliebhaberin und Detailverliebte. Was als Abendprojekt begann, ist heute ein kleines Label, das Wärme und Ruhe in den Alltag bringt.",
       "paragraph2": "Meine Stücke entstehen in ruhiger Handarbeit, mit Fokus auf langlebige Materialien und eine moderne, nordische Ästhetik.",
-      "pills": ["Kleine Auflagen", "Individuell anpassbar", "Nachhaltig verpackt"],
+      "pills": [
+        "Kleine Auflagen",
+        "Individuell anpassbar",
+        "Nachhaltig verpackt"
+      ],
       "ctaShop": "Kollektion entdecken",
       "ctaContact": "Kontakt aufnehmen",
       "noteTitle": "Handmade Studio",
@@ -173,8 +217,17 @@
     "quantity": "Menge",
     "adding": "Wird hinzugefügt...",
     "addToCart": "In den Warenkorb",
-    "tabs": { "details": "Details", "reviews": "Bewertungen", "delivery": "Lieferung" },
-    "meta": { "category": "Kategorie", "reference": "Referenz", "material": "Material", "care": "Pflege" },
+    "tabs": {
+      "details": "Details",
+      "reviews": "Bewertungen",
+      "delivery": "Lieferung"
+    },
+    "meta": {
+      "category": "Kategorie",
+      "reference": "Referenz",
+      "material": "Material",
+      "care": "Pflege"
+    },
     "materialText": "100% Bio-Baumwolle",
     "careText": "Maschinenwäsche bei 30°C",
     "reviews": {
@@ -190,11 +243,23 @@
     },
     "deliveryInfo": {
       "title": "Lieferinformationen",
-      "standard": { "title": "Standardversand", "text": "3-5 Werktage - Kostenlos ab 50€" },
-      "express": { "title": "Expressversand", "text": "1-2 Werktage - 9,99€" },
-      "pickup": { "title": "Paketshop", "text": "3-4 Werktage - 3,99€" }
+      "standard": {
+        "title": "Standardversand",
+        "text": "3-5 Werktage - Kostenlos ab 50€"
+      },
+      "express": {
+        "title": "Expressversand",
+        "text": "1-2 Werktage - 9,99€"
+      },
+      "pickup": {
+        "title": "Paketshop",
+        "text": "3-4 Werktage - 3,99€"
+      }
     },
-    "related": { "title": "Ähnliche Produkte", "cta": "Produkt ansehen" },
+    "related": {
+      "title": "Ähnliche Produkte",
+      "cta": "Produkt ansehen"
+    },
     "errors": {
       "load": "Das Produkt ist nicht verfügbar oder vorübergehend offline."
     }
@@ -272,7 +337,14 @@
     "passwordToggleShow": "Passwort anzeigen",
     "passwordToggleHide": "Passwort verbergen",
     "passwordError": "Das Passwort muss mindestens 6 Zeichen enthalten.",
-    "passwordStrength": ["Sehr schwach", "Schwach", "Mittel", "Gut", "Stark", "Sehr stark"],
+    "passwordStrength": [
+      "Sehr schwach",
+      "Schwach",
+      "Mittel",
+      "Gut",
+      "Stark",
+      "Sehr stark"
+    ],
     "submit": "Registrieren",
     "submitting": "Wird geladen...",
     "switchQuestion": "Bereits registriert?",
@@ -320,15 +392,32 @@
       "quickAccess": "Schnellzugriff",
       "manageCta": "Verwalten →",
       "shortcuts": {
-        "products": { "title": "Produkte", "desc": "Katalog und Lagerbestand" },
-        "orders": { "title": "Bestellungen", "desc": "Versand nachverfolgen" },
-        "users": { "title": "Kunden", "desc": "Nutzerverwaltung" },
-        "colors": { "title": "Farben", "desc": "Farbpalette pflegen" },
-        "categories": { "title": "Kategorien", "desc": "Struktur der Website" },
-        "variants": { "title": "Varianten", "desc": "Ausführungen verwalten" }
+        "products": {
+          "title": "Produkte",
+          "desc": "Katalog und Lagerbestand"
+        },
+        "orders": {
+          "title": "Bestellungen",
+          "desc": "Versand nachverfolgen"
+        },
+        "users": {
+          "title": "Kunden",
+          "desc": "Nutzerverwaltung"
+        },
+        "colors": {
+          "title": "Farben",
+          "desc": "Farbpalette pflegen"
+        },
+        "categories": {
+          "title": "Kategorien",
+          "desc": "Struktur der Website"
+        },
+        "variants": {
+          "title": "Varianten",
+          "desc": "Ausführungen verwalten"
+        }
       }
-    }
-    ,
+    },
     "nav": {
       "label": "Admin Navigation",
       "brand": "Sabbels Admin",
@@ -338,7 +427,168 @@
       "colors": "Farben",
       "categories": "Kategorien",
       "orders": "Bestellungen",
-      "users": "Benutzer"
+      "users": "Benutzer",
+      "open": "Menü öffnen",
+      "close": "Menü schließen"
+    },
+    "products": {
+      "eyebrow": "Katalog",
+      "title": "Produkte",
+      "subtitle": "Verwalte deinen Produktkatalog mit einem vereinfachten Erstellungsassistenten.",
+      "search": "Produkt suchen...",
+      "newProduct": "+ Neues Produkt",
+      "editProduct": "Produkt bearbeiten",
+      "deleteConfirm": "Dieses Produkt löschen?",
+      "wizard": {
+        "steps": {
+          "info": "Informationen",
+          "colors": "Farben",
+          "variants": "Varianten",
+          "images": "Bilder",
+          "review": "Zusammenfassung"
+        },
+        "info": {
+          "title": "Grundinformationen",
+          "description": "Beginnen wir mit den wesentlichen Informationen zu deinem Produkt.",
+          "nameLabel": "Produktname",
+          "namePlaceholder": "Z.B.: Geflochtener Korb aus Bio-Baumwolle",
+          "categoryLabel": "Kategorie",
+          "statusLabel": "Status",
+          "statusActive": "Aktiv (sichtbar)",
+          "statusDraft": "Entwurf",
+          "statusArchived": "Archiviert",
+          "descriptionLabel": "Beschreibung",
+          "descriptionPlaceholder": "Beschreibe dein Produkt in wenigen Sätzen..."
+        },
+        "colors": {
+          "title": "Verfügbare Farben",
+          "description": "Wähle die Farben, in denen dieses Produkt verfügbar ist.",
+          "noColors": "Keine Farben verfügbar.",
+          "createColors": "Farben erstellen",
+          "selected": "{{count}} Farbe ausgewählt",
+          "selected_plural": "{{count}} Farben ausgewählt",
+          "selectWarning": "Wähle mindestens eine Farbe"
+        },
+        "variants": {
+          "title": "Varianten (Größen & Preise)",
+          "description": "Definiere die Variationen deines Produkts.",
+          "quickGenTitle": "Schnellgenerierung",
+          "quickGenDesc": "Wähle Größen und einen Basispreis, um automatisch alle Varianten zu generieren.",
+          "sizesLabel": "Größen",
+          "basePriceLabel": "Basispreis (€)",
+          "baseStockLabel": "Lagerbestand pro Variante",
+          "generateBtn": "{{count}} Varianten generieren",
+          "addManually": "+ Manuell hinzufügen",
+          "noVariants": "Keine Varianten. Nutze die Schnellgenerierung oder füge manuell hinzu.",
+          "minPrice": "Mindestpreis angezeigt",
+          "sizeLabel": "Größe",
+          "colorLabel": "Farbe",
+          "priceLabel": "Preis (€)",
+          "stockLabel": "Lagerbestand"
+        },
+        "images": {
+          "title": "Produktbilder",
+          "description": "Füge Fotos deines Produkts hinzu. Das erste wird als Hauptbild angezeigt.",
+          "dropzone": "Bilder hierher ziehen",
+          "browse": "Durchsuchen",
+          "hint": "Bilder sind optional, aber empfohlen für bessere Konversion.",
+          "primary": "Hauptbild"
+        },
+        "review": {
+          "title": "Zusammenfassung",
+          "description": "Überprüfe die Informationen bevor du das Produkt erstellst.",
+          "infoSection": "Informationen",
+          "colorsSection": "Farben",
+          "variantsSection": "Varianten",
+          "imagesSection": "Bilder",
+          "noColor": "Keine Farbe",
+          "noImage": "Kein Bild",
+          "displayPrice": "Angezeigter Preis"
+        },
+        "prev": "Zurück",
+        "next": "Weiter",
+        "create": "Produkt erstellen",
+        "update": "Aktualisieren"
+      },
+      "messages": {
+        "created": "Produkt erstellt",
+        "updated": "Produkt aktualisiert",
+        "deleted": "Produkt gelöscht",
+        "error": "Fehler beim Speichern des Produkts.",
+        "nameRequired": "Produktname ist erforderlich.",
+        "variantRequired": "Mindestens eine gültige Variante ist erforderlich.",
+        "variantsGenerated": "{{count}} Varianten generiert",
+        "selectSizeColor": "Wähle mindestens eine Größe und eine Farbe",
+        "validPrice": "Gib einen gültigen Basispreis ein"
+      },
+      "empty": {
+        "title": "Keine Produkte",
+        "description": "Erstelle dein erstes Produkt.",
+        "cta": "+ Produkt erstellen"
+      }
+    },
+    "variants": {
+      "eyebrow": "Ausführungen",
+      "title": "Varianten",
+      "subtitle": "Verwalte die Varianten (Größen, Farben, Preise) deiner Produkte.",
+      "search": "Suchen...",
+      "filterAll": "Alle Produkte",
+      "newVariant": "+ Neue Variante",
+      "editVariant": "Variante bearbeiten",
+      "deleteConfirm": "Diese Variante löschen?",
+      "productLabel": "Produkt",
+      "selectProduct": "Produkt auswählen",
+      "sizeLabel": "Größe",
+      "colorLabel": "Farbe",
+      "priceLabel": "Preis (€)",
+      "stockLabel": "Lagerbestand",
+      "skuLabel": "SKU",
+      "messages": {
+        "created": "Variante erstellt",
+        "updated": "Variante aktualisiert",
+        "deleted": "Variante gelöscht",
+        "error": "Variante konnte nicht gespeichert werden.",
+        "required": "Produkt, Größe und Preis sind erforderlich.",
+        "positivePrice": "Der Preis muss positiv sein."
+      },
+      "empty": {
+        "title": "Keine Varianten",
+        "description": "Erstelle eine Variante für deine Produkte.",
+        "filtered": "Keine Ergebnisse für diese Filter.",
+        "cta": "+ Variante erstellen"
+      }
+    },
+    "colors": {
+      "eyebrow": "Anpassung",
+      "title": "Farben",
+      "subtitle": "Verwalte die verfügbare Farbpalette für deine Produkte."
+    },
+    "categories": {
+      "eyebrow": "Organisation",
+      "title": "Kategorien",
+      "subtitle": "Organisiere deine Produkte in Kategorien und Unterkategorien."
+    },
+    "orders": {
+      "eyebrow": "Verkäufe",
+      "title": "Bestellungen",
+      "subtitle": "Verfolge und verwalte die Bestellungen deiner Kunden."
+    },
+    "users": {
+      "eyebrow": "Kunden",
+      "title": "Benutzer",
+      "subtitle": "Verwalte Benutzerkonten und ihre Rollen."
+    },
+    "common": {
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "edit": "Bearbeiten",
+      "create": "Erstellen",
+      "update": "Aktualisieren",
+      "search": "Suchen",
+      "loading": "Laden...",
+      "noResults": "Keine Ergebnisse",
+      "required": "Erforderlich"
     }
   },
   "profile": {

@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import { listItemsBasic, listVariants, upsertVariant, deleteVariant } from '../../services/adminVariants';
 import { listColors } from '@/services/adminColors';
-import { pushToast } from '../ToastHost';
+import { useEffect, useMemo, useState } from 'react';
+import { deleteVariant, listItemsBasic, listVariants, upsertVariant } from '../../services/adminVariants';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
+import { pushToast } from '../ToastHost';
 
 export default function VariantManager() {
   const [variants, setVariants] = useState([]);
@@ -10,6 +10,10 @@ export default function VariantManager() {
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterProduct, setFilterProduct] = useState('');
+
   const [form, setForm] = useState({
     item_id: '',
     color_id: '',
@@ -29,7 +33,7 @@ export default function VariantManager() {
       listColors(),
     ]);
     if (variantsResp.error || itemsResp.error || colorsResp.error) {
-      setError('Impossible de charger les variantes / Varianten konnten nicht geladen werden.');
+      setError('Impossible de charger les variantes.');
       setVariants([]);
       setProducts([]);
       setColors([]);
@@ -46,6 +50,19 @@ export default function VariantManager() {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const resetForm = () => {
+    setForm({
+      item_id: '',
+      color_id: '',
+      size: '',
+      price: '',
+      stock: 0,
+      sku: '',
+    });
+    setEditingId(null);
+    setShowForm(false);
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
     try {
@@ -59,12 +76,12 @@ export default function VariantManager() {
       };
 
       if (!payload.item_id || !payload.size || Number.isNaN(payload.price)) {
-        pushToast({ message: 'Produit, taille et prix requis / Produkt, Größe und Preis erforderlich.', variant: 'error' });
+        pushToast({ message: 'Produit, taille et prix sont requis.', variant: 'error' });
         return;
       }
 
       if (payload.price < 0) {
-        pushToast({ message: 'Le prix doit être positif / Preis muss positiv sein.', variant: 'error' });
+        pushToast({ message: 'Le prix doit être positif.', variant: 'error' });
         return;
       }
 
@@ -73,7 +90,6 @@ export default function VariantManager() {
         if (form.sku) updatePayload.sku = form.sku;
         const { error } = await upsertVariant({ ...updatePayload, id: editingId });
         if (error) throw error;
-        setEditingId(null);
       } else {
         const colorCode = colorId ? (colors.find(c => c.id === colorId)?.code || colorId) : 'default';
         const skuBase = `SKU-${payload.item_id}-${payload.size}-${colorCode}`
@@ -87,19 +103,12 @@ export default function VariantManager() {
         if (error) throw error;
       }
 
-      setForm({
-        item_id: '',
-        color_id: '',
-        size: '',
-        price: '',
-        stock: 0,
-        sku: '',
-      });
+      resetForm();
       fetchVariants();
-      pushToast({ message: 'Variante sauvegardée / Variante gespeichert', variant: 'success' });
+      pushToast({ message: editingId ? 'Variante mise à jour' : 'Variante créée', variant: 'success' });
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      pushToast({ message: 'Impossible de sauvegarder la variante / Variante konnte nicht gespeichert werden.', variant: 'error' });
+      pushToast({ message: 'Impossible de sauvegarder la variante.', variant: 'error' });
     }
   };
 
@@ -113,34 +122,49 @@ export default function VariantManager() {
       sku: variant.sku || '',
     });
     setEditingId(variant.id);
+    setShowForm(true);
   };
 
   const handleDelete = async id => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette variante ?')) {
+    if (confirm('Supprimer cette variante ?')) {
       const { error } = await deleteVariant(id);
       if (!error) {
         fetchVariants();
-        pushToast({ message: 'Variante supprimée / Variante gelöscht', variant: 'success' });
+        pushToast({ message: 'Variante supprimée', variant: 'success' });
       }
     }
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setForm({
-      item_id: '',
-      color_id: '',
-      size: '',
-      price: '',
-      stock: 0,
-      sku: '',
-    });
   };
 
   const colorById = useMemo(() => {
     const map = new Map(colors.map(color => [color.id, color]));
     return id => map.get(id) || null;
   }, [colors]);
+
+  const productById = useMemo(() => {
+    const map = new Map(products.map(p => [p.id, p]));
+    return id => map.get(id) || null;
+  }, [products]);
+
+  // Filtrage des variantes
+  const filteredVariants = useMemo(() => {
+    let result = variants;
+
+    if (filterProduct) {
+      result = result.filter(v => v.item_id === Number(filterProduct));
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(v =>
+        v.size?.toLowerCase().includes(q) ||
+        v.sku?.toLowerCase().includes(q) ||
+        v.items?.name?.toLowerCase().includes(q) ||
+        colorById(v.color_id)?.name?.toLowerCase().includes(q)
+      );
+    }
+
+    return result;
+  }, [variants, filterProduct, searchQuery, colorById]);
 
   useEffect(() => {
     fetchVariants();
@@ -151,99 +175,223 @@ export default function VariantManager() {
 
   return (
     <div className="variant-manager">
-      <h2>Gestion des Variantes / Varianten</h2>
+      {/* Header */}
+      <div className="manager-header">
+        <div className="manager-header__left">
+          <h2>Gestion des Variantes</h2>
+          <span className="product-count">{variants.length} variante{variants.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div className="manager-header__right">
+          <div className="search-box">
+            <input
+              type="search"
+              placeholder="Rechercher..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+            <span className="search-icon">🔍</span>
+          </div>
+          <select
+            value={filterProduct}
+            onChange={e => setFilterProduct(e.target.value)}
+            className="filter-select"
+          >
+            <option value="">Tous les produits</option>
+            {products.map(p => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+          <button
+            className="btn btn-primary"
+            onClick={() => { resetForm(); setShowForm(true); }}
+          >
+            + Nouvelle variante
+          </button>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="variant-form">
-        <select name="item_id" value={form.item_id} onChange={handleChange} required>
-          <option value="">Sélectionner un produit / Produkt wählen</option>
-          {products.map(product => (
-            <option key={product.id} value={product.id}>
-              {product.name}
-            </option>
-          ))}
-        </select>
+      {/* Form Modal */}
+      {showForm && (
+        <div className="wizard-overlay" onClick={e => e.target === e.currentTarget && resetForm()}>
+          <div className="wizard-modal" style={{ maxWidth: '500px' }}>
+            <div className="wizard-header">
+              <h2>{editingId ? 'Modifier la variante' : 'Nouvelle variante'}</h2>
+              <button className="btn-close" onClick={resetForm}>×</button>
+            </div>
 
-        <select name="color_id" value={form.color_id} onChange={handleChange}>
-          <option value="">Couleur (optionnel)</option>
-          {colors.map(color => (
-            <option key={color.id} value={color.id}>
-              {color.name}
-            </option>
-          ))}
-        </select>
+            <form onSubmit={handleSubmit} className="wizard-content">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Produit <span className="required">*</span></label>
+                  <select name="item_id" value={form.item_id} onChange={handleChange} required>
+                    <option value="">Sélectionner un produit</option>
+                    {products.map(product => (
+                      <option key={product.id} value={product.id}>
+                        {product.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-        <input
-          name="size"
-          value={form.size}
-          onChange={handleChange}
-          placeholder="Taille"
-          required
-        />
+                <div className="form-row two-col">
+                  <div className="form-group">
+                    <label>Taille <span className="required">*</span></label>
+                    <input
+                      name="size"
+                      value={form.size}
+                      onChange={handleChange}
+                      placeholder="Ex: M, L, XL"
+                      required
+                    />
+                  </div>
 
-        <input
-          name="price"
-          type="number"
-          step="0.01"
-          value={form.price}
-          onChange={handleChange}
-          placeholder="Prix (€)"
-        />
+                  <div className="form-group">
+                    <label>Couleur</label>
+                    <div className="color-select-wrapper">
+                      <select name="color_id" value={form.color_id} onChange={handleChange}>
+                        <option value="">Aucune</option>
+                        {colors.map(color => (
+                          <option key={color.id} value={color.id}>
+                            {color.name}
+                          </option>
+                        ))}
+                      </select>
+                      {form.color_id && (
+                        <span
+                          className="color-dot"
+                          style={{ backgroundColor: colorById(Number(form.color_id))?.hex_code }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-        <input
-          name="stock"
-          type="number"
-          value={form.stock}
-          onChange={handleChange}
-          placeholder="Stock"
-          required
-        />
+                <div className="form-row two-col">
+                  <div className="form-group">
+                    <label>Prix (€) <span className="required">*</span></label>
+                    <input
+                      name="price"
+                      type="number"
+                      step="0.01"
+                      value={form.price}
+                      onChange={handleChange}
+                      placeholder="29.90"
+                      required
+                    />
+                  </div>
 
-        <div className="form-buttons">
-          <button type="submit">{editingId ? 'Modifier / Aktualisieren' : 'Ajouter / Hinzufügen'}</button>
-          {editingId && (
-            <button type="button" onClick={cancelEdit}>
-              Annuler / Abbrechen
+                  <div className="form-group">
+                    <label>Stock</label>
+                    <input
+                      name="stock"
+                      type="number"
+                      min={0}
+                      value={form.stock}
+                      onChange={handleChange}
+                      placeholder="10"
+                    />
+                  </div>
+                </div>
+
+                {editingId && form.sku && (
+                  <div className="form-group">
+                    <label>SKU</label>
+                    <input
+                      name="sku"
+                      value={form.sku}
+                      onChange={handleChange}
+                      placeholder="Auto-généré"
+                      disabled
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="wizard-footer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--adm-border)' }}>
+                <button type="button" className="btn btn-outline" onClick={resetForm}>
+                  Annuler
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {editingId ? '✓ Mettre à jour' : '✓ Créer'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {filteredVariants.length === 0 && (
+        <div className="empty-state">
+          <span className="empty-icon">🎯</span>
+          <h3>Aucune variante</h3>
+          <p>{searchQuery || filterProduct ? 'Aucun résultat pour ces filtres.' : 'Commencez par créer une variante pour vos produits.'}</p>
+          {!searchQuery && !filterProduct && (
+            <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+              + Créer une variante
             </button>
           )}
         </div>
-      </form>
+      )}
 
-      <div className="variants-list">
-        <h3>Variantes existantes</h3>
-          {variants.length === 0 ? (
-            <p>Aucune variante trouvée / Keine Variante gefunden</p>
-          ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Produit</th>
-                <th>Couleur</th>
-                <th>Taille</th>
-                <th>Prix</th>
-                <th>Stock</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {variants.map(variant => (
-                <tr key={variant.id}>
-                  <td>{variant.items?.name || 'N/A'}</td>
-                  <td>
-                    {variant.colors?.name || colorById(variant.color_id)?.name || '—'}
-                  </td>
-                  <td>{variant.size}</td>
-                  <td>{Number(variant.price).toFixed(2)}€</td>
-                  <td>{variant.stock}</td>
-                  <td>
-                    <button onClick={() => handleEdit(variant)} aria-label="Modifier / Bearbeiten">Modifier / Bearbeiten</button>
-                    <button onClick={() => handleDelete(variant.id)} aria-label="Supprimer / Löschen">Supprimer / Löschen</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {/* Variants Grid */}
+      {filteredVariants.length > 0 && (
+        <div className="variants-cards">
+          {filteredVariants.map(variant => {
+            const color = colorById(variant.color_id);
+            const product = productById(variant.item_id) || variant.items;
+
+            return (
+              <div key={variant.id} className="variant-card">
+                <div className="variant-card__header">
+                  <span className="variant-product-name">{product?.name || 'N/A'}</span>
+                  <div className="variant-card__actions">
+                    <button
+                      onClick={() => handleEdit(variant)}
+                      className="btn-icon"
+                      aria-label="Modifier"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => handleDelete(variant.id)}
+                      className="btn-icon btn-remove"
+                      aria-label="Supprimer"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+
+                <div className="variant-card__content">
+                  <div className="variant-info-row">
+                    <span className="variant-size">{variant.size}</span>
+                    {color && (
+                      <span className="variant-color">
+                        <span className="color-dot" style={{ backgroundColor: color.hex_code }} />
+                        {color.name}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="variant-meta">
+                    <span className="variant-price">{Number(variant.price).toFixed(2)}€</span>
+                    <span className={`variant-stock ${variant.stock === 0 ? 'out-of-stock' : ''}`}>
+                      Stock: {variant.stock}
+                    </span>
+                  </div>
+
+                  {variant.sku && (
+                    <div className="variant-sku">
+                      <code>{variant.sku}</code>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
