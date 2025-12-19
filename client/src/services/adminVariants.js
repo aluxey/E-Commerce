@@ -5,8 +5,9 @@ export const listVariants = async () =>
     .from('item_variants')
     .select(
       `
-      id, item_id, size, color, price, stock, sku,
-      items ( name )
+      id, item_id, size, color_id, price, stock, sku,
+      items ( name ),
+      colors ( id, name, hex_code, code )
     `
     )
     .order('id', { ascending: false });

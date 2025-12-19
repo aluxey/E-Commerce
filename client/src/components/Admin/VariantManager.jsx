@@ -1,16 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { listItemsBasic, listVariants, upsertVariant, deleteVariant } from '../../services/adminVariants';
+import { listColors } from '@/services/adminColors';
 import { pushToast } from '../ToastHost';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
 
 export default function VariantManager() {
   const [variants, setVariants] = useState([]);
   const [products, setProducts] = useState([]);
+  const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [form, setForm] = useState({
     item_id: '',
-    color: '',
+    color_id: '',
     size: '',
     price: '',
     stock: 0,
@@ -21,14 +23,20 @@ export default function VariantManager() {
   const fetchVariants = async () => {
     setLoading(true);
     setError(null);
-    const [variantsResp, itemsResp] = await Promise.all([listVariants(), listItemsBasic()]);
-    if (variantsResp.error || itemsResp.error) {
+    const [variantsResp, itemsResp, colorsResp] = await Promise.all([
+      listVariants(),
+      listItemsBasic(),
+      listColors(),
+    ]);
+    if (variantsResp.error || itemsResp.error || colorsResp.error) {
       setError('Impossible de charger les variantes / Varianten konnten nicht geladen werden.');
       setVariants([]);
       setProducts([]);
+      setColors([]);
     } else {
       setVariants(variantsResp.data || []);
       setProducts(itemsResp.data || []);
+      setColors(colorsResp.data || []);
     }
     setLoading(false);
   };
@@ -41,9 +49,10 @@ export default function VariantManager() {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
+      const colorId = form.color_id ? Number(form.color_id) : null;
       const payload = {
         item_id: Number(form.item_id),
-        color: form.color.trim() ? form.color.trim() : null,
+        color_id: colorId,
         size: form.size.trim(),
         stock: Math.max(0, parseInt(form.stock, 10) || 0),
         price: parseFloat(String(form.price).replace(',', '.')),
@@ -66,7 +75,8 @@ export default function VariantManager() {
         if (error) throw error;
         setEditingId(null);
       } else {
-        const skuBase = `SKU-${payload.item_id}-${payload.size}-${payload.color || 'default'}`
+        const colorCode = colorId ? (colors.find(c => c.id === colorId)?.code || colorId) : 'default';
+        const skuBase = `SKU-${payload.item_id}-${payload.size}-${colorCode}`
           .toUpperCase()
           .replace(/[^A-Z0-9-]/g, '-');
         const insertPayload = {
@@ -79,7 +89,7 @@ export default function VariantManager() {
 
       setForm({
         item_id: '',
-        color: '',
+        color_id: '',
         size: '',
         price: '',
         stock: 0,
@@ -96,7 +106,7 @@ export default function VariantManager() {
   const handleEdit = variant => {
     setForm({
       item_id: variant.item_id,
-      color: variant.color || '',
+      color_id: variant.color_id || '',
       size: variant.size || '',
       price: variant.price,
       stock: variant.stock,
@@ -119,13 +129,18 @@ export default function VariantManager() {
     setEditingId(null);
     setForm({
       item_id: '',
-      color: '',
+      color_id: '',
       size: '',
       price: '',
       stock: 0,
       sku: '',
     });
   };
+
+  const colorById = useMemo(() => {
+    const map = new Map(colors.map(color => [color.id, color]));
+    return id => map.get(id) || null;
+  }, [colors]);
 
   useEffect(() => {
     fetchVariants();
@@ -148,12 +163,14 @@ export default function VariantManager() {
           ))}
         </select>
 
-        <input
-          name="color"
-          value={form.color}
-          onChange={handleChange}
-          placeholder="Couleur"
-        />
+        <select name="color_id" value={form.color_id} onChange={handleChange}>
+          <option value="">Couleur (optionnel)</option>
+          {colors.map(color => (
+            <option key={color.id} value={color.id}>
+              {color.name}
+            </option>
+          ))}
+        </select>
 
         <input
           name="size"
@@ -211,7 +228,9 @@ export default function VariantManager() {
               {variants.map(variant => (
                 <tr key={variant.id}>
                   <td>{variant.items?.name || 'N/A'}</td>
-                  <td>{variant.color || '—'}</td>
+                  <td>
+                    {variant.colors?.name || colorById(variant.color_id)?.name || '—'}
+                  </td>
                   <td>{variant.size}</td>
                   <td>{Number(variant.price).toFixed(2)}€</td>
                   <td>{variant.stock}</td>
