@@ -561,12 +561,91 @@
     "colors": {
       "eyebrow": "Personnalisation",
       "title": "Couleurs",
-      "subtitle": "Gérez la palette de couleurs disponibles pour vos produits."
+      "subtitle": "Gérez la palette de couleurs disponibles pour vos produits.",
+      "available": "Palette de couleurs",
+      "count": "couleur(s)",
+      "add": "Nouvelle couleur",
+      "products": "produit(s)",
+      "editTitle": "Modifier la couleur",
+      "createTitle": "Nouvelle couleur",
+      "presets": "Couleurs prédéfinies",
+      "unsaved": "Des modifications ne sont pas sauvegardées. Quitter ?",
+      "form": {
+        "name": "Nom",
+        "namePlaceholder": "Ex: Bleu Glacé",
+        "code": "Code interne",
+        "codeHint": "Slug technique (a-z, 0-9, tirets)",
+        "hex": "Code hexadécimal"
+      },
+      "error": {
+        "load": "Impossible de charger les couleurs.",
+        "nameRequired": "Le nom est requis.",
+        "codeRequired": "Le code est requis.",
+        "codeInvalid": "Code invalide (lettres, chiffres, tirets uniquement).",
+        "hexInvalid": "Code couleur invalide (#RRGGBB).",
+        "save": "Sauvegarde impossible.",
+        "checkUsage": "Impossible de vérifier l'usage.",
+        "inUse": "Couleur utilisée par des produits.",
+        "delete": "Suppression impossible."
+      },
+      "success": {
+        "create": "Couleur créée.",
+        "update": "Couleur mise à jour.",
+        "delete": "Couleur supprimée."
+      },
+      "confirm": {
+        "delete": "Supprimer cette couleur ?"
+      },
+      "empty": {
+        "title": "Aucune couleur",
+        "description": "Commencez par créer votre première couleur."
+      }
     },
     "categories": {
       "eyebrow": "Organisation",
       "title": "Catégories",
-      "subtitle": "Organisez vos produits par catégories et sous-catégories."
+      "subtitle": "Organisez vos produits par catégories et sous-catégories.",
+      "tree": "Arborescence",
+      "mainCount": "catégorie(s) principale(s)",
+      "addMain": "Catégorie principale",
+      "addSub": "Ajouter sous-catégorie",
+      "sub": "Sous-cat.",
+      "subs": "sous-cat.",
+      "products": "produits",
+      "editTitle": "Modifier la catégorie",
+      "createTitle": "Nouvelle catégorie",
+      "createSubTitle": "Nouvelle sous-catégorie",
+      "unsaved": "Des modifications ne sont pas sauvegardées. Quitter ?",
+      "form": {
+        "icon": "Icône",
+        "name": "Nom",
+        "namePlaceholder": "Ex: Textiles déco",
+        "description": "Description",
+        "descPlaceholder": "Description courte de la catégorie...",
+        "parent": "Catégorie parente",
+        "noParent": "— Catégorie principale —",
+        "parentHint": "Laissez vide pour une catégorie principale"
+      },
+      "error": {
+        "load": "Impossible de charger les catégories.",
+        "nameRequired": "Le nom est requis.",
+        "save": "Sauvegarde impossible.",
+        "hasSubcategories": "Impossible: sous-catégories présentes.",
+        "hasProducts": "Impossible: produits liés.",
+        "delete": "Suppression impossible."
+      },
+      "success": {
+        "create": "Catégorie créée.",
+        "update": "Catégorie mise à jour.",
+        "delete": "Catégorie supprimée."
+      },
+      "confirm": {
+        "delete": "Supprimer cette catégorie ?"
+      },
+      "empty": {
+        "title": "Aucune catégorie",
+        "description": "Créez votre première catégorie pour organiser vos produits."
+      }
     },
     "orders": {
       "eyebrow": "Ventes",
