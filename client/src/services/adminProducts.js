@@ -63,6 +63,23 @@ export const upsertItem = async (itemPayload, editingId) => {
   return supabase.from(TABLE_ITEMS).insert([payload]).select('id').single();
 };
 
+export const createItemWithColors = async (itemPayload, colorIds) => {
+  const payload = sanitizeItemPayload(itemPayload);
+  const ids = Array.from(new Set(colorIds || [])).filter(Boolean);
+  if (!ids.length) throw new Error('Au moins une couleur est requise pour le produit.');
+
+  return supabase
+    .from(TABLE_ITEMS)
+    .insert([
+      {
+        ...payload,
+        item_colors: ids.map(id => ({ color_id: id })),
+      },
+    ])
+    .select('id')
+    .single();
+};
+
 export const syncItemColors = async (itemId, colorIds) => {
   const ids = Array.from(new Set(colorIds || [])).filter(Boolean);
   if (!ids.length) throw new Error('Au moins une couleur est requise pour le produit.');

@@ -10,6 +10,7 @@ import {
     insertVariants,
     listCategories,
     listProducts,
+    createItemWithColors,
     removeProductImage,
     syncItemColors,
     updateItemPriceMeta,
@@ -366,20 +367,9 @@ export default function ProductAdmin() {
           }
         }
       } else {
-        const { data, error } = await upsertItem(itemPayload, null);
+        const { data, error } = await createItemWithColors(itemPayload, normalizedColorIds);
         if (error) throw error;
         itemId = data.id;
-        if (normalizedColorIds.length) {
-          const { error: colorsError } = await syncItemColors(itemId, normalizedColorIds);
-          if (colorsError) {
-            if (String(colorsError.message || '').includes('item_colors')) {
-              pushToast({ message: 'Couleurs non synchronisées (table absente ?)', variant: 'error' });
-            } else {
-              throw colorsError;
-            }
-          }
-        }
-        // Si aucune couleur dispo dans le schéma, on continue sans bloquer
       }
 
       // Fetch existing variants to detect deletions
