@@ -68,7 +68,7 @@ export const createItemWithColors = async (itemPayload, colorIds) => {
   const ids = Array.from(new Set(colorIds || [])).filter(Boolean);
   if (!ids.length) throw new Error('Au moins une couleur est requise pour le produit.');
 
-  return supabase
+  const nested = await supabase
     .from(TABLE_ITEMS)
     .insert([
       {
@@ -78,6 +78,25 @@ export const createItemWithColors = async (itemPayload, colorIds) => {
     ])
     .select('id')
     .single();
+
+  // Some Supabase environments struggle with deep inserts if the relation
+  // isn't present in the cached schema. Fall back to a two-step insert.
+  if (!nested.error) return nested;
+  if (!String(nested.error.message || '').includes('item_colors')) return nested;
+
+  const { data: item, error: itemError } = await supabase
+    .from(TABLE_ITEMS)
+    .insert([payload])
+    .select('id')
+    .single();
+  if (itemError) return { data: null, error: itemError };
+
+  const inserts = ids.map(id => ({ item_id: item.id, color_id: id }));
+  const { error: colorsError } = await supabase
+    .from('item_colors')
+    .upsert(inserts, { onConflict: 'item_id,color_id' });
+
+  return { data: item, error: colorsError };
 };
 
 export const syncItemColors = async (itemId, colorIds) => {
