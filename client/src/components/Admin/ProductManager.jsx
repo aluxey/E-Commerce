@@ -29,7 +29,6 @@ const PRESET_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Unique'];
 const createEmptyVariant = () => ({
   id: null,
   size: '',
-  color_id: '',
   price: '',
   stock: 0,
   sku: '',
@@ -50,8 +49,7 @@ const randomSuffix = () =>
 
 const buildSku = (itemId, variant) => {
   const sizeSlug = slugify(variant.size) || 'std';
-  const colorSlug = slugify(variant.color_label || '') || 'def';
-  return `SKU-${itemId}-${sizeSlug}-${colorSlug}-${randomSuffix()}`.toUpperCase();
+  return `SKU-${itemId}-${sizeSlug}-${randomSuffix()}`.toUpperCase();
 };
 
 // Wizard Steps
@@ -127,7 +125,7 @@ export default function ProductManager() {
               id, name, price, description, category_id, status,
               item_images ( id, image_url ),
               categories ( id, name ),
-              item_variants ( id, size, color_id, price, stock, sku )
+              item_variants ( id, size, price, stock, sku )
             `)
             .order('id', { ascending: false });
           if (fbError) throw fbError;
@@ -182,7 +180,6 @@ export default function ProductManager() {
           ? draft.variants.map(v => ({
               id: null,
               size: v.size || '',
-              color_id: v.color_id || '',
               price: v.price || '',
               stock: v.stock ?? 0,
               sku: v.sku || '',
@@ -207,7 +204,6 @@ export default function ProductManager() {
       form,
       variants: variants.map(v => ({
         size: v.size,
-        color_id: v.color_id,
         price: v.price,
         stock: v.stock,
         sku: v.sku,
@@ -237,8 +233,8 @@ export default function ProductManager() {
 
   // Génération automatique de variantes
   const generateVariants = () => {
-    if (!selectedSizes.length || !selectedColors.length) {
-      pushToast({ message: 'Sélectionnez au moins une taille et une couleur', variant: 'warning' });
+    if (!selectedSizes.length) {
+      pushToast({ message: 'Sélectionnez au moins une taille', variant: 'warning' });
       return;
     }
 
@@ -248,21 +244,13 @@ export default function ProductManager() {
       return;
     }
 
-    const newVariants = [];
-    selectedSizes.forEach(size => {
-      selectedColors.forEach(colorId => {
-        const colorObj = colors.find(c => c.id === colorId);
-        newVariants.push({
-          id: null,
-          size,
-          color_id: colorId,
-          color_label: colorObj?.name || '',
-          price: price.toFixed(2),
-          stock: baseStock,
-          sku: '',
-        });
-      });
-    });
+    const newVariants = selectedSizes.map(size => ({
+      id: null,
+      size,
+      price: price.toFixed(2),
+      stock: baseStock,
+      sku: '',
+    }));
 
     setVariants(newVariants);
     setIsDirty(true);
@@ -356,9 +344,6 @@ export default function ProductManager() {
     const combos = new Set();
     const cleaned = variants.map((variant, index) => {
       const size = sanitizeText(variant.size);
-      const colorId = variant.color_id ? Number(variant.color_id) : null;
-      const colorObj = colorId ? colors.find(c => c.id === colorId) : null;
-      const colorLabel = colorObj?.name || '';
       const price = parseFloat(String(variant.price).replace(',', '.'));
       const stock = Math.max(0, parseInt(variant.stock, 10) || 0);
 
@@ -366,10 +351,10 @@ export default function ProductManager() {
       if (Number.isNaN(price)) errors.push(`Variante #${index + 1}: prix invalide.`);
       if (!Number.isNaN(price) && price < 0) errors.push(`Variante #${index + 1}: le prix doit être positif.`);
 
-      const key = `${size}-${colorId || 'none'}`;
+      const key = size || '—';
       if (size && !Number.isNaN(price)) {
         if (combos.has(key)) {
-          errors.push(`Variante #${index + 1}: cette combinaison taille/couleur existe déjà.`);
+          errors.push(`Variante #${index + 1}: cette taille existe déjà.`);
         } else {
           combos.add(key);
         }
@@ -378,8 +363,6 @@ export default function ProductManager() {
       return {
         ...variant,
         size,
-        color_id: colorId,
-        color_label: colorLabel,
         price,
         stock,
         index,
@@ -483,7 +466,6 @@ export default function ProductManager() {
         const payload = {
           item_id: itemId,
           size: variant.size,
-          color_id: variant.color_id,
           price: variant.price,
           stock: variant.stock,
           sku: variant.sku || buildSku(itemId, variant),
@@ -569,7 +551,6 @@ export default function ProductManager() {
       const mapped = (data || []).map(v => ({
         id: v.id,
         size: v.size || '',
-        color_id: v.color_id || '',
         price: v.price != null ? Number(v.price).toFixed(2) : '',
         stock: v.stock ?? 0,
         sku: v.sku || '',
@@ -855,9 +836,9 @@ export default function ProductManager() {
                     type="button"
                     className="btn btn-primary"
                     onClick={generateVariants}
-                    disabled={!selectedSizes.length || !selectedColors.length}
+                    disabled={!selectedSizes.length}
                   >
-                    ⚡ Générer {selectedSizes.length * selectedColors.length || 0} variantes
+                    ⚡ Générer {selectedSizes.length || 0} variantes
                   </button>
                 </div>
               </div>
@@ -875,7 +856,6 @@ export default function ProductManager() {
               {variants.length > 0 && variants.some(v => v.size) ? (
                 <div className="variants-cards">
                   {variants.map((variant, index) => {
-                    const colorObj = colorById(Number(variant.color_id));
                     return (
                       <div key={variant.id ?? `new-${index}`} className="variant-card">
                         <div className="variant-card__header">
@@ -900,26 +880,6 @@ export default function ProductManager() {
                                 placeholder="M"
                                 required
                               />
-                            </div>
-                            <div className="form-group">
-                              <label>Couleur</label>
-                              <div className="color-select-wrapper">
-                                <select
-                                  value={variant.color_id || ''}
-                                  onChange={e => updateVariantField(index, 'color_id', e.target.value)}
-                                >
-                                  <option value="">—</option>
-                                  {colors.map(color => (
-                                    <option key={color.id} value={color.id}>{color.name}</option>
-                                  ))}
-                                </select>
-                                {colorObj && (
-                                  <span
-                                    className="color-dot"
-                                    style={{ backgroundColor: colorObj.hex_code }}
-                                  />
-                                )}
-                              </div>
                             </div>
                           </div>
 
@@ -1088,11 +1048,9 @@ export default function ProductManager() {
                 <h4>Variantes ({variants.filter(v => v.size).length})</h4>
                 <div className="review-variants">
                   {variants.filter(v => v.size).slice(0, 6).map((v, i) => {
-                    const c = colorById(Number(v.color_id));
                     return (
                       <div key={i} className="review-variant">
                         <span>{v.size}</span>
-                        {c && <span className="color-dot" style={{ backgroundColor: c.hex_code }} />}
                         <span>{Number(v.price).toFixed(2)}€</span>
                         <span className="stock">Stock: {v.stock}</span>
                       </div>

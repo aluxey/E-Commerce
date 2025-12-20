@@ -19,12 +19,11 @@ insert into public.categories (name) values
   ('Accessoires')
 on conflict (name, parent_id) do nothing;
 
--- 2bis) Couleurs de textile disponibles
-insert into public.colors (name, hex_code) values
-  ('BLEU', '#1E90FF'),
-  ('ORANGE', '#F97316'),
-  ('VERT', '#22C55E')
-on conflict (name) do nothing;
+insert into public.colors (name, code, hex_code) values
+  ('BLEU', 'bleu', '#1E90FF'),
+  ('ORANGE', 'orange', '#F97316'),
+  ('VERT', 'vert', '#22C55E')
+on conflict do nothing;
 
 -- 3) Items
 insert into public.items (name, description, price, image_url, category_id)
@@ -49,15 +48,15 @@ join public.colors c on c.name = 'ORANGE'
 where i.name = 'Amigurumi renard'
 on conflict do nothing;
 
--- 4) Variants (exemples)
-insert into public.item_variants (item_id, sku, color, size, stock, price)
-select i.id, 'SCARF-BLEU-M', 'BLEU', 'M', 10, 29.90
+-- Variantes (taille/stock/prix – couleurs gérées au niveau produit)
+insert into public.item_variants (item_id, sku, size, stock, price)
+select i.id, 'SCARF-BLEU-M', 'M', 10, 29.90
 from public.items i where i.name='Écharpe laine'
 union all
-select i.id, 'SCARF-VERT-L', 'VERT', 'L', 6, 31.90
+select i.id, 'SCARF-VERT-L', 'L', 6, 31.90
 from public.items i where i.name='Écharpe laine'
 union all
-select i.id, 'FOX-ORANGE-UNI', 'ORANGE', null, 12, 19.90
+select i.id, 'FOX-ORANGE-UNI', null, 12, 19.90
 from public.items i where i.name='Amigurumi renard';
 
 -- 5) Note produit (facultatif) — l’admin note un produit
@@ -107,13 +106,12 @@ insert into public.categories (name) values
   ('Peluches')
 on conflict (name, parent_id) do nothing;
 
--- ========= COLORS =========
-insert into public.colors (name, hex_code) values
-  ('BLEU', '#1E90FF'),
-  ('ORANGE', '#F97316'),
-  ('VERT', '#22C55E'),
-  ('BLANC', '#FFFFFF')
-on conflict (name) do nothing;
+insert into public.colors (name, code, hex_code) values
+  ('BLEU', 'bleu', '#1E90FF'),
+  ('ORANGE', 'orange', '#F97316'),
+  ('VERT', 'vert', '#22C55E'),
+  ('BLANC', 'blanc', '#FFFFFF')
+on conflict do nothing;
 
 -- ========= ITEMS (noms nouveaux vs. ton précédent seed) =========
 -- On prépare une table virtuelle d'items à insérer
@@ -153,20 +151,20 @@ where not exists (
 );
 
 -- ========= VARIANTS (avec SKUs uniques ; UPSERT par SKU) =========
-insert into public.item_variants (item_id, sku, color, size, stock, price)
+insert into public.item_variants (item_id, sku, size, stock, price)
 -- Bonnet torsadé
-select i.id, 'BONNET-BLEU-M', 'BLEU', 'M', 12, 24.90 from public.items i where i.name='Bonnet torsadé'
+select i.id, 'BONNET-BLEU-M', 'M', 12, 24.90 from public.items i where i.name='Bonnet torsadé'
 union all
-select i.id, 'BONNET-VERT-L', 'VERT', 'L', 8, 26.90 from public.items i where i.name='Bonnet torsadé'
+select i.id, 'BONNET-VERT-L', 'L', 8, 26.90 from public.items i where i.name='Bonnet torsadé'
 -- Plaid cocoon
 union all
-select i.id, 'PLAID-ORANGE-XL', 'ORANGE', 'XL', 5, 64.90 from public.items i where i.name='Plaid cocoon'
+select i.id, 'PLAID-ORANGE-XL', 'XL', 5, 64.90 from public.items i where i.name='Plaid cocoon'
 -- Chaussons bébé
 union all
-select i.id, 'BOOTIE-BLEU-0_6', 'BLEU', '0-6M', 20, 14.90 from public.items i where i.name='Chaussons bébé'
+select i.id, 'BOOTIE-BLEU-0_6', '0-6M', 20, 14.90 from public.items i where i.name='Chaussons bébé'
 -- Amigurumi lapin
 union all
-select i.id, 'LAPIN-BLANC-UNI', 'BLANC', null, 15, 21.90 from public.items i where i.name='Amigurumi lapin'
+select i.id, 'LAPIN-BLANC-UNI', null, 15, 21.90 from public.items i where i.name='Amigurumi lapin'
 on conflict (sku) do nothing;
 
 -- ========= IMAGES (anti-doublon par (item_id, image_url)) =========

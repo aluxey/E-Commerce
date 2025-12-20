@@ -165,11 +165,10 @@ export default function ItemDetail() {
     const preferred = sortedVariants.find(v => (v.stock ?? 0) > 0) || sortedVariants[0] || null;
     if (preferred) {
       setSelectedSize(preferred.size || '');
-      setSelectedColor(preferred.color || '');
     } else {
       setSelectedSize('');
-      setSelectedColor('');
     }
+    setSelectedColor('');
 
     const relatedResp = await fetchRelatedItems(data.category_id, data.id);
     if (!relatedResp.error) setRelatedItems(relatedResp.data || []);
@@ -255,7 +254,6 @@ export default function ItemDetail() {
         variant: {
           ...selectedVariant,
           color: colorObj?.name || selectedVariant.color,
-          color_id: colorObj?.id || selectedVariant.color_id,
           color_hex: colorObj?.hex_code || null,
         },
         quantity: safeQuantity,

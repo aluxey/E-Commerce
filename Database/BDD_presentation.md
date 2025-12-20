@@ -12,12 +12,12 @@ La base est organisée autour de 4 grands blocs : **Catalogue**, **Commandes**
 - **Catégories** : les familles de produits (ex. *Accessoires*, *Décoration*…).
 - **Couleurs** : référentiel des coloris textiles disponibles (nom + code couleur) pour harmoniser le catalogue.
 - **Produits** : chaque fiche produit (nom, description, prix de base, image principale, lien vers une catégorie).
-- **Variantes** : déclinaisons d’un produit (taille, couleur, stock et prix propres).
+- **Variantes** : déclinaisons d’un produit (taille, stock et prix propres). Les couleurs sont portées par le produit via `item_colors`.
 - **Images de produit** : plusieurs images possibles pour un même produit.
 - **Notes & avis** : une évaluation (1 à 5 étoiles) par utilisateur et par produit, avec commentaire.
 
 **Idée clé** :
-Un **produit** peut avoir **plusieurs variantes** (ex. tailles/couleurs), **plusieurs images**, et **plusieurs avis**. Les variantes portent le **stock** réel vendu et s’appuient sur un référentiel de **couleurs** centralisé. Chaque produit est relié via `item_colors` à **au moins une couleur**, contrainte garantie par la base.
+Un **produit** peut avoir **plusieurs variantes** (ex. tailles), **plusieurs images**, et **plusieurs avis**. Les variantes portent le **stock** réel vendu ; les couleurs sont gérées au niveau produit (liste `item_colors`) en s’appuyant sur le référentiel de couleurs. Chaque produit est relié via `item_colors` à **au moins une couleur**, contrainte garantie par la base.
 
 ### 🧾 Commandes
 - **Commandes** : une commande appartient à **un utilisateur**, possède un **statut** (en attente, payée, expédiée, etc.), un **montant total** et une **adresse de livraison**.
@@ -84,7 +84,7 @@ Le remplissage (seed) sert à **démarrer rapidement** avec des données réalis
 ### Catalogue initial
 - **Catégories** : *Accessoires*, *Décoration*, *Bébé*, *Peluches*.
 - **Produits** : exemples variés (ex. *Bonnet torsadé*, *Plaid cocoon*, *Chaussons bébé*, *Amigurumi lapin*).
-- **Variantes** : tailles/couleurs différentes avec **stock** et **prix** adaptés.
+- **Variantes** : tailles différentes avec **stock** et **prix** adaptés ; les couleurs restent déclarées sur le produit.
 - **Images** : une image par produit (URL d’exemple), extensible par la suite.
 - **Avis** : quelques évaluations pour donner un premier rendu sur la boutique.
 
@@ -111,7 +111,7 @@ Dès le premier lancement, la boutique affiche des **produits**, un **stock** et
 ## 5) Glossaire rapide
 
 - **Produit** : fiche commerciale (titre, description, prix de base).
-- **Variante** : déclinaison vendue (taille/couleur) avec **son stock** et **son prix**.
+- **Variante** : déclinaison vendue (taille) avec **son stock** et **son prix** ; elle hérite des couleurs du produit.
 - **Commande** : panier validé appartenant à un utilisateur.
 - **Ligne de commande** : un article (variante) au sein d’une commande.
 - **RLS** : règles qui déterminent **qui a le droit** d’accéder/modifier **quelle ligne** d’une table.

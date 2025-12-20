@@ -27,8 +27,8 @@ export const listOrders = async () =>
         item_variants (
           id,
           size,
-          color,
-          price
+          price,
+          sku
         )
       )
     `)

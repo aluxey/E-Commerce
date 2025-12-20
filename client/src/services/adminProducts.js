@@ -17,7 +17,7 @@ export const listProducts = async () => {
           parent_id,
           parent:parent_id ( id, name )
         ),
-        item_variants ( id, size, color_id, price, stock, sku ),
+        item_variants ( id, size, price, stock, sku ),
         item_colors:item_colors!item_id ( color_id, colors ( id, name, hex_code ) )
       `
     )
@@ -42,7 +42,7 @@ export const listCategories = async () => {
 export const fetchVariantsByItem = async itemId =>
   supabase
     .from(TABLE_VARIANTS)
-    .select('id, size, color_id, price, stock, sku')
+    .select('id, size, price, stock, sku')
     .eq('item_id', itemId)
     .order('price', { ascending: true })
     .order('id', { ascending: true });
@@ -68,35 +68,17 @@ export const createItemWithColors = async (itemPayload, colorIds) => {
   const ids = Array.from(new Set(colorIds || [])).filter(Boolean);
   if (!ids.length) throw new Error('Au moins une couleur est requise pour le produit.');
 
-  const nested = await supabase
+  // Deep insert so the constraint "au moins une couleur" est satisfaite dans la même transaction.
+  return supabase
     .from(TABLE_ITEMS)
     .insert([
       {
         ...payload,
-        item_colors: ids.map(id => ({ color_id: id })),
+        item_colors: { data: ids.map(id => ({ color_id: id })) },
       },
     ])
     .select('id')
     .single();
-
-  // Some Supabase environments struggle with deep inserts if the relation
-  // isn't present in the cached schema. Fall back to a two-step insert.
-  if (!nested.error) return nested;
-  if (!String(nested.error.message || '').includes('item_colors')) return nested;
-
-  const { data: item, error: itemError } = await supabase
-    .from(TABLE_ITEMS)
-    .insert([payload])
-    .select('id')
-    .single();
-  if (itemError) return { data: null, error: itemError };
-
-  const inserts = ids.map(id => ({ item_id: item.id, color_id: id }));
-  const { error: colorsError } = await supabase
-    .from('item_colors')
-    .upsert(inserts, { onConflict: 'item_id,color_id' });
-
-  return { data: item, error: colorsError };
 };
 
 export const syncItemColors = async (itemId, colorIds) => {

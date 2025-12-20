@@ -64,7 +64,6 @@ create table public.item_variants (
   id         bigserial primary key,
   item_id    bigint not null references public.items(id) on delete cascade,
   sku        text unique,
-  color_id   bigint references public.colors(id),
   size       text,
   stock      integer not null default 0 check (stock >= 0),
   price      numeric(10,2) not null check (price >= 0),
@@ -74,10 +73,10 @@ create index if not exists idx_variants_item
   on public.item_variants(item_id);
 
 create unique index if not exists ux_item_variants_combo
-  on public.item_variants (item_id, coalesce(size,''), color_id);
+  on public.item_variants (item_id, coalesce(size,''));
 
-create index if not exists idx_item_variants_item_size_colorid
-  on public.item_variants (item_id, size, color_id);
+create index if not exists idx_item_variants_item_size
+  on public.item_variants (item_id, size);
 
 create table public.item_ratings (
   id         bigserial primary key,
@@ -168,17 +167,16 @@ create trigger trg_payments_updated_at
   before update on public.payments
   for each row execute function public.set_updated_at();
 
--- Contrainte : chaque item doit avoir au moins une couleur liée
-create or replace function public.assert_item_has_color(item_id bigint) returns void
+create or replace function public.assert_item_has_color(p_item_id bigint) returns void
 language plpgsql as $$
 begin
   -- si l'item n'existe plus (delete cascade), on ne valide pas la contrainte
-  if not exists (select 1 from public.items i where i.id = item_id) then
+  if not exists (select 1 from public.items i where i.id = p_item_id) then
     return;
   end if;
 
-  if not exists (select 1 from public.item_colors ic where ic.item_id = item_id) then
-    raise exception 'Item % doit avoir au moins une couleur', item_id;
+  if not exists (select 1 from public.item_colors ic where ic.item_id = p_item_id) then
+    raise exception 'Item % doit avoir au moins une couleur', p_item_id;
   end if;
 end;
 $$;

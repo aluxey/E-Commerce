@@ -216,9 +216,9 @@ export default function OrderManager() {
                   </div>
                   {selectedOrder.order_items?.map(item => {
                     const variantDesc = item.item_variants
-                      ? [item.item_variants.size, item.item_variants.color].filter(Boolean).join(' / ')
+                      ? [item.item_variants.size, item.item_variants.sku].filter(Boolean).join(' • ')
                       : null;
-                    const unit = item.unit_price ?? item.items?.price ?? 0;
+                    const unit = item.unit_price ?? item.item_variants?.price ?? item.items?.price ?? 0;
                     return (
                       <div key={item.id} className="order-item">
                         <div className="order-item__main">

@@ -41,6 +41,8 @@ export function CartProvider({ children }) {
         const variantId = variant.id;
         if (!item?.id || !variantId) return prev;
         const stock = variant.stock ?? null;
+        const colorName = variant.color || item.selectedColor?.name || null;
+        const colorHex = variant.color_hex || item.selectedColor?.hex_code || null;
 
         const index = prev.findIndex(line => line.variantId === variantId);
         if (index !== -1) {
@@ -67,7 +69,8 @@ export function CartProvider({ children }) {
           unit_price: Number(variant.price),
           quantity: quantityToAdd,
           size: variant.size,
-          color: variant.color || null,
+          color: colorName,
+          color_hex: colorHex,
           stock,
           image_url: item.item_images?.[0]?.image_url || item.image_url || null,
         };
