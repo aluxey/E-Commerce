@@ -28,7 +28,7 @@ const selectItemsWithFallback = async (select, opts = {}) => {
 
 export const fetchLatestItems = async (limit = 4) => {
   const { data, error } = await selectItemsWithFallback(
-    '*, item_images ( image_url ), item_variants ( id, size, price, stock ), item_colors:item_colors!item_id ( colors ( id, name, hex_code ) )',
+    '*, item_images ( image_url ), item_variants ( id, size, price, stock )',
     { order: ['created_at', false], limit }
   );
   return { data: data || [], error };
@@ -46,7 +46,6 @@ export const fetchItemsWithRelations = async () => {
       *,
       item_images ( image_url ),
       item_variants ( id, size, price, stock ),
-      item_colors:item_colors!item_id ( colors ( id, name, hex_code ) ),
       categories (
         id,
         name,

@@ -17,8 +17,7 @@ export const listProducts = async () => {
           parent_id,
           parent:parent_id ( id, name )
         ),
-        item_variants ( id, size, price, stock, sku ),
-        item_colors:item_colors!item_id ( color_id, colors ( id, name, hex_code ) )
+        item_variants ( id, size, price, stock, sku )
       `
     )
     .order('id', { ascending: false });
@@ -68,17 +67,28 @@ export const createItemWithColors = async (itemPayload, colorIds) => {
   const ids = Array.from(new Set(colorIds || [])).filter(Boolean);
   if (!ids.length) throw new Error('Au moins une couleur est requise pour le produit.');
 
-  // Deep insert so the constraint "au moins une couleur" est satisfaite dans la même transaction.
-  return supabase
+  // 1. Créer l'item d'abord
+  const { data: item, error: itemError } = await supabase
     .from(TABLE_ITEMS)
-    .insert([
-      {
-        ...payload,
-        item_colors: { data: ids.map(id => ({ color_id: id })) },
-      },
-    ])
+    .insert([payload])
     .select('id')
     .single();
+
+  if (itemError) return { data: null, error: itemError };
+
+  // 2. Insérer les couleurs associées
+  const colorInserts = ids.map(colorId => ({ item_id: item.id, color_id: colorId }));
+  const { error: colorsError } = await supabase
+    .from('item_colors')
+    .insert(colorInserts);
+
+  if (colorsError) {
+    // Rollback: supprimer l'item si l'insertion des couleurs échoue
+    await supabase.from(TABLE_ITEMS).delete().eq('id', item.id);
+    return { data: null, error: colorsError };
+  }
+
+  return { data: item, error: null };
 };
 
 export const syncItemColors = async (itemId, colorIds) => {
@@ -132,3 +142,15 @@ export const removeProductImage = async path =>
 
 export const getPublicImageUrl = filePath =>
   supabase.storage.from('product-images').getPublicUrl(filePath);
+
+export const getProductColors = async (itemIds) => {
+  if (!itemIds || itemIds.length === 0) return [];
+  return supabase
+    .from('item_colors')
+    .select(`
+      item_id,
+      color_id,
+      colors ( id, name, hex_code )
+    `)
+    .in('item_id', itemIds);
+};
