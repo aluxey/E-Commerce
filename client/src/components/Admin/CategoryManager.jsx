@@ -1,375 +1,166 @@
-import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
+  countAllCategoryProducts,
   deleteCategory,
   hasProductsInCategory,
   hasSubcategories,
   insertCategory,
   listCategoriesWithParent,
   updateCategory,
-} from '../../services/adminCategories';
-import { ErrorMessage, LoadingMessage } from '../StatusMessage';
-import { pushToast } from '../ToastHost';
+} from "../../services/adminCategories";
+import { ErrorMessage, LoadingMessage } from "../StatusMessage";
+import { pushToast } from "../ToastHost";
 
-const DRAFT_KEY = 'admin-category-draft';
-
-// Category icons for visual distinction
-const CATEGORY_ICONS = [
-  { icon: '🏠', label: 'Maison' },
-  { icon: '👶', label: 'Bébé' },
-  { icon: '👜', label: 'Accessoires' },
-  { icon: '🧶', label: 'Tricot' },
-  { icon: '🎁', label: 'Cadeaux' },
-  { icon: '🌿', label: 'Nature' },
-  { icon: '✨', label: 'Spécial' },
-  { icon: '❤️', label: 'Favoris' },
-  { icon: '🛒', label: 'Shopping' },
-  { icon: '📦', label: 'Divers' },
-];
-
-const defaultForm = {
-  name: '',
-  description: '',
-  parent_id: null,
-  icon: '📦',
-};
+const ICONS = ["🧺", "🎁", "⭐", "🌸", "🍂", "❄️", "🐰", "🏠", "👜", "✨"];
 
 export default function CategoryManager() {
   const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
-  const [form, setForm] = useState(defaultForm);
-  const [editingId, setEditingId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [isDirty, setIsDirty] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [productCounts, setProductCounts] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Modal state
+  const [modal, setModal] = useState({ open: false, category: null, parentId: null });
+  const [form, setForm] = useState({ name: "", icon: "🧺", parent_id: null });
+  const [saving, setSaving] = useState(false);
 
-  const fetchCategories = async () => {
+  const fetchData = async () => {
     setLoading(true);
-    setError(null);
-    const { data, error: fetchError } = await listCategoriesWithParent();
-    if (fetchError) {
-      setError(t('admin.categories.error.load', 'Impossible de charger les catégories.'));
-      setCategories([]);
+    const [catRes, countRes] = await Promise.all([
+      listCategoriesWithParent(),
+      countAllCategoryProducts(),
+    ]);
+    if (catRes.error) {
+      setError("Erreur de chargement");
     } else {
-      setCategories(data || []);
-      // Fetch product counts
-      const counts = {};
-      for (const cat of data || []) {
-        const { count } = await hasProductsInCategory(cat.id);
-        counts[cat.id] = count || 0;
-      }
-      setProductCounts(counts);
-      // Expand all main categories by default
-      const mainIds = new Set((data || []).filter(c => !c.parent_id).map(c => c.id));
-      setExpandedCategories(mainIds);
+      setCategories(catRes.data || []);
+      setProductCounts(countRes.data || {});
     }
     setLoading(false);
   };
 
-  useEffect(() => {
-    const draftRaw = localStorage.getItem(DRAFT_KEY);
-    if (draftRaw) {
-      try {
-        const draft = JSON.parse(draftRaw);
-        setForm({
-          name: draft.name || '',
-          description: draft.description || '',
-          parent_id: draft.parent_id ?? null,
-          icon: draft.icon || '📦',
-        });
-        setIsDirty(true);
-      } catch (err) {
-        console.warn('Could not load category draft', err);
-      }
-    }
-    fetchCategories();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
-  useUnsavedChanges(isDirty, t('admin.categories.unsaved', 'Des modifications ne sont pas sauvegardées. Quitter ?'));
-
-  useEffect(() => {
-    if (!isDirty) return;
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(form));
-  }, [form, isDirty]);
-
-  const mainCategories = useMemo(
-    () => categories.filter(cat => !cat.parent_id),
-    [categories]
-  );
-
-  const getSubcategories = parentId =>
-    categories.filter(cat => cat.parent_id === parentId);
-
-  const getTotalProducts = categoryId => {
-    let total = productCounts[categoryId] || 0;
-    const subs = getSubcategories(categoryId);
-    for (const sub of subs) {
-      total += productCounts[sub.id] || 0;
-    }
-    return total;
+  const mainCategories = useMemo(() => categories.filter(c => !c.parent_id), [categories]);
+  const getSubcats = (parentId) => categories.filter(c => c.parent_id === parentId);
+  const getProductCount = (id) => {
+    let count = productCounts[id] || 0;
+    getSubcats(id).forEach(sub => { count += productCounts[sub.id] || 0; });
+    return count;
   };
 
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setForm(prev => ({
-      ...prev,
-      [name]: value === '' ? null : value,
-    }));
-    setIsDirty(true);
+  // Modal handlers
+  const openModal = (category = null, parentId = null) => {
+    setForm({
+      name: category?.name || "",
+      icon: category?.icon || "🧺",
+      parent_id: parentId || category?.parent_id || null,
+    });
+    setModal({ open: true, category, parentId });
   };
 
-  const selectIcon = icon => {
-    setForm(prev => ({ ...prev, icon }));
-    setIsDirty(true);
+  const closeModal = () => {
+    setModal({ open: false, category: null, parentId: null });
+    setForm({ name: "", icon: "🧺", parent_id: null });
   };
 
-  const handleSubmit = async e => {
+  const handleSave = async (e) => {
     e.preventDefault();
-
-    if (!form.name.trim()) {
-      pushToast({ message: t('admin.categories.error.nameRequired', 'Le nom est requis.'), variant: 'error' });
-      return;
-    }
-
+    if (!form.name.trim()) return pushToast({ message: "Nom requis", variant: "error" });
+    
     setSaving(true);
     try {
-      if (editingId) {
-        const { error } = await updateCategory(editingId, form);
-        if (error) throw error;
+      const payload = { name: form.name.trim(), icon: form.icon, parent_id: form.parent_id };
+      if (modal.category) {
+        await updateCategory(modal.category.id, payload);
+        pushToast({ message: "Catégorie modifiée ✓", variant: "success" });
       } else {
-        const { error } = await insertCategory(form);
-        if (error) throw error;
+        await insertCategory(payload);
+        pushToast({ message: "Catégorie créée ✓", variant: "success" });
       }
-
-      pushToast({
-        message: editingId
-          ? t('admin.categories.success.update', 'Catégorie mise à jour.')
-          : t('admin.categories.success.create', 'Catégorie créée.'),
-        variant: 'success',
-      });
-
       closeModal();
-      fetchCategories();
-    } catch (err) {
-      console.error('Error saving category:', err);
-      pushToast({ message: t('admin.categories.error.save', 'Sauvegarde impossible.'), variant: 'error' });
+      fetchData();
+    } catch {
+      pushToast({ message: "Erreur", variant: "error" });
     }
     setSaving(false);
   };
 
-  const openModal = (category = null, parentId = null) => {
-    if (category) {
-      setForm({
-        name: category.name,
-        description: category.description || '',
-        parent_id: category.parent_id,
-        icon: category.icon || '📦',
-      });
-      setEditingId(category.id);
-    } else {
-      setForm({ ...defaultForm, parent_id: parentId });
-      setEditingId(null);
-    }
-    setIsDirty(false);
-    setShowModal(true);
+  const handleDelete = async (cat) => {
+    const [{ count: subs }, { count: prods }] = await Promise.all([
+      hasSubcategories(cat.id),
+      hasProductsInCategory(cat.id),
+    ]);
+    if (subs > 0) return pushToast({ message: "Supprimez d'abord les sous-catégories", variant: "error" });
+    if (prods > 0) return pushToast({ message: "Catégorie utilisée par des produits", variant: "error" });
+    if (!confirm(`Supprimer "${cat.name}" ?`)) return;
+    
+    await deleteCategory(cat.id);
+    pushToast({ message: "Supprimée ✓", variant: "success" });
+    fetchData();
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setForm(defaultForm);
-    setEditingId(null);
-    setIsDirty(false);
-    localStorage.removeItem(DRAFT_KEY);
-  };
-
-  const handleDelete = async category => {
-    try {
-      const { count: subCount } = await hasSubcategories(category.id);
-      if (subCount && subCount > 0) {
-        pushToast({
-          message: t('admin.categories.error.hasSubcategories', 'Impossible: sous-catégories présentes.'),
-          variant: 'error',
-        });
-        return;
-      }
-
-      const { count: prodCount } = await hasProductsInCategory(category.id);
-      if (prodCount && prodCount > 0) {
-        pushToast({
-          message: t('admin.categories.error.hasProducts', 'Impossible: produits liés.'),
-          variant: 'error',
-        });
-        return;
-      }
-
-      if (!confirm(t('admin.categories.confirm.delete', `Supprimer "${category.name}" ?`))) {
-        return;
-      }
-
-      const { error } = await deleteCategory(category.id);
-      if (error) throw error;
-
-      pushToast({ message: t('admin.categories.success.delete', 'Catégorie supprimée.'), variant: 'success' });
-      fetchCategories();
-    } catch (err) {
-      console.error('Error deleting category:', err);
-      pushToast({ message: t('admin.categories.error.delete', 'Suppression impossible.'), variant: 'error' });
-    }
-  };
-
-  const toggleExpand = categoryId => {
-    setExpandedCategories(prev => {
-      const next = new Set(prev);
-      if (next.has(categoryId)) {
-        next.delete(categoryId);
-      } else {
-        next.add(categoryId);
-      }
-      return next;
-    });
-  };
-
-  if (loading) return <LoadingMessage message={t('admin.common.loading', 'Chargement...')} />;
-  if (error) return <ErrorMessage title="Erreur" message={error} onRetry={fetchCategories} />;
+  if (loading) return <LoadingMessage />;
+  if (error) return <ErrorMessage message={error} onRetry={fetchData} />;
 
   return (
-    <div className="category-manager-v2">
+    <div className="cat-manager">
       {/* Header */}
-      <div className="manager-header">
-        <div className="manager-header__left">
-          <h2>{t('admin.categories.tree', 'Arborescence')}</h2>
-          <span className="product-count">
-            {mainCategories.length} {t('admin.categories.mainCount', 'catégorie(s) principale(s)')}
-          </span>
+      <div className="cat-header">
+        <div>
+          <h2>Catégories</h2>
+          <p className="cat-subtitle">{categories.length} catégories • {Object.values(productCounts).reduce((a, b) => a + b, 0)} produits</p>
         </div>
-        <div className="manager-header__right">
-          <button className="btn btn-primary" onClick={() => openModal()}>
-            + {t('admin.categories.addMain', 'Catégorie principale')}
-          </button>
-        </div>
+        <button className="cat-btn cat-btn--primary" onClick={() => openModal()}>
+          + Nouvelle catégorie
+        </button>
       </div>
 
-      {/* Category Tree */}
+      {/* Grid View */}
       {mainCategories.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state__icon">📂</div>
-          <h3>{t('admin.categories.empty.title', 'Aucune catégorie')}</h3>
-          <p>{t('admin.categories.empty.description', 'Créez votre première catégorie pour organiser vos produits.')}</p>
-          <button className="btn btn-primary" onClick={() => openModal()}>
-            + {t('admin.categories.addMain', 'Catégorie principale')}
+        <div className="cat-empty">
+          <span className="cat-empty-icon">📂</span>
+          <p>Aucune catégorie</p>
+          <button className="cat-btn cat-btn--primary" onClick={() => openModal()}>
+            Créer une catégorie
           </button>
         </div>
       ) : (
-        <div className="category-tree">
-          {mainCategories.map(category => {
-            const subcategories = getSubcategories(category.id);
-            const isExpanded = expandedCategories.has(category.id);
-            const totalProducts = getTotalProducts(category.id);
-
+        <div className="cat-grid">
+          {mainCategories.map(cat => {
+            const subcats = getSubcats(cat.id);
+            const count = getProductCount(cat.id);
             return (
-              <div key={category.id} className="category-tree__item">
-                {/* Main Category Card */}
-                <div className="category-card category-card--main">
-                  <div className="category-card__left">
-                    {subcategories.length > 0 && (
-                      <button
-                        className={`expand-btn ${isExpanded ? 'is-expanded' : ''}`}
-                        onClick={() => toggleExpand(category.id)}
-                        aria-label={isExpanded ? 'Réduire' : 'Développer'}
-                      >
-                        ▶
-                      </button>
-                    )}
-                    <span className="category-icon">{category.icon || '📦'}</span>
-                    <div className="category-card__info">
-                      <h4 className="category-name">{category.name}</h4>
-                      {category.description && (
-                        <p className="category-description">{category.description}</p>
-                      )}
-                    </div>
+              <div key={cat.id} className="cat-card">
+                <div className="cat-card-header">
+                  <span className="cat-card-icon">{cat.icon || "📦"}</span>
+                  <div className="cat-card-info">
+                    <h3>{cat.name}</h3>
+                    <span className="cat-card-meta">{count} produits</span>
                   </div>
-                  <div className="category-card__right">
-                    <div className="category-stats">
-                      <span className="stat-badge">
-                        {subcategories.length} {t('admin.categories.subs', 'sous-cat.')}
-                      </span>
-                      <span className="stat-badge stat-badge--products">
-                        {totalProducts} {t('admin.categories.products', 'produits')}
-                      </span>
-                    </div>
-                    <div className="category-card__actions">
-                      <button
-                        className="btn btn-sm btn-ghost"
-                        onClick={() => openModal(null, category.id)}
-                        title={t('admin.categories.addSub', 'Ajouter sous-catégorie')}
-                      >
-                        + {t('admin.categories.sub', 'Sous-cat.')}
-                      </button>
-                      <button
-                        className="btn-icon"
-                        onClick={() => openModal(category)}
-                        title={t('admin.common.edit', 'Modifier')}
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        className="btn-icon btn-remove"
-                        onClick={() => handleDelete(category)}
-                        title={t('admin.common.delete', 'Supprimer')}
-                        disabled={subcategories.length > 0 || totalProducts > 0}
-                      >
-                        🗑️
-                      </button>
-                    </div>
+                  <div className="cat-card-actions">
+                    <button onClick={() => openModal(cat)} title="Modifier">✏️</button>
+                    <button onClick={() => handleDelete(cat)} disabled={subcats.length > 0 || count > 0} title="Supprimer">🗑️</button>
                   </div>
                 </div>
-
+                
                 {/* Subcategories */}
-                {isExpanded && subcategories.length > 0 && (
-                  <div className="subcategories-list">
-                    {subcategories.map(sub => (
-                      <div key={sub.id} className="category-card category-card--sub">
-                        <div className="category-card__left">
-                          <span className="subcategory-connector">└</span>
-                          <span className="category-icon category-icon--small">{sub.icon || '📁'}</span>
-                          <div className="category-card__info">
-                            <h5 className="category-name">{sub.name}</h5>
-                            {sub.description && (
-                              <p className="category-description">{sub.description}</p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="category-card__right">
-                          <span className="stat-badge stat-badge--products">
-                            {productCounts[sub.id] || 0} {t('admin.categories.products', 'produits')}
-                          </span>
-                          <div className="category-card__actions">
-                            <button
-                              className="btn-icon"
-                              onClick={() => openModal(sub)}
-                              title={t('admin.common.edit', 'Modifier')}
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              className="btn-icon btn-remove"
-                              onClick={() => handleDelete(sub)}
-                              title={t('admin.common.delete', 'Supprimer')}
-                              disabled={(productCounts[sub.id] || 0) > 0}
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="cat-subcats">
+                  {subcats.map(sub => (
+                    <div key={sub.id} className="cat-subcat">
+                      <span className="cat-subcat-icon">{sub.icon || "📁"}</span>
+                      <span className="cat-subcat-name">{sub.name}</span>
+                      <span className="cat-subcat-count">{productCounts[sub.id] || 0}</span>
+                      <button onClick={() => openModal(sub)} className="cat-subcat-edit">✏️</button>
+                      <button onClick={() => handleDelete(sub)} disabled={(productCounts[sub.id] || 0) > 0} className="cat-subcat-del">×</button>
+                    </div>
+                  ))}
+                  <button className="cat-add-sub" onClick={() => openModal(null, cat.id)}>
+                    + Sous-catégorie
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -377,110 +168,289 @@ export default function CategoryManager() {
       )}
 
       {/* Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content modal-md" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>
-                {editingId
-                  ? t('admin.categories.editTitle', 'Modifier la catégorie')
-                  : form.parent_id
-                    ? t('admin.categories.createSubTitle', 'Nouvelle sous-catégorie')
-                    : t('admin.categories.createTitle', 'Nouvelle catégorie')}
-              </h3>
-              <button className="btn-close" onClick={closeModal}>×</button>
+      {modal.open && (
+        <div className="cat-modal-overlay" onClick={closeModal}>
+          <div className="cat-modal" onClick={e => e.stopPropagation()}>
+            <div className="cat-modal-header">
+              <h3>{modal.category ? "Modifier" : modal.parentId ? "Nouvelle sous-catégorie" : "Nouvelle catégorie"}</h3>
+              <button onClick={closeModal} className="cat-modal-close">×</button>
             </div>
+            
+            <form onSubmit={handleSave} className="cat-modal-form">
+              {/* Icon picker */}
+              <div className="cat-icons">
+                {ICONS.map(icon => (
+                  <button
+                    key={icon}
+                    type="button"
+                    className={`cat-icon-btn ${form.icon === icon ? "selected" : ""}`}
+                    onClick={() => setForm(f => ({ ...f, icon }))}
+                  >
+                    {icon}
+                  </button>
+                ))}
+              </div>
 
-            <form onSubmit={handleSubmit} className="modal-body">
-              {/* Icon Selector */}
-              <div className="icon-selector">
-                <label>{t('admin.categories.form.icon', 'Icône')}</label>
-                <div className="icon-grid">
-                  {CATEGORY_ICONS.map(({ icon, label }) => (
-                    <button
-                      key={icon}
-                      type="button"
-                      className={`icon-btn ${form.icon === icon ? 'is-selected' : ''}`}
-                      onClick={() => selectIcon(icon)}
-                      title={label}
-                    >
-                      {icon}
-                    </button>
+              {/* Name input */}
+              <input
+                type="text"
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Nom de la catégorie"
+                className="cat-input"
+                autoFocus
+              />
+
+              {/* Parent selector (only for new categories) */}
+              {!modal.category && (
+                <select
+                  value={form.parent_id || ""}
+                  onChange={e => setForm(f => ({ ...f, parent_id: e.target.value || null }))}
+                  className="cat-select"
+                >
+                  <option value="">— Catégorie principale —</option>
+                  {mainCategories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                   ))}
-                </div>
-              </div>
+                </select>
+              )}
 
-              {/* Form Fields */}
-              <div className="form-grid">
-                <div className="form-group">
-                  <label htmlFor="cat-name">
-                    {t('admin.categories.form.name', 'Nom')} <span className="required">*</span>
-                  </label>
-                  <input
-                    id="cat-name"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    placeholder={t('admin.categories.form.namePlaceholder', 'Ex: Textiles déco')}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="cat-description">
-                    {t('admin.categories.form.description', 'Description')}
-                  </label>
-                  <textarea
-                    id="cat-description"
-                    name="description"
-                    value={form.description}
-                    onChange={handleChange}
-                    placeholder={t('admin.categories.form.descPlaceholder', 'Description courte de la catégorie...')}
-                    rows="3"
-                  />
-                </div>
-
-                {!editingId && (
-                  <div className="form-group">
-                    <label htmlFor="cat-parent">
-                      {t('admin.categories.form.parent', 'Catégorie parente')}
-                    </label>
-                    <select
-                      id="cat-parent"
-                      name="parent_id"
-                      value={form.parent_id || ''}
-                      onChange={handleChange}
-                    >
-                      <option value="">{t('admin.categories.form.noParent', '— Catégorie principale —')}</option>
-                      {mainCategories.map(cat => (
-                        <option key={cat.id} value={cat.id} disabled={editingId === cat.id}>
-                          {cat.icon} {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="input-hint">
-                      {t('admin.categories.form.parentHint', 'Laissez vide pour une catégorie principale')}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="modal-footer">
-                <button type="button" className="btn btn-outline" onClick={closeModal}>
-                  {t('admin.common.cancel', 'Annuler')}
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>
-                  {saving
-                    ? t('admin.common.loading', 'Chargement...')
-                    : editingId
-                      ? t('admin.common.update', 'Mettre à jour')
-                      : t('admin.common.create', 'Créer')}
+              {/* Actions */}
+              <div className="cat-modal-actions">
+                <button type="button" onClick={closeModal} className="cat-btn">Annuler</button>
+                <button type="submit" disabled={saving} className="cat-btn cat-btn--primary">
+                  {saving ? "..." : modal.category ? "Enregistrer" : "Créer"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      <style>{`
+        .cat-manager { padding: 0; }
+        
+        .cat-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.5rem;
+          flex-wrap: wrap;
+          gap: 1rem;
+        }
+        .cat-header h2 { margin: 0; font-size: 1.5rem; }
+        .cat-subtitle { margin: 0.25rem 0 0; color: #888; font-size: 0.875rem; }
+        
+        .cat-btn {
+          padding: 0.5rem 1rem;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          background: white;
+          cursor: pointer;
+          font-size: 0.875rem;
+          transition: all 0.15s;
+        }
+        .cat-btn:hover { background: #f5f5f5; }
+        .cat-btn--primary {
+          background: var(--adm-brand, #b75c3b);
+          color: white;
+          border-color: var(--adm-brand, #b75c3b);
+        }
+        .cat-btn--primary:hover { opacity: 0.9; }
+        
+        .cat-empty {
+          text-align: center;
+          padding: 4rem 2rem;
+          background: #fafafa;
+          border-radius: 12px;
+        }
+        .cat-empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
+        .cat-empty p { color: #888; margin-bottom: 1.5rem; }
+        
+        .cat-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          gap: 1rem;
+        }
+        
+        .cat-card {
+          background: white;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
+          overflow: hidden;
+        }
+        
+        .cat-card-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 1rem;
+          background: linear-gradient(135deg, #fafafa 0%, #fff 100%);
+          border-bottom: 1px solid #eee;
+        }
+        .cat-card-icon {
+          font-size: 2rem;
+          width: 48px;
+          height: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: white;
+          border-radius: 10px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .cat-card-info { flex: 1; min-width: 0; }
+        .cat-card-info h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+        .cat-card-meta { font-size: 0.75rem; color: #888; }
+        .cat-card-actions {
+          display: flex;
+          gap: 0.25rem;
+        }
+        .cat-card-actions button {
+          width: 32px;
+          height: 32px;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          border-radius: 6px;
+          opacity: 0.5;
+          transition: all 0.15s;
+        }
+        .cat-card-actions button:hover { opacity: 1; background: #f0f0f0; }
+        .cat-card-actions button:disabled { opacity: 0.2; cursor: not-allowed; }
+        
+        .cat-subcats { padding: 0.5rem; }
+        
+        .cat-subcat {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 0.75rem;
+          border-radius: 8px;
+          transition: background 0.15s;
+        }
+        .cat-subcat:hover { background: #f5f5f5; }
+        .cat-subcat-icon { font-size: 1rem; }
+        .cat-subcat-name { flex: 1; font-size: 0.875rem; }
+        .cat-subcat-count {
+          font-size: 0.75rem;
+          color: #888;
+          background: #f0f0f0;
+          padding: 0.125rem 0.5rem;
+          border-radius: 99px;
+        }
+        .cat-subcat-edit, .cat-subcat-del {
+          width: 24px;
+          height: 24px;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          opacity: 0;
+          font-size: 0.75rem;
+          border-radius: 4px;
+        }
+        .cat-subcat:hover .cat-subcat-edit,
+        .cat-subcat:hover .cat-subcat-del { opacity: 0.5; }
+        .cat-subcat-edit:hover, .cat-subcat-del:hover { opacity: 1 !important; background: #e5e5e5; }
+        .cat-subcat-del:disabled { opacity: 0.2 !important; cursor: not-allowed; }
+        
+        .cat-add-sub {
+          width: 100%;
+          padding: 0.5rem;
+          border: 1px dashed #ddd;
+          border-radius: 8px;
+          background: transparent;
+          color: #888;
+          cursor: pointer;
+          font-size: 0.8rem;
+          transition: all 0.15s;
+          margin-top: 0.25rem;
+        }
+        .cat-add-sub:hover { border-color: var(--adm-brand, #b75c3b); color: var(--adm-brand, #b75c3b); }
+        
+        /* Modal */
+        .cat-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 1rem;
+        }
+        .cat-modal {
+          background: white;
+          border-radius: 16px;
+          width: 100%;
+          max-width: 400px;
+          overflow: hidden;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .cat-modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1rem 1.25rem;
+          border-bottom: 1px solid #eee;
+        }
+        .cat-modal-header h3 { margin: 0; font-size: 1.1rem; }
+        .cat-modal-close {
+          width: 32px;
+          height: 32px;
+          border: none;
+          background: #f0f0f0;
+          border-radius: 50%;
+          cursor: pointer;
+          font-size: 1.25rem;
+          line-height: 1;
+        }
+        .cat-modal-close:hover { background: #e5e5e5; }
+        
+        .cat-modal-form { padding: 1.25rem; }
+        
+        .cat-icons {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+          margin-bottom: 1rem;
+        }
+        .cat-icon-btn {
+          width: 40px;
+          height: 40px;
+          border: 2px solid #eee;
+          border-radius: 10px;
+          background: white;
+          cursor: pointer;
+          font-size: 1.25rem;
+          transition: all 0.15s;
+        }
+        .cat-icon-btn:hover { border-color: #ccc; }
+        .cat-icon-btn.selected {
+          border-color: var(--adm-brand, #b75c3b);
+          background: rgba(183, 92, 59, 0.1);
+        }
+        
+        .cat-input, .cat-select {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          font-size: 1rem;
+          margin-bottom: 1rem;
+        }
+        .cat-input:focus, .cat-select:focus {
+          outline: none;
+          border-color: var(--adm-brand, #b75c3b);
+        }
+        
+        .cat-modal-actions {
+          display: flex;
+          gap: 0.75rem;
+          margin-top: 0.5rem;
+        }
+        .cat-modal-actions .cat-btn { flex: 1; padding: 0.75rem; }
+      `}</style>
     </div>
   );
 }
