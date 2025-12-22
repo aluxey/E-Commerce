@@ -12,6 +12,7 @@ import {
   listCategories,
   listProducts,
   removeProductImage,
+  reorderItemImages,
   syncItemColors,
   updateItemPriceMeta,
   upsertItem,
@@ -89,6 +90,8 @@ export default function ProductManager() {
   const [baseStock, setBaseStock] = useState(10);
   const [newImages, setNewImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [primaryImageIndex, setPrimaryImageIndex] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -107,6 +110,8 @@ export default function ProductManager() {
     setEditingId(null);
     setNewImages([]);
     setImagePreviews([]);
+    setExistingImages([]);
+    setPrimaryImageIndex(0);
     setIsDirty(false);
     setCurrentStep(STEPS.INFO);
     setShowWizard(false);
@@ -499,8 +504,41 @@ export default function ProductManager() {
       const { error: priceError } = await updateItemPriceMeta(itemId, minPrice);
       if (priceError) throw priceError;
 
-      if (newImages.length) {
-        await Promise.all(newImages.map(f => uploadImage(f, itemId)));
+      // Handle image reordering and upload
+      const existingCount = existingImages.length;
+      const primaryIsNew = primaryImageIndex >= existingCount;
+
+      // If primary is an existing image and it's not the first one, reorder
+      if (existingCount > 1 && !primaryIsNew && primaryImageIndex > 0) {
+        // Reorder existing images so primary comes first
+        const reorderedIds = [
+          existingImages[primaryImageIndex].id,
+          ...existingImages.filter((_, i) => i !== primaryImageIndex).map(img => img.id)
+        ];
+        const { error: reorderError } = await reorderItemImages(itemId, reorderedIds);
+        if (reorderError) {
+          console.warn('Could not reorder images:', reorderError);
+        }
+      }
+
+      // Upload new images
+      if (newImages.length > 0) {
+        if (primaryIsNew && existingCount === 0) {
+          // No existing images, primary is a new image - upload in correct order
+          const primaryNewIdx = primaryImageIndex - existingCount;
+          const reorderedImages = [
+            newImages[primaryNewIdx],
+            ...newImages.filter((_, i) => i !== primaryNewIdx)
+          ];
+          for (const file of reorderedImages) {
+            await uploadImage(file, itemId);
+          }
+        } else {
+          // Has existing images or primary is existing - just upload new ones in order
+          for (const file of newImages) {
+            await uploadImage(file, itemId);
+          }
+        }
       }
 
       resetForm();
@@ -540,6 +578,10 @@ export default function ProductManager() {
         .filter(Boolean)
         .map(Number)
     );
+    // Load existing images
+    const productImages = product.item_images || [];
+    setExistingImages(productImages);
+    setPrimaryImageIndex(0);
     setNewImages([]);
     setImagePreviews([]);
     setIsDirty(false);
@@ -570,8 +612,65 @@ export default function ProductManager() {
   };
 
   const removeNewImage = idx => {
+    const existingCount = existingImages.length;
+    // Adjust primary index if needed
+    if (primaryImageIndex === existingCount + idx) {
+      setPrimaryImageIndex(0);
+    } else if (primaryImageIndex > existingCount + idx) {
+      setPrimaryImageIndex(prev => prev - 1);
+    }
     setNewImages(prev => prev.filter((_, i) => i !== idx));
     setImagePreviews(prev => prev.filter((_, i) => i !== idx));
+    setIsDirty(true);
+  };
+
+  const removeExistingImage = async (idx) => {
+    const image = existingImages[idx];
+    if (!image) return;
+
+    try {
+      // Delete from storage
+      const marker = '/product-images/';
+      const urlIdx = image.image_url.indexOf(marker);
+      if (urlIdx !== -1) {
+        const path = image.image_url.substring(urlIdx + marker.length);
+        await removeProductImage(path);
+      }
+      // Delete from database
+      await deleteItemImage(image.id);
+
+      // Update local state
+      setExistingImages(prev => prev.filter((_, i) => i !== idx));
+
+      // Adjust primary index if needed
+      if (primaryImageIndex === idx) {
+        setPrimaryImageIndex(0);
+      } else if (primaryImageIndex > idx) {
+        setPrimaryImageIndex(prev => prev - 1);
+      }
+
+      // Update products list
+      if (editingId) {
+        setProducts(prev =>
+          prev.map(p =>
+            p.id === editingId
+              ? { ...p, item_images: (p.item_images || []).filter(img => img.id !== image.id) }
+              : p
+          )
+        );
+      }
+
+      pushToast({ message: 'Image supprimée', variant: 'success' });
+    } catch (err) {
+      console.error('Erreur suppression image:', err.message);
+      pushToast({ message: "Impossible de supprimer l'image.", variant: 'error' });
+    }
+  };
+
+  const setAsPrimary = (type, idx) => {
+    const existingCount = existingImages.length;
+    const newIndex = type === 'existing' ? idx : existingCount + idx;
+    setPrimaryImageIndex(newIndex);
     setIsDirty(true);
   };
 
@@ -934,14 +1033,43 @@ export default function ProductManager() {
           </div>
         );
 
-      case STEPS.IMAGES:
+      case STEPS.IMAGES: {
+        const totalImages = existingImages.length + imagePreviews.length;
         return (
           <div className="wizard-step">
             <div className="step-header">
               <h3>📷 Images du produit</h3>
-              <p className="step-description">Ajoutez des photos de votre produit. La première sera l'image principale.</p>
+              <p className="step-description">Ajoutez des photos de votre produit. Cliquez sur une image pour la définir comme principale.</p>
             </div>
 
+            {/* Existing images (when editing) */}
+            {existingImages.length > 0 && (
+              <div className="existing-images-section">
+                <h4>Images existantes ({existingImages.length})</h4>
+                <div className="image-grid">
+                  {existingImages.map((img, idx) => (
+                    <div
+                      key={img.id}
+                      className={`image-card ${primaryImageIndex === idx ? 'is-primary' : ''}`}
+                      onClick={() => setAsPrimary('existing', idx)}
+                    >
+                      <img src={img.image_url} alt={`Image ${idx + 1}`} />
+                      {primaryImageIndex === idx && <span className="image-badge">Principal</span>}
+                      <button
+                        type="button"
+                        onClick={e => { e.stopPropagation(); removeExistingImage(idx); }}
+                        className="btn-remove-image"
+                        aria-label="Supprimer"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Upload zone */}
             <div
               onDrop={onDrop}
               onDragOver={onDragOver}
@@ -966,30 +1094,46 @@ export default function ProductManager() {
               </div>
             </div>
 
+            {/* New images preview */}
             {imagePreviews.length > 0 && (
-              <div className="image-grid">
-                {imagePreviews.map((src, idx) => (
-                  <div key={idx} className="image-card">
-                    <img src={src} alt={`Aperçu ${idx + 1}`} />
-                    {idx === 0 && <span className="image-badge">Principal</span>}
-                    <button
-                      type="button"
-                      onClick={() => removeNewImage(idx)}
-                      className="btn-remove-image"
-                      aria-label="Supprimer"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
+              <div className="new-images-section">
+                <h4>Nouvelles images ({imagePreviews.length})</h4>
+                <div className="image-grid">
+                  {imagePreviews.map((src, idx) => {
+                    const actualIndex = existingImages.length + idx;
+                    return (
+                      <div
+                        key={idx}
+                        className={`image-card ${primaryImageIndex === actualIndex ? 'is-primary' : ''}`}
+                        onClick={() => setAsPrimary('new', idx)}
+                      >
+                        <img src={src} alt={`Aperçu ${idx + 1}`} />
+                        {primaryImageIndex === actualIndex && <span className="image-badge">Principal</span>}
+                        <button
+                          type="button"
+                          onClick={e => { e.stopPropagation(); removeNewImage(idx); }}
+                          className="btn-remove-image"
+                          aria-label="Supprimer"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
-            {imagePreviews.length === 0 && (
+            {totalImages === 0 && (
               <p className="hint">💡 Les images sont optionnelles mais recommandées pour une meilleure conversion.</p>
+            )}
+
+            {totalImages > 0 && (
+              <p className="hint">💡 Cliquez sur une image pour la définir comme image principale. Total: {totalImages} image{totalImages > 1 ? 's' : ''}</p>
             )}
           </div>
         );
+      }
 
       case STEPS.REVIEW:
         return (
@@ -1066,13 +1210,27 @@ export default function ProductManager() {
               </div>
 
               <div className="review-section">
-                <h4>Images ({imagePreviews.length})</h4>
-                {imagePreviews.length > 0 ? (
+                <h4>Images ({existingImages.length + imagePreviews.length})</h4>
+                {(existingImages.length > 0 || imagePreviews.length > 0) ? (
                   <div className="review-images">
-                    {imagePreviews.slice(0, 4).map((src, i) => (
-                      <img key={i} src={src} alt={`Image ${i + 1}`} />
+                    {existingImages.slice(0, 4).map((img, i) => (
+                      <div key={`existing-${i}`} className={`review-image-wrapper ${primaryImageIndex === i ? 'is-primary' : ''}`}>
+                        <img src={img.image_url} alt={`Image ${i + 1}`} />
+                        {primaryImageIndex === i && <span className="primary-indicator">★</span>}
+                      </div>
                     ))}
-                    {imagePreviews.length > 4 && <span className="muted">+{imagePreviews.length - 4}</span>}
+                    {imagePreviews.slice(0, Math.max(0, 4 - existingImages.length)).map((src, i) => {
+                      const actualIndex = existingImages.length + i;
+                      return (
+                        <div key={`new-${i}`} className={`review-image-wrapper ${primaryImageIndex === actualIndex ? 'is-primary' : ''}`}>
+                          <img src={src} alt={`Nouvelle ${i + 1}`} />
+                          {primaryImageIndex === actualIndex && <span className="primary-indicator">★</span>}
+                        </div>
+                      );
+                    })}
+                    {(existingImages.length + imagePreviews.length) > 4 && (
+                      <span className="muted">+{existingImages.length + imagePreviews.length - 4}</span>
+                    )}
                   </div>
                 ) : (
                   <span className="muted">Aucune image</span>

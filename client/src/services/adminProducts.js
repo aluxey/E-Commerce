@@ -20,7 +20,8 @@ export const listProducts = async () => {
         item_variants ( id, size, price, stock, sku )
       `
     )
-    .order("id", { ascending: false });
+    .order("id", { ascending: false })
+    .order("id", { foreignTable: "item_images", ascending: true });
 };
 
 export const listCategories = async () => {
@@ -119,6 +120,47 @@ export const insertItemImage = async (itemId, imageUrl) =>
 
 export const deleteItemImage = async imageId =>
   supabase.from("item_images").delete().eq("id", imageId);
+
+// Reorder images by deleting and reinserting in the desired order
+// The first image in the array will be the primary image
+export const reorderItemImages = async (itemId, imageIds) => {
+  // Get all images for this item
+  const { data: images, error: fetchError } = await supabase
+    .from("item_images")
+    .select("id, image_url")
+    .eq("item_id", itemId);
+
+  if (fetchError) return { error: fetchError };
+  if (!images || images.length === 0) return { error: null };
+
+  // Create a map for quick lookup
+  const imageMap = new Map(images.map(img => [img.id, img]));
+
+  // Get the images in the desired order
+  const orderedImages = imageIds
+    .map(id => imageMap.get(id))
+    .filter(Boolean);
+
+  // Delete all existing images
+  const { error: deleteError } = await supabase
+    .from("item_images")
+    .delete()
+    .eq("item_id", itemId);
+
+  if (deleteError) return { error: deleteError };
+
+  // Reinsert in the desired order
+  const inserts = orderedImages.map(img => ({
+    item_id: itemId,
+    image_url: img.image_url
+  }));
+
+  const { error: insertError } = await supabase
+    .from("item_images")
+    .insert(inserts);
+
+  return { error: insertError };
+};
 
 export const uploadProductImage = async (filePath, file) =>
   supabase.storage.from("product-images").upload(filePath, file);

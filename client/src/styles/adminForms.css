@@ -816,7 +816,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 }
 
 .image-card {
@@ -825,6 +825,19 @@
   border-radius: var(--rad-sm);
   overflow: hidden;
   background: var(--adm-surface-alt);
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.image-card:hover {
+  border-color: var(--adm-brand-light);
+  transform: scale(1.02);
+}
+
+.image-card.is-primary {
+  border-color: var(--adm-brand);
+  box-shadow: 0 0 0 2px var(--adm-brand-light);
 }
 
 .image-card img {
@@ -843,6 +856,65 @@
   font-size: 0.7rem;
   font-weight: 600;
   border-radius: 4px;
+}
+
+/* Existing and new images sections */
+.existing-images-section,
+.new-images-section {
+  margin-bottom: 1.5rem;
+}
+
+.existing-images-section h4,
+.new-images-section h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: var(--adm-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.existing-images-section h4::before {
+  content: '📁';
+}
+
+.new-images-section h4::before {
+  content: '✨';
+}
+
+/* Review images with primary indicator */
+.review-image-wrapper {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--rad-sm);
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+.review-image-wrapper.is-primary {
+  border-color: var(--adm-brand);
+}
+
+.review-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.review-image-wrapper .primary-indicator {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.7rem;
+  color: var(--adm-brand);
+  background: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-remove-image {
