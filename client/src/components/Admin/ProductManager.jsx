@@ -482,7 +482,7 @@ export default function ProductManager() {
       const variantsToUpdate = variantsPayload.filter(v => v.id);
       const variantsToInsert = variantsPayload
         .filter(v => !v.id)
-        .map(({ id, ...rest }) => rest);
+        .map(({  ...rest }) => rest);
 
       if (variantsToUpdate.length) {
         const { error: updateError } = await upsertVariants(variantsToUpdate);
