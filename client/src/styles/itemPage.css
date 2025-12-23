@@ -175,7 +175,65 @@
   color: var(--color-text-secondary);
   line-height: 1.7;
   font-size: 1rem;
-  margin: 0;
+}
+
+/* Markdown content in description */
+.pd-desc h1,
+.pd-desc h2,
+.pd-desc h3 {
+  color: var(--color-text-primary);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.pd-desc h1:first-child,
+.pd-desc h2:first-child,
+.pd-desc h3:first-child {
+  margin-top: 0;
+}
+
+.pd-desc p {
+  margin: 0 0 1rem 0;
+}
+
+.pd-desc p:last-child {
+  margin-bottom: 0;
+}
+
+.pd-desc ul,
+.pd-desc ol {
+  margin: 0 0 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.pd-desc li {
+  margin-bottom: 0.25rem;
+}
+
+.pd-desc strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.pd-desc em {
+  font-style: italic;
+}
+
+.pd-desc code {
+  background: var(--color-cream-light);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.pd-desc a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.pd-desc a:hover {
+  text-decoration: underline;
 }
 
 /* ============================================

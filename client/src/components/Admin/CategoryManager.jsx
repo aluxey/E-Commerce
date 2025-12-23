@@ -74,17 +74,31 @@ export default function CategoryManager() {
     setSaving(true);
     try {
       const payload = { name: form.name.trim(), icon: form.icon, parent_id: form.parent_id };
+      let result;
+      
       if (modal.category) {
-        await updateCategory(modal.category.id, payload);
-        pushToast({ message: "Catégorie modifiée ✓", variant: "success" });
+        result = await updateCategory(modal.category.id, payload);
       } else {
-        await insertCategory(payload);
-        pushToast({ message: "Catégorie créée ✓", variant: "success" });
+        result = await insertCategory(payload);
       }
-      closeModal();
-      fetchData();
-    } catch {
-      pushToast({ message: "Erreur", variant: "error" });
+      
+      if (result.error) {
+        console.error("Supabase error:", result.error);
+        pushToast({ 
+          message: result.error.message || "Erreur lors de l'enregistrement", 
+          variant: "error" 
+        });
+      } else {
+        pushToast({ 
+          message: modal.category ? "Catégorie modifiée ✓" : "Catégorie créée ✓", 
+          variant: "success" 
+        });
+        closeModal();
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      pushToast({ message: "Erreur inattendue", variant: "error" });
     }
     setSaving(false);
   };
@@ -98,9 +112,14 @@ export default function CategoryManager() {
     if (prods > 0) return pushToast({ message: "Catégorie utilisée par des produits", variant: "error" });
     if (!confirm(`Supprimer "${cat.name}" ?`)) return;
     
-    await deleteCategory(cat.id);
-    pushToast({ message: "Supprimée ✓", variant: "success" });
-    fetchData();
+    const { error } = await deleteCategory(cat.id);
+    if (error) {
+      console.error("Delete error:", error);
+      pushToast({ message: error.message || "Erreur de suppression", variant: "error" });
+    } else {
+      pushToast({ message: "Supprimée ✓", variant: "success" });
+      fetchData();
+    }
   };
 
   if (loading) return <LoadingMessage />;

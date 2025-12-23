@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { useAuth } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
@@ -326,7 +327,11 @@ export default function ItemDetail() {
             </div>
           </div>
 
-          {item.description && <p className="pd-desc">{item.description}</p>}
+          {item.description && (
+            <div className="pd-desc">
+              <ReactMarkdown>{item.description}</ReactMarkdown>
+            </div>
+          )}
 
           <div className="pd-price-container">
             <div className="pd-price">{priceToDisplay.toFixed(2)} €</div>

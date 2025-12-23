@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import MiniItemCard from '../components/MiniItemCard';
 import '../styles/home.css';
-import { fetchLatestItems, fetchTopItems } from '../services/items';
+import { fetchCategories, fetchLatestItems, fetchTopItems } from '../services/items';
 import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
 import { useTranslation } from 'react-i18next';
 
@@ -11,28 +11,44 @@ import purpleBlackBox from '../assets/mainPic.jpg';
 import deskOrganizer from '../assets/products/desk_organizer.jpg';
 import greyBasket from '../assets/products/grey_basket.jpg';
 
+// Default images for categories (can be overridden by DB)
+const CATEGORY_IMAGES = [deskOrganizer, greyBasket, purpleBlackBox];
+
 export default function Home() {
   const [latestItems, setLatestItems] = useState([]);
   const [topItems, setTopItems] = useState([]);
+  const [dbCategories, setDbCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { t } = useTranslation();
   const valueProps = t('home.valueProps', { returnObjects: true }) || [];
-  const categories = (t('home.categories.cards', { returnObjects: true }) || []).map((cat, idx) => ({
-    ...cat,
-    image: [deskOrganizer, greyBasket, purpleBlackBox][idx] || purpleBlackBox,
-  }));
   const heroHighlights = t('home.highlights', { returnObjects: true }) || [];
+
+  // Fallback categories from translations (used if DB is empty)
+  const fallbackCategories = (t('home.categories.cards', { returnObjects: true }) || []).map((cat, idx) => ({
+    ...cat,
+    image: CATEGORY_IMAGES[idx] || purpleBlackBox,
+  }));
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setError(false);
-        const [latestResp, topResp] = await Promise.all([fetchLatestItems(4), fetchTopItems(4)]);
+        const [latestResp, topResp, categoriesResp] = await Promise.all([
+          fetchLatestItems(4),
+          fetchTopItems(4),
+          fetchCategories()
+        ]);
         if (latestResp.error) throw latestResp.error;
         if (topResp.error) throw topResp.error;
         setLatestItems(latestResp.data || []);
         setTopItems(topResp.data || []);
+        
+        // Filter to get only main categories (no parent_id)
+        const mainCategories = (categoriesResp.data || [])
+          .filter(cat => !cat.parent_id)
+          .slice(0, 3); // Limit to 3 for display
+        setDbCategories(mainCategories);
       } catch (error) {
         console.error("Error fetching home data:", error);
         setError(true);
@@ -43,6 +59,18 @@ export default function Home() {
 
     fetchData();
   }, []);
+
+  // Build categories for display: use DB categories or fallback to translations
+  const displayCategories = dbCategories.length > 0
+    ? dbCategories.map((cat, idx) => ({
+        id: cat.id,
+        name: cat.name,
+        icon: cat.icon || '📦',
+        blurb: t(`home.categories.blurbs.${cat.name}`, { defaultValue: '' }),
+        image: CATEGORY_IMAGES[idx % CATEGORY_IMAGES.length],
+        link: `/items?categoryId=${cat.id}`,
+      }))
+    : fallbackCategories;
 
   return (
     <div className="home-page">
@@ -118,8 +146,8 @@ export default function Home() {
             <Link to="/items" className="link-cta">{t('home.categories.viewAll')}</Link>
           </div>
           <div className="categories-grid">
-            {categories.map(cat => (
-              <Link to={cat.link} className="category-card" key={cat.name}>
+            {displayCategories.map(cat => (
+              <Link to={cat.link} className="category-card" key={cat.id || cat.name}>
                 <img src={cat.image} alt={cat.name} className="category-bg" />
                 <div className="category-overlay">
                   <div className="category-text">

@@ -68,6 +68,105 @@
   line-height: 1.5;
 }
 
+/* Description with Markdown support */
+.description-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.description-tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--adm-surface-alt);
+  border-radius: 6px;
+  padding: 0.25rem;
+}
+
+.description-tabs .tab-btn {
+  padding: 0.4rem 0.75rem;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--adm-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.description-tabs .tab-btn:hover {
+  color: var(--adm-text);
+}
+
+.description-tabs .tab-btn.active {
+  background: var(--adm-surface);
+  color: var(--adm-brand);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.field-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: var(--adm-muted);
+}
+
+.markdown-preview {
+  min-height: 150px;
+  padding: 1rem;
+  border: 1px solid var(--adm-border);
+  border-radius: var(--rad-sm);
+  background: var(--adm-surface);
+  line-height: 1.6;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.markdown-preview p {
+  margin: 0 0 1rem 0;
+}
+
+.markdown-preview p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-preview ul,
+.markdown-preview ol {
+  margin: 0 0 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdown-preview li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-preview strong {
+  font-weight: 600;
+}
+
+.markdown-preview em {
+  font-style: italic;
+}
+
+.markdown-preview code {
+  background: var(--adm-surface-alt);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.preview-empty {
+  color: var(--adm-muted);
+  font-style: italic;
+}
+
 .pill-display {
   display: inline-flex;
   align-items: center;

@@ -1,7 +1,11 @@
+import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+
 /**
  * InfoStep - Product basic information form
  */
 export default function InfoStep({ form, handleChange, groupedCategories, orphanCategories, categoryName }) {
+  const [showPreview, setShowPreview] = useState(false);
   return (
     <div className="wizard-step">
       <div className="step-header">
@@ -60,14 +64,55 @@ export default function InfoStep({ form, handleChange, groupedCategories, orphan
         </div>
 
         <div className="form-group form-group--full">
-          <label>Description</label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Décrivez votre produit en quelques phrases..."
-            rows={4}
-          />
+          <div className="description-header">
+            <label>Description</label>
+            <div className="description-tabs">
+              <button
+                type="button"
+                className={`tab-btn ${!showPreview ? 'active' : ''}`}
+                onClick={() => setShowPreview(false)}
+              >
+                Éditer
+              </button>
+              <button
+                type="button"
+                className={`tab-btn ${showPreview ? 'active' : ''}`}
+                onClick={() => setShowPreview(true)}
+              >
+                Aperçu
+              </button>
+            </div>
+          </div>
+          
+          {!showPreview ? (
+            <>
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                placeholder="Décrivez votre produit en quelques phrases...
+
+Vous pouvez utiliser le Markdown :
+**gras**, *italique*, ~~barré~~
+- liste à puces
+1. liste numérotée
+
+Laissez une ligne vide pour un nouveau paragraphe."
+                rows={6}
+              />
+              <p className="field-hint">
+                Markdown supporté : **gras**, *italique*, listes, etc.
+              </p>
+            </>
+          ) : (
+            <div className="markdown-preview">
+              {form.description ? (
+                <ReactMarkdown>{form.description}</ReactMarkdown>
+              ) : (
+                <p className="preview-empty">Aucune description à prévisualiser</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
