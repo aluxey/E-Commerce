@@ -2,16 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { listOrders, updateOrderStatus } from '../../services/adminOrders';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
 import { pushToast } from '../ToastHost';
-
-// Statuts alignés avec le schéma DB: ('pending','paid','failed','canceled','shipped','refunded')
-const statusOptions = [
-  { value: 'pending',  label: 'En attente',  color: 'var(--color-warning)', text: 'var(--color-surface)' },
-  { value: 'paid',     label: 'Payée',       color: 'var(--color-success)', text: 'var(--color-surface)' },
-  { value: 'shipped',  label: 'Expédiée',    color: 'var(--color-accent)', text: 'var(--color-surface)' },
-  { value: 'refunded', label: 'Remboursée',  color: 'var(--color-complementary)', text: 'var(--color-text-primary)' },
-  { value: 'canceled', label: 'Annulée',     color: 'var(--color-error)', text: 'var(--color-surface)' },
-  { value: 'failed',   label: 'Échec',       color: 'color-mix(in oklab, var(--color-error) 78%, black 12%)', text: 'var(--color-surface)' },
-];
+import { formatDate, formatMoney } from '../../utils/formatters';
+import { ORDER_STATUS_OPTIONS, getStatusStyle, getStatusLabel } from '../../utils/orderStatus';
 
 export default function OrderManager() {
   const [orders, setOrders] = useState([]);
@@ -52,38 +44,12 @@ export default function OrderManager() {
     }
   };
 
-  const getStatusStyle = status => {
-    const statusOption = statusOptions.find(option => option.value === status);
-    return {
-      backgroundColor: statusOption?.color || 'var(--color-complementary-dark)',
-      color: statusOption?.text || 'var(--color-text-primary)',
-      padding: '4px 8px',
-      borderRadius: '4px',
-      fontSize: '12px',
-      fontWeight: 600,
-    };
-  };
-
-  const formatDate = dateString => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   const calculateOrderTotal = orderItems => {
     if (!orderItems?.length) return 0;
     return orderItems.reduce((total, item) => {
       const unit = item.unit_price ?? item.items?.price ?? item.item_variants?.price ?? 0;
       return total + item.quantity * Number(unit);
     }, 0);
-  };
-
-  const formatMoney = (value, currency = 'EUR') => {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(Number(value) || 0);
   };
 
   const formatAddress = addr => {
@@ -111,9 +77,9 @@ export default function OrderManager() {
       <div className="order-filters">
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} aria-label="Filtrer par statut / Nach Status filtern">
           <option value="all">Tous les statuts / Alle Status</option>
-          {statusOptions.map(option => (
+          {ORDER_STATUS_OPTIONS.map(option => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {option.labelFallback}
             </option>
           ))}
         </select>
@@ -154,7 +120,7 @@ export default function OrderManager() {
                         </td>
                         <td data-label="Statut">
                           <span style={getStatusStyle(order.status)}>
-                            {statusOptions.find(s => s.value === order.status)?.label || order.status}
+                            {getStatusLabel(order.status)}
                           </span>
                         </td>
                         <td data-label="Actions">
@@ -181,7 +147,7 @@ export default function OrderManager() {
                   </div>
                   <div className="order-status">
                     <span style={getStatusStyle(selectedOrder.status)}>
-                      {statusOptions.find(s => s.value === selectedOrder.status)?.label || selectedOrder.status}
+                      {getStatusLabel(selectedOrder.status)}
                     </span>
                     <button className="order-close" onClick={() => setSelectedOrder(null)} aria-label="Fermer">×</button>
                   </div>
@@ -248,9 +214,9 @@ export default function OrderManager() {
                       value={selectedOrder.status}
                       onChange={e => updateOrderStatusRecompute(selectedOrder.id, e.target.value)}
                     >
-                      {statusOptions.map(option => (
+                      {ORDER_STATUS_OPTIONS.map(option => (
                         <option key={option.value} value={option.value}>
-                          {option.label}
+                          {option.labelFallback}
                         </option>
                       ))}
                     </select>

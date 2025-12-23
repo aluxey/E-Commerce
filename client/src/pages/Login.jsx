@@ -1,26 +1,13 @@
 // components/Login.jsx
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { supabase } from '../supabase/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Authform.css';
-import { fetchUserProfile } from '../services/auth';
+import { signIn, fetchUserProfile } from '../services/auth';
+import { mapLoginError } from '../utils/errorMappers';
 import { useTranslation } from 'react-i18next';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const mapSupabaseError = (error, t) => {
-  if (!error) return '';
-  const msg = error.message?.toLowerCase();
-  if (msg.includes('invalid login credentials') || msg.includes('invalid password')) {
-    return t('login.errors.invalidCredentials');
-  }
-  if (msg.includes('user not found')) {
-    return t('login.errors.notFound');
-  }
-  // fallback générique
-  return t('login.errors.fallback');
-};
 
 export default function Login({ onSuccess }) {
   const { session, userData, authError } = useAuth();
@@ -70,13 +57,13 @@ export default function Login({ onSuccess }) {
       setErrorMsg('');
 
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: normalizeEmail(form.email),
-          password: form.password,
-        });
+        const { data, error } = await signIn(
+          normalizeEmail(form.email),
+          form.password
+        );
 
         if (error) {
-          setErrorMsg(mapSupabaseError(error, t));
+          setErrorMsg(mapLoginError(error, t));
         } else {
           // Récupère le rôle pour rediriger
           let role = 'client';

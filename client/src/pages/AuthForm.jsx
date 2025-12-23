@@ -1,8 +1,8 @@
 // components/AuthForm.jsx
 import { useState, useCallback, useMemo } from 'react';
-import { supabase } from '../supabase/supabaseClient';
 import '../styles/Authform.css';
-import { fetchUserProfile } from '../services/auth';
+import { signUp, fetchUserProfile, upsertUserProfile } from '../services/auth';
+import { mapSignupError } from '../utils/errorMappers';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
@@ -50,19 +50,6 @@ export default function AuthForm({ onSuccess }) {
 
   const normalizeEmail = email => email.trim().toLowerCase();
 
-  const mapSupabaseError = error => {
-    // Tu peux étendre selon les codes que tu observes
-    if (!error) return '';
-    if (error.message?.toLowerCase().includes('already registered')) {
-      return t('signup.errors.alreadyUsed');
-    }
-    if (error.message?.toLowerCase().includes('invalid email')) {
-      return t('signup.errors.invalidEmail');
-    }
-    // fallback générique
-    return t('signup.errors.fallback');
-  };
-
   const handleSignup = useCallback(
     async e => {
       e.preventDefault();
@@ -77,27 +64,20 @@ export default function AuthForm({ onSuccess }) {
       const emailNormalized = normalizeEmail(form.email);
 
       try {
-        const { data, error } = await supabase.auth.signUp({
-          email: emailNormalized,
-          password: form.password,
-        });
+        const { data, error } = await signUp(emailNormalized, form.password);
 
         if (error) {
-          setErrorMsg(mapSupabaseError(error));
+          setErrorMsg(mapSignupError(error, t));
         } else {
           const user = data?.user;
           const hasSession = !!data?.session;
 
           if (user && hasSession) {
-            const profilePayload = {
+            const { error: profileError } = await upsertUserProfile({
               id: user.id,
               email: emailNormalized,
               role: 'client',
-            };
-
-            const { error: profileError } = await supabase
-              .from('users')
-              .upsert(profilePayload, { onConflict: 'id' });
+            });
 
             if (profileError) {
               console.error('Erreur insertion profil utilisateur:', profileError);

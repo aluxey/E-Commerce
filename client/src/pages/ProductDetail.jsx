@@ -5,8 +5,8 @@ import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { useAuth } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import { fetchItemDetail, fetchRelatedItems } from "../services/items";
+import { loadAllRatings, submitRating } from "../services/ratings";
 import "../styles/itemPage.css";
-import { supabase } from "../supabase/supabaseClient";
 
 export default function ItemDetail() {
   const { id } = useParams();
@@ -190,43 +190,12 @@ export default function ItemDetail() {
   }, [id, loadItem]);
 
   const loadRatings = useCallback(async () => {
-    // Charger les notes moyennes
-    const { data, error } = await supabase.from("item_ratings").select("rating").eq("item_id", id);
-
-    if (!error) {
-      const avg = data.length ? data.reduce((sum, r) => sum + r.rating, 0) / data.length : 0;
-      setAvgRating(avg);
-    }
-
-    // Charger les avis détaillés
-    const { data: reviewsData } = await supabase
-      .from("item_ratings")
-      .select(
-        `
-        rating,
-        comment,
-        created_at,
-        users (
-          email
-        )
-      `
-      )
-      .eq("item_id", id)
-      .order("created_at", { ascending: false })
-      .limit(5);
-
-    if (reviewsData) setReviews(reviewsData);
-
-    // Charger la note de l'utilisateur connecté
-    if (session) {
-      const { data: ur, error: urErr } = await supabase
-        .from("item_ratings")
-        .select("rating")
-        .eq("item_id", id)
-        .eq("user_id", session.user.id)
-        .single();
-      if (!urErr && ur) setRating(ur.rating);
-    }
+    const userId = session?.user?.id || null;
+    const { avgRating: avg, reviews: reviewsData, userRating } = await loadAllRatings(id, userId);
+    
+    setAvgRating(avg);
+    setReviews(reviewsData);
+    if (userRating) setRating(userRating);
   }, [id, session]);
 
   useEffect(() => {
@@ -242,15 +211,7 @@ export default function ItemDetail() {
 
     setIsSubmittingReview(true);
     try {
-      await supabase.from("item_ratings").upsert(
-        {
-          item_id: id,
-          user_id: session.user.id,
-          rating,
-          comment: reviewComment.trim() || null,
-        },
-        { onConflict: "item_id,user_id" }
-      );
+      await submitRating(id, session.user.id, rating, reviewComment);
       setReviewComment("");
       await loadRatings();
     } finally {

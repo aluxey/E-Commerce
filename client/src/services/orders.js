@@ -1,5 +1,38 @@
 import { supabase } from "../supabase/supabaseClient";
 
+/**
+ * Fetch all orders for a specific user with their items
+ * @param {string} userId - The user ID
+ * @returns {Promise<{data: Array, error: any}>}
+ */
+export const fetchUserOrders = async (userId) => {
+  if (!userId) {
+    return { data: [], error: null };
+  }
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select(`
+      id,
+      status,
+      total,
+      created_at,
+      order_items (
+        quantity,
+        items (
+          id,
+          name,
+          price,
+          item_images ( image_url )
+        )
+      )
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  return { data: data || [], error };
+};
+
 export const fetchOrdersStats = async (d30Iso, d60Iso) => {
   const ordersLast30Promise = supabase
     .from('orders')

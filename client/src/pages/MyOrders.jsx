@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../supabase/supabaseClient';
+import { fetchUserOrders } from '../services/orders';
 import '../styles/adminForms.css';
 import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
 import { useTranslation } from 'react-i18next';
+import { formatDate, getLocaleFromLang } from '../utils/formatters';
+import { buildStatusMap } from '../utils/orderStatus';
 
 export default function MyOrders() {
   const { session } = useAuth();
@@ -12,34 +14,14 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { t, i18n } = useTranslation();
-  const locale = useMemo(() => (i18n.language === 'fr' ? 'fr-FR' : 'de-DE'), [i18n.language]);
+  const locale = useMemo(() => getLocaleFromLang(i18n.language), [i18n.language]);
 
   const fetchOrders = useCallback(async () => {
     if (!session?.user?.id) return;
     setLoading(true);
     setError(false);
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(
-          `
-          id,
-          status,
-          total,
-          created_at,
-          order_items (
-            quantity,
-            items (
-              id,
-              name,
-              price,
-              item_images ( image_url )
-            )
-          )
-        `
-        )
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false });
+      const { data, error } = await fetchUserOrders(session.user.id);
 
       if (error) throw error;
       setOrders(data || []);
@@ -49,56 +31,15 @@ export default function MyOrders() {
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id, t]);
+  }, [session?.user?.id]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
-  const statusMap = useMemo(
-    () => ({
-      pending: {
-        label: t('orders.statuses.pending'),
-        color: 'var(--color-warning)',
-        text: 'var(--color-surface)',
-      },
-      paid: {
-        label: t('orders.statuses.paid'),
-        color: 'var(--color-success)',
-        text: 'var(--color-surface)',
-      },
-      shipped: {
-        label: t('orders.statuses.shipped'),
-        color: 'var(--color-accent)',
-        text: 'var(--color-surface)',
-      },
-      refunded: {
-        label: t('orders.statuses.refunded'),
-        color: 'var(--color-complementary)',
-        text: 'var(--color-text-primary)',
-      },
-      canceled: {
-        label: t('orders.statuses.canceled'),
-        color: 'var(--color-error)',
-        text: 'var(--color-surface)',
-      },
-      failed: {
-        label: t('orders.statuses.failed'),
-        color: 'color-mix(in oklab, var(--color-error) 78%, black 12%)',
-        text: 'var(--color-surface)',
-      },
-    }),
-    [t]
-  );
+  const statusMap = useMemo(() => buildStatusMap(t), [t]);
 
-  const formatDate = d =>
-    new Date(d).toLocaleDateString(locale, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const formatOrderDate = d => formatDate(d, locale);
 
   const computeTotal = order => {
     if (order.total != null) return Number(order.total);
@@ -149,7 +90,7 @@ export default function MyOrders() {
                 <div className="order-card__header">
                   <div>
                     <strong>{t('orders.orderNumber', { id: order.id.slice(0, 8) })}</strong>
-                    <div className="muted">{formatDate(order.created_at)}</div>
+                    <div className="muted">{formatOrderDate(order.created_at)}</div>
                   </div>
                   <div className="order-card__badge">
                     <span

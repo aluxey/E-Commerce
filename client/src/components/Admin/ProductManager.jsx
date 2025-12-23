@@ -1,4 +1,4 @@
-import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { useProductForm, STEPS, STEP_LABELS, sanitizeText, buildSku } from '@/hooks/useProductForm';
 import { listColors } from '@/services/adminColors';
 import { supabase } from '@/supabase/supabaseClient';
 import { useEffect, useMemo, useState } from 'react';
@@ -19,50 +19,10 @@ import {
   upsertVariants
 } from '../../services/adminProducts';
 import { pushToast } from '../ToastHost';
+import { InfoStep, ColorsStep, VariantsStep, ImagesStep, ReviewStep } from './ProductForm';
 
 export const TABLE_ITEMS = 'items';
 const TABLE_VARIANTS = 'item_variants';
-const PRODUCT_DRAFT_KEY = 'admin-product-draft';
-
-// Tailles prédéfinies communes
-const PRESET_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Unique'];
-
-const createEmptyVariant = () => ({
-  id: null,
-  size: '',
-  price: '',
-  stock: 0,
-  sku: '',
-});
-
-const sanitizeText = value => (value || '').trim();
-
-const slugify = value =>
-  sanitizeText(value)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-
-const randomSuffix = () =>
-  typeof crypto !== 'undefined' && crypto.randomUUID
-    ? crypto.randomUUID().slice(0, 8)
-    : Math.random().toString(36).slice(2, 8).toUpperCase();
-
-const buildSku = (itemId, variant) => {
-  const sizeSlug = slugify(variant.size) || 'std';
-  return `SKU-${itemId}-${sizeSlug}-${randomSuffix()}`.toUpperCase();
-};
-
-// Wizard Steps
-const STEPS = {
-  INFO: 0,
-  COLORS: 1,
-  VARIANTS: 2,
-  IMAGES: 3,
-  REVIEW: 4
-};
-
-const STEP_LABELS = ['Informations', 'Couleurs', 'Variantes', 'Images', 'Résumé'];
 
 export default function ProductManager() {
   const [products, setProducts] = useState([]);
@@ -70,53 +30,57 @@ export default function ProductManager() {
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const [editingId, setEditingId] = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [currentStep, setCurrentStep] = useState(STEPS.INFO);
-  const [showWizard, setShowWizard] = useState(false);
-
-  const [form, setForm] = useState({
-    name: '',
-    description: '',
-    category_id: '',
-    status: 'active',
-  });
-
-  const [variants, setVariants] = useState([createEmptyVariant()]);
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedSizes, setSelectedSizes] = useState([]);
-  const [basePrice, setBasePrice] = useState('');
-  const [baseStock, setBaseStock] = useState(10);
-  const [newImages, setNewImages] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
-  const [existingImages, setExistingImages] = useState([]);
-  const [primaryImageIndex, setPrimaryImageIndex] = useState(0);
-  const [isDirty, setIsDirty] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const resetForm = () => {
-    setForm({
-      name: '',
-      description: '',
-      category_id: '',
-      status: 'active',
-    });
-    setVariants([createEmptyVariant()]);
-    setSelectedColors([]);
-    setSelectedSizes([]);
-    setBasePrice('');
-    setBaseStock(10);
-    setEditingId(null);
-    setNewImages([]);
-    setImagePreviews([]);
-    setExistingImages([]);
-    setPrimaryImageIndex(0);
-    setIsDirty(false);
-    setCurrentStep(STEPS.INFO);
-    setShowWizard(false);
-  };
+  // Use custom hook for form management
+  const formHook = useProductForm({ colors });
 
+  const {
+    editingId,
+    currentStep,
+    showWizard,
+    form,
+    variants,
+    selectedColors,
+    selectedSizes,
+    basePrice,
+    baseStock,
+    newImages,
+    imagePreviews,
+    existingImages,
+    primaryImageIndex,
+    isDirty,
+    isDragging,
+    minVariantPrice,
+    setExistingImages,
+    setPrimaryImageIndex,
+    setBasePrice,
+    setBaseStock,
+    resetForm,
+    clearDraft,
+    handleChange,
+    toggleSize,
+    toggleColor,
+    generateVariants,
+    addVariantRow,
+    updateVariantField,
+    removeVariantRow,
+    validateVariants,
+    onFilesSelected,
+    onDrop,
+    onDragOver,
+    onDragLeave,
+    removeNewImage,
+    setAsPrimary,
+    canProceed,
+    nextStep,
+    prevStep,
+    goToStep,
+    openNewProduct,
+    loadProductForEdit,
+  } = formHook;
+
+  // Data fetching
   const fetchProducts = async () => {
     setLoading(true);
     setError(null);
@@ -165,158 +129,7 @@ export default function ProductManager() {
     fetchColors();
   }, []);
 
-  useUnsavedChanges(isDirty, 'Des modifications produit ne sont pas sauvegardées. Quitter la page ?');
-
-  // Charger un brouillon si on n'est pas en mode édition
-  useEffect(() => {
-    if (editingId) return;
-    const raw = localStorage.getItem(PRODUCT_DRAFT_KEY);
-    if (!raw) return;
-    try {
-      const draft = JSON.parse(raw);
-      if (draft && typeof draft === 'object') {
-        setForm({
-          name: draft.form?.name || '',
-          description: draft.form?.description || '',
-          category_id: draft.form?.category_id || '',
-          status: draft.form?.status || 'active',
-        });
-        const draftVariants = Array.isArray(draft.variants) && draft.variants.length
-          ? draft.variants.map(v => ({
-              id: null,
-              size: v.size || '',
-              price: v.price || '',
-              stock: v.stock ?? 0,
-              sku: v.sku || '',
-            }))
-          : [createEmptyVariant()];
-        setVariants(draftVariants);
-        setSelectedColors(Array.isArray(draft.selectedColors) ? draft.selectedColors : []);
-        setSelectedSizes(Array.isArray(draft.selectedSizes) ? draft.selectedSizes : []);
-        setBasePrice(draft.basePrice || '');
-        setBaseStock(draft.baseStock ?? 10);
-        setIsDirty(true);
-      }
-    } catch (err) {
-      console.warn('Impossible de charger le brouillon produit', err);
-    }
-  }, [editingId]);
-
-  // Sauvegarde du brouillon
-  useEffect(() => {
-    if (!isDirty || editingId) return;
-    const payload = {
-      form,
-      variants: variants.map(v => ({
-        size: v.size,
-        price: v.price,
-        stock: v.stock,
-        sku: v.sku,
-      })),
-      selectedColors,
-      selectedSizes,
-      basePrice,
-      baseStock,
-    };
-    localStorage.setItem(PRODUCT_DRAFT_KEY, JSON.stringify(payload));
-  }, [form, variants, selectedColors, selectedSizes, basePrice, baseStock, isDirty, editingId]);
-
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-    setIsDirty(true);
-  };
-
-  // Toggle taille prédéfinie
-  const toggleSize = size => {
-    setSelectedSizes(prev => {
-      const exists = prev.includes(size);
-      return exists ? prev.filter(s => s !== size) : [...prev, size];
-    });
-    setIsDirty(true);
-  };
-
-  // Génération automatique de variantes
-  const generateVariants = () => {
-    if (!selectedSizes.length) {
-      pushToast({ message: 'Sélectionnez au moins une taille', variant: 'warning' });
-      return;
-    }
-
-    const price = parseFloat(String(basePrice).replace(',', '.'));
-    if (Number.isNaN(price) || price < 0) {
-      pushToast({ message: 'Définissez un prix de base valide', variant: 'warning' });
-      return;
-    }
-
-    const newVariants = selectedSizes.map(size => ({
-      id: null,
-      size,
-      price: price.toFixed(2),
-      stock: baseStock,
-      sku: '',
-    }));
-
-    setVariants(newVariants);
-    setIsDirty(true);
-    pushToast({ message: `${newVariants.length} variantes générées`, variant: 'success' });
-  };
-
-  const addVariantRow = () => {
-    setVariants(prev => [...prev, createEmptyVariant()]);
-    setIsDirty(true);
-  };
-
-  const toggleColor = colorId => {
-    setSelectedColors(prev => {
-      const idNum = Number(colorId);
-      const exists = prev.includes(idNum);
-      return exists ? prev.filter(id => id !== idNum) : [...prev, idNum];
-    });
-    setIsDirty(true);
-  };
-
-  const updateVariantField = (index, field, value) => {
-    setVariants(prev => prev.map((variant, idx) => (idx === index ? { ...variant, [field]: value } : variant)));
-    setIsDirty(true);
-  };
-
-  const removeVariantRow = index => {
-    setVariants(prev => {
-      if (prev.length === 1) return [createEmptyVariant()];
-      return prev.filter((_, idx) => idx !== index);
-    });
-    setIsDirty(true);
-  };
-
-  const onFilesSelected = files => {
-    const list = Array.from(files || []);
-    if (!list.length) return;
-    setNewImages(prev => [...prev, ...list]);
-    const previews = list.map(f => URL.createObjectURL(f));
-    setImagePreviews(prev => [...prev, ...previews]);
-    setIsDirty(true);
-  };
-
-  const onDrop = e => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    onFilesSelected(e.dataTransfer.files);
-  };
-
-  const onDragOver = e => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const onDragLeave = e => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
+  // Upload image helper
   const uploadImage = async (file, itemId) => {
     const fileName = `${Date.now()}-${file.name}`;
     const filePath = `${itemId}/${fileName}`;
@@ -336,84 +149,7 @@ export default function ProductManager() {
     return imageUrl;
   };
 
-  const minVariantPrice = useMemo(() => {
-    const prices = variants
-      .map(v => parseFloat(String(v.price).replace(',', '.')))
-      .filter(v => !Number.isNaN(v) && v >= 0);
-    if (!prices.length) return null;
-    return Math.min(...prices);
-  }, [variants]);
-
-  const validateVariants = () => {
-    const errors = [];
-    const combos = new Set();
-    const cleaned = variants.map((variant, index) => {
-      const size = sanitizeText(variant.size);
-      const price = parseFloat(String(variant.price).replace(',', '.'));
-      const stock = Math.max(0, parseInt(variant.stock, 10) || 0);
-
-      if (!size) errors.push(`Variante #${index + 1}: la taille est requise.`);
-      if (Number.isNaN(price)) errors.push(`Variante #${index + 1}: prix invalide.`);
-      if (!Number.isNaN(price) && price < 0) errors.push(`Variante #${index + 1}: le prix doit être positif.`);
-
-      const key = size || '—';
-      if (size && !Number.isNaN(price)) {
-        if (combos.has(key)) {
-          errors.push(`Variante #${index + 1}: cette taille existe déjà.`);
-        } else {
-          combos.add(key);
-        }
-      }
-
-      return {
-        ...variant,
-        size,
-        price,
-        stock,
-        index,
-      };
-    });
-
-    const valid = cleaned.filter(v => v.size && !Number.isNaN(v.price) && v.price >= 0);
-    if (!valid.length) errors.push('Au moins une variante valide est requise.');
-
-    return { errors, validVariants: valid };
-  };
-
-  // Navigation wizard
-  const canProceed = step => {
-    switch (step) {
-      case STEPS.INFO:
-        return sanitizeText(form.name).length > 0;
-      case STEPS.COLORS:
-        return selectedColors.length > 0 || colors.length === 0;
-      case STEPS.VARIANTS:
-        return variants.some(v => v.size && v.price);
-      case STEPS.IMAGES:
-        return true;
-      default:
-        return true;
-    }
-  };
-
-  const nextStep = () => {
-    if (currentStep < STEPS.REVIEW && canProceed(currentStep)) {
-      setCurrentStep(prev => prev + 1);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > STEPS.INFO) {
-      setCurrentStep(prev => prev - 1);
-    }
-  };
-
-  const goToStep = step => {
-    if (step <= currentStep || canProceed(currentStep)) {
-      setCurrentStep(step);
-    }
-  };
-
+  // Form submission
   const handleSubmit = async e => {
     e.preventDefault();
     try {
@@ -482,7 +218,7 @@ export default function ProductManager() {
       const variantsToUpdate = variantsPayload.filter(v => v.id);
       const variantsToInsert = variantsPayload
         .filter(v => !v.id)
-        .map(({  ...rest }) => rest);
+        .map(({ ...rest }) => rest);
 
       if (variantsToUpdate.length) {
         const { error: updateError } = await upsertVariants(variantsToUpdate);
@@ -508,9 +244,7 @@ export default function ProductManager() {
       const existingCount = existingImages.length;
       const primaryIsNew = primaryImageIndex >= existingCount;
 
-      // If primary is an existing image and it's not the first one, reorder
       if (existingCount > 1 && !primaryIsNew && primaryImageIndex > 0) {
-        // Reorder existing images so primary comes first
         const reorderedIds = [
           existingImages[primaryImageIndex].id,
           ...existingImages.filter((_, i) => i !== primaryImageIndex).map(img => img.id)
@@ -524,7 +258,6 @@ export default function ProductManager() {
       // Upload new images
       if (newImages.length > 0) {
         if (primaryIsNew && existingCount === 0) {
-          // No existing images, primary is a new image - upload in correct order
           const primaryNewIdx = primaryImageIndex - existingCount;
           const reorderedImages = [
             newImages[primaryNewIdx],
@@ -534,7 +267,6 @@ export default function ProductManager() {
             await uploadImage(file, itemId);
           }
         } else {
-          // Has existing images or primary is existing - just upload new ones in order
           for (const file of newImages) {
             await uploadImage(file, itemId);
           }
@@ -544,13 +276,14 @@ export default function ProductManager() {
       resetForm();
       fetchProducts();
       pushToast({ message: editingId ? 'Produit mis à jour' : 'Produit créé', variant: 'success' });
-      localStorage.removeItem(PRODUCT_DRAFT_KEY);
+      clearDraft();
     } catch (err) {
       console.error('Erreur sauvegarde produit:', err.message);
       pushToast({ message: "Erreur lors de l'enregistrement du produit.", variant: 'error' });
     }
   };
 
+  // Delete product
   const handleDelete = async id => {
     if (!confirm('Supprimer ce produit ?')) return;
     try {
@@ -564,92 +297,34 @@ export default function ProductManager() {
     }
   };
 
+  // Edit product
   const handleEdit = async product => {
-    setEditingId(product.id);
-    setForm({
-      name: product.name || '',
-      description: product.description || '',
-      category_id: product.category_id || '',
-      status: product.status || 'active',
-    });
-    setSelectedColors(
-      (product.item_colors || [])
-        .map(ic => ic.color_id || ic.colors?.id)
-        .filter(Boolean)
-        .map(Number)
-    );
-    // Load existing images
-    const productImages = product.item_images || [];
-    setExistingImages(productImages);
-    setPrimaryImageIndex(0);
-    setNewImages([]);
-    setImagePreviews([]);
-    setIsDirty(false);
-    localStorage.removeItem(PRODUCT_DRAFT_KEY);
-
     const { data, error } = await fetchVariantsByItem(product.id);
-
-    if (!error) {
-      const mapped = (data || []).map(v => ({
-        id: v.id,
-        size: v.size || '',
-        price: v.price != null ? Number(v.price).toFixed(2) : '',
-        stock: v.stock ?? 0,
-        sku: v.sku || '',
-      }));
-      setVariants(mapped.length ? mapped : [createEmptyVariant()]);
-
-      // Extraire les tailles uniques
-      const sizes = [...new Set(mapped.map(v => v.size).filter(Boolean))];
-      setSelectedSizes(sizes);
-    } else {
-      setVariants([createEmptyVariant()]);
-    }
-
-    setCurrentStep(STEPS.INFO);
-    setShowWizard(true);
-    setIsDirty(false);
+    loadProductForEdit(product, error ? [] : data || []);
   };
 
-  const removeNewImage = idx => {
-    const existingCount = existingImages.length;
-    // Adjust primary index if needed
-    if (primaryImageIndex === existingCount + idx) {
-      setPrimaryImageIndex(0);
-    } else if (primaryImageIndex > existingCount + idx) {
-      setPrimaryImageIndex(prev => prev - 1);
-    }
-    setNewImages(prev => prev.filter((_, i) => i !== idx));
-    setImagePreviews(prev => prev.filter((_, i) => i !== idx));
-    setIsDirty(true);
-  };
-
+  // Remove existing image
   const removeExistingImage = async (idx) => {
     const image = existingImages[idx];
     if (!image) return;
 
     try {
-      // Delete from storage
       const marker = '/product-images/';
       const urlIdx = image.image_url.indexOf(marker);
       if (urlIdx !== -1) {
         const path = image.image_url.substring(urlIdx + marker.length);
         await removeProductImage(path);
       }
-      // Delete from database
       await deleteItemImage(image.id);
 
-      // Update local state
       setExistingImages(prev => prev.filter((_, i) => i !== idx));
 
-      // Adjust primary index if needed
       if (primaryImageIndex === idx) {
         setPrimaryImageIndex(0);
       } else if (primaryImageIndex > idx) {
         setPrimaryImageIndex(prev => prev - 1);
       }
 
-      // Update products list
       if (editingId) {
         setProducts(prev =>
           prev.map(p =>
@@ -667,13 +342,7 @@ export default function ProductManager() {
     }
   };
 
-  const setAsPrimary = (type, idx) => {
-    const existingCount = existingImages.length;
-    const newIndex = type === 'existing' ? idx : existingCount + idx;
-    setPrimaryImageIndex(newIndex);
-    setIsDirty(true);
-  };
-
+  // Delete existing image from product card
   const deleteExistingImage = async (productId, image) => {
     try {
       const marker = '/product-images/';
@@ -697,6 +366,7 @@ export default function ProductManager() {
     }
   };
 
+  // Category helpers
   const categoryTree = useMemo(() => {
     const parents = [];
     const children = new Map();
@@ -746,7 +416,7 @@ export default function ProductManager() {
     return id => map.get(id) || null;
   }, [colors]);
 
-  // Produits filtrés
+  // Filtered products
   const filteredProducts = useMemo(() => {
     if (!searchQuery.trim()) return products;
     const q = searchQuery.toLowerCase();
@@ -756,488 +426,78 @@ export default function ProductManager() {
     );
   }, [products, searchQuery]);
 
-  // Render des étapes du wizard
+  // Render step content
   const renderStepContent = () => {
     switch (currentStep) {
       case STEPS.INFO:
         return (
-          <div className="wizard-step">
-            <div className="step-header">
-              <h3>📝 Informations de base</h3>
-              <p className="step-description">Commençons par les informations essentielles de votre produit.</p>
-            </div>
-
-            <div className="form-grid">
-              <div className="form-group form-group--full">
-                <label>Nom du produit <span className="required">*</span></label>
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  placeholder="Ex: Panier tressé coton bio"
-                  className="input-lg"
-                  required
-                />
-              </div>
-
-              <div className="form-row two-col">
-                <div className="form-group">
-                  <label>Catégorie</label>
-                  <select name="category_id" value={form.category_id || ''} onChange={handleChange}>
-                    <option value="">Choisir une catégorie...</option>
-                    {groupedCategories.map(group => (
-                      <optgroup key={group.parent.id} label={group.parent.name}>
-                        <option value={group.parent.id}>{group.parent.name} — toutes</option>
-                        {group.children.map(sub => (
-                          <option key={sub.id} value={sub.id}>
-                            {group.parent.name} › {sub.name}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                    {orphanCategories.length > 0 && (
-                      <optgroup label="Autres">
-                        {orphanCategories.map(cat => (
-                          <option key={cat.id} value={cat.id}>
-                            {categoryName(cat.id)}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Statut</label>
-                  <select name="status" value={form.status} onChange={handleChange}>
-                    <option value="active">✅ Actif (visible)</option>
-                    <option value="draft">📝 Brouillon</option>
-                    <option value="archived">📦 Archivé</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-group form-group--full">
-                <label>Description</label>
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                  placeholder="Décrivez votre produit en quelques phrases..."
-                  rows={4}
-                />
-              </div>
-            </div>
-          </div>
+          <InfoStep
+            form={form}
+            handleChange={handleChange}
+            groupedCategories={groupedCategories}
+            orphanCategories={orphanCategories}
+            categoryName={categoryName}
+          />
         );
 
       case STEPS.COLORS:
         return (
-          <div className="wizard-step">
-            <div className="step-header">
-              <h3>🎨 Couleurs disponibles</h3>
-              <p className="step-description">Sélectionnez les couleurs dans lesquelles ce produit est disponible.</p>
-            </div>
-
-            {colors.length === 0 ? (
-              <div className="empty-state-inline">
-                <span className="empty-icon">🎨</span>
-                <p>Aucune couleur disponible.</p>
-                <a href="/admin/colors" className="btn btn-outline btn-sm">Créer des couleurs</a>
-              </div>
-            ) : (
-              <div className="color-grid">
-                {colors.map(color => {
-                  const checked = selectedColors.includes(color.id);
-                  return (
-                    <button
-                      key={color.id}
-                      type="button"
-                      className={`color-card ${checked ? 'is-selected' : ''}`}
-                      onClick={() => toggleColor(color.id)}
-                    >
-                      <span
-                        className="color-preview"
-                        style={{ backgroundColor: color.hex_code }}
-                      />
-                      <span className="color-name">{color.name}</span>
-                      {checked && <span className="check-icon">✓</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="selection-summary">
-              {selectedColors.length > 0 ? (
-                <p>✓ {selectedColors.length} couleur{selectedColors.length > 1 ? 's' : ''} sélectionnée{selectedColors.length > 1 ? 's' : ''}</p>
-              ) : (
-                <p className="warning">⚠️ Sélectionnez au moins une couleur</p>
-              )}
-            </div>
-          </div>
+          <ColorsStep
+            colors={colors}
+            selectedColors={selectedColors}
+            toggleColor={toggleColor}
+          />
         );
 
       case STEPS.VARIANTS:
         return (
-          <div className="wizard-step">
-            <div className="step-header">
-              <h3>📐 Variantes (Tailles & Prix)</h3>
-              <p className="step-description">Définissez les déclinaisons de votre produit.</p>
-            </div>
-
-            {/* Génération automatique */}
-            <div className="variant-generator">
-              <div className="generator-header">
-                <h4>⚡ Génération rapide</h4>
-                <p>Sélectionnez les tailles et définissez un prix de base pour générer automatiquement toutes les variantes.</p>
-              </div>
-
-              <div className="generator-controls">
-                <div className="size-selector">
-                  <label>Tailles</label>
-                  <div className="size-chips">
-                    {PRESET_SIZES.map(size => (
-                      <button
-                        key={size}
-                        type="button"
-                        className={`size-chip ${selectedSizes.includes(size) ? 'is-selected' : ''}`}
-                        onClick={() => toggleSize(size)}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="price-stock-row">
-                  <div className="form-group">
-                    <label>Prix de base (€)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={basePrice}
-                      onChange={e => { setBasePrice(e.target.value); setIsDirty(true); }}
-                      placeholder="29.90"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Stock par variante</label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={baseStock}
-                      onChange={e => { setBaseStock(parseInt(e.target.value) || 0); setIsDirty(true); }}
-                      placeholder="10"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={generateVariants}
-                    disabled={!selectedSizes.length}
-                  >
-                    ⚡ Générer {selectedSizes.length || 0} variantes
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Liste des variantes */}
-            <div className="variants-list-section">
-              <div className="section-header">
-                <h4>📋 Variantes ({variants.filter(v => v.size).length})</h4>
-                <button type="button" onClick={addVariantRow} className="btn btn-outline btn-sm">
-                  + Ajouter manuellement
-                </button>
-              </div>
-
-              {variants.length > 0 && variants.some(v => v.size) ? (
-                <div className="variants-cards">
-                  {variants.map((variant, index) => {
-                    return (
-                      <div key={variant.id ?? `new-${index}`} className="variant-card">
-                        <div className="variant-card__header">
-                          <span className="variant-number">#{index + 1}</span>
-                          <button
-                            type="button"
-                            onClick={() => removeVariantRow(index)}
-                            className="btn-icon btn-remove"
-                            aria-label="Supprimer"
-                          >
-                            ×
-                          </button>
-                        </div>
-
-                        <div className="variant-card__fields">
-                          <div className="field-row">
-                            <div className="form-group">
-                              <label>Taille</label>
-                              <input
-                                value={variant.size}
-                                onChange={e => updateVariantField(index, 'size', e.target.value)}
-                                placeholder="M"
-                                required
-                              />
-                            </div>
-                          </div>
-
-                          <div className="field-row">
-                            <div className="form-group">
-                              <label>Prix (€)</label>
-                              <input
-                                type="number"
-                                step="0.01"
-                                value={variant.price}
-                                onChange={e => updateVariantField(index, 'price', e.target.value)}
-                                placeholder="29.90"
-                                required
-                              />
-                            </div>
-                            <div className="form-group">
-                              <label>Stock</label>
-                              <input
-                                type="number"
-                                min={0}
-                                value={variant.stock}
-                                onChange={e => updateVariantField(index, 'stock', e.target.value)}
-                                placeholder="10"
-                              />
-                            </div>
-                          </div>
-
-                          {variant.sku && (
-                            <div className="variant-sku">
-                              <span className="sku-label">SKU:</span>
-                              <code>{variant.sku}</code>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="empty-state-inline">
-                  <p>Aucune variante. Utilisez la génération rapide ou ajoutez manuellement.</p>
-                </div>
-              )}
-            </div>
-
-            {minVariantPrice != null && (
-              <div className="price-summary">
-                <span>Prix minimum affiché:</span>
-                <strong>{minVariantPrice.toFixed(2)} €</strong>
-              </div>
-            )}
-          </div>
+          <VariantsStep
+            variants={variants}
+            selectedSizes={selectedSizes}
+            basePrice={basePrice}
+            baseStock={baseStock}
+            minVariantPrice={minVariantPrice}
+            toggleSize={toggleSize}
+            setBasePrice={setBasePrice}
+            setBaseStock={setBaseStock}
+            generateVariants={generateVariants}
+            addVariantRow={addVariantRow}
+            updateVariantField={updateVariantField}
+            removeVariantRow={removeVariantRow}
+            setIsDirty={() => {}}
+          />
         );
 
-      case STEPS.IMAGES: {
-        const totalImages = existingImages.length + imagePreviews.length;
+      case STEPS.IMAGES:
         return (
-          <div className="wizard-step">
-            <div className="step-header">
-              <h3>📷 Images du produit</h3>
-              <p className="step-description">Ajoutez des photos de votre produit. Cliquez sur une image pour la définir comme principale.</p>
-            </div>
-
-            {/* Existing images (when editing) */}
-            {existingImages.length > 0 && (
-              <div className="existing-images-section">
-                <h4>Images existantes ({existingImages.length})</h4>
-                <div className="image-grid">
-                  {existingImages.map((img, idx) => (
-                    <div
-                      key={img.id}
-                      className={`image-card ${primaryImageIndex === idx ? 'is-primary' : ''}`}
-                      onClick={() => setAsPrimary('existing', idx)}
-                    >
-                      <img src={img.image_url} alt={`Image ${idx + 1}`} />
-                      {primaryImageIndex === idx && <span className="image-badge">Principal</span>}
-                      <button
-                        type="button"
-                        onClick={e => { e.stopPropagation(); removeExistingImage(idx); }}
-                        className="btn-remove-image"
-                        aria-label="Supprimer"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Upload zone */}
-            <div
-              onDrop={onDrop}
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
-              className={`upload-zone ${isDragging ? 'is-dragging' : ''}`}
-            >
-              <div className="upload-zone__content">
-                <span className="upload-icon">📁</span>
-                <p>Glissez-déposez vos images ici</p>
-                <span className="upload-or">ou</span>
-                <label className="btn btn-outline" htmlFor="file-input-wizard">
-                  Parcourir
-                </label>
-                <input
-                  id="file-input-wizard"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={e => onFilesSelected(e.target.files)}
-                  style={{ display: 'none' }}
-                />
-              </div>
-            </div>
-
-            {/* New images preview */}
-            {imagePreviews.length > 0 && (
-              <div className="new-images-section">
-                <h4>Nouvelles images ({imagePreviews.length})</h4>
-                <div className="image-grid">
-                  {imagePreviews.map((src, idx) => {
-                    const actualIndex = existingImages.length + idx;
-                    return (
-                      <div
-                        key={idx}
-                        className={`image-card ${primaryImageIndex === actualIndex ? 'is-primary' : ''}`}
-                        onClick={() => setAsPrimary('new', idx)}
-                      >
-                        <img src={src} alt={`Aperçu ${idx + 1}`} />
-                        {primaryImageIndex === actualIndex && <span className="image-badge">Principal</span>}
-                        <button
-                          type="button"
-                          onClick={e => { e.stopPropagation(); removeNewImage(idx); }}
-                          className="btn-remove-image"
-                          aria-label="Supprimer"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {totalImages === 0 && (
-              <p className="hint">💡 Les images sont optionnelles mais recommandées pour une meilleure conversion.</p>
-            )}
-
-            {totalImages > 0 && (
-              <p className="hint">💡 Cliquez sur une image pour la définir comme image principale. Total: {totalImages} image{totalImages > 1 ? 's' : ''}</p>
-            )}
-          </div>
+          <ImagesStep
+            existingImages={existingImages}
+            imagePreviews={imagePreviews}
+            primaryImageIndex={primaryImageIndex}
+            isDragging={isDragging}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onFilesSelected={onFilesSelected}
+            removeExistingImage={removeExistingImage}
+            removeNewImage={removeNewImage}
+            setAsPrimary={setAsPrimary}
+          />
         );
-      }
 
       case STEPS.REVIEW:
         return (
-          <div className="wizard-step">
-            <div className="step-header">
-              <h3>✅ Résumé</h3>
-              <p className="step-description">Vérifiez les informations avant de créer le produit.</p>
-            </div>
-
-            <div className="review-grid">
-              <div className="review-section">
-                <h4>Informations</h4>
-                <dl className="review-list">
-                  <div className="review-item">
-                    <dt>Nom</dt>
-                    <dd>{form.name || '—'}</dd>
-                  </div>
-                  <div className="review-item">
-                    <dt>Catégorie</dt>
-                    <dd>{categoryName(Number(form.category_id)) || '—'}</dd>
-                  </div>
-                  <div className="review-item">
-                    <dt>Statut</dt>
-                    <dd>
-                      <span className={`status-badge status-${form.status}`}>
-                        {form.status === 'active' ? 'Actif' : form.status === 'draft' ? 'Brouillon' : 'Archivé'}
-                      </span>
-                    </dd>
-                  </div>
-                  {form.description && (
-                    <div className="review-item review-item--full">
-                      <dt>Description</dt>
-                      <dd>{form.description}</dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-
-              <div className="review-section">
-                <h4>Couleurs ({selectedColors.length})</h4>
-                <div className="review-colors">
-                  {selectedColors.map(id => {
-                    const c = colorById(id);
-                    return c ? (
-                      <span key={id} className="review-color">
-                        <span className="color-dot" style={{ backgroundColor: c.hex_code }} />
-                        {c.name}
-                      </span>
-                    ) : null;
-                  })}
-                  {selectedColors.length === 0 && <span className="muted">Aucune couleur</span>}
-                </div>
-              </div>
-
-              <div className="review-section">
-                <h4>Variantes ({variants.filter(v => v.size).length})</h4>
-                <div className="review-variants">
-                  {variants.filter(v => v.size).slice(0, 6).map((v, i) => {
-                    return (
-                      <div key={i} className="review-variant">
-                        <span>{v.size}</span>
-                        <span>{Number(v.price).toFixed(2)}€</span>
-                        <span className="stock">Stock: {v.stock}</span>
-                      </div>
-                    );
-                  })}
-                  {variants.filter(v => v.size).length > 6 && (
-                    <span className="muted">+{variants.filter(v => v.size).length - 6} autres</span>
-                  )}
-                </div>
-                {minVariantPrice != null && (
-                  <p className="price-highlight">Prix affiché: <strong>{minVariantPrice.toFixed(2)}€</strong></p>
-                )}
-              </div>
-
-              <div className="review-section">
-                <h4>Images ({existingImages.length + imagePreviews.length})</h4>
-                {(existingImages.length > 0 || imagePreviews.length > 0) ? (
-                  <div className="review-images">
-                    {existingImages.slice(0, 4).map((img, i) => (
-                      <div key={`existing-${i}`} className={`review-image-wrapper ${primaryImageIndex === i ? 'is-primary' : ''}`}>
-                        <img src={img.image_url} alt={`Image ${i + 1}`} />
-                        {primaryImageIndex === i && <span className="primary-indicator">★</span>}
-                      </div>
-                    ))}
-                    {imagePreviews.slice(0, Math.max(0, 4 - existingImages.length)).map((src, i) => {
-                      const actualIndex = existingImages.length + i;
-                      return (
-                        <div key={`new-${i}`} className={`review-image-wrapper ${primaryImageIndex === actualIndex ? 'is-primary' : ''}`}>
-                          <img src={src} alt={`Nouvelle ${i + 1}`} />
-                          {primaryImageIndex === actualIndex && <span className="primary-indicator">★</span>}
-                        </div>
-                      );
-                    })}
-                    {(existingImages.length + imagePreviews.length) > 4 && (
-                      <span className="muted">+{existingImages.length + imagePreviews.length - 4}</span>
-                    )}
-                  </div>
-                ) : (
-                  <span className="muted">Aucune image</span>
-                )}
-              </div>
-            </div>
-          </div>
+          <ReviewStep
+            form={form}
+            selectedColors={selectedColors}
+            variants={variants}
+            existingImages={existingImages}
+            imagePreviews={imagePreviews}
+            primaryImageIndex={primaryImageIndex}
+            minVariantPrice={minVariantPrice}
+            categoryName={categoryName}
+            colorById={colorById}
+          />
         );
 
       default:
@@ -1265,7 +525,7 @@ export default function ProductManager() {
           </div>
           <button
             className="btn btn-primary"
-            onClick={() => { resetForm(); setShowWizard(true); }}
+            onClick={openNewProduct}
           >
             + Nouveau produit
           </button>
@@ -1341,7 +601,7 @@ export default function ProductManager() {
           <span className="empty-icon">📦</span>
           <h3>Aucun produit</h3>
           <p>Commencez par créer votre premier produit.</p>
-          <button className="btn btn-primary" onClick={() => setShowWizard(true)}>
+          <button className="btn btn-primary" onClick={openNewProduct}>
             + Créer un produit
           </button>
         </div>
@@ -1373,7 +633,7 @@ export default function ProductManager() {
 
                 <div className="product-card__actions">
                   <button onClick={() => handleEdit(p)} className="btn btn-outline btn-sm">
-                    ✏️ Modifier
+                    Modifier
                   </button>
                   <button onClick={() => handleDelete(p.id)} className="btn btn-danger btn-sm">
                     🗑️
