@@ -1,7 +1,7 @@
-import { useProductForm, STEPS, STEP_LABELS, sanitizeText, buildSku } from '@/hooks/useProductForm';
-import { listColors } from '@/services/adminColors';
-import { supabase } from '@/supabase/supabaseClient';
-import { useEffect, useMemo, useState } from 'react';
+import { STEPS, STEP_LABELS, buildSku, sanitizeText, useProductForm } from "@/hooks/useProductForm";
+import { listColors } from "@/services/adminColors";
+import { supabase } from "@/supabase/supabaseClient";
+import { useEffect, useMemo, useState } from "react";
 import {
   createItemWithColors,
   deleteItem,
@@ -16,13 +16,13 @@ import {
   syncItemColors,
   updateItemPriceMeta,
   upsertItem,
-  upsertVariants
-} from '../../services/adminProducts';
-import { pushToast } from '../ToastHost';
-import { InfoStep, ColorsStep, VariantsStep, ImagesStep, ReviewStep } from './ProductForm';
+  upsertVariants,
+} from "../../services/adminProducts";
+import { pushToast } from "../ToastHost";
+import { ColorsStep, ImagesStep, InfoStep, ReviewStep, VariantsStep } from "./ProductForm";
 
-export const TABLE_ITEMS = 'items';
-const TABLE_VARIANTS = 'item_variants';
+export const TABLE_ITEMS = "items";
+const TABLE_VARIANTS = "item_variants";
 
 export default function ProductManager() {
   const [products, setProducts] = useState([]);
@@ -30,7 +30,7 @@ export default function ProductManager() {
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Use custom hook for form management
   const formHook = useProductForm({ colors });
@@ -56,6 +56,7 @@ export default function ProductManager() {
     setPrimaryImageIndex,
     setBasePrice,
     setBaseStock,
+    setSelectedColors,
     resetForm,
     clearDraft,
     handleChange,
@@ -87,16 +88,18 @@ export default function ProductManager() {
     try {
       const { data, error } = await listProducts();
       if (error) {
-        if (String(error.message || '').includes('item_colors')) {
+        if (String(error.message || "").includes("item_colors")) {
           const { data: fallbackData, error: fbError } = await supabase
             .from(TABLE_ITEMS)
-            .select(`
+            .select(
+              `
               id, name, price, description, category_id, status,
               item_images ( id, image_url ),
               categories ( id, name ),
               item_variants ( id, size, price, stock, sku )
-            `)
-            .order('id', { ascending: false });
+            `
+            )
+            .order("id", { ascending: false });
           if (fbError) throw fbError;
           setProducts(fallbackData || []);
           return;
@@ -105,8 +108,8 @@ export default function ProductManager() {
       }
       setProducts(data || []);
     } catch (err) {
-      console.error('Erreur lors du chargement des produits :', err.message);
-      setError('Erreur lors du chargement des produits.');
+      console.error("Erreur lors du chargement des produits :", err.message);
+      setError("Erreur lors du chargement des produits.");
       setProducts([]);
     } finally {
       setLoading(false);
@@ -133,17 +136,21 @@ export default function ProductManager() {
   const uploadImage = async (file, itemId) => {
     const fileName = `${Date.now()}-${file.name}`;
     const filePath = `${itemId}/${fileName}`;
-    const { error: uploadError } = await supabase.storage.from('product-images').upload(filePath, file);
+    const { error: uploadError } = await supabase.storage
+      .from("product-images")
+      .upload(filePath, file);
     if (uploadError) {
-      console.error('Erreur upload image:', uploadError.message);
+      console.error("Erreur upload image:", uploadError.message);
       return null;
     }
-    const { data: publicData } = supabase.storage.from('product-images').getPublicUrl(filePath);
+    const { data: publicData } = supabase.storage.from("product-images").getPublicUrl(filePath);
     const imageUrl = publicData?.publicUrl;
     if (!imageUrl) return null;
-    const { error: dbError } = await supabase.from('item_images').insert([{ item_id: itemId, image_url: imageUrl }]);
+    const { error: dbError } = await supabase
+      .from("item_images")
+      .insert([{ item_id: itemId, image_url: imageUrl }]);
     if (dbError) {
-      console.error('Erreur enregistrement image:', dbError.message);
+      console.error("Erreur enregistrement image:", dbError.message);
       return null;
     }
     return imageUrl;
@@ -155,7 +162,7 @@ export default function ProductManager() {
     try {
       const trimmedName = sanitizeText(form.name);
       if (!trimmedName) {
-        pushToast({ message: 'Le nom du produit est requis.', variant: 'error' });
+        pushToast({ message: "Le nom du produit est requis.", variant: "error" });
         return;
       }
 
@@ -165,7 +172,7 @@ export default function ProductManager() {
 
       const { errors: variantErrors, validVariants } = validateVariants();
       if (variantErrors.length) {
-        pushToast({ message: variantErrors[0], variant: 'error' });
+        pushToast({ message: variantErrors[0], variant: "error" });
         return;
       }
 
@@ -177,6 +184,7 @@ export default function ProductManager() {
         category_id: form.category_id ? Number(form.category_id) : null,
         price: minPrice,
         status: form.status,
+        pattern_type: form.pattern_type || null,
       };
 
       let itemId = editingId;
@@ -185,7 +193,7 @@ export default function ProductManager() {
         if (error) throw error;
         if (normalizedColorIds.length) {
           const { error: colorsError } = await syncItemColors(editingId, normalizedColorIds);
-          if (colorsError && !String(colorsError.message || '').includes('item_colors')) {
+          if (colorsError && !String(colorsError.message || "").includes("item_colors")) {
             throw colorsError;
           }
         }
@@ -198,8 +206,8 @@ export default function ProductManager() {
       // Fetch existing variants
       const { data: existingVariants, error: existingError } = await supabase
         .from(TABLE_VARIANTS)
-        .select('id')
-        .eq('item_id', itemId);
+        .select("id")
+        .eq("item_id", itemId);
       if (existingError) throw existingError;
       const existingIds = (existingVariants || []).map(v => v.id);
 
@@ -216,9 +224,7 @@ export default function ProductManager() {
       });
 
       const variantsToUpdate = variantsPayload.filter(v => v.id);
-      const variantsToInsert = variantsPayload
-        .filter(v => !v.id)
-        .map(({ ...rest }) => rest);
+      const variantsToInsert = variantsPayload.filter(v => !v.id).map(({ ...rest }) => rest);
 
       if (variantsToUpdate.length) {
         const { error: updateError } = await upsertVariants(variantsToUpdate);
@@ -247,11 +253,11 @@ export default function ProductManager() {
       if (existingCount > 1 && !primaryIsNew && primaryImageIndex > 0) {
         const reorderedIds = [
           existingImages[primaryImageIndex].id,
-          ...existingImages.filter((_, i) => i !== primaryImageIndex).map(img => img.id)
+          ...existingImages.filter((_, i) => i !== primaryImageIndex).map(img => img.id),
         ];
         const { error: reorderError } = await reorderItemImages(itemId, reorderedIds);
         if (reorderError) {
-          console.warn('Could not reorder images:', reorderError);
+          console.warn("Could not reorder images:", reorderError);
         }
       }
 
@@ -261,7 +267,7 @@ export default function ProductManager() {
           const primaryNewIdx = primaryImageIndex - existingCount;
           const reorderedImages = [
             newImages[primaryNewIdx],
-            ...newImages.filter((_, i) => i !== primaryNewIdx)
+            ...newImages.filter((_, i) => i !== primaryNewIdx),
           ];
           for (const file of reorderedImages) {
             await uploadImage(file, itemId);
@@ -275,25 +281,25 @@ export default function ProductManager() {
 
       resetForm();
       fetchProducts();
-      pushToast({ message: editingId ? 'Produit mis à jour' : 'Produit créé', variant: 'success' });
+      pushToast({ message: editingId ? "Produit mis à jour" : "Produit créé", variant: "success" });
       clearDraft();
     } catch (err) {
-      console.error('Erreur sauvegarde produit:', err.message);
-      pushToast({ message: "Erreur lors de l'enregistrement du produit.", variant: 'error' });
+      console.error("Erreur sauvegarde produit:", err.message);
+      pushToast({ message: "Erreur lors de l'enregistrement du produit.", variant: "error" });
     }
   };
 
   // Delete product
   const handleDelete = async id => {
-    if (!confirm('Supprimer ce produit ?')) return;
+    if (!confirm("Supprimer ce produit ?")) return;
     try {
       const { error } = await deleteItem(id);
       if (error) throw error;
       fetchProducts();
-      pushToast({ message: 'Produit supprimé', variant: 'success' });
+      pushToast({ message: "Produit supprimé", variant: "success" });
     } catch (err) {
-      console.error('Erreur lors de la suppression :', err.message);
-      pushToast({ message: 'Erreur lors de la suppression.', variant: 'error' });
+      console.error("Erreur lors de la suppression :", err.message);
+      pushToast({ message: "Erreur lors de la suppression.", variant: "error" });
     }
   };
 
@@ -304,12 +310,12 @@ export default function ProductManager() {
   };
 
   // Remove existing image
-  const removeExistingImage = async (idx) => {
+  const removeExistingImage = async idx => {
     const image = existingImages[idx];
     if (!image) return;
 
     try {
-      const marker = '/product-images/';
+      const marker = "/product-images/";
       const urlIdx = image.image_url.indexOf(marker);
       if (urlIdx !== -1) {
         const path = image.image_url.substring(urlIdx + marker.length);
@@ -335,17 +341,17 @@ export default function ProductManager() {
         );
       }
 
-      pushToast({ message: 'Image supprimée', variant: 'success' });
+      pushToast({ message: "Image supprimée", variant: "success" });
     } catch (err) {
-      console.error('Erreur suppression image:', err.message);
-      pushToast({ message: "Impossible de supprimer l'image.", variant: 'error' });
+      console.error("Erreur suppression image:", err.message);
+      pushToast({ message: "Impossible de supprimer l'image.", variant: "error" });
     }
   };
 
   // Delete existing image from product card
   const deleteExistingImage = async (productId, image) => {
     try {
-      const marker = '/product-images/';
+      const marker = "/product-images/";
       const idx = image.image_url.indexOf(marker);
       if (idx !== -1) {
         const path = image.image_url.substring(idx + marker.length);
@@ -359,10 +365,10 @@ export default function ProductManager() {
             : p
         )
       );
-      pushToast({ message: 'Image supprimée', variant: 'info' });
+      pushToast({ message: "Image supprimée", variant: "info" });
     } catch (err) {
-      console.error('Erreur suppression image:', err.message);
-      pushToast({ message: "Impossible de supprimer l'image.", variant: 'error' });
+      console.error("Erreur suppression image:", err.message);
+      pushToast({ message: "Impossible de supprimer l'image.", variant: "error" });
     }
   };
 
@@ -405,7 +411,7 @@ export default function ProductManager() {
     const byId = categoryTree.byId;
     return id => {
       const cat = byId.get(id);
-      if (!cat) return '—';
+      if (!cat) return "—";
       const parent = cat.parent_id ? byId.get(cat.parent_id) || cat.parent : null;
       return parent ? `${parent.name} › ${cat.name}` : cat.name;
     };
@@ -420,10 +426,7 @@ export default function ProductManager() {
   const filteredProducts = useMemo(() => {
     if (!searchQuery.trim()) return products;
     const q = searchQuery.toLowerCase();
-    return products.filter(p =>
-      p.name?.toLowerCase().includes(q) ||
-      p.id?.toString().includes(q)
-    );
+    return products.filter(p => p.name?.toLowerCase().includes(q) || p.id?.toString().includes(q));
   }, [products, searchQuery]);
 
   // Render step content
@@ -446,6 +449,7 @@ export default function ProductManager() {
             colors={colors}
             selectedColors={selectedColors}
             toggleColor={toggleColor}
+            setSelectedColors={setSelectedColors}
           />
         );
 
@@ -511,7 +515,9 @@ export default function ProductManager() {
       <div className="manager-header">
         <div className="manager-header__left">
           <h2>Gestion des Produits</h2>
-          <span className="product-count">{products.length} produit{products.length !== 1 ? 's' : ''}</span>
+          <span className="product-count">
+            {products.length} produit{products.length !== 1 ? "s" : ""}
+          </span>
         </div>
         <div className="manager-header__right">
           <div className="search-box">
@@ -523,10 +529,7 @@ export default function ProductManager() {
             />
             <span className="search-icon">🔍</span>
           </div>
-          <button
-            className="btn btn-primary"
-            onClick={openNewProduct}
-          >
+          <button className="btn btn-primary" onClick={openNewProduct}>
             + Nouveau produit
           </button>
         </div>
@@ -537,8 +540,10 @@ export default function ProductManager() {
         <div className="wizard-overlay" onClick={e => e.target === e.currentTarget && resetForm()}>
           <div className="wizard-modal">
             <div className="wizard-header">
-              <h2>{editingId ? 'Modifier le produit' : 'Nouveau produit'}</h2>
-              <button className="btn-close" onClick={resetForm}>×</button>
+              <h2>{editingId ? "Modifier le produit" : "Nouveau produit"}</h2>
+              <button className="btn-close" onClick={resetForm}>
+                ×
+              </button>
             </div>
 
             {/* Progress bar */}
@@ -547,11 +552,13 @@ export default function ProductManager() {
                 <button
                   key={idx}
                   type="button"
-                  className={`progress-step ${idx === currentStep ? 'is-current' : ''} ${idx < currentStep ? 'is-completed' : ''}`}
+                  className={`progress-step ${idx === currentStep ? "is-current" : ""} ${
+                    idx < currentStep ? "is-completed" : ""
+                  }`}
                   onClick={() => goToStep(idx)}
                   disabled={idx > currentStep && !canProceed(currentStep)}
                 >
-                  <span className="step-number">{idx < currentStep ? '✓' : idx + 1}</span>
+                  <span className="step-number">{idx < currentStep ? "✓" : idx + 1}</span>
                   <span className="step-label">{label}</span>
                 </button>
               ))}
@@ -582,7 +589,7 @@ export default function ProductManager() {
                     </button>
                   ) : (
                     <button type="submit" className="btn btn-primary btn-lg">
-                      {editingId ? '✓ Mettre à jour' : '✓ Créer le produit'}
+                      {editingId ? "✓ Mettre à jour" : "✓ Créer le produit"}
                     </button>
                   )}
                 </div>
@@ -620,13 +627,14 @@ export default function ProductManager() {
                   ) : (
                     <div className="no-image">📷</div>
                   )}
-                  <span className={`status-indicator status-${p.status || 'active'}`} />
+                  <span className={`status-indicator status-${p.status || "active"}`} />
                 </div>
 
                 <div className="product-card__content">
                   <h3 className="product-title">{p.name}</h3>
                   <p className="product-meta">
-                    {categoryName(p.category_id)} • {variantCount} variante{variantCount !== 1 ? 's' : ''}
+                    {categoryName(p.category_id)} • {variantCount} variante
+                    {variantCount !== 1 ? "s" : ""}
                   </p>
                   <p className="product-price">{Number(p.price).toFixed(2)}€</p>
                 </div>
@@ -647,14 +655,19 @@ export default function ProductManager() {
                         <img src={img.image_url} alt="" />
                         <button
                           type="button"
-                          onClick={e => { e.stopPropagation(); deleteExistingImage(p.id, img); }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            deleteExistingImage(p.id, img);
+                          }}
                           className="btn-remove-thumb"
                         >
                           ×
                         </button>
                       </div>
                     ))}
-                    {p.item_images.length > 4 && <span className="more-images">+{p.item_images.length - 4}</span>}
+                    {p.item_images.length > 4 && (
+                      <span className="more-images">+{p.item_images.length - 4}</span>
+                    )}
                   </div>
                 )}
               </div>

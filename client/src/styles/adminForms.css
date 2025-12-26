@@ -581,6 +581,12 @@
    Color Grid (Step 2)
    ============================================= */
 
+.color-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
 .color-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -974,11 +980,11 @@
 }
 
 .existing-images-section h4::before {
-  content: '📁';
+  content: "📁";
 }
 
 .new-images-section h4::before {
-  content: '✨';
+  content: "✨";
 }
 
 /* Review images with primary indicator */

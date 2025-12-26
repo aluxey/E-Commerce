@@ -7,6 +7,8 @@
 - Affichage sur la page détail produit
 - Migration SQL : `20251226_add_pattern_type_to_items.sql`
 - Traductions DE/FR ajoutées
+- **Fix:** Le pattern_type est maintenant sauvegardé lors de la modification d'un produit
+- **Feature:** Bouton "Tout sélectionner" dans l'étape couleurs du wizard produit
 
 ## Auth & Routing
 

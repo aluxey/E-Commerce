@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { pushToast } from '@/components/ToastHost';
-import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { pushToast } from "@/components/ToastHost";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-const PRODUCT_DRAFT_KEY = 'admin-product-draft';
+const PRODUCT_DRAFT_KEY = "admin-product-draft";
 
 // Tailles prédéfinies communes
-export const PRESET_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Unique'];
+export const PRESET_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "Unique"];
 
 // Wizard Steps
 export const STEPS = {
@@ -13,35 +13,35 @@ export const STEPS = {
   COLORS: 1,
   VARIANTS: 2,
   IMAGES: 3,
-  REVIEW: 4
+  REVIEW: 4,
 };
 
-export const STEP_LABELS = ['Informations', 'Couleurs', 'Variantes', 'Images', 'Résumé'];
+export const STEP_LABELS = ["Informations", "Couleurs", "Variantes", "Images", "Résumé"];
 
 // Helper functions
 export const createEmptyVariant = () => ({
   id: null,
-  size: '',
-  price: '',
+  size: "",
+  price: "",
   stock: 0,
-  sku: '',
+  sku: "",
 });
 
-export const sanitizeText = value => (value || '').trim();
+export const sanitizeText = value => (value || "").trim();
 
 const slugify = value =>
   sanitizeText(value)
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 
 const randomSuffix = () =>
-  typeof crypto !== 'undefined' && crypto.randomUUID
+  typeof crypto !== "undefined" && crypto.randomUUID
     ? crypto.randomUUID().slice(0, 8)
     : Math.random().toString(36).slice(2, 8).toUpperCase();
 
 export const buildSku = (itemId, variant) => {
-  const sizeSlug = slugify(variant.size) || 'std';
+  const sizeSlug = slugify(variant.size) || "std";
   return `SKU-${itemId}-${sizeSlug}-${randomSuffix()}`.toUpperCase();
 };
 
@@ -54,17 +54,17 @@ export function useProductForm({ colors = [] } = {}) {
   const [showWizard, setShowWizard] = useState(false);
 
   const [form, setForm] = useState({
-    name: '',
-    description: '',
-    category_id: '',
-    status: 'active',
-    pattern_type: '',
+    name: "",
+    description: "",
+    category_id: "",
+    status: "active",
+    pattern_type: "",
   });
 
   const [variants, setVariants] = useState([createEmptyVariant()]);
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
-  const [basePrice, setBasePrice] = useState('');
+  const [basePrice, setBasePrice] = useState("");
   const [baseStock, setBaseStock] = useState(10);
   const [newImages, setNewImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
@@ -76,16 +76,16 @@ export function useProductForm({ colors = [] } = {}) {
   // Reset form to initial state
   const resetForm = useCallback(() => {
     setForm({
-      name: '',
-      description: '',
-      category_id: '',
-      status: 'active',
-      pattern_type: '',
+      name: "",
+      description: "",
+      category_id: "",
+      status: "active",
+      pattern_type: "",
     });
     setVariants([createEmptyVariant()]);
     setSelectedColors([]);
     setSelectedSizes([]);
-    setBasePrice('');
+    setBasePrice("");
     setBaseStock(10);
     setEditingId(null);
     setNewImages([]);
@@ -98,7 +98,10 @@ export function useProductForm({ colors = [] } = {}) {
   }, []);
 
   // Hook for unsaved changes warning
-  useUnsavedChanges(isDirty, 'Des modifications produit ne sont pas sauvegardées. Quitter la page ?');
+  useUnsavedChanges(
+    isDirty,
+    "Des modifications produit ne sont pas sauvegardées. Quitter la page ?"
+  );
 
   // Load draft on mount (only when not editing)
   useEffect(() => {
@@ -107,32 +110,33 @@ export function useProductForm({ colors = [] } = {}) {
     if (!raw) return;
     try {
       const draft = JSON.parse(raw);
-      if (draft && typeof draft === 'object') {
+      if (draft && typeof draft === "object") {
         setForm({
-          name: draft.form?.name || '',
-          description: draft.form?.description || '',
-          category_id: draft.form?.category_id || '',
-          status: draft.form?.status || 'active',
-          pattern_type: draft.form?.pattern_type || '',
+          name: draft.form?.name || "",
+          description: draft.form?.description || "",
+          category_id: draft.form?.category_id || "",
+          status: draft.form?.status || "active",
+          pattern_type: draft.form?.pattern_type || "",
         });
-        const draftVariants = Array.isArray(draft.variants) && draft.variants.length
-          ? draft.variants.map(v => ({
-              id: null,
-              size: v.size || '',
-              price: v.price || '',
-              stock: v.stock ?? 0,
-              sku: v.sku || '',
-            }))
-          : [createEmptyVariant()];
+        const draftVariants =
+          Array.isArray(draft.variants) && draft.variants.length
+            ? draft.variants.map(v => ({
+                id: null,
+                size: v.size || "",
+                price: v.price || "",
+                stock: v.stock ?? 0,
+                sku: v.sku || "",
+              }))
+            : [createEmptyVariant()];
         setVariants(draftVariants);
         setSelectedColors(Array.isArray(draft.selectedColors) ? draft.selectedColors : []);
         setSelectedSizes(Array.isArray(draft.selectedSizes) ? draft.selectedSizes : []);
-        setBasePrice(draft.basePrice || '');
+        setBasePrice(draft.basePrice || "");
         setBaseStock(draft.baseStock ?? 10);
         setIsDirty(true);
       }
     } catch (err) {
-      console.warn('Impossible de charger le brouillon produit', err);
+      console.warn("Impossible de charger le brouillon produit", err);
     }
   }, [editingId]);
 
@@ -189,13 +193,13 @@ export function useProductForm({ colors = [] } = {}) {
   // Generate variants automatically
   const generateVariants = useCallback(() => {
     if (!selectedSizes.length) {
-      pushToast({ message: 'Sélectionnez au moins une taille', variant: 'warning' });
+      pushToast({ message: "Sélectionnez au moins une taille", variant: "warning" });
       return;
     }
 
-    const price = parseFloat(String(basePrice).replace(',', '.'));
+    const price = parseFloat(String(basePrice).replace(",", "."));
     if (Number.isNaN(price) || price < 0) {
-      pushToast({ message: 'Définissez un prix de base valide', variant: 'warning' });
+      pushToast({ message: "Définissez un prix de base valide", variant: "warning" });
       return;
     }
 
@@ -204,12 +208,12 @@ export function useProductForm({ colors = [] } = {}) {
       size,
       price: price.toFixed(2),
       stock: baseStock,
-      sku: '',
+      sku: "",
     }));
 
     setVariants(newVariants);
     setIsDirty(true);
-    pushToast({ message: `${newVariants.length} variantes générées`, variant: 'success' });
+    pushToast({ message: `${newVariants.length} variantes générées`, variant: "success" });
   }, [selectedSizes, basePrice, baseStock]);
 
   // Add empty variant row
@@ -220,7 +224,9 @@ export function useProductForm({ colors = [] } = {}) {
 
   // Update variant field
   const updateVariantField = useCallback((index, field, value) => {
-    setVariants(prev => prev.map((variant, idx) => (idx === index ? { ...variant, [field]: value } : variant)));
+    setVariants(prev =>
+      prev.map((variant, idx) => (idx === index ? { ...variant, [field]: value } : variant))
+    );
     setIsDirty(true);
   }, []);
 
@@ -236,7 +242,7 @@ export function useProductForm({ colors = [] } = {}) {
   // Calculate minimum variant price
   const minVariantPrice = useMemo(() => {
     const prices = variants
-      .map(v => parseFloat(String(v.price).replace(',', '.')))
+      .map(v => parseFloat(String(v.price).replace(",", ".")))
       .filter(v => !Number.isNaN(v) && v >= 0);
     if (!prices.length) return null;
     return Math.min(...prices);
@@ -248,14 +254,15 @@ export function useProductForm({ colors = [] } = {}) {
     const combos = new Set();
     const cleaned = variants.map((variant, index) => {
       const size = sanitizeText(variant.size);
-      const price = parseFloat(String(variant.price).replace(',', '.'));
+      const price = parseFloat(String(variant.price).replace(",", "."));
       const stock = Math.max(0, parseInt(variant.stock, 10) || 0);
 
       if (!size) errors.push(`Variante #${index + 1}: la taille est requise.`);
       if (Number.isNaN(price)) errors.push(`Variante #${index + 1}: prix invalide.`);
-      if (!Number.isNaN(price) && price < 0) errors.push(`Variante #${index + 1}: le prix doit être positif.`);
+      if (!Number.isNaN(price) && price < 0)
+        errors.push(`Variante #${index + 1}: le prix doit être positif.`);
 
-      const key = size || '—';
+      const key = size || "—";
       if (size && !Number.isNaN(price)) {
         if (combos.has(key)) {
           errors.push(`Variante #${index + 1}: cette taille existe déjà.`);
@@ -274,7 +281,7 @@ export function useProductForm({ colors = [] } = {}) {
     });
 
     const valid = cleaned.filter(v => v.size && !Number.isNaN(v.price) && v.price >= 0);
-    if (!valid.length) errors.push('Au moins une variante valide est requise.');
+    if (!valid.length) errors.push("Au moins une variante valide est requise.");
 
     return { errors, validVariants: valid };
   }, [variants]);
@@ -289,12 +296,15 @@ export function useProductForm({ colors = [] } = {}) {
     setIsDirty(true);
   }, []);
 
-  const onDrop = useCallback(e => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    onFilesSelected(e.dataTransfer.files);
-  }, [onFilesSelected]);
+  const onDrop = useCallback(
+    e => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+      onFilesSelected(e.dataTransfer.files);
+    },
+    [onFilesSelected]
+  );
 
   const onDragOver = useCallback(e => {
     e.preventDefault();
@@ -308,40 +318,49 @@ export function useProductForm({ colors = [] } = {}) {
     setIsDragging(false);
   }, []);
 
-  const removeNewImage = useCallback(idx => {
-    const existingCount = existingImages.length;
-    if (primaryImageIndex === existingCount + idx) {
-      setPrimaryImageIndex(0);
-    } else if (primaryImageIndex > existingCount + idx) {
-      setPrimaryImageIndex(prev => prev - 1);
-    }
-    setNewImages(prev => prev.filter((_, i) => i !== idx));
-    setImagePreviews(prev => prev.filter((_, i) => i !== idx));
-    setIsDirty(true);
-  }, [existingImages.length, primaryImageIndex]);
+  const removeNewImage = useCallback(
+    idx => {
+      const existingCount = existingImages.length;
+      if (primaryImageIndex === existingCount + idx) {
+        setPrimaryImageIndex(0);
+      } else if (primaryImageIndex > existingCount + idx) {
+        setPrimaryImageIndex(prev => prev - 1);
+      }
+      setNewImages(prev => prev.filter((_, i) => i !== idx));
+      setImagePreviews(prev => prev.filter((_, i) => i !== idx));
+      setIsDirty(true);
+    },
+    [existingImages.length, primaryImageIndex]
+  );
 
-  const setAsPrimary = useCallback((type, idx) => {
-    const existingCount = existingImages.length;
-    const newIndex = type === 'existing' ? idx : existingCount + idx;
-    setPrimaryImageIndex(newIndex);
-    setIsDirty(true);
-  }, [existingImages.length]);
+  const setAsPrimary = useCallback(
+    (type, idx) => {
+      const existingCount = existingImages.length;
+      const newIndex = type === "existing" ? idx : existingCount + idx;
+      setPrimaryImageIndex(newIndex);
+      setIsDirty(true);
+    },
+    [existingImages.length]
+  );
 
   // Wizard navigation
-  const canProceed = useCallback(step => {
-    switch (step) {
-      case STEPS.INFO:
-        return sanitizeText(form.name).length > 0;
-      case STEPS.COLORS:
-        return selectedColors.length > 0 || colors.length === 0;
-      case STEPS.VARIANTS:
-        return variants.some(v => v.size && v.price);
-      case STEPS.IMAGES:
-        return true;
-      default:
-        return true;
-    }
-  }, [form.name, selectedColors.length, colors.length, variants]);
+  const canProceed = useCallback(
+    step => {
+      switch (step) {
+        case STEPS.INFO:
+          return sanitizeText(form.name).length > 0;
+        case STEPS.COLORS:
+          return selectedColors.length > 0 || colors.length === 0;
+        case STEPS.VARIANTS:
+          return variants.some(v => v.size && v.price);
+        case STEPS.IMAGES:
+          return true;
+        default:
+          return true;
+      }
+    },
+    [form.name, selectedColors.length, colors.length, variants]
+  );
 
   const nextStep = useCallback(() => {
     if (currentStep < STEPS.REVIEW && canProceed(currentStep)) {
@@ -355,11 +374,14 @@ export function useProductForm({ colors = [] } = {}) {
     }
   }, [currentStep]);
 
-  const goToStep = useCallback(step => {
-    if (step <= currentStep || canProceed(currentStep)) {
-      setCurrentStep(step);
-    }
-  }, [currentStep, canProceed]);
+  const goToStep = useCallback(
+    step => {
+      if (step <= currentStep || canProceed(currentStep)) {
+        setCurrentStep(step);
+      }
+    },
+    [currentStep, canProceed]
+  );
 
   // Open wizard for new product
   const openNewProduct = useCallback(() => {
@@ -368,46 +390,49 @@ export function useProductForm({ colors = [] } = {}) {
   }, [resetForm]);
 
   // Load product for editing
-  const loadProductForEdit = useCallback((product, productVariants = []) => {
-    setEditingId(product.id);
-    setForm({
-      name: product.name || '',
-      description: product.description || '',
-      category_id: product.category_id || '',
-      status: product.status || 'active',
-      pattern_type: product.pattern_type || '',
-    });
-    setSelectedColors(
-      (product.item_colors || [])
-        .map(ic => ic.color_id || ic.colors?.id)
-        .filter(Boolean)
-        .map(Number)
-    );
-    
-    const productImages = product.item_images || [];
-    setExistingImages(productImages);
-    setPrimaryImageIndex(0);
-    setNewImages([]);
-    setImagePreviews([]);
-    setIsDirty(false);
-    clearDraft();
+  const loadProductForEdit = useCallback(
+    (product, productVariants = []) => {
+      setEditingId(product.id);
+      setForm({
+        name: product.name || "",
+        description: product.description || "",
+        category_id: product.category_id || "",
+        status: product.status || "active",
+        pattern_type: product.pattern_type || "",
+      });
+      setSelectedColors(
+        (product.item_colors || [])
+          .map(ic => ic.color_id || ic.colors?.id)
+          .filter(Boolean)
+          .map(Number)
+      );
 
-    const mapped = productVariants.map(v => ({
-      id: v.id,
-      size: v.size || '',
-      price: v.price != null ? Number(v.price).toFixed(2) : '',
-      stock: v.stock ?? 0,
-      sku: v.sku || '',
-    }));
-    setVariants(mapped.length ? mapped : [createEmptyVariant()]);
+      const productImages = product.item_images || [];
+      setExistingImages(productImages);
+      setPrimaryImageIndex(0);
+      setNewImages([]);
+      setImagePreviews([]);
+      setIsDirty(false);
+      clearDraft();
 
-    const sizes = [...new Set(mapped.map(v => v.size).filter(Boolean))];
-    setSelectedSizes(sizes);
+      const mapped = productVariants.map(v => ({
+        id: v.id,
+        size: v.size || "",
+        price: v.price != null ? Number(v.price).toFixed(2) : "",
+        stock: v.stock ?? 0,
+        sku: v.sku || "",
+      }));
+      setVariants(mapped.length ? mapped : [createEmptyVariant()]);
 
-    setCurrentStep(STEPS.INFO);
-    setShowWizard(true);
-    setIsDirty(false);
-  }, [clearDraft]);
+      const sizes = [...new Set(mapped.map(v => v.size).filter(Boolean))];
+      setSelectedSizes(sizes);
+
+      setCurrentStep(STEPS.INFO);
+      setShowWizard(true);
+      setIsDirty(false);
+    },
+    [clearDraft]
+  );
 
   return {
     // State
@@ -427,7 +452,7 @@ export function useProductForm({ colors = [] } = {}) {
     isDirty,
     isDragging,
     minVariantPrice,
-    
+
     // Setters
     setEditingId,
     setExistingImages,
@@ -435,7 +460,8 @@ export function useProductForm({ colors = [] } = {}) {
     setBasePrice,
     setBaseStock,
     setVariants,
-    
+    setSelectedColors,
+
     // Actions
     resetForm,
     clearDraft,
