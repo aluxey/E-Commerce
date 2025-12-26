@@ -226,7 +226,12 @@
       "category": "Catégorie",
       "reference": "Référence",
       "material": "Matière",
-      "care": "Entretien"
+      "care": "Entretien",
+      "patternType": "Style de crochet"
+    },
+    "patternTypes": {
+      "rechtsmuster": "Rechtsmuster",
+      "gaensefuesschen": "Gänsefüsschen"
     },
     "materialText": "Coton bio 100%",
     "careText": "Lavage machine 30°C",
@@ -458,7 +463,9 @@
           "statusDraft": "Brouillon",
           "statusArchived": "Archivé",
           "descriptionLabel": "Description",
-          "descriptionPlaceholder": "Décrivez votre produit en quelques phrases..."
+          "descriptionPlaceholder": "Décrivez votre produit en quelques phrases...",
+          "patternTypeLabel": "Style de crochet",
+          "patternTypeNone": "Non applicable"
         },
         "colors": {
           "title": "Couleurs disponibles",

@@ -7,7 +7,8 @@ create or replace function public.create_item_with_colors(
   p_category_id bigint,
   p_price numeric,
   p_status text,
-  p_color_ids bigint[]
+  p_color_ids bigint[],
+  p_pattern_type text default null
 )
 returns bigint
 language plpgsql
@@ -23,9 +24,14 @@ begin
     raise exception 'Au moins une couleur est requise pour le produit.';
   end if;
 
+  -- Vérifier la valeur de pattern_type si fournie
+  if p_pattern_type is not null and p_pattern_type not in ('rechtsmuster', 'gaensefuesschen') then
+    raise exception 'pattern_type invalide. Valeurs acceptées: rechtsmuster, gaensefuesschen';
+  end if;
+
   -- Créer l'item
-  insert into items (name, description, category_id, price, status)
-  values (p_name, p_description, p_category_id, p_price, coalesce(p_status, 'draft'))
+  insert into items (name, description, category_id, price, status, pattern_type)
+  values (p_name, p_description, p_category_id, p_price, coalesce(p_status, 'draft'), p_pattern_type)
   returning id into v_item_id;
 
   -- Insérer les couleurs
@@ -40,4 +46,4 @@ end;
 $$;
 
 -- Donner les permissions
-grant execute on function public.create_item_with_colors(text, text, bigint, numeric, text, bigint[]) to authenticated;
+grant execute on function public.create_item_with_colors(text, text, bigint, numeric, text, bigint[], text) to authenticated;

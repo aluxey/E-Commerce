@@ -58,6 +58,7 @@ export function useProductForm({ colors = [] } = {}) {
     description: '',
     category_id: '',
     status: 'active',
+    pattern_type: '',
   });
 
   const [variants, setVariants] = useState([createEmptyVariant()]);
@@ -79,6 +80,7 @@ export function useProductForm({ colors = [] } = {}) {
       description: '',
       category_id: '',
       status: 'active',
+      pattern_type: '',
     });
     setVariants([createEmptyVariant()]);
     setSelectedColors([]);
@@ -111,6 +113,7 @@ export function useProductForm({ colors = [] } = {}) {
           description: draft.form?.description || '',
           category_id: draft.form?.category_id || '',
           status: draft.form?.status || 'active',
+          pattern_type: draft.form?.pattern_type || '',
         });
         const draftVariants = Array.isArray(draft.variants) && draft.variants.length
           ? draft.variants.map(v => ({
@@ -372,6 +375,7 @@ export function useProductForm({ colors = [] } = {}) {
       description: product.description || '',
       category_id: product.category_id || '',
       status: product.status || 'active',
+      pattern_type: product.pattern_type || '',
     });
     setSelectedColors(
       (product.item_colors || [])

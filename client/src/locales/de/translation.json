@@ -226,7 +226,12 @@
       "category": "Kategorie",
       "reference": "Referenz",
       "material": "Material",
-      "care": "Pflege"
+      "care": "Pflege",
+      "patternType": "Häkelmuster"
+    },
+    "patternTypes": {
+      "rechtsmuster": "Rechtsmuster",
+      "gaensefuesschen": "Gänsefüßchen"
     },
     "materialText": "100% Bio-Baumwolle",
     "careText": "Maschinenwäsche bei 30°C",
@@ -458,7 +463,9 @@
           "statusDraft": "Entwurf",
           "statusArchived": "Archiviert",
           "descriptionLabel": "Beschreibung",
-          "descriptionPlaceholder": "Beschreibe dein Produkt in wenigen Sätzen..."
+          "descriptionPlaceholder": "Beschreibe dein Produkt in wenigen Sätzen...",
+          "patternTypeLabel": "Häkelmuster",
+          "patternTypeNone": "Nicht zutreffend"
         },
         "colors": {
           "title": "Verfügbare Farben",

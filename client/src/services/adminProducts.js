@@ -9,7 +9,7 @@ export const listProducts = async () => {
     .from(TABLE_ITEMS)
     .select(
       `
-        id, name, price, description, category_id, status,
+        id, name, price, description, category_id, status, pattern_type,
         item_images ( id, image_url ),
         categories (
           id,
@@ -53,6 +53,7 @@ const sanitizeItemPayload = payload => ({
   category_id: payload.category_id ?? null,
   price: payload.price ?? null,
   status: payload.status ?? undefined,
+  pattern_type: payload.pattern_type || null,
 });
 
 export const upsertItem = async (itemPayload, editingId) => {
@@ -75,6 +76,7 @@ export const createItemWithColors = async (itemPayload, colorIds) => {
     p_price: itemPayload.price ?? 0,
     p_status: itemPayload.status ?? "draft",
     p_color_ids: ids,
+    p_pattern_type: itemPayload.pattern_type || null,
   });
 
   if (error) return { data: null, error };

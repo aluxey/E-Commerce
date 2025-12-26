@@ -489,6 +489,12 @@ export default function ItemDetail() {
                   <span>{t("productDetail.meta.care")}:</span>
                   <span>{t("productDetail.careText")}</span>
                 </div>
+                {item.pattern_type && (
+                  <div className="meta-item">
+                    <span>{t("productDetail.meta.patternType")}:</span>
+                    <span>{t(`productDetail.patternTypes.${item.pattern_type}`)}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}

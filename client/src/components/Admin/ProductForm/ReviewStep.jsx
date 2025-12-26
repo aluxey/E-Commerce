@@ -39,6 +39,12 @@ export default function ReviewStep({
                 </span>
               </dd>
             </div>
+            {form.pattern_type && (
+              <div className="review-item">
+                <dt>Style de crochet</dt>
+                <dd>{form.pattern_type === 'rechtsmuster' ? 'Rechtsmuster' : 'Gänsefüsschen'}</dd>
+              </div>
+            )}
             {form.description && (
               <div className="review-item review-item--full">
                 <dt>Description</dt>

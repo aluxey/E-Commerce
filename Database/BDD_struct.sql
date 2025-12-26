@@ -37,6 +37,7 @@ create table public.items (
   category_id  bigint references public.categories(id) on delete set null,
   status       text not null default 'draft'
                check (status in ('draft','active','archived')),
+  pattern_type text check (pattern_type is null or pattern_type in ('rechtsmuster','gaensefuesschen')),
   created_at   timestamp without time zone default now(),
   updated_at   timestamp without time zone default now()
 );

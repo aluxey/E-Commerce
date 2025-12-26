@@ -619,6 +619,7 @@ price        NUMERIC(10,2) NOT NULL CHECK (price >= 0)
 image_url    TEXT              -- Image principale (legacy)
 category_id  BIGINT REFERENCES categories(id)
 status       TEXT DEFAULT 'draft' CHECK (status IN ('draft','active','archived'))
+pattern_type TEXT              -- Style de crochet: 'rechtsmuster' | 'gaensefuesschen' | NULL
 created_at   TIMESTAMP
 updated_at   TIMESTAMP
 ```

@@ -61,6 +61,15 @@ export default function InfoStep({ form, handleChange, groupedCategories, orphan
               <option value="archived">Archivé</option>
             </select>
           </div>
+
+          <div className="form-group">
+            <label>Style de crochet</label>
+            <select name="pattern_type" value={form.pattern_type || ''} onChange={handleChange}>
+              <option value="">Non applicable</option>
+              <option value="rechtsmuster">Rechtsmuster</option>
+              <option value="gaensefuesschen">Gänsefüsschen</option>
+            </select>
+          </div>
         </div>
 
         <div className="form-group form-group--full">
