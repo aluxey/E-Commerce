@@ -235,6 +235,12 @@
     },
     "materialText": "100% Bio-Baumwolle",
     "careText": "Maschinenwäsche bei 30°C",
+    "hookType": "Hakeltyp",
+    "hookTypes": {
+      "default": "Standard",
+      "rechtsmuster": "Rechtsmuster",
+      "gaensefuesschen": "Gänsefüßchen"
+    },
     "reviews": {
       "title": "Bewertung abgeben",
       "label": "Deine Bewertung",
@@ -275,6 +281,7 @@
     "title": "Mein Warenkorb",
     "size": "Größe",
     "color": "Farbe",
+    "hookType": "Hakeltyp",
     "stock": "Bestand: {{count}}",
     "remove": "Entfernen",
     "quantityDecrease": "Menge verringern",
@@ -315,6 +322,7 @@
     "summary": "Deine Bestellung",
     "size": "Größe",
     "color": "Farbe",
+    "hookType": "Hakeltyp",
     "total": "Gesamt: {{total}}€"
   },
   "login": {

@@ -71,6 +71,10 @@ export function CartProvider({ children }) {
           size: variant.size,
           color: colorName,
           color_hex: colorHex,
+          hook_type: item.hookType || variant.hookType || null,
+          customization: {
+            hook_type: item.hookType || variant.hookType || null,
+          },
           stock,
           image_url: item.item_images?.[0]?.image_url || item.image_url || null,
         };

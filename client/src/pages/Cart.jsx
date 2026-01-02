@@ -48,6 +48,9 @@ const Cart = () => {
               <p>{unitPrice.toFixed(2)}€</p>
               <p>
                 {t('cart.size')}: {item.size || '—'} | {t('cart.color')}: {item.color || '—'}
+                {item.hook_type && (
+                  <span> | {t('cart.hookType')}: {t(`productDetail.hookTypes.${item.hook_type}`)}</span>
+                )}
               </p>
               {stock != null && <p className="item-stock">{t('cart.stock', { count: stock })}</p>}
             </div>

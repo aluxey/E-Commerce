@@ -28,6 +28,7 @@ export default function ItemDetail() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [relatedItems, setRelatedItems] = useState([]);
+  const [selectedHookType, setSelectedHookType] = useState("default");
   // const [deliveryDate, setDeliveryDate] = useState(''); // Temporarily disabled
   const [error, setError] = useState(false);
 
@@ -235,11 +236,13 @@ export default function ItemDetail() {
         item: {
           ...item,
           selectedColor: colorObj,
+          hookType: selectedHookType,
         },
         variant: {
           ...selectedVariant,
           color: colorObj?.name || selectedVariant.color,
           color_hex: colorObj?.hex_code || null,
+          hookType: selectedHookType,
         },
         quantity: safeQuantity,
       });
@@ -383,6 +386,17 @@ export default function ItemDetail() {
                 </label>
               </div>
             )}
+
+            <div className="option-group">
+              <label>
+                {t("productDetail.hookType")}:
+                <select value={selectedHookType} onChange={e => setSelectedHookType(e.target.value)}>
+                  <option value="default">{t('productDetail.hookTypes.default')}</option>
+                  <option value="rechtsmuster">{t('productDetail.hookTypes.rechtsmuster')}</option>
+                  <option value="gaensefuesschen">{t('productDetail.hookTypes.gaensefuesschen')}</option>
+                </select>
+              </label>
+            </div>
           </div>
 
           <div className="pd-actions">
@@ -489,12 +503,6 @@ export default function ItemDetail() {
                   <span>{t("productDetail.meta.care")}:</span>
                   <span>{t("productDetail.careText")}</span>
                 </div>
-                {item.pattern_type && (
-                  <div className="meta-item">
-                    <span>{t("productDetail.meta.patternType")}:</span>
-                    <span>{t(`productDetail.patternTypes.${item.pattern_type}`)}</span>
-                  </div>
-                )}
               </div>
             </div>
           )}

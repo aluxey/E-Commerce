@@ -51,6 +51,7 @@ const StripeCheckout = () => {
         item_id: i.itemId || i.id,
         quantity: i.quantity,
         variant_id: i.variant_id ?? i.variantId,
+        customization: i.customization || {},
       }));
       const response = await fetch(`${apiUrl}/api/checkout`, {
         method: 'POST',
@@ -146,6 +147,9 @@ const StripeCheckout = () => {
                 <span className="item-name">{item.name}</span>
                 <span className="item-variant">
                   {t('stripe.size')}: {item.size || '—'} | {t('stripe.color')}: {item.color || '—'}
+                  {item.customization?.hook_type && (
+                    <span> | {t('stripe.hookType')}: {t(`productDetail.hookTypes.${item.customization.hook_type}`)}</span>
+                  )}
                 </span>
               </div>
               <span className="item-quantity">{item.quantity}x</span>

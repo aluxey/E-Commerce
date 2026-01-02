@@ -91,6 +91,7 @@ function normalizeCartItems(rawItems) {
       item_id: i.item_id || i.id || i.itemId,
       quantity: Math.max(1, Number(i.quantity) || 1),
       variant_id: i.variant_id != null ? Number(i.variant_id) : i.variantId != null ? Number(i.variantId) : null,
+      customization: i.customization || {},
     }))
     .filter(i => i.item_id)
 }
@@ -180,6 +181,7 @@ app.post('/api/checkout', async (req, res) => {
       quantity: ci.quantity,
       variant_id: ci.variant_id,
       unit_price: variantsById.get(ci.variant_id)?.price ?? 0,
+      customization: ci.customization || {},
     }))
     const { error: oiErr } = await supabase.from('order_items').insert(orderItemsPayload)
     if (oiErr) throw oiErr

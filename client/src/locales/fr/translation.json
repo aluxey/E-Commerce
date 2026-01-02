@@ -235,6 +235,12 @@
     },
     "materialText": "Coton bio 100%",
     "careText": "Lavage machine 30°C",
+    "hookType": "Type de crochet",
+    "hookTypes": {
+      "default": "Standard",
+      "rechtsmuster": "Rechtsmuster",
+      "gaensefuesschen": "Gänsefüsschen"
+    },
     "reviews": {
       "title": "Donnez votre avis",
       "label": "Votre note",
@@ -275,6 +281,7 @@
     "title": "Mon panier",
     "size": "Taille",
     "color": "Couleur",
+    "hookType": "Type de crochet",
     "stock": "Stock : {{count}}",
     "remove": "Supprimer",
     "quantityDecrease": "Réduire la quantité",
@@ -315,6 +322,7 @@
     "summary": "Résumé de votre commande",
     "size": "Taille",
     "color": "Couleur",
+    "hookType": "Type de crochet",
     "total": "Total : {{total}}€"
   },
   "login": {
