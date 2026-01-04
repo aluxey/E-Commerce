@@ -1,0 +1,113 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import { cn } from '../../utils/cn';
+
+const toastVariants = {
+  variant: {
+    default: 'toast-default',
+    success: 'toast-success',
+    error: 'toast-error',
+    warning: 'toast-warning',
+    info: 'toast-info',
+  },
+  position: {
+    'top-left': 'toast-top-left',
+    'top-right': 'toast-top-right',
+    'top-center': 'toast-top-center',
+    'bottom-left': 'toast-bottom-left',
+    'bottom-right': 'toast-bottom-right',
+    'bottom-center': 'toast-bottom-center',
+  },
+};
+
+const Toast = React.forwardRef(({
+  className,
+  variant = 'default',
+  position = 'top-right',
+  title,
+  description,
+  duration = 5000,
+  closable = true,
+  icon,
+  onClose,
+  ...props
+}, ref) => {
+  const [isVisible, setIsVisible] = React.useState(true);
+
+  React.useEffect(() => {
+    if (duration > 0) {
+      const timer = setTimeout(() => {
+        handleClose();
+      }, duration);
+
+      return () => clearTimeout(timer);
+    }
+  }, [duration]);
+
+  const handleClose = () => {
+    setIsVisible(false);
+    if (onClose) {
+      onClose();
+    }
+  };
+
+  const baseClasses = 'toast';
+  const variantClasses = toastVariants.variant[variant];
+  const positionClasses = toastVariants.position[position];
+  const visibleClasses = isVisible ? 'toast-visible' : 'toast-hidden';
+  
+  const classes = cn(
+    baseClasses,
+    variantClasses,
+    positionClasses,
+    visibleClasses,
+    className
+  );
+
+  const renderIcon = () => {
+    if (icon) return icon;
+    
+    const defaultIcons = {
+      success: '✓',
+      error: '✕',
+      warning: '⚠',
+      info: 'ℹ',
+      default: 'ℹ',
+    };
+    
+    return <span className="toast-icon">{defaultIcons[variant]}</span>;
+  };
+
+  return (
+    <div className={classes} ref={ref} {...props}>
+      <div className="toast-content">
+        {renderIcon()}
+        <div className="toast-body">
+          {title && <div className="toast-title">{title}</div>}
+          {description && <div className="toast-description">{description}</div>}
+        </div>
+        {closable && (
+          <button className="toast-close" onClick={handleClose}>
+            ×
+          </button>
+        )}
+      </div>
+    </div>
+  );
+});
+
+Toast.displayName = 'Toast';
+
+Toast.propTypes = {
+  className: PropTypes.string,
+  variant: PropTypes.oneOf(['default', 'success', 'error', 'warning', 'info']),
+  position: PropTypes.oneOf(['top-left', 'top-right', 'top-center', 'bottom-left', 'bottom-right', 'bottom-center']),
+  title: PropTypes.string,
+  description: PropTypes.string,
+  duration: PropTypes.number,
+  closable: PropTypes.bool,
+  icon: PropTypes.node,
+  onClose: PropTypes.func,
+};
+
+export { Toast, toastVariants };
