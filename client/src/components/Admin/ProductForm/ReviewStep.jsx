@@ -3,14 +3,12 @@
  */
 export default function ReviewStep({
   form,
-  selectedColors,
   variants,
   existingImages,
   imagePreviews,
   primaryImageIndex,
   minVariantPrice,
   categoryName,
-  colorById,
 }) {
   return (
     <div className="wizard-step">
@@ -52,22 +50,6 @@ export default function ReviewStep({
               </div>
             )}
           </dl>
-        </div>
-
-        <div className="review-section">
-          <h4>Couleurs ({selectedColors.length})</h4>
-          <div className="review-colors">
-            {selectedColors.map(id => {
-              const c = colorById(id);
-              return c ? (
-                <span key={id} className="review-color">
-                  <span className="color-dot" style={{ backgroundColor: c.hex_code }} />
-                  {c.name}
-                </span>
-              ) : null;
-            })}
-            {selectedColors.length === 0 && <span className="muted">Aucune couleur</span>}
-          </div>
         </div>
 
         <div className="review-section">

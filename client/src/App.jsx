@@ -25,6 +25,7 @@ const StripeCheckout = lazy(() => import("./components/Stripe"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const Profile = lazy(() => import("./pages/Profile"));
 const MyOrders = lazy(() => import("./pages/MyOrders"));
+const UIDemo = lazy(() => import("./pages/UIDemo"));
 
 import './styles/global.css';
 
@@ -70,6 +71,7 @@ function App() {
             }
           />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/ui-demo" element={<UIDemo />} />
         </Routes>
       </Suspense>
       <Footer />
