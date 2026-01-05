@@ -705,5 +705,14 @@
     "viewCart": "Warenkorb ansehen",
     "shop": "Shop entdecken",
     "roleLabel": "Rolle"
+  },
+  "colorPicker": {
+    "selectColor": "Farbe wählen",
+    "searchPlaceholder": "Farbe suchen...",
+    "searchLabel": "Suchen",
+    "clearSearch": "Suche löschen",
+    "totalColors": "{{count}} Farben verfügbar",
+    "filteredColors": "{{filtered}} von {{total}} Farben",
+    "noResults": "Keine Farbe gefunden"
   }
 }

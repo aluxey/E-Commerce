@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Star, Check, X, Minus, Plus } from "lucide-react";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
+import ColorPicker from "../components/ui/ColorPicker";
 import { useAuth } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import { listColors } from "../services/adminColors";
@@ -375,25 +376,13 @@ export default function ItemDetail() {
             </div>
 
             {showColorSelect && (
-              <div className="option-group">
-                <label>{t("productDetail.color")}:</label>
-                <div className="color-picker">
-                  {colorOptions.map(option => (
-                    <button
-                      key={option.value || "default"}
-                      type="button"
-                      className={`color-option ${selectedColor === option.value ? 'is-selected' : ''}`}
-                      onClick={() => setSelectedColor(option.value)}
-                      title={option.label}
-                    >
-                      <span 
-                        className="color-dot" 
-                        style={{ backgroundColor: option.hex }}
-                      />
-                      <span className="color-label">{option.label}</span>
-                    </button>
-                  ))}
-                </div>
+              <div className="option-group option-group--color">
+                <ColorPicker
+                  colors={colorOptions}
+                  selectedColor={selectedColor}
+                  onChange={setSelectedColor}
+                  label={t("productDetail.color")}
+                />
               </div>
             )}
 

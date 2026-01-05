@@ -1163,8 +1163,26 @@
 }
 
 /* ============================================
-   COLOR PICKER
+   COLOR PICKER (Legacy - preserved for reference)
+   Now using ColorPicker component from ui/ColorPicker.jsx
    ============================================ */
+
+/* Color option group specific styling */
+.option-group--color {
+  position: relative;
+  z-index: 10;
+  min-width: 200px;
+}
+
+@media (min-width: 768px) {
+  .option-group--color {
+    flex: 0 1 auto;
+    min-width: 240px;
+    max-width: 320px;
+  }
+}
+
+/* Legacy color picker styles - kept for backwards compatibility */
 .color-picker {
   display: flex;
   flex-wrap: wrap;

@@ -705,5 +705,14 @@
     "viewCart": "Voir le panier",
     "shop": "Découvrir la boutique",
     "roleLabel": "Rôle"
+  },
+  "colorPicker": {
+    "selectColor": "Choisir une couleur",
+    "searchPlaceholder": "Rechercher une couleur...",
+    "searchLabel": "Rechercher",
+    "clearSearch": "Effacer la recherche",
+    "totalColors": "{{count}} couleurs disponibles",
+    "filteredColors": "{{filtered}} sur {{total}} couleurs",
+    "noResults": "Aucune couleur trouvée"
   }
 }
