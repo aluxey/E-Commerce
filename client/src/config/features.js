@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 /**
  * Feature flags configuration
  * 
@@ -16,8 +18,6 @@ export const MOBILE_BREAKPOINT = 768;
  * Uses matchMedia for performance (doesn't cause re-renders on every resize)
  */
 export function useIsMobile() {
-  const { useState, useEffect } = require("react");
-  
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth <= MOBILE_BREAKPOINT;
