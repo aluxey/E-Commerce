@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { useAuth } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
+import { listColors } from "../services/adminColors";
 import { fetchItemDetail, fetchRelatedItems } from "../services/items";
 import { loadAllRatings, submitRating } from "../services/ratings";
 import "../styles/itemPage.css";
@@ -15,6 +16,7 @@ export default function ItemDetail() {
   const [activeImage, setActiveImage] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [variants, setVariants] = useState([]);
+  const [colors, setColors] = useState([]);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState(null);
   const [rating, setRating] = useState(0);
@@ -39,20 +41,15 @@ export default function ItemDetail() {
   const locale = useMemo(() => (i18n.language === "fr" ? "fr-FR" : "de-DE"), [i18n.language]);
 
   const colorOptions = useMemo(() => {
-    const map = new Map();
-    (item?.item_colors || []).forEach(ic => {
-      if (ic.colors) {
-        map.set(ic.colors.id, {
-          value: ic.colors.id,
-          label: ic.colors.name,
-          hex: ic.colors.hex_code,
-          hasStock: true,
-          compatible: true,
-        });
-      }
-    });
-    return Array.from(map.values());
-  }, [item]);
+    // All colors are now available for all products
+    return colors.map(color => ({
+      value: color.id,
+      label: color.name,
+      hex: color.hex_code,
+      hasStock: true,
+      compatible: true,
+    }));
+  }, [colors]);
 
   const sizeOptions = useMemo(() => {
     if (!variants.length) return [];
@@ -149,7 +146,12 @@ export default function ItemDetail() {
     setIsLoading(true);
     setError(false);
 
-    const { data, error: itemError } = await fetchItemDetail(id);
+    const [itemResult, colorsResult] = await Promise.all([
+      fetchItemDetail(id),
+      listColors()
+    ]);
+
+    const { data, error: itemError } = itemResult;
     if (itemError || !data) {
       console.error("Erreur lors du chargement de l'item :", itemError);
       setError(true);
@@ -158,6 +160,7 @@ export default function ItemDetail() {
     }
 
     setItem(data);
+    setColors(colorsResult.data || []);
     const first = data?.item_images?.[0]?.image_url || null;
     setActiveImage(first);
 
@@ -228,7 +231,7 @@ export default function ItemDetail() {
     const stock = selectedVariant.stock ?? null;
     const safeQuantity = Math.max(1, stock != null ? Math.min(quantity, stock) : quantity);
 
-    const colorObj = item?.item_colors?.find(ic => ic.colors?.id === selectedColor)?.colors || null;
+    const colorObj = colors.find(c => c.id === selectedColor) || null;
 
     // Simulation d'un délai pour l'UX
     setTimeout(() => {

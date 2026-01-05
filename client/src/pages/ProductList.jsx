@@ -178,13 +178,8 @@ export default function ProductList() {
       });
     }
 
-    // 4. Color
-    if (selectedColor) {
-      const colorId = Number(selectedColor);
-      result = result.filter(item =>
-        item.item_colors?.some(ic => ic.colors?.id === colorId)
-      );
-    }
+    // 4. Color filter removed - all colors are now available for all products
+    // The color selector in filters can be used for user preference but doesn't filter items
 
     // 5. Sort
     result.sort((a, b) => {
@@ -196,7 +191,7 @@ export default function ProductList() {
     });
 
     setFilteredItems(result);
-  }, [items, searchTerm, selectedCategory, selectedColor, priceRange, sortBy, categoryMeta]);
+  }, [items, searchTerm, selectedCategory, priceRange, sortBy, categoryMeta]);
 
   const handleClearFilters = () => {
     setSearchTerm('');

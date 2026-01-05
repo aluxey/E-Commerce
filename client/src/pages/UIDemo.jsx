@@ -1,49 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  Button,
-  Input,
-  Card,
-  Skeleton,
   Badge,
-  Toast,
-  Modal,
-  BlurUpImage,
-  ProductCardSkeleton,
-  ListSkeleton,
-  LoadingSpinner,
-  LoadingDots,
-  LoadingBar,
-  FloatingLabelInput,
-  FormField,
+  Button,
+  Card,
   CharacterCounter,
+  FloatingLabelInput,
+  FormSteps,
+  Input,
+  ListSkeleton,
+  LoadingBar,
+  LoadingDots,
+  LoadingSpinner,
+  Modal,
   PasswordStrength,
+  ProductCardSkeleton,
+  Toast,
   useFormValidation,
   validationRules,
-  FormSteps,
-} from '../components/ui';
+} from "../components/ui";
 
 const UIDemo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [progress, setProgress] = useState(25);
   const [currentStep, setCurrentStep] = useState(0);
   const [showToast, setShowToast] = useState(false);
-  const [password, setPassword] = useState('');
-  const [description, setDescription] = useState('');
+  const [password, setPassword] = useState("");
+  const [description, setDescription] = useState("");
 
-  const { values, errors, setValue, setTouchedField, handleSubmit, resetForm } = useFormValidation(
-    { name: '', email: '', password: '', confirmPassword: '' },
+  const { values, errors, setValue, setTouchedField } = useFormValidation(
+    { name: "", email: "", password: "", confirmPassword: "" },
     {
-      name: validationRules.required('Name is required'),
+      name: validationRules.required("Name is required"),
       email: validationRules.email(),
       password: validationRules.password(),
-      confirmPassword: validationRules.match('password', 'Passwords must match'),
+      confirmPassword: validationRules.match("password", "Passwords must match"),
     }
   );
 
   const steps = [
-    { title: 'Account Info', description: 'Basic information' },
-    { title: 'Preferences', description: 'Customize your experience' },
-    { title: 'Review', description: 'Confirm your details' },
+    { title: "Account Info", description: "Basic information" },
+    { title: "Preferences", description: "Customize your experience" },
+    { title: "Review", description: "Confirm your details" },
   ];
 
   React.useEffect(() => {
@@ -59,7 +56,7 @@ const UIDemo = () => {
       <section className="container mx-auto px-6 py-16">
         <div className="text-center mb-12">
           <h1 className="hero-title mb-4">World-Class UI Components</h1>
-          <p className="hero-subtext">
+          <p className="hero-subtitle">
             Experience the stunning, polished interface that rivals industry leaders like Stripe
           </p>
         </div>
@@ -107,18 +104,10 @@ const UIDemo = () => {
               />
             </div>
             <div>
-              <Input
-                label="Input with Icon"
-                placeholder="Search..."
-                leftIcon={<span>🔍</span>}
-              />
+              <Input label="Input with Icon" placeholder="Search..." leftIcon={<span>🔍</span>} />
             </div>
             <div>
-              <Input
-                label="Disabled Input"
-                placeholder="Disabled field"
-                disabled
-              />
+              <Input label="Disabled Input" placeholder="Disabled field" disabled />
             </div>
           </div>
         </Card>
@@ -130,35 +119,35 @@ const UIDemo = () => {
             <FloatingLabelInput
               label="Your Name"
               value={values.name}
-              onChange={(e) => setValue('name', e.target.value)}
-              onBlur={() => setTouchedField('name')}
+              onChange={e => setValue("name", e.target.value)}
+              onBlur={() => setTouchedField("name")}
               error={errors.name}
             />
             <FloatingLabelInput
               label="Email Address"
               type="email"
               value={values.email}
-              onChange={(e) => setValue('email', e.target.value)}
-              onBlur={() => setTouchedField('email')}
+              onChange={e => setValue("email", e.target.value)}
+              onBlur={() => setTouchedField("email")}
               error={errors.email}
             />
             <FloatingLabelInput
               label="Password"
               type="password"
               value={values.password}
-              onChange={(e) => {
-                setValue('password', e.target.value);
+              onChange={e => {
+                setValue("password", e.target.value);
                 setPassword(e.target.value);
               }}
-              onBlur={() => setTouchedField('password')}
+              onBlur={() => setTouchedField("password")}
               error={errors.password}
             />
             <FloatingLabelInput
               label="Confirm Password"
               type="password"
               value={values.confirmPassword}
-              onChange={(e) => setValue('confirmPassword', e.target.value)}
-              onBlur={() => setTouchedField('confirmPassword')}
+              onChange={e => setValue("confirmPassword", e.target.value)}
+              onBlur={() => setTouchedField("confirmPassword")}
               error={errors.confirmPassword}
             />
           </div>
@@ -208,20 +197,22 @@ const UIDemo = () => {
             <Badge variant="info">Info</Badge>
           </div>
           <div className="flex gap-4 mt-4">
-            <Badge variant="primary" shape="pill">Pill</Badge>
-            <Badge variant="primary" shape="rounded">Rounded</Badge>
-            <Badge variant="primary" shape="square">Square</Badge>
+            <Badge variant="primary" shape="pill">
+              Pill
+            </Badge>
+            <Badge variant="primary" shape="rounded">
+              Rounded
+            </Badge>
+            <Badge variant="primary" shape="square">
+              Square
+            </Badge>
           </div>
         </Card>
 
         {/* Form Steps */}
         <Card className="mb-8">
           <h2 className="section-title mb-6">Form Steps</h2>
-          <FormSteps
-            currentStep={currentStep}
-            steps={steps}
-            onStepChange={setCurrentStep}
-          />
+          <FormSteps currentStep={currentStep} steps={steps} onStepChange={setCurrentStep} />
         </Card>
 
         {/* Character Counter */}
@@ -235,7 +226,7 @@ const UIDemo = () => {
                 rows={4}
                 placeholder="Enter description..."
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 maxLength={100}
               />
               <CharacterCounter current={description.length} max={100} />
@@ -255,7 +246,7 @@ const UIDemo = () => {
         {/* Cards with Hover Effects */}
         <Card className="mb-8 hoverable">
           <h2 className="section-title mb-6">Interactive Cards</h2>
-          <p className="text-muted">
+          <p className="color-text-muted">
             Hover over this card to see the lift effect and smooth transitions.
           </p>
         </Card>
@@ -281,16 +272,14 @@ const UIDemo = () => {
       >
         <div className="space-y-4">
           <p>
-            This modal features smooth animations, proper focus management,
-            and beautiful visual design that rivals industry leaders.
+            This modal features smooth animations, proper focus management, and beautiful visual
+            design that rivals industry leaders.
           </p>
           <div className="flex gap-4 justify-end">
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={() => setIsModalOpen(false)}>
-              Confirm
-            </Button>
+            <Button onClick={() => setIsModalOpen(false)}>Confirm</Button>
           </div>
         </div>
       </Modal>

@@ -10,24 +10,6 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categor
   const variants = useMemo(() => item.item_variants || [], [item.item_variants]);
   const { t } = useTranslation();
 
-  // Get unique colors from variants or item_colors
-  const availableColors = useMemo(() => {
-    const colors = [];
-    const seen = new Set();
-
-    // Check item_colors first (direct relation)
-    if (item.item_colors) {
-      item.item_colors.forEach(ic => {
-        if (ic.colors && !seen.has(ic.colors.id)) {
-          colors.push(ic.colors);
-          seen.add(ic.colors.id);
-        }
-      });
-    }
-
-    return colors;
-  }, [item.item_colors]);
-
   const preferredVariant = useMemo(() => {
     if (!variants.length) return null;
     const inStock = variants.find(v => (v.stock ?? 0) > 0);
@@ -91,20 +73,6 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categor
           </div>
 
           {categoryLabel && <div className="item-category-label">{categoryLabel}</div>}
-
-          {availableColors.length > 0 && (
-            <div className="item-colors-preview">
-              {availableColors.slice(0, 5).map(color => (
-                <span
-                  key={color.id}
-                  className="color-dot"
-                  style={{ backgroundColor: color.hex_code }}
-                  title={color.name}
-                />
-              ))}
-              {availableColors.length > 5 && <span className="more-colors">+{availableColors.length - 5}</span>}
-            </div>
-          )}
 
           <div className="item-meta">
             <div className="item-rating" aria-label={t('itemCard.ratingLabel', { rating: roundedRating })}>

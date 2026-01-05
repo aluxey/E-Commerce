@@ -64,45 +64,7 @@ export const upsertItem = async (itemPayload, editingId) => {
   return supabase.from(TABLE_ITEMS).insert([payload]).select("id").single();
 };
 
-export const createItemWithColors = async (itemPayload, colorIds) => {
-  const ids = Array.from(new Set(colorIds || [])).filter(Boolean);
-  if (!ids.length) throw new Error("Au moins une couleur est requise pour le produit.");
 
-  // Utiliser la RPC pour créer l'item et les couleurs en une seule transaction
-  const { data, error } = await supabase.rpc("create_item_with_colors", {
-    p_name: itemPayload.name ?? null,
-    p_description: itemPayload.description ?? null,
-    p_category_id: itemPayload.category_id ?? null,
-    p_price: itemPayload.price ?? 0,
-    p_status: itemPayload.status ?? "draft",
-    p_color_ids: ids,
-    p_pattern_type: itemPayload.pattern_type || null,
-  });
-
-  if (error) return { data: null, error };
-
-  // La RPC retourne l'ID de l'item créé
-  return { data: { id: data }, error: null };
-};
-
-export const syncItemColors = async (itemId, colorIds) => {
-  const ids = Array.from(new Set(colorIds || [])).filter(Boolean);
-  if (!ids.length) throw new Error("Au moins une couleur est requise pour le produit.");
-
-  const inserts = ids.map(id => ({ item_id: itemId, color_id: id }));
-  const { error: insertError } = await supabase
-    .from("item_colors")
-    .upsert(inserts, { onConflict: "item_id,color_id" });
-  if (insertError) return { error: insertError };
-
-  const { error: deleteError } = await supabase
-    .from("item_colors")
-    .delete()
-    .eq("item_id", itemId)
-    .not("color_id", "in", `(${ids.join(",")})`);
-
-  return { error: deleteError };
-};
 
 export const upsertVariants = async variantsPayload =>
   supabase.from(TABLE_VARIANTS).upsert(variantsPayload, { onConflict: "id" });
@@ -173,16 +135,4 @@ export const removeProductImage = async path =>
 export const getPublicImageUrl = filePath =>
   supabase.storage.from("product-images").getPublicUrl(filePath);
 
-export const getProductColors = async itemIds => {
-  if (!itemIds || itemIds.length === 0) return [];
-  return supabase
-    .from("item_colors")
-    .select(
-      `
-      item_id,
-      color_id,
-      colors ( id, name, hex_code )
-    `
-    )
-    .in("item_id", itemIds);
-};
+

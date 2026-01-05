@@ -74,7 +74,7 @@
 }
 
 .floating-input-label-required::after {
-  content: ' *';
+  content: " *";
   color: var(--color-error);
   margin-left: var(--spacing-0_5);
 }
@@ -256,19 +256,19 @@
   transition: color var(--motion-fast);
 }
 
-.password-strength-text-password-strength-text-error {
+.password-strength-text-error {
   color: var(--color-error);
 }
 
-.password-strength-text-password-strength-text-warning {
+.password-strength-text-warning {
   color: var(--color-warning);
 }
 
-.password-strength-text-password-strength-text-info {
+.password-strength-text-info {
   color: var(--color-info);
 }
 
-.password-strength-text-password-strength-text-success {
+.password-strength-text-success {
   color: var(--color-success);
 }
 
@@ -445,9 +445,23 @@
 
 /* Animated Error Shake */
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-  20%, 40%, 60%, 80% { transform: translateX(2px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
 }
 
 /* Responsive Forms */
@@ -455,19 +469,19 @@
   .floating-input-field {
     font-size: 16px; /* Prevents zoom on iOS */
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .form-steps-item {
     padding: var(--spacing-2);
   }
-  
+
   .form-steps-item-content {
     display: none;
   }
-  
+
   .form-grid-2,
   .form-grid-3,
   .form-grid-4 {
@@ -482,32 +496,32 @@
     border-color: var(--color-neutral-600);
     color: var(--color-neutral-200);
   }
-  
+
   .floating-input-label {
     background-color: var(--color-neutral-800);
   }
-  
+
   .floating-input-helper {
     color: var(--color-neutral-400);
   }
-  
+
   .form-field-label {
     color: var(--color-neutral-200);
   }
-  
+
   .form-field-description {
     color: var(--color-neutral-400);
   }
-  
+
   .form-steps-item {
     background-color: var(--color-neutral-800);
     border-color: var(--color-neutral-600);
   }
-  
+
   .form-steps-progress {
     background-color: var(--color-neutral-600);
   }
-  
+
   .password-strength-bar {
     background-color: var(--color-neutral-600);
   }
@@ -527,7 +541,7 @@
 }
 
 .form-loading::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;

@@ -1,9 +1,7 @@
 import { STEPS, STEP_LABELS, buildSku, sanitizeText, useProductForm } from "@/hooks/useProductForm";
-import { listColors } from "@/services/adminColors";
 import { supabase } from "@/supabase/supabaseClient";
 import { useEffect, useMemo, useState } from "react";
 import {
-  createItemWithColors,
   deleteItem,
   deleteItemImage,
   deleteVariants,
@@ -13,13 +11,12 @@ import {
   listProducts,
   removeProductImage,
   reorderItemImages,
-  syncItemColors,
   updateItemPriceMeta,
   upsertItem,
   upsertVariants,
 } from "../../services/adminProducts";
 import { pushToast } from "../ToastHost";
-import { ColorsStep, ImagesStep, InfoStep, ReviewStep, VariantsStep } from "./ProductForm";
+import { ImagesStep, InfoStep, ReviewStep, VariantsStep } from "./ProductForm";
 
 export const TABLE_ITEMS = "items";
 const TABLE_VARIANTS = "item_variants";
@@ -27,13 +24,12 @@ const TABLE_VARIANTS = "item_variants";
 export default function ProductManager() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Use custom hook for form management
-  const formHook = useProductForm({ colors });
+  const formHook = useProductForm();
 
   const {
     editingId,
@@ -41,7 +37,6 @@ export default function ProductManager() {
     showWizard,
     form,
     variants,
-    selectedColors,
     selectedSizes,
     basePrice,
     baseStock,
@@ -56,12 +51,10 @@ export default function ProductManager() {
     setPrimaryImageIndex,
     setBasePrice,
     setBaseStock,
-    setSelectedColors,
     resetForm,
     clearDraft,
     handleChange,
     toggleSize,
-    toggleColor,
     generateVariants,
     addVariantRow,
     updateVariantField,
@@ -87,25 +80,7 @@ export default function ProductManager() {
     setError(null);
     try {
       const { data, error } = await listProducts();
-      if (error) {
-        if (String(error.message || "").includes("item_colors")) {
-          const { data: fallbackData, error: fbError } = await supabase
-            .from(TABLE_ITEMS)
-            .select(
-              `
-              id, name, price, description, category_id, status,
-              item_images ( id, image_url ),
-              categories ( id, name ),
-              item_variants ( id, size, price, stock, sku )
-            `
-            )
-            .order("id", { ascending: false });
-          if (fbError) throw fbError;
-          setProducts(fallbackData || []);
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
       setProducts(data || []);
     } catch (err) {
       console.error("Erreur lors du chargement des produits :", err.message);
@@ -121,15 +96,9 @@ export default function ProductManager() {
     if (!error) setCategories(data || []);
   };
 
-  const fetchColors = async () => {
-    const { data, error } = await listColors();
-    if (!error) setColors(data || []);
-  };
-
   useEffect(() => {
     fetchProducts();
     fetchCategoriesList();
-    fetchColors();
   }, []);
 
   // Upload image helper
@@ -166,10 +135,6 @@ export default function ProductManager() {
         return;
       }
 
-      const normalizedColorIds = colors.length
-        ? Array.from(new Set(selectedColors.map(id => Number(id)))).filter(Boolean)
-        : [];
-
       const { errors: variantErrors, validVariants } = validateVariants();
       if (variantErrors.length) {
         pushToast({ message: variantErrors[0], variant: "error" });
@@ -191,14 +156,8 @@ export default function ProductManager() {
       if (editingId) {
         const { error } = await upsertItem(itemPayload, editingId);
         if (error) throw error;
-        if (normalizedColorIds.length) {
-          const { error: colorsError } = await syncItemColors(editingId, normalizedColorIds);
-          if (colorsError && !String(colorsError.message || "").includes("item_colors")) {
-            throw colorsError;
-          }
-        }
       } else {
-        const { data, error } = await createItemWithColors(itemPayload, normalizedColorIds);
+        const { data, error } = await upsertItem(itemPayload, null);
         if (error) throw error;
         itemId = data.id;
       }
@@ -417,11 +376,6 @@ export default function ProductManager() {
     };
   }, [categoryTree]);
 
-  const colorById = useMemo(() => {
-    const map = new Map(colors.map(c => [c.id, c]));
-    return id => map.get(id) || null;
-  }, [colors]);
-
   // Filtered products
   const filteredProducts = useMemo(() => {
     if (!searchQuery.trim()) return products;
@@ -440,16 +394,6 @@ export default function ProductManager() {
             groupedCategories={groupedCategories}
             orphanCategories={orphanCategories}
             categoryName={categoryName}
-          />
-        );
-
-      case STEPS.COLORS:
-        return (
-          <ColorsStep
-            colors={colors}
-            selectedColors={selectedColors}
-            toggleColor={toggleColor}
-            setSelectedColors={setSelectedColors}
           />
         );
 
@@ -493,14 +437,12 @@ export default function ProductManager() {
         return (
           <ReviewStep
             form={form}
-            selectedColors={selectedColors}
             variants={variants}
             existingImages={existingImages}
             imagePreviews={imagePreviews}
             primaryImageIndex={primaryImageIndex}
             minVariantPrice={minVariantPrice}
             categoryName={categoryName}
-            colorById={colorById}
           />
         );
 

@@ -1,98 +1,104 @@
-import React, { useState, useEffect } from 'react';
-import { cn } from '../../utils/cn';
+import React, { useEffect, useState } from "react";
+import { cn } from "../../utils/cn";
+import { Skeleton } from "./Skeleton";
 
 /* Blur-Up Image Component */
-const BlurUpImage = React.forwardRef(({
-  src,
-  alt,
-  placeholderSrc,
-  className = '',
-  width,
-  height,
-  priority = false,
-  onLoad,
-  onError,
-  ...props
-}, ref) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(placeholderSrc || '');
+const BlurUpImage = React.forwardRef(
+  (
+    {
+      src,
+      alt,
+      placeholderSrc,
+      className = "",
+      width,
+      height,
+      priority = false,
+      onLoad,
+      onError,
+      ...props
+    },
+    ref
+  ) => {
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [hasError, setHasError] = useState(false);
+    const [currentSrc, setCurrentSrc] = useState(placeholderSrc || "");
 
-  useEffect(() => {
-    if (priority && src) {
-      setCurrentSrc(src);
-    }
-  }, [priority, src]);
-
-  const handleLoad = (event) => {
-    setIsLoaded(true);
-    setHasError(false);
-    if (onLoad) {
-      onLoad(event);
-    }
-  };
-
-  const handleError = (event) => {
-    setHasError(true);
-    if (onError) {
-      onError(event);
-    }
-  };
-
-  // Intersection Observer for lazy loading
-  const imageRef = React.useRef();
-  
-  useEffect(() => {
-    if (priority) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setCurrentSrc(src);
-          observer.disconnect();
-        }
-      },
-      {
-        rootMargin: '50px',
+    useEffect(() => {
+      if (priority && src) {
+        setCurrentSrc(src);
       }
-    );
+    }, [priority, src]);
 
-    if (imageRef.current) {
-      observer.observe(imageRef.current);
-    }
+    const handleLoad = event => {
+      setIsLoaded(true);
+      setHasError(false);
+      if (onLoad) {
+        onLoad(event);
+      }
+    };
 
-    return () => observer.disconnect();
-  }, [src, priority]);
+    const handleError = event => {
+      setHasError(true);
+      if (onError) {
+        onError(event);
+      }
+    };
 
-  return (
-    <div className="blur-up-image-wrapper" ref={ref}>
-      <img
-        ref={imageRef}
-        src={currentSrc}
-        alt={alt}
-        className={cn(
-          'blur-up-image',
-          isLoaded ? 'blur-up-image-loaded' : 'blur-up-image-loading',
-          hasError && 'blur-up-image-error',
-          className
+    // Intersection Observer for lazy loading
+    const imageRef = React.useRef();
+
+    useEffect(() => {
+      if (priority) return;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setCurrentSrc(src);
+            observer.disconnect();
+          }
+        },
+        {
+          rootMargin: "50px",
+        }
+      );
+
+      if (imageRef.current) {
+        observer.observe(imageRef.current);
+      }
+
+      return () => observer.disconnect();
+    }, [src, priority]);
+
+    return (
+      <div className="blur-up-image-wrapper" ref={ref}>
+        <img
+          ref={imageRef}
+          src={currentSrc}
+          alt={alt}
+          className={cn(
+            "blur-up-image",
+            isLoaded ? "blur-up-image-loaded" : "blur-up-image-loading",
+            hasError && "blur-up-image-error",
+            className
+          )}
+          width={width}
+          height={height}
+          onLoad={handleLoad}
+          onError={handleError}
+          {...props}
+        />
+        {hasError && (
+          <div className="blur-up-image-fallback">
+            <span className="blur-up-image-icon">🖼️</span>
+            <span className="blur-up-image-text">Failed to load image</span>
+          </div>
         )}
-        width={width}
-        height={height}
-        onLoad={handleLoad}
-        onError={handleError}
-        {...props}
-      />
-      {hasError && (
-        <div className="blur-up-image-fallback">
-          <span className="blur-up-image-icon">🖼️</span>
-          <span className="blur-up-image-text">Failed to load image</span>
-        </div>
-      )}
-    </div>
-  );
-});
+      </div>
+    );
+  }
+);
 
-BlurUpImage.displayName = 'BlurUpImage';
+BlurUpImage.displayName = "BlurUpImage";
 
 /* Advanced Skeleton Variants */
 const ProductCardSkeleton = () => (
@@ -165,14 +171,26 @@ const FormSkeleton = () => (
     </div>
     <div className="skeleton-form-actions">
       <Skeleton variant="rectangular" height={44} width={120} className="skeleton-form-button" />
-      <Skeleton variant="rectangular" height={44} width={100} className="skeleton-form-button-secondary" />
+      <Skeleton
+        variant="rectangular"
+        height={44}
+        width={100}
+        className="skeleton-form-button-secondary"
+      />
     </div>
   </div>
 );
 
 /* Loading States */
-const LoadingSpinner = ({ size = 'md', variant = 'primary', className = '' }) => (
-  <div className={cn('loading-spinner', `loading-spinner-${size}`, `loading-spinner-${variant}`, className)}>
+const LoadingSpinner = ({ size = "md", variant = "primary", className = "" }) => (
+  <div
+    className={cn(
+      "loading-spinner",
+      `loading-spinner-${size}`,
+      `loading-spinner-${variant}`,
+      className
+    )}
+  >
     <svg
       className="loading-spinner-svg"
       viewBox="0 0 24 24"
@@ -193,8 +211,8 @@ const LoadingSpinner = ({ size = 'md', variant = 'primary', className = '' }) =>
   </div>
 );
 
-const LoadingDots = ({ text = 'Loading', className = '' }) => (
-  <div className={cn('loading-dots', className)}>
+const LoadingDots = ({ text = "Loading", className = "" }) => (
+  <div className={cn("loading-dots", className)}>
     <span>{text}</span>
     <div className="loading-dots-container">
       <span className="loading-dot" />
@@ -204,35 +222,24 @@ const LoadingDots = ({ text = 'Loading', className = '' }) => (
   </div>
 );
 
-const LoadingBar = ({ progress = 0, variant = 'primary', showText = true, className = '' }) => (
-  <div className={cn('loading-bar', `loading-bar-${variant}`, className)}>
-    <div 
-      className="loading-bar-fill"
-      style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-    >
+const LoadingBar = ({ progress = 0, variant = "primary", showText = true, className = "" }) => (
+  <div className={cn("loading-bar", `loading-bar-${variant}`, className)}>
+    <div className="loading-bar-fill" style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}>
       <div className="loading-bar-shine" />
     </div>
-    {showText && (
-      <span className="loading-bar-text">{Math.round(progress)}%</span>
-    )}
+    {showText && <span className="loading-bar-text">{Math.round(progress)}%</span>}
   </div>
 );
 
 /* Skeleton Screen Manager */
-const SkeletonScreen = ({ 
-  loading, 
-  children, 
-  skeleton, 
-  fadeOut = true,
-  className = '' 
-}) => (
-  <div className={cn('skeleton-screen', className)}>
+const SkeletonScreen = ({ loading, children, skeleton, fadeOut = true, className = "" }) => (
+  <div className={cn("skeleton-screen", className)}>
     {loading ? (
-      <div className={cn('skeleton-screen-content', fadeOut && 'skeleton-screen-fade-in')}>
+      <div className={cn("skeleton-screen-content", fadeOut && "skeleton-screen-fade-in")}>
         {skeleton}
       </div>
     ) : (
-      <div className={cn('skeleton-screen-content', fadeOut && 'skeleton-screen-fade-in')}>
+      <div className={cn("skeleton-screen-content", fadeOut && "skeleton-screen-fade-in")}>
         {children}
       </div>
     )}
@@ -240,27 +247,20 @@ const SkeletonScreen = ({
 );
 
 /* Progressive Image Loader */
-const ProgressiveImage = ({ 
-  src, 
-  placeholder, 
-  alt, 
-  onLoad, 
-  onError, 
-  ...props 
-}) => {
+const ProgressiveImage = ({ src, placeholder, alt, onLoad, onError, ...props }) => {
   const [imageSrc, setImageSrc] = useState(placeholder);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const img = new Image();
     img.src = src;
-    
+
     img.onload = () => {
       setImageSrc(src);
       setIsLoading(false);
       if (onLoad) onLoad(img);
     };
-    
+
     img.onerror = () => {
       setIsLoading(false);
       if (onError) onError(img);
@@ -272,10 +272,7 @@ const ProgressiveImage = ({
       <img
         src={imageSrc}
         alt={alt}
-        className={cn(
-          'progressive-image-img',
-          isLoading && 'progressive-image-loading'
-        )}
+        className={cn("progressive-image-img", isLoading && "progressive-image-loading")}
         {...props}
       />
       {isLoading && (
@@ -290,13 +287,13 @@ const ProgressiveImage = ({
 /* Export all loading components */
 export {
   BlurUpImage,
-  ProductCardSkeleton,
-  ListSkeleton,
-  TableSkeleton,
   FormSkeleton,
-  LoadingSpinner,
-  LoadingDots,
+  ListSkeleton,
   LoadingBar,
-  SkeletonScreen,
+  LoadingDots,
+  LoadingSpinner,
+  ProductCardSkeleton,
   ProgressiveImage,
+  SkeletonScreen,
+  TableSkeleton,
 };

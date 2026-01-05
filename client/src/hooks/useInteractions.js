@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from "react";
 
 // Intersection Observer Hook for scroll animations
 export const useIntersectionObserver = (options = {}) => {
@@ -6,30 +6,33 @@ export const useIntersectionObserver = (options = {}) => {
   const [hasIntersected, setHasIntersected] = useState(false);
   const ref = useRef(null);
 
+  // Memoize options to avoid re-creating observer on every render
+  const memoizedOptions = useMemo(
+    () => ({
+      threshold: options.threshold ?? 0.1,
+      rootMargin: options.rootMargin ?? "50px",
+      root: options.root ?? null,
+    }),
+    [options.threshold, options.rootMargin, options.root]
+  );
+
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsIntersecting(entry.isIntersecting);
-        if (entry.isIntersecting && !hasIntersected) {
-          setHasIntersected(true);
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '50px',
-        ...options,
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsIntersecting(entry.isIntersecting);
+      if (entry.isIntersecting && !hasIntersected) {
+        setHasIntersected(true);
       }
-    );
+    }, memoizedOptions);
 
     observer.observe(element);
 
     return () => {
       observer.unobserve(element);
     };
-  }, [hasIntersected, options]);
+  }, [hasIntersected, memoizedOptions]);
 
   return { ref, isIntersecting, hasIntersected };
 };
@@ -42,7 +45,7 @@ export const useMagneticEffect = (strength = 0.3) => {
     const element = ref.current;
     if (!element) return;
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = e => {
       const { left, top, width, height } = element.getBoundingClientRect();
       const centerX = left + width / 2;
       const centerY = top + height / 2;
@@ -53,15 +56,15 @@ export const useMagneticEffect = (strength = 0.3) => {
     };
 
     const handleMouseLeave = () => {
-      element.style.transform = 'translate(0, 0)';
+      element.style.transform = "translate(0, 0)";
     };
 
-    element.addEventListener('mousemove', handleMouseMove);
-    element.addEventListener('mouseleave', handleMouseLeave);
+    element.addEventListener("mousemove", handleMouseMove);
+    element.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
-      element.removeEventListener('mousemove', handleMouseMove);
-      element.removeEventListener('mouseleave', handleMouseLeave);
+      element.removeEventListener("mousemove", handleMouseMove);
+      element.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, [strength]);
 
@@ -82,8 +85,8 @@ export const useParallax = (speed = 0.5) => {
       element.style.transform = `translateY(${rate}px)`;
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [speed]);
 
   return ref;
@@ -91,7 +94,7 @@ export const useParallax = (speed = 0.5) => {
 
 // Typewriter Effect Hook
 export const useTypewriter = (text, speed = 100) => {
-  const [displayedText, setDisplayedText] = useState('');
+  const [displayedText, setDisplayedText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
@@ -116,7 +119,7 @@ export const useTypewriter = (text, speed = 100) => {
 export const useRipple = () => {
   const ref = useRef(null);
 
-  const createRipple = (event) => {
+  const createRipple = event => {
     const element = ref.current;
     if (!element) return;
 
@@ -125,11 +128,11 @@ export const useRipple = () => {
     const x = event.clientX - rect.left - size / 2;
     const y = event.clientY - rect.top - size / 2;
 
-    const ripple = document.createElement('span');
-    ripple.style.width = ripple.style.height = size + 'px';
-    ripple.style.left = x + 'px';
-    ripple.style.top = y + 'px';
-    ripple.classList.add('ripple-effect');
+    const ripple = document.createElement("span");
+    ripple.style.width = ripple.style.height = size + "px";
+    ripple.style.left = x + "px";
+    ripple.style.top = y + "px";
+    ripple.classList.add("ripple-effect");
 
     element.appendChild(ripple);
 
@@ -144,13 +147,13 @@ export const useRipple = () => {
 // Smooth Scroll Hook
 export const useSmoothScroll = () => {
   const scrollTo = (target, options = {}) => {
-    const element = typeof target === 'string' ? document.querySelector(target) : target;
+    const element = typeof target === "string" ? document.querySelector(target) : target;
     if (!element) return;
 
     element.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-      inline: 'nearest',
+      behavior: "smooth",
+      block: "start",
+      inline: "nearest",
       ...options,
     });
   };
@@ -158,14 +161,14 @@ export const useSmoothScroll = () => {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth',
+      behavior: "smooth",
     });
   };
 
   const scrollToBottom = () => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
+      behavior: "smooth",
     });
   };
 
@@ -184,9 +187,9 @@ export const useDebouncedResize = (callback, delay = 250) => {
       ref.current = setTimeout(callback, delay);
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       if (ref.current) {
         clearTimeout(ref.current);
       }
@@ -230,7 +233,7 @@ export const useSpring = (config = {}) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const animationRef = useRef();
 
-  const animateTo = (target) => {
+  const animateTo = target => {
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
@@ -240,14 +243,14 @@ export const useSpring = (config = {}) => {
     const duration = config.duration || 300;
     const startTime = performance.now();
 
-    const animate = (currentTime) => {
+    const animate = currentTime => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
+
       // Spring easing function
       const easeProgress = 1 - Math.pow(1 - progress, 3);
       const current = start + change * easeProgress;
-      
+
       setValue(current);
       setIsAnimating(true);
 
@@ -278,38 +281,38 @@ export const useGestures = () => {
     let touchEndX = 0;
     let touchEndY = 0;
 
-    const handleTouchStart = (e) => {
+    const handleTouchStart = e => {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
     };
 
-    const handleTouchEnd = (e) => {
+    const handleTouchEnd = e => {
       touchEndX = e.changedTouches[0].clientX;
       touchEndY = e.changedTouches[0].clientY;
-      
+
       const deltaX = touchEndX - touchStartX;
       const deltaY = touchEndY - touchStartY;
       const minSwipeDistance = 50;
 
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
         if (Math.abs(deltaX) > minSwipeDistance) {
-          setGesture(deltaX > 0 ? 'swipe-right' : 'swipe-left');
+          setGesture(deltaX > 0 ? "swipe-right" : "swipe-left");
         }
       } else {
         if (Math.abs(deltaY) > minSwipeDistance) {
-          setGesture(deltaY > 0 ? 'swipe-down' : 'swipe-up');
+          setGesture(deltaY > 0 ? "swipe-down" : "swipe-up");
         }
       }
 
       setTimeout(() => setGesture(null), 100);
     };
 
-    element.addEventListener('touchstart', handleTouchStart);
-    element.addEventListener('touchend', handleTouchEnd);
+    element.addEventListener("touchstart", handleTouchStart);
+    element.addEventListener("touchend", handleTouchEnd);
 
     return () => {
-      element.removeEventListener('touchstart', handleTouchStart);
-      element.removeEventListener('touchend', handleTouchEnd);
+      element.removeEventListener("touchstart", handleTouchStart);
+      element.removeEventListener("touchend", handleTouchEnd);
     };
   }, []);
 
@@ -321,14 +324,14 @@ export const useOptimizedAnimation = () => {
   const rafId = useRef();
   const callbacks = useRef(new Set());
 
-  const addCallback = (callback) => {
+  const addCallback = callback => {
     callbacks.current.add(callback);
     if (!rafId.current) {
       rafId.current = requestAnimationFrame(animate);
     }
   };
 
-  const removeCallback = (callback) => {
+  const removeCallback = callback => {
     callbacks.current.delete(callback);
     if (callbacks.current.size === 0 && rafId.current) {
       cancelAnimationFrame(rafId.current);

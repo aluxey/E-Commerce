@@ -7,16 +7,15 @@ const PRODUCT_DRAFT_KEY = "admin-product-draft";
 // Tailles prédéfinies communes
 export const PRESET_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "Unique"];
 
-// Wizard Steps
+// Wizard Steps (Colors step removed - all colors available for all products)
 export const STEPS = {
   INFO: 0,
-  COLORS: 1,
-  VARIANTS: 2,
-  IMAGES: 3,
-  REVIEW: 4,
+  VARIANTS: 1,
+  IMAGES: 2,
+  REVIEW: 3,
 };
 
-export const STEP_LABELS = ["Informations", "Couleurs", "Variantes", "Images", "Résumé"];
+export const STEP_LABELS = ["Informations", "Variantes", "Images", "Résumé"];
 
 // Helper functions
 export const createEmptyVariant = () => ({
@@ -48,7 +47,7 @@ export const buildSku = (itemId, variant) => {
 /**
  * Hook for managing product form state and logic
  */
-export function useProductForm({ colors = [] } = {}) {
+export function useProductForm() {
   const [editingId, setEditingId] = useState(null);
   const [currentStep, setCurrentStep] = useState(STEPS.INFO);
   const [showWizard, setShowWizard] = useState(false);
@@ -61,7 +60,6 @@ export function useProductForm({ colors = [] } = {}) {
   });
 
   const [variants, setVariants] = useState([createEmptyVariant()]);
-  const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [basePrice, setBasePrice] = useState("");
   const [baseStock, setBaseStock] = useState(10);
@@ -81,7 +79,6 @@ export function useProductForm({ colors = [] } = {}) {
       status: "active",
     });
     setVariants([createEmptyVariant()]);
-    setSelectedColors([]);
     setSelectedSizes([]);
     setBasePrice("");
     setBaseStock(10);
@@ -126,7 +123,6 @@ export function useProductForm({ colors = [] } = {}) {
               }))
             : [createEmptyVariant()];
         setVariants(draftVariants);
-        setSelectedColors(Array.isArray(draft.selectedColors) ? draft.selectedColors : []);
         setSelectedSizes(Array.isArray(draft.selectedSizes) ? draft.selectedSizes : []);
         setBasePrice(draft.basePrice || "");
         setBaseStock(draft.baseStock ?? 10);
@@ -148,13 +144,12 @@ export function useProductForm({ colors = [] } = {}) {
         stock: v.stock,
         sku: v.sku,
       })),
-      selectedColors,
       selectedSizes,
       basePrice,
       baseStock,
     };
     localStorage.setItem(PRODUCT_DRAFT_KEY, JSON.stringify(payload));
-  }, [form, variants, selectedColors, selectedSizes, basePrice, baseStock, isDirty, editingId]);
+  }, [form, variants, selectedSizes, basePrice, baseStock, isDirty, editingId]);
 
   // Clear draft from localStorage
   const clearDraft = useCallback(() => {
@@ -173,16 +168,6 @@ export function useProductForm({ colors = [] } = {}) {
     setSelectedSizes(prev => {
       const exists = prev.includes(size);
       return exists ? prev.filter(s => s !== size) : [...prev, size];
-    });
-    setIsDirty(true);
-  }, []);
-
-  // Toggle color selection
-  const toggleColor = useCallback(colorId => {
-    setSelectedColors(prev => {
-      const idNum = Number(colorId);
-      const exists = prev.includes(idNum);
-      return exists ? prev.filter(id => id !== idNum) : [...prev, idNum];
     });
     setIsDirty(true);
   }, []);
@@ -346,8 +331,6 @@ export function useProductForm({ colors = [] } = {}) {
       switch (step) {
         case STEPS.INFO:
           return sanitizeText(form.name).length > 0;
-        case STEPS.COLORS:
-          return selectedColors.length > 0 || colors.length === 0;
         case STEPS.VARIANTS:
           return variants.some(v => v.size && v.price);
         case STEPS.IMAGES:
@@ -356,7 +339,7 @@ export function useProductForm({ colors = [] } = {}) {
           return true;
       }
     },
-    [form.name, selectedColors.length, colors.length, variants]
+    [form.name, variants]
   );
 
   const nextStep = useCallback(() => {
@@ -396,12 +379,6 @@ export function useProductForm({ colors = [] } = {}) {
         category_id: product.category_id || "",
         status: product.status || "active",
       });
-      setSelectedColors(
-        (product.item_colors || [])
-          .map(ic => ic.color_id || ic.colors?.id)
-          .filter(Boolean)
-          .map(Number)
-      );
 
       const productImages = product.item_images || [];
       setExistingImages(productImages);
@@ -437,7 +414,6 @@ export function useProductForm({ colors = [] } = {}) {
     showWizard,
     form,
     variants,
-    selectedColors,
     selectedSizes,
     basePrice,
     baseStock,
@@ -456,14 +432,12 @@ export function useProductForm({ colors = [] } = {}) {
     setBasePrice,
     setBaseStock,
     setVariants,
-    setSelectedColors,
 
     // Actions
     resetForm,
     clearDraft,
     handleChange,
     toggleSize,
-    toggleColor,
     generateVariants,
     addVariantRow,
     updateVariantField,
