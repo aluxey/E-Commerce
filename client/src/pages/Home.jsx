@@ -274,7 +274,7 @@ export default function Home() {
               <p className="color-text-muted">{t("home.aboutProduct.subtitle")}</p>
             </div>
           </div>
-          
+
           <div className="about-product-preview">
             <div className="about-product-card">
               <div className="about-product-card__icon">
@@ -295,10 +295,10 @@ export default function Home() {
               <h3>{t("home.aboutProduct.preview.safety")}</h3>
             </div>
           </div>
-          
+
           <div className="about-product-cta">
-            <button 
-              className="btn btn-primary" 
+            <button
+              className="btn btn-primary"
               onClick={() => setAboutProductOpen(true)}
             >
               {t("home.aboutProduct.moreInfo")}
@@ -311,14 +311,14 @@ export default function Home() {
       {aboutProductOpen && (
         <div className="about-product-modal-overlay" onClick={() => setAboutProductOpen(false)}>
           <div className="about-product-modal" onClick={e => e.stopPropagation()}>
-            <button 
-              className="about-product-modal__close" 
+            <button
+              className="about-product-modal__close"
               onClick={() => setAboutProductOpen(false)}
               aria-label={t("home.aboutProduct.close")}
             >
               <X size={24} />
             </button>
-            
+
             <div className="about-product-modal__content">
               {/* Materials Section */}
               <div className="about-product-modal__section">
@@ -334,7 +334,7 @@ export default function Home() {
                   <a href="https://bobbiny.com" target="_blank" rel="noopener noreferrer" className="about-product-link">
                     {t("home.aboutProduct.materials.bobbinyLink")} <ExternalLink size={14} />
                   </a>
-                  <a href="https://ta-das.de" target="_blank" rel="noopener noreferrer" className="about-product-link">
+                  <a href="https://tadaskordelshop.de" target="_blank" rel="noopener noreferrer" className="about-product-link">
                     {t("home.aboutProduct.materials.tadasLink")} <ExternalLink size={14} />
                   </a>
                 </div>
@@ -350,8 +350,8 @@ export default function Home() {
                   {colors.length > 0 ? (
                     colors.map(color => (
                       <div key={color.id} className="about-product-color-swatch">
-                        <div 
-                          className="about-product-color-swatch__color" 
+                        <div
+                          className="about-product-color-swatch__color"
                           style={{ backgroundColor: color.hex_code || color.hex || '#ccc' }}
                           title={color.name}
                         />
