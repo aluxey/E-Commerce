@@ -1,6 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-
-const CartContext = createContext();
+import { useEffect, useState } from 'react';
+import { CartContext } from './CartContextObject';
 
 const loadInitialCart = () => {
   try {
@@ -136,5 +135,4 @@ export function CartProvider({ children }) {
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
-export const useCart = () => useContext(CartContext);
-export { CartContext };
+

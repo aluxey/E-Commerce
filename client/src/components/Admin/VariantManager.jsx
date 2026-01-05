@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Search, Target, Pencil, Trash2, Check, X } from 'lucide-react';
 import { deleteVariant, listItemsBasic, listVariants, upsertVariant } from '../../services/adminVariants';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
-import { pushToast } from '../ToastHost';
+import { pushToast } from '../../utils/toast';
 
 export default function VariantManager() {
   const [variants, setVariants] = useState([]);

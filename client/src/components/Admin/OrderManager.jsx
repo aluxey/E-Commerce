@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { listOrders, updateOrderStatus } from '../../services/adminOrders';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
-import { pushToast } from '../ToastHost';
+import { pushToast } from '../../utils/toast';
 import { formatDate, formatMoney } from '../../utils/formatters';
 import { ORDER_STATUS_OPTIONS, getStatusStyle, getStatusLabel } from '../../utils/orderStatus';
 

@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Plus } from 'lucide-react';
-import { CartContext } from '../context/CartContext';
+import { CartContext } from '../context/CartContextObject';
 import '../styles/Item.css';
 import { useTranslation } from 'react-i18next';
 

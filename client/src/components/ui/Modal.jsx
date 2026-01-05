@@ -2,24 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { X } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { modalVariants } from '../../utils/modalVariants';
 
-const modalVariants = {
-  size: {
-    xs: 'modal-xs',
-    sm: 'modal-sm',
-    md: 'modal-md',
-    lg: 'modal-lg',
-    xl: 'modal-xl',
-    full: 'modal-full',
-  },
-  position: {
-    center: 'modal-center',
-    top: 'modal-top',
-    bottom: 'modal-bottom',
-  },
-};
-
-const Modal = React.forwardRef(({
+const Modal = ({
   className,
   isOpen = false,
   onClose,
@@ -31,7 +16,7 @@ const Modal = React.forwardRef(({
   description,
   children,
   ...props
-}, ref) => {
+}) => {
   const modalRef = React.useRef(null);
   const overlayRef = React.useRef(null);
 
@@ -100,7 +85,7 @@ const Modal = React.forwardRef(({
       </div>
     </div>
   );
-});
+};
 
 Modal.displayName = 'Modal';
 
@@ -117,4 +102,4 @@ Modal.propTypes = {
   children: PropTypes.node,
 };
 
-export { Modal, modalVariants };
+export { Modal };

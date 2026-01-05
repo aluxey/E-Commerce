@@ -1,30 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
-
-const badgeVariants = {
-  variant: {
-    default: 'badge-default',
-    primary: 'badge-primary',
-    secondary: 'badge-secondary',
-    success: 'badge-success',
-    error: 'badge-error',
-    warning: 'badge-warning',
-    info: 'badge-info',
-    accent: 'badge-accent',
-  },
-  size: {
-    xs: 'badge-xs',
-    sm: 'badge-sm',
-    md: 'badge-md',
-    lg: 'badge-lg',
-  },
-  shape: {
-    pill: 'badge-pill',
-    rounded: 'badge-rounded',
-    square: 'badge-square',
-  },
-};
+import { badgeVariants } from '../../utils/badgeVariants';
 
 const Badge = React.forwardRef(({
   className,
@@ -64,4 +41,4 @@ Badge.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export { Badge, badgeVariants };
+export { Badge };

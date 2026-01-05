@@ -11,6 +11,6 @@ export const deleteColor = async id => supabase.from(TABLE_COLORS).delete().eq("
 
 // Since colors are now global (available for all products), usage count is always 0
 // The item_colors junction table has been removed
-export const countColorUsage = async colorId => ({ count: 0, error: null });
+export const countColorUsage = async () => ({ count: 0, error: null });
 
 export const countAllColorUsages = async () => ({ data: {}, error: null });

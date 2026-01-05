@@ -1,27 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
-
-const skeletonVariants = {
-  variant: {
-    text: 'skeleton-text',
-    circular: 'skeleton-circular',
-    rectangular: 'skeleton-rectangular',
-    rounded: 'skeleton-rounded',
-  },
-  size: {
-    xs: 'skeleton-xs',
-    sm: 'skeleton-sm',
-    md: 'skeleton-md',
-    lg: 'skeleton-lg',
-    xl: 'skeleton-xl',
-  },
-  animation: {
-    pulse: 'skeleton-pulse',
-    wave: 'skeleton-wave',
-    none: 'skeleton-none',
-  },
-};
+import { skeletonVariants } from '../../utils/skeletonVariants';
 
 const Skeleton = React.forwardRef(({
   className,
@@ -96,4 +76,4 @@ Skeleton.propTypes = {
   lines: PropTypes.number,
 };
 
-export { Skeleton, skeletonVariants };
+export { Skeleton };

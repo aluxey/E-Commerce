@@ -116,7 +116,7 @@ export default function ProductList() {
     return t(`categoryNames.${key}`, { defaultValue: cat?.name || '' });
   }, [t]);
 
-  const listDescendants = (id) => {
+  const listDescendants = useCallback((id) => {
     const stack = [Number(id)];
     const collected = [];
     while (stack.length) {
@@ -128,7 +128,7 @@ export default function ProductList() {
       }
     }
     return collected;
-  };
+  }, [categoryMeta.children]);
 
   const formatCategoryPath = (cat) => {
     if (!cat) return '';
@@ -184,7 +184,7 @@ export default function ProductList() {
     });
 
     setFilteredItems(result);
-  }, [items, searchTerm, selectedCategory, priceRange, sortBy, categoryMeta]);
+  }, [items, searchTerm, selectedCategory, priceRange, sortBy, categoryMeta, listDescendants]);
 
   const handleClearFilters = () => {
     setSearchTerm('');

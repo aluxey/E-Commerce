@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { listUsers, updateUserRole, deleteUser as deleteUserService } from '../../services/adminUsers';
-import { pushToast } from '../ToastHost';
+import { pushToast } from '../../utils/toast';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
 
 const roleOptions = [

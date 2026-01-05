@@ -1,25 +1,5 @@
 import { supabase } from "../supabase/supabaseClient";
 
-
-
-const selectItemsWithFallback = async (select, opts = {}) => {
-  const build = sel => {
-    let query = supabase.from('items').select(sel);
-    if (opts.eq) query = query.eq(opts.eq[0], opts.eq[1]);
-    if (opts.neq) query = query.neq(opts.neq[0], opts.neq[1]);
-    if (opts.in) query = query.in(opts.in[0], opts.in[1]);
-    if (opts.order) query = query.order(opts.order[0], { ascending: opts.order[1] });
-    if (opts.limit) query = query.limit(opts.limit);
-    if (opts.single) query = query.single();
-    return query;
-  };
-
-  const first = await build(select);
-  if (!first.error) return first;
-
-  return first;
-};
-
 export const fetchLatestItems = async (limit = 4) => {
   const { data, error } = await supabase
     .from('items')

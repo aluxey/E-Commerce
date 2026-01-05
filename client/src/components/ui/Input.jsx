@@ -1,26 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
-
-const inputVariants = {
-  variant: {
-    default: 'input-default',
-    filled: 'input-filled',
-    outlined: 'input-outlined',
-    ghost: 'input-ghost',
-  },
-  size: {
-    sm: 'input-sm',
-    md: 'input-md',
-    lg: 'input-lg',
-  },
-  state: {
-    default: '',
-    error: 'input-error',
-    success: 'input-success',
-    warning: 'input-warning',
-  },
-};
+import { inputVariants } from '../../utils/inputVariants';
 
 const Input = React.forwardRef(({
   className,
@@ -125,4 +106,4 @@ Input.propTypes = {
   rightIcon: PropTypes.node,
 };
 
-export { Input, inputVariants };
+export { Input };

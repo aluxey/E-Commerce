@@ -1,10 +1,10 @@
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { countAllColorUsages, countColorUsage, deleteColor, listColors, upsertColor } from "@/services/adminColors";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Search, Palette, Pencil, Trash2, Check, X } from "lucide-react";
 import { ErrorMessage, LoadingMessage } from "../StatusMessage";
-import { pushToast } from "../ToastHost";
+import { pushToast } from "../../utils/toast";
 
 const defaultForm = { name: "", code: "", hex_code: "#1E90FF" };
 const DRAFT_KEY = "admin-color-draft";
@@ -77,7 +77,7 @@ export default function ColorManager() {
     );
   }, [colors, searchTerm]);
 
-  const fetchColors = async () => {
+  const fetchColors = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -92,7 +92,7 @@ export default function ColorManager() {
       setUsageCounts(usagesResult.data || {});
     }
     setLoading(false);
-  };
+  }, [t]);
 
   useEffect(() => {
     const draftRaw = localStorage.getItem(DRAFT_KEY);
@@ -112,7 +112,7 @@ export default function ColorManager() {
       }
     }
     fetchColors();
-  }, []);
+  }, [fetchColors]);
 
   useUnsavedChanges(
     isDirty,

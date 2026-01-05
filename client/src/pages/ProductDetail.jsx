@@ -6,7 +6,7 @@ import { Star, Check, X, Minus, Plus } from "lucide-react";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import ColorPicker from "../components/ui/ColorPicker";
 import { useAuth } from "../context/AuthContext";
-import { CartContext } from "../context/CartContext";
+import { CartContext } from "../context/CartContextObject";
 import { listColors } from "../services/adminColors";
 import { fetchItemDetail, fetchRelatedItems } from "../services/items";
 import { loadAllRatings, submitRating } from "../services/ratings";

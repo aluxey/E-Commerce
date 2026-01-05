@@ -1,25 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
-
-const buttonVariants = {
-  variant: {
-    primary: 'btn-primary',
-    secondary: 'btn-secondary',
-    ghost: 'btn-ghost',
-    outline: 'btn-outline',
-    accent: 'btn-accent',
-    danger: 'btn-danger',
-    success: 'btn-success',
-  },
-  size: {
-    xs: 'btn-xs',
-    sm: 'btn-sm',
-    md: 'btn-md',
-    lg: 'btn-lg',
-    xl: 'btn-xl',
-  },
-};
+import { buttonVariants } from '../../utils/buttonVariants';
 
 const Button = React.forwardRef(({
   className,
@@ -87,4 +69,4 @@ Button.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export { Button, buttonVariants };
+export { Button };

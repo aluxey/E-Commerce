@@ -1,25 +1,8 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Check, X, AlertTriangle, Info } from 'lucide-react';
 import { cn } from '../../utils/cn';
-
-const toastVariants = {
-  variant: {
-    default: 'toast-default',
-    success: 'toast-success',
-    error: 'toast-error',
-    warning: 'toast-warning',
-    info: 'toast-info',
-  },
-  position: {
-    'top-left': 'toast-top-left',
-    'top-right': 'toast-top-right',
-    'top-center': 'toast-top-center',
-    'bottom-left': 'toast-bottom-left',
-    'bottom-right': 'toast-bottom-right',
-    'bottom-center': 'toast-bottom-center',
-  },
-};
+import { toastVariants } from '../../utils/toastVariants';
 
 const Toast = React.forwardRef(({
   className,
@@ -43,14 +26,14 @@ const Toast = React.forwardRef(({
 
       return () => clearTimeout(timer);
     }
-  }, [duration]);
+  }, [duration, handleClose]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsVisible(false);
     if (onClose) {
       onClose();
     }
-  };
+  }, [onClose]);
 
   const baseClasses = 'toast';
   const variantClasses = toastVariants.variant[variant];
@@ -111,4 +94,4 @@ Toast.propTypes = {
   onClose: PropTypes.func,
 };
 
-export { Toast, toastVariants };
+export { Toast };

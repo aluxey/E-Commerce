@@ -1,15 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/toast.css";
-
-let listeners = [];
-let counter = 0;
-
-export const pushToast = (payload) => {
-  const id = ++counter;
-  const toast = { id, ...payload };
-  listeners.forEach(fn => fn(toast));
-  return id;
-};
+import { listeners as toastListeners } from "../utils/toast";
 
 const ToastHost = () => {
   const [toasts, setToasts] = useState([]);
@@ -19,9 +10,12 @@ const ToastHost = () => {
       setToasts(prev => [...prev, toast]);
       setTimeout(() => setToasts(prev => prev.filter(t => t.id !== toast.id)), toast.duration || 3000);
     };
-    listeners.push(add);
+    toastListeners.push(add);
     return () => {
-      listeners = listeners.filter(fn => fn !== add);
+      const index = toastListeners.indexOf(add);
+      if (index > -1) {
+        toastListeners.splice(index, 1);
+      }
     };
   }, []);
 

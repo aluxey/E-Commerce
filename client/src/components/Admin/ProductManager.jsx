@@ -1,13 +1,12 @@
 import { STEPS, STEP_LABELS, buildSku, sanitizeText, useProductForm } from "@/hooks/useProductForm";
 import { supabase } from "@/supabase/supabaseClient";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, X, Check, ChevronLeft, ChevronRight, Package, Camera, Trash2 } from "lucide-react";
 import {
   deleteItem,
   deleteItemImage,
   deleteVariants,
   fetchVariantsByItem,
-  getMaxImagePosition,
   insertVariants,
   listCategories,
   listProducts,
@@ -17,7 +16,7 @@ import {
   upsertItem,
   upsertVariants,
 } from "../../services/adminProducts";
-import { pushToast } from "../ToastHost";
+import { pushToast } from "../../utils/toast";
 import { ImagesStep, InfoStep, ReviewStep, VariantsStep } from "./ProductForm";
 
 export const TABLE_ITEMS = "items";
@@ -47,7 +46,6 @@ export default function ProductManager() {
     imagePreviews,
     existingImages,
     primaryImageIndex,
-    isDirty,
     isDragging,
     minVariantPrice,
     setExistingImages,

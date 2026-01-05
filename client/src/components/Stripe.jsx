@@ -1,7 +1,7 @@
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { CartContext } from '../context/CartContext'; // Correction du chemin
+import { CartContext } from '../context/CartContextObject'; // Correction du chemin
 import { useAuth } from '../context/AuthContext'; // Correction du chemin
 import CheckoutForm from './CheckoutForm';
 import { useTranslation } from 'react-i18next';

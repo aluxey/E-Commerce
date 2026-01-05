@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import {
   countAllCategoryProducts,
   deleteCategory,
@@ -11,12 +10,11 @@ import {
 } from "../../services/adminCategories";
 import "../../styles/CategoryManager.css";
 import { ErrorMessage, LoadingMessage } from "../StatusMessage";
-import { pushToast } from "../ToastHost";
+import { pushToast } from "../../utils/toast";
 
 const ICONS = ["🧺", "🎁", "⭐", "🌸", "🍂", "❄️", "🐰", "🏠", "👜", "✨"];
 
 export default function CategoryManager() {
-  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
   const [productCounts, setProductCounts] = useState({});
   const [loading, setLoading] = useState(true);

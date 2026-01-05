@@ -1,28 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
-
-const cardVariants = {
-  variant: {
-    default: 'card-default',
-    elevated: 'card-elevated',
-    outlined: 'card-outlined',
-    ghost: 'card-ghost',
-  },
-  size: {
-    sm: 'card-sm',
-    md: 'card-md',
-    lg: 'card-lg',
-    xl: 'card-xl',
-  },
-  padding: {
-    none: 'card-padding-none',
-    sm: 'card-padding-sm',
-    md: 'card-padding-md',
-    lg: 'card-padding-lg',
-    xl: 'card-padding-xl',
-  },
-};
+import { cardVariants } from '../../utils/cardVariants';
 
 const Card = React.forwardRef(({
   className,
@@ -94,4 +73,4 @@ Card.propTypes = {
   onClick: PropTypes.func,
 };
 
-export { Card, cardVariants };
+export { Card };

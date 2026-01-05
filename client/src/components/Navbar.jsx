@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Search, ShoppingCart, User } from "lucide-react";
 import logo from "../assets/logo.jpg";
 import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext";
+import { useCart } from "../hooks/useCart";
 import "../styles/navbar.css";
 import { signOut } from "../services/auth";
 import { useTranslation } from "react-i18next";
