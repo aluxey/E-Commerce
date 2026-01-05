@@ -160,7 +160,6 @@ export default function ProductManager() {
         category_id: form.category_id ? Number(form.category_id) : null,
         price: minPrice,
         status: form.status,
-        pattern_type: form.pattern_type || null,
       };
 
       let itemId = editingId;
