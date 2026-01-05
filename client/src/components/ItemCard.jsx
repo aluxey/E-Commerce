@@ -1,5 +1,6 @@
 import { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Star, Plus } from 'lucide-react';
 import { CartContext } from '../context/CartContext';
 import '../styles/Item.css';
 import { useTranslation } from 'react-i18next';
@@ -39,7 +40,7 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categor
     for (let i = 1; i <= 5; i++) {
       stars.push(
         <span key={i} className={i <= full ? 'star full' : 'star'}>
-          {i <= full ? '★' : '☆'}
+          <Star size={14} fill={i <= full ? 'currentColor' : 'none'} />
         </span>
       );
     }
@@ -62,7 +63,7 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categor
             disabled={!preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0)}
             title={t('itemCard.quickAdd')}
           >
-            +
+            <Plus size={18} />
           </button>
         </div>
 

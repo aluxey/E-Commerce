@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { X } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 const modalVariants = {
@@ -88,7 +89,7 @@ const Modal = React.forwardRef(({
             </div>
             {closable && (
               <button className="modal-close" onClick={handleClose}>
-                ×
+                <X size={20} />
               </button>
             )}
           </div>

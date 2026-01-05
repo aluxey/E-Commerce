@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Search, Package } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
 import ProductFilters from '../components/ProductFilters';
 import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
-import { listColors } from '../services/adminColors';
 import { fetchCategories, fetchItemRatings, fetchItemsWithRelations } from '../services/items';
 import '../styles/ProductList.css';
 import { useTranslation } from 'react-i18next';
@@ -13,14 +13,12 @@ export default function ProductList() {
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [colors, setColors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [sortBy, setSortBy] = useState('name');
 
@@ -38,10 +36,9 @@ export default function ProductList() {
     setError(false);
 
     try {
-      const [itemsResp, categoriesResp, colorsResp] = await Promise.all([
+      const [itemsResp, categoriesResp] = await Promise.all([
         fetchItemsWithRelations(),
-        fetchCategories(),
-        listColors()
+        fetchCategories()
       ]);
 
       if (itemsResp.error || categoriesResp.error) {
@@ -51,7 +48,6 @@ export default function ProductList() {
       const safeItems = itemsResp.data || [];
       setItems(safeItems);
       setCategories(categoriesResp.data || []);
-      setColors(colorsResp.data || []);
 
       // Load ratings
       const ids = safeItems.map(i => i.id);
@@ -178,10 +174,7 @@ export default function ProductList() {
       });
     }
 
-    // 4. Color filter removed - all colors are now available for all products
-    // The color selector in filters can be used for user preference but doesn't filter items
-
-    // 5. Sort
+    // 4. Sort
     result.sort((a, b) => {
       switch (sortBy) {
         case 'price': return (a.price || 0) - (b.price || 0);
@@ -196,7 +189,6 @@ export default function ProductList() {
   const handleClearFilters = () => {
     setSearchTerm('');
     setSelectedCategory('');
-    setSelectedColor('');
     setPriceRange({ min: '', max: '' });
     setSortBy('name');
   };
@@ -214,9 +206,6 @@ export default function ProductList() {
           onCategoryChange={setSelectedCategory}
           priceRange={priceRange}
           onPriceChange={setPriceRange}
-          colors={colors}
-          selectedColor={selectedColor}
-          onColorChange={setSelectedColor}
           onClearFilters={handleClearFilters}
           isOpen={isFiltersOpen}
           onClose={() => setIsFiltersOpen(false)}
@@ -245,7 +234,7 @@ export default function ProductList() {
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
-                <span className="icon">🔍</span>
+                <span className="icon"><Search size={18} /></span>
               </div>
 
               <select
@@ -274,7 +263,7 @@ export default function ProductList() {
             </div>
           ) : (
             <div className="no-results">
-              <div className="icon">📦</div>
+              <div className="icon"><Package size={48} /></div>
               <h3>{t('productList.noResultsTitle')}</h3>
               <p>{t('productList.noResultsText')}</p>
               <button onClick={handleClearFilters} className="btn primary">

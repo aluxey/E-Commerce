@@ -1,4 +1,5 @@
 import React, { useState, useEffect, forwardRef } from 'react';
+import { AlertTriangle, Check } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 /* Floating Label Input */
@@ -119,7 +120,7 @@ const FormField = ({
     <div className="form-field-content">{children}</div>
     {error && (
       <div className="form-field-error">
-        <span className="form-field-error-icon">⚠</span>
+        <span className="form-field-error-icon"><AlertTriangle size={14} /></span>
         <span className="form-field-error-text">{error}</span>
       </div>
     )}
@@ -371,7 +372,7 @@ const FormSteps = ({ currentStep, steps, onStepChange }) => (
           disabled={index > currentStep}
         >
           <div className="form-steps-item-number">
-            {index < currentStep ? '✓' : index + 1}
+            {index < currentStep ? <Check size={16} /> : index + 1}
           </div>
           <div className="form-steps-item-content">
             <div className="form-steps-item-title">{step.title}</div>

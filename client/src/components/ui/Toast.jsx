@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Check, X, AlertTriangle, Info } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 const toastVariants = {
@@ -68,11 +69,11 @@ const Toast = React.forwardRef(({
     if (icon) return icon;
     
     const defaultIcons = {
-      success: '✓',
-      error: '✕',
-      warning: '⚠',
-      info: 'ℹ',
-      default: 'ℹ',
+      success: <Check size={18} />,
+      error: <X size={18} />,
+      warning: <AlertTriangle size={18} />,
+      info: <Info size={18} />,
+      default: <Info size={18} />,
     };
     
     return <span className="toast-icon">{defaultIcons[variant]}</span>;
@@ -88,7 +89,7 @@ const Toast = React.forwardRef(({
         </div>
         {closable && (
           <button className="toast-close" onClick={handleClose}>
-            ×
+            <X size={16} />
           </button>
         )}
       </div>

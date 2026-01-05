@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { useTranslation } from 'react-i18next';
+import { CheckCircle, XCircle, Clock } from 'lucide-react';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -56,7 +57,7 @@ const PaymentSuccess = () => {
   if (status === 'succeeded') {
     return (
       <div className="payment-status success">
-        <div className="success-icon">✅</div>
+        <div className="success-icon"><CheckCircle size={64} /></div>
         <h1>{t('payment.successTitle')}</h1>
         <p>{t('payment.successText')}</p>
         <p className="transaction-id">{t('payment.transaction', { id: paymentIntent?.id })}</p>
@@ -70,7 +71,7 @@ const PaymentSuccess = () => {
   if (status === 'processing') {
     return (
       <div className="payment-status processing">
-        <div className="processing-icon">⏳</div>
+        <div className="processing-icon"><Clock size={64} /></div>
         <h1>{t('payment.processingTitle')}</h1>
         <p>{t('payment.processingText')}</p>
         <Link to="/client" className="btn-return">
@@ -82,7 +83,7 @@ const PaymentSuccess = () => {
 
   return (
     <div className="payment-status error">
-      <div className="error-icon">❌</div>
+      <div className="error-icon"><XCircle size={64} /></div>
       <h1>{t('payment.errorTitle')}</h1>
       <p>{t('payment.errorText')}</p>
       <Link to="/cart" className="btn-return">

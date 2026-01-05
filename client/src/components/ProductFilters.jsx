@@ -1,4 +1,5 @@
 import React from 'react';
+import { X } from 'lucide-react';
 import '../styles/ProductFilters.css';
 import { useTranslation } from 'react-i18next';
 
@@ -8,9 +9,6 @@ export default function ProductFilters({
   onCategoryChange,
   priceRange,
   onPriceChange,
-  colors,
-  selectedColor,
-  onColorChange,
   onClearFilters,
   isOpen,
   onClose
@@ -72,7 +70,7 @@ export default function ProductFilters({
       <aside className={`product-filters ${isOpen ? 'open' : ''}`}>
         <div className="filter-header">
           <h3>{t('filters.title')}</h3>
-          <button className="close-filters-btn" onClick={onClose} aria-label={t('filters.close')}>×</button>
+          <button className="close-filters-btn" onClick={onClose} aria-label={t('filters.close')}><X size={20} /></button>
         </div>
 
         <div className="filter-section">
@@ -113,34 +111,6 @@ export default function ProductFilters({
             </div>
           </div>
         </div>
-
-        {colors && colors.length > 0 && (
-          <div className="filter-section">
-            <h4>{t('filters.colors')}</h4>
-            <div className="color-options">
-              <button
-                className={`color-swatch all ${!selectedColor ? 'active' : ''}`}
-                onClick={() => onColorChange('')}
-                title={t('filters.allColors')}
-              >
-                <span className="swatch-inner"></span>
-              </button>
-              {colors.map(color => (
-                <button
-                  key={color.id}
-                  className={`color-swatch ${selectedColor === String(color.id) ? 'active' : ''}`}
-                  onClick={() => onColorChange(String(color.id))}
-                  title={color.name}
-                >
-                  <span
-                    className="swatch-inner"
-                    style={{ backgroundColor: color.hex_code }}
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         <div className="filter-actions">
           <button className="btn secondary full-width" onClick={onClearFilters}>

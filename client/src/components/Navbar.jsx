@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Search, ShoppingCart, User } from "lucide-react";
 import logo from "../assets/logo.jpg";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -141,18 +142,18 @@ const Navbar = () => {
 
           <div className="navbar__actions">
             <Link to="/items" className="navbar__icon-btn" aria-label={t('nav.searchLabel')}>
-              🔍
+              <Search size={20} />
             </Link>
 
             <Link to="/cart" className="navbar__icon-btn navbar__icon-btn--cart" aria-label={t('nav.cartLabel')}>
-              🛒
+              <ShoppingCart size={20} />
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
 
             {session ? (
               <div className="navbar__profile">
                 <Link to="/profile" className="navbar__pill navbar__pill--ghost" title={userData?.full_name || t('nav.profileTitle')}>
-                  👤 {t('nav.profile')}
+                  <User size={16} /> {t('nav.profile')}
                 </Link>
                 <button onClick={handleLogout} className="navbar__pill navbar__pill--ghost">
                   {t('nav.logout')}

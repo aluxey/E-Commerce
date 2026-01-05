@@ -2,6 +2,7 @@ import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { countAllColorUsages, countColorUsage, deleteColor, listColors, upsertColor } from "@/services/adminColors";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Search, Palette, Pencil, Trash2, Check, X } from "lucide-react";
 import { ErrorMessage, LoadingMessage } from "../StatusMessage";
 import { pushToast } from "../ToastHost";
 
@@ -286,7 +287,7 @@ export default function ColorManager() {
         </div>
         <div className="manager-header__right">
           <div className="search-box">
-            <span className="search-icon">🔍</span>
+            <span className="search-icon"><Search size={18} /></span>
             <input
               type="text"
               placeholder={t("admin.common.search", "Rechercher...")}
@@ -303,7 +304,7 @@ export default function ColorManager() {
       {/* Color Palette Grid */}
       {filteredColors.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state__icon">🎨</div>
+          <div className="empty-state__icon"><Palette size={48} /></div>
           <h3>{t("admin.colors.empty.title", "Aucune couleur")}</h3>
           <p>
             {t("admin.colors.empty.description", "Commencez par créer votre première couleur.")}
@@ -344,7 +345,7 @@ export default function ColorManager() {
                   onClick={() => openModal(color)}
                   title={t("admin.common.edit", "Modifier")}
                 >
-                  ✏️
+                  <Pencil size={16} />
                 </button>
                 <button
                   className="btn-icon btn-remove"
@@ -352,7 +353,7 @@ export default function ColorManager() {
                   title={t("admin.common.delete", "Supprimer")}
                   disabled={usageCounts[color.id] > 0}
                 >
-                  🗑️
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>
@@ -371,7 +372,7 @@ export default function ColorManager() {
                   : t("admin.colors.createTitle", "Nouvelle couleur")}
               </h3>
               <button className="btn-close" onClick={closeModal}>
-                ×
+                <X size={20} />
               </button>
             </div>
 
@@ -396,7 +397,7 @@ export default function ColorManager() {
                       onClick={() => selectPresetColor(preset)}
                       title={preset.name}
                     >
-                      {currentHex === preset.hex && <span className="check">✓</span>}
+                      {currentHex === preset.hex && <span className="check"><Check size={12} /></span>}
                     </button>
                   ))}
                 </div>

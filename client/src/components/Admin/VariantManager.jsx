@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Search, Target, Pencil, Trash2, Check, X } from 'lucide-react';
 import { deleteVariant, listItemsBasic, listVariants, upsertVariant } from '../../services/adminVariants';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
 import { pushToast } from '../ToastHost';
@@ -169,7 +170,7 @@ export default function VariantManager() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
             />
-            <span className="search-icon">🔍</span>
+            <span className="search-icon"><Search size={18} /></span>
           </div>
           <select
             value={filterProduct}
@@ -196,7 +197,7 @@ export default function VariantManager() {
           <div className="wizard-modal" style={{ maxWidth: '500px' }}>
             <div className="wizard-header">
               <h2>{editingId ? 'Modifier la variante' : 'Nouvelle variante'}</h2>
-              <button className="btn-close" onClick={resetForm}>×</button>
+              <button className="btn-close" onClick={resetForm}><X size={20} /></button>
             </div>
 
             <form onSubmit={handleSubmit} className="wizard-content">
@@ -270,7 +271,7 @@ export default function VariantManager() {
                   Annuler
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  {editingId ? '✓ Mettre à jour' : '✓ Créer'}
+                  <Check size={16} /> {editingId ? 'Mettre à jour' : 'Créer'}
                 </button>
               </div>
             </form>
@@ -281,7 +282,7 @@ export default function VariantManager() {
       {/* Empty State */}
       {filteredVariants.length === 0 && (
         <div className="empty-state">
-          <span className="empty-icon">🎯</span>
+          <span className="empty-icon"><Target size={48} /></span>
           <h3>Aucune variante</h3>
           <p>{searchQuery || filterProduct ? 'Aucun résultat pour ces filtres.' : 'Commencez par créer une variante pour vos produits.'}</p>
           {!searchQuery && !filterProduct && (
@@ -308,14 +309,14 @@ export default function VariantManager() {
                       className="btn-icon"
                       aria-label="Modifier"
                     >
-                      ✏️
+                      <Pencil size={16} />
                     </button>
                     <button
                       onClick={() => handleDelete(variant.id)}
                       className="btn-icon btn-remove"
                       aria-label="Supprimer"
                     >
-                      🗑️
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>

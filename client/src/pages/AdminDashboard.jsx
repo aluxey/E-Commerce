@@ -1,6 +1,7 @@
 import { ErrorMessage, LoadingMessage } from '@/components/StatusMessage';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { Link } from 'react-router-dom';
+import { ShoppingBasket, Package, Users, Palette, FolderKanban, Target, Euro, ShoppingCart, BarChart3, Clock } from 'lucide-react';
 import '../styles/Admin.css';
 import { useTranslation } from 'react-i18next';
 
@@ -32,12 +33,12 @@ const AdminDashboard = () => {
   const { t } = useTranslation();
 
   const shortcuts = [
-    { to: '/admin/products', title: t('admin.dashboard.shortcuts.products.title'), desc: t('admin.dashboard.shortcuts.products.desc'), icon: '🧺' },
-    { to: '/admin/orders', title: t('admin.dashboard.shortcuts.orders.title'), desc: t('admin.dashboard.shortcuts.orders.desc'), icon: '📦' },
-    { to: '/admin/users', title: t('admin.dashboard.shortcuts.users.title'), desc: t('admin.dashboard.shortcuts.users.desc'), icon: '👥' },
-    { to: '/admin/colors', title: t('admin.dashboard.shortcuts.colors.title'), desc: t('admin.dashboard.shortcuts.colors.desc'), icon: '🎨' },
-    { to: '/admin/categories', title: t('admin.dashboard.shortcuts.categories.title'), desc: t('admin.dashboard.shortcuts.categories.desc'), icon: '🗂️' },
-    { to: '/admin/variants', title: t('admin.dashboard.shortcuts.variants.title'), desc: t('admin.dashboard.shortcuts.variants.desc'), icon: '🎯' },
+    { to: '/admin/products', title: t('admin.dashboard.shortcuts.products.title'), desc: t('admin.dashboard.shortcuts.products.desc'), icon: <ShoppingBasket size={24} /> },
+    { to: '/admin/orders', title: t('admin.dashboard.shortcuts.orders.title'), desc: t('admin.dashboard.shortcuts.orders.desc'), icon: <Package size={24} /> },
+    { to: '/admin/users', title: t('admin.dashboard.shortcuts.users.title'), desc: t('admin.dashboard.shortcuts.users.desc'), icon: <Users size={24} /> },
+    { to: '/admin/colors', title: t('admin.dashboard.shortcuts.colors.title'), desc: t('admin.dashboard.shortcuts.colors.desc'), icon: <Palette size={24} /> },
+    { to: '/admin/categories', title: t('admin.dashboard.shortcuts.categories.title'), desc: t('admin.dashboard.shortcuts.categories.desc'), icon: <FolderKanban size={24} /> },
+    { to: '/admin/variants', title: t('admin.dashboard.shortcuts.variants.title'), desc: t('admin.dashboard.shortcuts.variants.desc'), icon: <Target size={24} /> },
   ];
 
   return (
@@ -63,26 +64,26 @@ const AdminDashboard = () => {
               value={stats.revenue}
               delta={stats.revenueDeltaPct ? `${stats.revenueDeltaPct > 0 ? '+' : ''}${stats.revenueDeltaPct}%` : null}
               deltaType={stats.revenueDeltaPct > 0 ? 'positive' : 'negative'}
-              icon="💶"
+              icon={<Euro size={20} />}
             />
             <Widget
               title={t('admin.dashboard.widgets.orders')}
               value={stats.orders}
               delta={stats.ordersDeltaPct ? `${stats.ordersDeltaPct > 0 ? '+' : ''}${stats.ordersDeltaPct}%` : null}
               deltaType={stats.ordersDeltaPct > 0 ? 'positive' : 'negative'}
-              icon="🛒"
+              icon={<ShoppingCart size={20} />}
             />
             <Widget
               title={t('admin.dashboard.widgets.avgOrder')}
               value={stats.avgOrder}
-              icon="📊"
+              icon={<BarChart3 size={20} />}
             />
             <Widget
               title={t('admin.dashboard.widgets.pending')}
               value={stats.pendingOrders}
               delta={stats.pendingOrders > 0 ? t('admin.dashboard.widgets.pendingDelta', { count: stats.pendingOrders }) : t('admin.dashboard.widgets.pendingDone')}
               deltaType={stats.pendingOrders > 0 ? 'negative' : 'positive'}
-              icon="⏳"
+              icon={<Clock size={20} />}
             />
           </div>
         )}

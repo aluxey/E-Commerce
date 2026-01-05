@@ -1,6 +1,7 @@
 import { STEPS, STEP_LABELS, buildSku, sanitizeText, useProductForm } from "@/hooks/useProductForm";
 import { supabase } from "@/supabase/supabaseClient";
 import { useEffect, useMemo, useState } from "react";
+import { Search, X, Check, ChevronLeft, ChevronRight, Package, Camera, Trash2 } from "lucide-react";
 import {
   deleteItem,
   deleteItemImage,
@@ -469,7 +470,7 @@ export default function ProductManager() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
             />
-            <span className="search-icon">🔍</span>
+            <span className="search-icon"><Search size={18} /></span>
           </div>
           <button className="btn btn-primary" onClick={openNewProduct}>
             + Nouveau produit
@@ -484,7 +485,7 @@ export default function ProductManager() {
             <div className="wizard-header">
               <h2>{editingId ? "Modifier le produit" : "Nouveau produit"}</h2>
               <button className="btn-close" onClick={resetForm}>
-                ×
+                <X size={20} />
               </button>
             </div>
 
@@ -500,7 +501,7 @@ export default function ProductManager() {
                   onClick={() => goToStep(idx)}
                   disabled={idx > currentStep && !canProceed(currentStep)}
                 >
-                  <span className="step-number">{idx < currentStep ? "✓" : idx + 1}</span>
+                  <span className="step-number">{idx < currentStep ? <Check size={14} /> : idx + 1}</span>
                   <span className="step-label">{label}</span>
                 </button>
               ))}
@@ -515,7 +516,7 @@ export default function ProductManager() {
                 <div className="wizard-footer__left">
                   {currentStep > STEPS.INFO && (
                     <button type="button" className="btn btn-outline" onClick={prevStep}>
-                      ← Précédent
+                      <ChevronLeft size={16} /> Précédent
                     </button>
                   )}
                 </div>
@@ -527,11 +528,11 @@ export default function ProductManager() {
                       onClick={nextStep}
                       disabled={!canProceed(currentStep)}
                     >
-                      Suivant →
+                      Suivant <ChevronRight size={16} />
                     </button>
                   ) : (
                     <button type="submit" className="btn btn-primary btn-lg">
-                      {editingId ? "✓ Mettre à jour" : "✓ Créer le produit"}
+                      <Check size={16} /> {editingId ? "Mettre à jour" : "Créer le produit"}
                     </button>
                   )}
                 </div>
@@ -547,7 +548,7 @@ export default function ProductManager() {
 
       {!loading && filteredProducts.length === 0 && (
         <div className="empty-state">
-          <span className="empty-icon">📦</span>
+          <span className="empty-icon"><Package size={48} /></span>
           <h3>Aucun produit</h3>
           <p>Commencez par créer votre premier produit.</p>
           <button className="btn btn-primary" onClick={openNewProduct}>
@@ -567,7 +568,7 @@ export default function ProductManager() {
                   {p.item_images?.[0]?.image_url ? (
                     <img src={p.item_images[0].image_url} alt={p.name} />
                   ) : (
-                    <div className="no-image">📷</div>
+                    <div className="no-image"><Camera size={24} /></div>
                   )}
                   <span className={`status-indicator status-${p.status || "active"}`} />
                 </div>
@@ -586,7 +587,7 @@ export default function ProductManager() {
                     Modifier
                   </button>
                   <button onClick={() => handleDelete(p.id)} className="btn btn-danger btn-sm">
-                    🗑️
+                    <Trash2 size={16} />
                   </button>
                 </div>
 
@@ -603,7 +604,7 @@ export default function ProductManager() {
                           }}
                           className="btn-remove-thumb"
                         >
-                          ×
+                          <X size={12} />
                         </button>
                       </div>
                     ))}

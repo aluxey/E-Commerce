@@ -4,17 +4,18 @@ import { useAuth } from "@/context/AuthContext";
 import { useState } from 'react';
 import { useTranslation } from "react-i18next";
 import { NavLink, Outlet } from "react-router-dom";
+import { BarChart3, ShoppingBasket, Target, Palette, FolderKanban, Package, Users, X, Menu } from "lucide-react";
 import "../styles/Admin.css";
 import "../styles/adminForms.css";
 
 const navItems = (t) => [
-  { to: "/admin", label: t("admin.nav.overview"), icon: "📊", end: true },
-  { to: "/admin/products", label: t("admin.nav.products"), icon: "🧺" },
-  { to: "/admin/variants", label: t("admin.nav.variants"), icon: "🎯" },
-  { to: "/admin/colors", label: t("admin.nav.colors"), icon: "🎨" },
-  { to: "/admin/categories", label: t("admin.nav.categories"), icon: "🗂️" },
-  { to: "/admin/orders", label: t("admin.nav.orders"), icon: "📦" },
-  { to: "/admin/users", label: t("admin.nav.users"), icon: "👥" },
+  { to: "/admin", label: t("admin.nav.overview"), icon: <BarChart3 size={18} />, end: true },
+  { to: "/admin/products", label: t("admin.nav.products"), icon: <ShoppingBasket size={18} /> },
+  { to: "/admin/variants", label: t("admin.nav.variants"), icon: <Target size={18} /> },
+  { to: "/admin/colors", label: t("admin.nav.colors"), icon: <Palette size={18} /> },
+  { to: "/admin/categories", label: t("admin.nav.categories"), icon: <FolderKanban size={18} /> },
+  { to: "/admin/orders", label: t("admin.nav.orders"), icon: <Package size={18} /> },
+  { to: "/admin/users", label: t("admin.nav.users"), icon: <Users size={18} /> },
 ];
 
 const AdminLayout = () => {
@@ -31,7 +32,7 @@ const AdminLayout = () => {
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           aria-label={isSidebarOpen ? t("admin.nav.close") : t("admin.nav.open")}
         >
-          {isSidebarOpen ? '✕' : '☰'}
+          {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
 
         <aside className={`admin-sidebar ${isSidebarOpen ? 'is-open' : ''}`} aria-label={t("admin.nav.label")}>

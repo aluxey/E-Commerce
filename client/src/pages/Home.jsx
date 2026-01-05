@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { Package, Sparkles } from "lucide-react";
 import MiniItemCard from "../components/MiniItemCard";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
@@ -119,7 +120,7 @@ export default function Home() {
               <p className="hero-floating-title">{t("home.hero.floatingTitle")}</p>
               <p className="hero-floating-text">{t("home.hero.floatingText")}</p>
             </div>
-            <div className="hero-badge">✨ {t("home.hero.badge")}</div>
+            <div className="hero-badge"><Sparkles size={16} /> {t("home.hero.badge")}</div>
           </div>
         </div>
       </section>

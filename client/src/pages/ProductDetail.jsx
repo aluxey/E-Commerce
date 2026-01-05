@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import { Star, Check, X, Minus, Plus } from "lucide-react";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { useAuth } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
@@ -261,7 +262,7 @@ export default function ItemDetail() {
   const renderStars = rating => {
     return Array.from({ length: 5 }, (_, i) => (
       <span key={i} className={`star ${i < rating ? "filled" : ""}`}>
-        ★
+        <Star size={16} fill={i < rating ? "currentColor" : "none"} />
       </span>
     ));
   };
@@ -288,8 +289,8 @@ export default function ItemDetail() {
       {showNotification && (
         <div className="notification success">
           <div className="notification-content">
-            <span>✓ {t("productDetail.notificationAdded")}</span>
-            <button onClick={() => setShowNotification(false)}>×</button>
+            <span><Check size={16} /> {t("productDetail.notificationAdded")}</span>
+            <button onClick={() => setShowNotification(false)}><X size={16} /></button>
           </div>
         </div>
       )}
@@ -375,18 +376,24 @@ export default function ItemDetail() {
 
             {showColorSelect && (
               <div className="option-group">
-                <label>
-                  {t("productDetail.color")}:
-                  <select value={selectedColor} onChange={e => setSelectedColor(e.target.value)}>
-                    {colorOptions.map(option => (
-                      <option key={option.value || "default"} value={option.value}>
-                        {option.label}
-                        {!option.hasStock ? ` (${t("productDetail.soldOut")})` : ""}
-                        {!option.compatible ? ` (${t("productDetail.notCompatible")})` : ""}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <label>{t("productDetail.color")}:</label>
+                <div className="color-picker">
+                  {colorOptions.map(option => (
+                    <button
+                      key={option.value || "default"}
+                      type="button"
+                      className={`color-option ${selectedColor === option.value ? 'is-selected' : ''}`}
+                      onClick={() => setSelectedColor(option.value)}
+                      title={option.label}
+                    >
+                      <span 
+                        className="color-dot" 
+                        style={{ backgroundColor: option.hex }}
+                      />
+                      <span className="color-label">{option.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -407,7 +414,7 @@ export default function ItemDetail() {
               <label className="qty-label">{t("productDetail.quantity")}:</label>
               <div className="qty-controls">
                 <button className="qty-btn" onClick={() => setQuantity(q => Math.max(1, q - 1))}>
-                  −
+                  <Minus size={16} />
                 </button>
                 <input
                   type="number"
@@ -436,7 +443,7 @@ export default function ItemDetail() {
                     (selectedVariant?.stock != null && quantity >= selectedVariant.stock)
                   }
                 >
-                  +
+                  <Plus size={16} />
                 </button>
               </div>
             </div>
@@ -530,7 +537,7 @@ export default function ItemDetail() {
                           onMouseLeave={() => setHoverRating(0)}
                           aria-label={`${n} étoile${n > 1 ? "s" : ""}`}
                         >
-                          ★
+                          <Star size={20} fill={n <= (hoverRating || rating) ? "currentColor" : "none"} />
                         </button>
                       ))}
                     </div>
