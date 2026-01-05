@@ -1,6 +1,6 @@
-# Changelog – Recent Refactors & UX Improvements
+# Changelog: Recent Refactors & UX Improvements
 
-## 2025-12-26 – Pattern Type (Style de crochet)
+## 2025-12-26: Pattern Type (Style de crochet)
 
 - Ajout du champ `pattern_type` aux produits pour spécifier le style de crochet (Rechtsmuster ou Gänsefüsschen)
 - Nouveau formulaire dans le wizard produit (InfoStep)

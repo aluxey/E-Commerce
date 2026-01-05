@@ -1,12 +1,13 @@
 import { STEPS, STEP_LABELS, buildSku, sanitizeText, useProductForm } from "@/hooks/useProductForm";
 import { supabase } from "@/supabase/supabaseClient";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Search, X, Check, ChevronLeft, ChevronRight, Package, Camera, Trash2 } from "lucide-react";
 import {
   deleteItem,
   deleteItemImage,
   deleteVariants,
   fetchVariantsByItem,
+  getMaxImagePosition,
   insertVariants,
   listCategories,
   listProducts,
@@ -28,6 +29,7 @@ export default function ProductManager() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Use custom hook for form management
   const formHook = useProductForm();
@@ -67,6 +69,7 @@ export default function ProductManager() {
     onDragLeave,
     removeNewImage,
     setAsPrimary,
+    reorderImages,
     canProceed,
     nextStep,
     prevStep,
@@ -103,7 +106,7 @@ export default function ProductManager() {
   }, []);
 
   // Upload image helper
-  const uploadImage = async (file, itemId) => {
+  const uploadImage = async (file, itemId, position = 0) => {
     const fileName = `${Date.now()}-${file.name}`;
     const filePath = `${itemId}/${fileName}`;
     const { error: uploadError } = await supabase.storage
@@ -118,7 +121,7 @@ export default function ProductManager() {
     if (!imageUrl) return null;
     const { error: dbError } = await supabase
       .from("item_images")
-      .insert([{ item_id: itemId, image_url: imageUrl }]);
+      .insert([{ item_id: itemId, image_url: imageUrl, position }]);
     if (dbError) {
       console.error("Erreur enregistrement image:", dbError.message);
       return null;
@@ -129,6 +132,13 @@ export default function ProductManager() {
   // Form submission
   const handleSubmit = async e => {
     e.preventDefault();
+
+    // Guard: Only submit on Review step and prevent double submission
+    if (currentStep !== STEPS.REVIEW || isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
       const trimmedName = sanitizeText(form.name);
       if (!trimmedName) {
@@ -206,36 +216,20 @@ export default function ProductManager() {
       const { error: priceError } = await updateItemPriceMeta(itemId, minPrice);
       if (priceError) throw priceError;
 
-      // Handle image reordering and upload
-      const existingCount = existingImages.length;
-      const primaryIsNew = primaryImageIndex >= existingCount;
-
-      if (existingCount > 1 && !primaryIsNew && primaryImageIndex > 0) {
-        const reorderedIds = [
-          existingImages[primaryImageIndex].id,
-          ...existingImages.filter((_, i) => i !== primaryImageIndex).map(img => img.id),
-        ];
-        const { error: reorderError } = await reorderItemImages(itemId, reorderedIds);
+      // Handle image reordering - update positions for existing images
+      if (existingImages.length > 0) {
+        const existingIds = existingImages.map(img => img.id);
+        const { error: reorderError } = await reorderItemImages(itemId, existingIds);
         if (reorderError) {
           console.warn("Could not reorder images:", reorderError);
         }
       }
 
-      // Upload new images
+      // Upload new images with correct positions
       if (newImages.length > 0) {
-        if (primaryIsNew && existingCount === 0) {
-          const primaryNewIdx = primaryImageIndex - existingCount;
-          const reorderedImages = [
-            newImages[primaryNewIdx],
-            ...newImages.filter((_, i) => i !== primaryNewIdx),
-          ];
-          for (const file of reorderedImages) {
-            await uploadImage(file, itemId);
-          }
-        } else {
-          for (const file of newImages) {
-            await uploadImage(file, itemId);
-          }
+        const startPosition = existingImages.length;
+        for (let i = 0; i < newImages.length; i++) {
+          await uploadImage(newImages[i], itemId, startPosition + i);
         }
       }
 
@@ -246,6 +240,8 @@ export default function ProductManager() {
     } catch (err) {
       console.error("Erreur sauvegarde produit:", err.message);
       pushToast({ message: "Erreur lors de l'enregistrement du produit.", variant: "error" });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -431,6 +427,7 @@ export default function ProductManager() {
             removeExistingImage={removeExistingImage}
             removeNewImage={removeNewImage}
             setAsPrimary={setAsPrimary}
+            reorderImages={reorderImages}
           />
         );
 
@@ -521,20 +518,22 @@ export default function ProductManager() {
                   )}
                 </div>
                 <div className="wizard-footer__right">
-                  {currentStep < STEPS.REVIEW ? (
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={nextStep}
-                      disabled={!canProceed(currentStep)}
-                    >
-                      Suivant <ChevronRight size={16} />
-                    </button>
-                  ) : (
-                    <button type="submit" className="btn btn-primary btn-lg">
-                      <Check size={16} /> {editingId ? "Mettre à jour" : "Créer le produit"}
-                    </button>
-                  )}
+                  {/* Always render both buttons, hide with CSS to prevent click event bleed */}
+                  <button
+                    type="button"
+                    className={`btn btn-primary ${currentStep >= STEPS.REVIEW ? "hidden" : ""}`}
+                    onClick={nextStep}
+                    disabled={!canProceed(currentStep)}
+                  >
+                    Suivant <ChevronRight size={16} />
+                  </button>
+                  <button
+                    type="submit"
+                    className={`btn btn-primary btn-lg ${currentStep !== STEPS.REVIEW ? "hidden" : ""}`}
+                    disabled={isSubmitting}
+                  >
+                    <Check size={16} /> {isSubmitting ? "En cours..." : editingId ? "Mettre à jour" : "Créer le produit"}
+                  </button>
                 </div>
               </div>
             </form>

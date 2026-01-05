@@ -1,46 +1,163 @@
-# E-Commerce
+# Sabbels Handmade E-Commerce
 
-Bienvenue sur le projet vitrine d'une boutique en ligne. Ce dépôt illustre
-une application complète bâtie avec **React** pour l'interface et
-**Supabase** pour l'authentification et la base de données.
+Plateforme e-commerce B2C pour la vente de produits artisanaux faits main.
+Application full-stack moderne : **React 19**, **Supabase**, **Stripe**.
 
-## Découvrir le site
+---
 
-### Home page
-![homepage1](/Docs/Assets/homepage1.png)
-![homepage2](/Docs/Assets/homepage2.png)
+## ✨ Fonctionnalités
 
-### Admin page
-![admin1](/Docs/Assets/admin1.png)
-![admin2](/Docs/Assets/admin2.png)
+| Module               | Description                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| **Catalogue**        | Liste produits, filtres (catégorie, couleur, prix), recherche |
+| **Panier**           | Ajout/suppression, gestion quantités, persistance locale      |
+| **Paiement**         | Checkout Stripe, webhooks, suivi commande                     |
+| **Authentification** | Inscription / connexion via Supabase Auth                     |
+| **Admin**            | Dashboard KPIs, gestion produits, variantes, commandes, users |
+| **i18n**             | Multilingue : Allemand 🇩🇪 / Français 🇫🇷                       |
 
-### Liste des items
-![itemlist](/Docs/Assets/itemlist.png)
+---
 
-### Page de login
-![terminalImage](/Docs/Assets/login.png)
+## 🏗️ Architecture
 
-### Panier
-![terminalImage](/Docs/Assets/cart.png)
+```
+┌────────────────────────────────────────────────────────┐
+│                     FRONTEND                           │
+│   React 19 · Vite 7 · React Router 7 · i18next         │
+│   Hébergé sur Netlify                                  │
+└────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌────────────────────────────────────────────────────────┐
+│                        API                             │
+│   Express 4 · Node.js · Stripe SDK                     │
+└────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌────────────────────────────────────────────────────────┐
+│                   BASE DE DONNÉES                      │
+│   Supabase (PostgreSQL) · Row Level Security           │
+└────────────────────────────────────────────────────────┘
+```
 
+### Structure du projet
 
-- **Catalogue** : parcourez les produits et leurs détails.
-- **Panier et commande** : ajoutez vos articles puis finalisez l'achat.
-- **Espace admin** : gérez produits, commandes et stocks.
+```
+E-Commerce/
+├── client/             # Frontend React (Vite)
+│   ├── src/
+│   │   ├── components/ # Composants réutilisables + Admin/
+│   │   ├── context/    # AuthContext, CartContext, ThemeContext
+│   │   ├── hooks/      # Hooks personnalisés
+│   │   ├── pages/      # Pages (Home, ProductList, Cart, Admin…)
+│   │   ├── services/   # Abstraction Supabase
+│   │   ├── styles/     # Fichiers CSS
+│   │   └── locales/    # Traductions DE/FR
+│   └── package.json
+│
+├── api/                # Backend Express (Stripe)
+│   └── src/server.js
+│
+├── Database/           # Scripts SQL & migrations
+│   ├── BDD_struct.sql
+│   ├── RLS.sql
+│   ├── SEED.sql
+│   └── migrations/
+│
+└── Docs/               # Documentation technique
+```
 
-Un aperçu des pages disponibles est détaillé dans [Docs/Pages.md](./Docs/Pages.md).
+---
 
-## Installation rapide
+## 🛠️ Stack technique
+
+| Couche      | Technologies                                   |
+| ----------- | ---------------------------------------------- |
+| Frontend    | React 19, Vite 7, React Router 7, Lucide, clsx |
+| Styling     | CSS custom (variables, responsive)             |
+| i18n        | i18next + react-i18next                        |
+| Paiement    | Stripe (react-stripe-js)                       |
+| Backend     | Express 4, Node.js, Nodemailer                 |
+| BDD         | Supabase (PostgreSQL), RLS                     |
+| Hébergement | Netlify (client), Supabase (DB)                |
+
+---
+
+## 🚀 Installation
+
+### Prérequis
+
+- Node.js ≥ 18
+- Compte Supabase (projet configuré)
+- Compte Stripe (clés API)
+
+### 1. Client (Frontend)
 
 ```bash
 cd client
 npm install
-npm run dev
+cp .env.example .env   # Renseigner VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_STRIPE_PUBLIC_KEY
+npm run dev            # http://localhost:5173
 ```
 
-Pour l'API et l'intégration Stripe, reportez‑vous au dossier `api/`.
+### 2. API (Backend)
 
-## Aller plus loin
+```bash
+cd api
+npm install
+cp .env.example .env   # Renseigner STRIPE_SECRET_KEY, SUPABASE_SERVICE_ROLE_KEY
+npm run dev            # http://localhost:3001
+```
 
-Pour les schémas de base de données, l'architecture ou les endpoints,
-consultez le dossier [Docs](./Docs/).
+### 3. Base de données
+
+Exécuter dans l'ordre sur votre projet Supabase :
+
+1. `Database/BDD_struct.sql` (schéma)
+2. `Database/RLS.sql` (politiques Row Level Security)
+3. `Database/SEED.sql` (données initiales, optionnel)
+
+---
+
+## 📜 Scripts disponibles
+
+### Client
+
+| Commande          | Description              |
+| ----------------- | ------------------------ |
+| `npm run dev`     | Serveur de développement |
+| `npm run build`   | Build de production      |
+| `npm run preview` | Prévisualisation build   |
+| `npm run lint`    | Analyse ESLint           |
+
+### API
+
+| Commande      | Description                       |
+| ------------- | --------------------------------- |
+| `npm run dev` | Serveur avec hot-reload (--watch) |
+| `npm start`   | Serveur production                |
+
+---
+
+## 📁 Documentation
+
+- [Documentation complète](./Docs/PROJECT_DOCUMENTATION.md)
+- [Changelog](./Docs/Changelog.md)
+- [Audit technique](./Docs/AUDIT_TECHNIQUE.md)
+- [Guide i18n](./Docs/i18n.md)
+
+---
+
+## 🤝 Contribution
+
+1. Lire [Agents.md](./Agents.md) avant toute modification
+2. Créer une branche feature (`git checkout -b feature/ma-feature`)
+3. Commiter avec des messages clairs
+4. Mettre à jour la documentation si nécessaire
+5. Ouvrir une Pull Request
+
+---
+
+## 📄 Licence
+
+Projet privé, tous droits réservés.

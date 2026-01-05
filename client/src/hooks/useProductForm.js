@@ -172,7 +172,7 @@ export function useProductForm() {
     setIsDirty(true);
   }, []);
 
-  // Generate variants automatically
+  // Generate variants automatically (preserves existing variant IDs when regenerating)
   const generateVariants = useCallback(() => {
     if (!selectedSizes.length) {
       pushToast({ message: "Sélectionnez au moins une taille", variant: "warning" });
@@ -185,18 +185,29 @@ export function useProductForm() {
       return;
     }
 
-    const newVariants = selectedSizes.map(size => ({
-      id: null,
-      size,
-      price: price.toFixed(2),
-      stock: baseStock,
-      sku: "",
-    }));
+    // Build a map of existing variants by size for ID preservation
+    const existingBySize = new Map();
+    variants.forEach(v => {
+      if (v.id && v.size) {
+        existingBySize.set(v.size, v);
+      }
+    });
+
+    const newVariants = selectedSizes.map(size => {
+      const existing = existingBySize.get(size);
+      return {
+        id: existing?.id || null, // Preserve ID if variant with same size exists
+        size,
+        price: price.toFixed(2),
+        stock: baseStock,
+        sku: existing?.sku || "", // Preserve SKU if exists
+      };
+    });
 
     setVariants(newVariants);
     setIsDirty(true);
     pushToast({ message: `${newVariants.length} variantes générées`, variant: "success" });
-  }, [selectedSizes, basePrice, baseStock]);
+  }, [selectedSizes, basePrice, baseStock, variants]);
 
   // Add empty variant row
   const addVariantRow = useCallback(() => {
@@ -325,6 +336,59 @@ export function useProductForm() {
     [existingImages.length]
   );
 
+  // Reorder images (for drag-and-drop)
+  // Takes unified indices and reorders both existing and new images
+  const reorderImages = useCallback(
+    (fromIndex, toIndex) => {
+      const existingCount = existingImages.length;
+      const totalCount = existingCount + newImages.length;
+
+      if (fromIndex < 0 || fromIndex >= totalCount || toIndex < 0 || toIndex >= totalCount) {
+        return;
+      }
+
+      // Build unified array of image references
+      const unified = [
+        ...existingImages.map((img, i) => ({ type: "existing", index: i, data: img })),
+        ...newImages.map((file, i) => ({ type: "new", index: i, data: file, preview: imagePreviews[i] })),
+      ];
+
+      // Perform the reorder
+      const [moved] = unified.splice(fromIndex, 1);
+      unified.splice(toIndex, 0, moved);
+
+      // Separate back into existing and new
+      const reorderedExisting = [];
+      const reorderedNew = [];
+      const reorderedPreviews = [];
+
+      unified.forEach(item => {
+        if (item.type === "existing") {
+          reorderedExisting.push(item.data);
+        } else {
+          reorderedNew.push(item.data);
+          reorderedPreviews.push(item.preview);
+        }
+      });
+
+      setExistingImages(reorderedExisting);
+      setNewImages(reorderedNew);
+      setImagePreviews(reorderedPreviews);
+
+      // Update primary index if needed
+      if (primaryImageIndex === fromIndex) {
+        setPrimaryImageIndex(toIndex);
+      } else if (fromIndex < primaryImageIndex && toIndex >= primaryImageIndex) {
+        setPrimaryImageIndex(prev => prev - 1);
+      } else if (fromIndex > primaryImageIndex && toIndex <= primaryImageIndex) {
+        setPrimaryImageIndex(prev => prev + 1);
+      }
+
+      setIsDirty(true);
+    },
+    [existingImages, newImages, imagePreviews, primaryImageIndex]
+  );
+
   // Wizard navigation
   const canProceed = useCallback(
     step => {
@@ -380,8 +444,10 @@ export function useProductForm() {
         status: product.status || "active",
       });
 
+      // Sort images by position if available
       const productImages = product.item_images || [];
-      setExistingImages(productImages);
+      const sortedImages = [...productImages].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      setExistingImages(sortedImages);
       setPrimaryImageIndex(0);
       setNewImages([]);
       setImagePreviews([]);
@@ -449,6 +515,7 @@ export function useProductForm() {
     onDragLeave,
     removeNewImage,
     setAsPrimary,
+    reorderImages,
     canProceed,
     nextStep,
     prevStep,

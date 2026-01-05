@@ -1,31 +1,34 @@
 # 🛍️ Front-End E-commerce
 
-Bienvenue dans la partie front-end de notre projet e-commerce !
-Ce projet a été développé avec **React** (via **Vite**), utilise **Bootstrap** pour le style, et interagit avec un back-end Express.
+Partie front-end du projet e-commerce.
+Développé avec **React** (via **Vite**), utilise un style CSS personnalisé, et interagit avec un back-end Express.
 
 ---
 
 ### 🔧 Fonctionnement des products et du panier
 
 ![Diagramme de fonctionnement](../Docs/Assets/front_way_to_work.png)
-*Illustration du fonctionnement global des panier.*
+_Illustration du fonctionnement global des panier._
 
 ---
 
 ### 🔐 Système d'authentification - Architecture générale
 
 ![Diagramme de fonctionnement auth](../Docs/Assets/diagAuth.png)
-*Illustration du fonctionnement global de l'auth.*
+_Illustration du fonctionnement global de l'auth._
 
-- **Auth State (Contexte)** : 
+- **Auth State (Contexte)** :
+
   - Stocke les informations de l'utilisateur connecté (`user`) ainsi que les fonctions `login` et `logout`.
   - Est accessible depuis tous les composants via le `AuthContext`.
 
 - **/login** et **/register** :
+
   - Permettent à l'utilisateur de s'authentifier ou de créer un compte.
   - Si l'authentification réussit, les données de l'utilisateur sont sauvegardées dans l’`AuthContext` et dans le `localStorage`.
 
 - **Routes protégées** :
+
   - Certaines pages (comme `/account`, `/orders`, etc.) nécessitent que l'utilisateur soit connecté.
   - Le composant `PrivateRoute` vérifie la présence d’un utilisateur avant d’afficher la page.
   - Si l'utilisateur n'est pas connecté, il est redirigé vers `/login`.
@@ -75,5 +78,5 @@ Ce projet a été développé avec **React** (via **Vite**), utilise **Bootstrap
 
 - Thème pastel :
   - Couleurs principales : **beige clair** et **gris foncé**
-- Composants stylisés avec **Bootstrap**
-- **Animations** d’apparition (cartes, toast) avec Bootstrap ou `
+- Composants stylisés avec **CSS custom**
+- **Animations** d'apparition (cartes, toast)

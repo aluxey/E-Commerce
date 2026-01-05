@@ -6,10 +6,10 @@
 
 ## 📋 Règles Générales
 
-1. **Code simple et lisible** — Privilégie la clarté à la complexité
-2. **Commente le code** — Explique le "pourquoi", pas le "quoi"
-3. **Petits fichiers** — Un composant/fonction par fichier, < 300 lignes idéalement
-4. **Nommage explicite** — Variables et fonctions auto-descriptives
+1. **Code simple et lisible** : privilégie la clarté à la complexité
+2. **Commente le code** : explique le "pourquoi", pas le "quoi"
+3. **Petits fichiers** : un composant/fonction par fichier, < 300 lignes idéalement
+4. **Nommage explicite** : variables et fonctions auto-descriptives
 
 ---
 
@@ -81,11 +81,11 @@ Après tout changement significatif, **mets à jour** :
 
 ## ⚠️ À Éviter
 
-- ❌ Code dupliqué — Réutilise ou crée un utilitaire
-- ❌ Console.log en production — Supprime après debug
-- ❌ Dépendances inutiles — Vérifie si natif suffit
-- ❌ Modifications sans contexte — Lis avant d'écrire
-- ❌ Fichiers > 400 lignes — Découpe en sous-composants
+- ❌ Code dupliqué : réutilise ou crée un utilitaire
+- ❌ Console.log en production : supprime après debug
+- ❌ Dépendances inutiles : vérifie si natif suffit
+- ❌ Modifications sans contexte : lis avant d'écrire
+- ❌ Fichiers > 400 lignes : découpe en sous-composants
 
 ---
 

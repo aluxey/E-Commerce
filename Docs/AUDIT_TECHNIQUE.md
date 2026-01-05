@@ -1,4 +1,4 @@
-# 🔍 Audit Technique Complet - E-Commerce Sabbels Handmade
+# 🔍 Audit Technique Complet, E-Commerce Sabbels Handmade
 
 **Date de l'audit :** 21 décembre 2025
 **Version du projet :** 0.1.0
@@ -745,13 +745,13 @@ npx depcheck
 
 ## 10. Conclusion
 
-Ce projet E-Commerce présente une **base solide** avec une architecture claire et des choix technologiques modernes (React 19, Vite 7, Supabase). Les principales forces sont la séparation client/API, l'utilisation de RLS pour la sécurité, et l'internationalisation bien intégrée.
+Ce projet E-Commerce repose sur une **base solide** avec une architecture claire et des choix technologiques modernes (React 19, Vite 7, Supabase). Points forts : séparation client/API, utilisation de RLS pour la sécurité, et internationalisation bien intégrée.
 
-Cependant, des **améliorations significatives** sont nécessaires, particulièrement :
+Des **améliorations significatives** restent nécessaires :
 
-- L'ajout de tests (critique pour la confiance en production)
-- Le renforcement de la sécurité API (rate limiting, validation)
-- L'optimisation des performances (cache, compression)
+- Ajout de tests (critique pour la confiance en production)
+- Renforcement de la sécurité API (rate limiting, validation)
+- Optimisation des performances (cache, compression)
 
 En suivant les recommandations de cet audit, le projet peut atteindre un niveau de qualité production professionnelle.
 

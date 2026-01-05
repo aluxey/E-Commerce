@@ -10,7 +10,7 @@ export const listProducts = async () => {
     .select(
       `
         id, name, price, description, category_id, status, pattern_type,
-        item_images ( id, image_url ),
+        item_images ( id, image_url, position ),
         categories (
           id,
           name,
@@ -21,7 +21,7 @@ export const listProducts = async () => {
       `
     )
     .order("id", { ascending: false })
-    .order("id", { foreignTable: "item_images", ascending: true });
+    .order("position", { foreignTable: "item_images", ascending: true });
 };
 
 export const listCategories = async () => {
@@ -79,51 +79,43 @@ export const updateItemPriceMeta = async (itemId, price) =>
 
 export const deleteItem = async id => supabase.from(TABLE_ITEMS).delete().eq("id", id);
 
-export const insertItemImage = async (itemId, imageUrl) =>
-  supabase.from("item_images").insert([{ item_id: itemId, image_url: imageUrl }]);
+export const insertItemImage = async (itemId, imageUrl, position = 0) =>
+  supabase.from("item_images").insert([{ item_id: itemId, image_url: imageUrl, position }]);
 
 export const deleteItemImage = async imageId =>
   supabase.from("item_images").delete().eq("id", imageId);
 
-// Reorder images by deleting and reinserting in the desired order
-// The first image in the array will be the primary image
+// Get the maximum position for images of an item
+export const getMaxImagePosition = async itemId => {
+  const { data, error } = await supabase
+    .from("item_images")
+    .select("position")
+    .eq("item_id", itemId)
+    .order("position", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error && error.code !== "PGRST116") return { maxPosition: -1, error };
+  return { maxPosition: data?.position ?? -1, error: null };
+};
+
+// Reorder images by updating their position values
+// The first image in the array will be the primary image (position 0)
 export const reorderItemImages = async (itemId, imageIds) => {
-  // Get all images for this item
-  const { data: images, error: fetchError } = await supabase
-    .from("item_images")
-    .select("id, image_url")
-    .eq("item_id", itemId);
+  if (!imageIds || imageIds.length === 0) return { error: null };
 
-  if (fetchError) return { error: fetchError };
-  if (!images || images.length === 0) return { error: null };
+  // Update each image's position based on its index in the array
+  const updates = imageIds.map((id, index) =>
+    supabase
+      .from("item_images")
+      .update({ position: index })
+      .eq("id", id)
+      .eq("item_id", itemId)
+  );
 
-  // Create a map for quick lookup
-  const imageMap = new Map(images.map(img => [img.id, img]));
-
-  // Get the images in the desired order
-  const orderedImages = imageIds
-    .map(id => imageMap.get(id))
-    .filter(Boolean);
-
-  // Delete all existing images
-  const { error: deleteError } = await supabase
-    .from("item_images")
-    .delete()
-    .eq("item_id", itemId);
-
-  if (deleteError) return { error: deleteError };
-
-  // Reinsert in the desired order
-  const inserts = orderedImages.map(img => ({
-    item_id: itemId,
-    image_url: img.image_url
-  }));
-
-  const { error: insertError } = await supabase
-    .from("item_images")
-    .insert(inserts);
-
-  return { error: insertError };
+  const results = await Promise.all(updates);
+  const firstError = results.find(r => r.error);
+  return { error: firstError?.error || null };
 };
 
 export const uploadProductImage = async (filePath, file) =>

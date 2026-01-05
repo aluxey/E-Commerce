@@ -1,8 +1,8 @@
-# 📚 Documentation du Projet E-Commerce - Sabbels Handmade
+# 📚 Documentation du Projet E-Commerce Sabbels Handmade
 
 **Version :** 0.1.0
 **Dernière mise à jour :** 21 décembre 2025
-**Stack technique :** React 19 + Vite 7 + Express + Supabase + Stripe
+**Stack technique :** React 19, Vite 7, Express, Supabase, Stripe
 
 ---
 

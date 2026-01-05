@@ -2308,3 +2308,137 @@
     grid-template-columns: repeat(5, 1fr);
   }
 }
+
+/* =============================================
+   Draggable Image Grid
+   ============================================= */
+
+.draggable-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.image-card.draggable {
+  cursor: grab;
+  user-select: none;
+}
+
+.image-card.draggable:active {
+  cursor: grabbing;
+}
+
+.image-card.is-dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  border-color: var(--adm-brand);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.image-card.drag-over {
+  border-color: var(--adm-brand);
+  background: var(--adm-brand-light);
+  transform: scale(1.02);
+}
+
+.image-card.drag-over::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(183, 92, 59, 0.1);
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* Drag handle */
+.drag-handle {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: grab;
+}
+
+.image-card:hover .drag-handle {
+  opacity: 1;
+}
+
+.image-card.is-dragging .drag-handle {
+  opacity: 1;
+  cursor: grabbing;
+}
+
+/* Position indicator */
+.position-indicator {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.35rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-card.is-primary .position-indicator {
+  background: var(--adm-brand);
+}
+
+/* New image badge */
+.image-badge--new {
+  background: var(--adm-success) !important;
+  bottom: auto;
+  top: 0.5rem;
+}
+
+/* Images section in step */
+.images-section {
+  margin-top: 1.5rem;
+}
+
+.images-section h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: var(--adm-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.image-count-detail {
+  font-weight: 400;
+  color: var(--adm-muted);
+  font-size: 0.85rem;
+}
+
+/* =============================================
+   Wizard Footer - Hidden Button Fix
+   ============================================= */
+
+.wizard-footer__right .hidden {
+  display: none !important;
+}
+
+/* Button disabled state during submission */
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
