@@ -129,8 +129,8 @@
 }
 
 .quantity-controls button {
-  width: 35px;
-  height: 35px;
+  width: 44px;
+  height: 44px;
   border: none;
   background: var(--color-accent);
   color: var(--color-surface);
@@ -142,6 +142,9 @@
   font-weight: bold;
   font-size: 1.2rem;
   transition: all 0.3s ease;
+  /* Ensure minimum touch target for accessibility */
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .quantity-controls button:hover {
@@ -416,10 +419,11 @@
     font-size: 1.5rem;
   }
 
+  /* Keep 44px touch target on mobile */
   .quantity-controls button {
-    width: 30px;
-    height: 30px;
-    font-size: 1rem;
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
   }
 }
 

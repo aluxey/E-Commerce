@@ -101,6 +101,9 @@
   transition: all var(--pd-transition);
   scroll-snap-align: start;
   opacity: 0.6;
+  /* Ensure minimum touch target */
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .pd-thumb:hover {
@@ -865,8 +868,15 @@
 
 .related-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .related-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
 }
 
 .related-item {
@@ -1073,9 +1083,12 @@
     border-radius: 12px;
   }
 
+  /* Keep thumbs at 44px minimum for touch targets */
   .pd-thumb {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .pd-options {
@@ -1085,11 +1098,19 @@
   .pd-actions {
     padding: 1.25rem;
     position: sticky;
-    bottom: 1rem;
+    bottom: 0;
+    /* Safe area for iOS devices with home indicator */
+    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
     background: var(--color-surface);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
+    border-radius: 12px 12px 0 0;
     z-index: 50;
+    /* Extend to screen edges */
+    margin-left: -1rem;
+    margin-right: -1rem;
+    margin-bottom: -1rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
   }
 
   .qty-group {
@@ -1103,30 +1124,21 @@
   .btn.primary {
     width: 100%;
     padding: 1rem;
+    /* Ensure 44px touch target */
+    min-height: 48px;
   }
 
   .tab-btn {
     padding: 0.875rem 1rem;
     font-size: 0.875rem;
+    /* Ensure 44px touch target */
+    min-height: 44px;
   }
 
   .notification {
     left: 1rem;
     right: 1rem;
     top: 1rem;
-  }
-
-  .related-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
-
-  .related-info {
-    padding: 0.75rem;
-  }
-
-  .related-info h4 {
-    font-size: 0.8125rem;
   }
 
   .related-price {
@@ -1137,6 +1149,8 @@
   .btn.small {
     padding: 0.5rem 0.75rem;
     font-size: 0.8125rem;
+    /* Ensure 44px touch target */
+    min-height: 44px;
   }
 }
 
