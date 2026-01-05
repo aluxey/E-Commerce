@@ -149,6 +149,38 @@
       "placeholder": "Deine E-Mail Adresse",
       "submit": "Anmelden"
     },
+    "aboutProduct": {
+      "eyebrow": "Über das Produkt",
+      "title": "Qualität mit Charakter",
+      "subtitle": "Erfahre mehr über unsere Materialien, Farben und Pflegehinweise.",
+      "moreInfo": "Mehr erfahren",
+      "preview": {
+        "materials": "Material mit Verantwortung ausgewählt",
+        "colors": "Farben",
+        "safety": "Sicherheitshinweise"
+      },
+      "materials": {
+        "title": "Materialien mit Verantwortung ausgewählt",
+        "paragraph1": "Für alle unsere Körbe verwenden wir hochwertiges Bobbiny-Garn aus 100 % recycelter Baumwolle. Das Garn wird aus Textilresten hergestellt und ressourcenschonend verarbeitet. Es ist nach OEKO-TEX® STANDARD 100 (Klasse I) zertifiziert und somit auf Schadstoffe geprüft sowie für den Kontakt mit sensibler Haut geeignet.",
+        "paragraph2": "Durch den Recyclingprozess entstehen die Farben ohne zusätzliche chemische Färbung. Das bedeutet: Jedes Garn ist ein wenig anders. Leichte Abweichungen im Farbton sind daher ganz natürlich und machen jedes Stück zu einem Unikat – kein Korb gleicht exakt dem anderen.",
+        "paragraph3": "Die verwendeten Holzelemente entstehen in enger Zusammenarbeit mit dem Ta-Das Kordelshop. Das naturbelassene Holz wird sorgfältig gefertigt und verarbeitet. Maserung und Farbton können leicht variieren und unterstreichen den natürlichen, handgefertigten Charakter der Körbe.",
+        "paragraph4": "So entstehen langlebige, formstabile Produkte mit Charakter: nachhaltig gefertigt, hochwertig verarbeitet und bewusst individuell.",
+        "bobbinyLink": "Bobbiny Website",
+        "tadasLink": "Ta-Das Kordelshop"
+      },
+      "colors": {
+        "title": "Farben",
+        "note": ""
+      },
+      "safety": {
+        "title": "Sicherheitshinweise",
+        "items": [
+          "Labels und kleine Embleme sind mit Schrauben befestigt.",
+          "Für Kleinkinder nur unter Aufsicht geeignet, da sich Kleinteile lösen und verschluckt werden könnten."
+        ]
+      },
+      "close": "Schließen"
+    },
     "loadError": "Die Startseite konnte nicht geladen werden. Bitte versuche es erneut."
   },
   "productList": {

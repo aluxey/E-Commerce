@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Package, Sparkles } from "lucide-react";
+import { Package, Sparkles, Leaf, Palette, ShieldCheck, X, ExternalLink, Wrench, Baby } from "lucide-react";
 import MiniItemCard from "../components/MiniItemCard";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
+import { listColors } from "../services/adminColors";
 import "../styles/home.css";
 
 // Assets
@@ -19,8 +20,10 @@ export default function Home() {
   const [latestItems, setLatestItems] = useState([]);
   const [topItems, setTopItems] = useState([]);
   const [dbCategories, setDbCategories] = useState([]);
+  const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [aboutProductOpen, setAboutProductOpen] = useState(false);
   const { t } = useTranslation();
   const valueProps = t("home.valueProps", { returnObjects: true }) || [];
   const heroHighlights = t("home.highlights", { returnObjects: true }) || [];
@@ -37,15 +40,17 @@ export default function Home() {
     const fetchData = async () => {
       try {
         setError(false);
-        const [latestResp, topResp, categoriesResp] = await Promise.all([
+        const [latestResp, topResp, categoriesResp, colorsResp] = await Promise.all([
           fetchLatestItems(4),
           fetchTopItems(4),
           fetchCategories(),
+          listColors(),
         ]);
         if (latestResp.error) throw latestResp.error;
         if (topResp.error) throw topResp.error;
         setLatestItems(latestResp.data || []);
         setTopItems(topResp.data || []);
+        setColors(colorsResp.data || []);
 
         // Filter to get only main categories (no parent_id)
         const mainCategories = (categoriesResp.data || [])
@@ -258,6 +263,134 @@ export default function Home() {
             ))}
         </div>
       </section>
+
+      {/* About Product Section */}
+      <section className="about-product-section" id="uber-das-produkt">
+        <div className="container">
+          <div className="section-header">
+            <div>
+              <span className="eyebrow">{t("home.aboutProduct.eyebrow")}</span>
+              <h2>{t("home.aboutProduct.title")}</h2>
+              <p className="color-text-muted">{t("home.aboutProduct.subtitle")}</p>
+            </div>
+          </div>
+          
+          <div className="about-product-preview">
+            <div className="about-product-card">
+              <div className="about-product-card__icon">
+                <Leaf size={28} />
+              </div>
+              <h3>{t("home.aboutProduct.preview.materials")}</h3>
+            </div>
+            <div className="about-product-card">
+              <div className="about-product-card__icon">
+                <Palette size={28} />
+              </div>
+              <h3>{t("home.aboutProduct.preview.colors")}</h3>
+            </div>
+            <div className="about-product-card">
+              <div className="about-product-card__icon">
+                <ShieldCheck size={28} />
+              </div>
+              <h3>{t("home.aboutProduct.preview.safety")}</h3>
+            </div>
+          </div>
+          
+          <div className="about-product-cta">
+            <button 
+              className="btn btn-primary" 
+              onClick={() => setAboutProductOpen(true)}
+            >
+              {t("home.aboutProduct.moreInfo")}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* About Product Modal */}
+      {aboutProductOpen && (
+        <div className="about-product-modal-overlay" onClick={() => setAboutProductOpen(false)}>
+          <div className="about-product-modal" onClick={e => e.stopPropagation()}>
+            <button 
+              className="about-product-modal__close" 
+              onClick={() => setAboutProductOpen(false)}
+              aria-label={t("home.aboutProduct.close")}
+            >
+              <X size={24} />
+            </button>
+            
+            <div className="about-product-modal__content">
+              {/* Materials Section */}
+              <div className="about-product-modal__section">
+                <div className="about-product-modal__section-header">
+                  <Leaf size={24} />
+                  <h3>{t("home.aboutProduct.materials.title")}</h3>
+                </div>
+                <p>{t("home.aboutProduct.materials.paragraph1")}</p>
+                <p>{t("home.aboutProduct.materials.paragraph2")}</p>
+                <p>{t("home.aboutProduct.materials.paragraph3")}</p>
+                <p className="about-product-modal__highlight">{t("home.aboutProduct.materials.paragraph4")}</p>
+                <div className="about-product-modal__links">
+                  <a href="https://bobbiny.com" target="_blank" rel="noopener noreferrer" className="about-product-link">
+                    {t("home.aboutProduct.materials.bobbinyLink")} <ExternalLink size={14} />
+                  </a>
+                  <a href="https://ta-das.de" target="_blank" rel="noopener noreferrer" className="about-product-link">
+                    {t("home.aboutProduct.materials.tadasLink")} <ExternalLink size={14} />
+                  </a>
+                </div>
+              </div>
+
+              {/* Colors Section */}
+              <div className="about-product-modal__section">
+                <div className="about-product-modal__section-header">
+                  <Palette size={24} />
+                  <h3>{t("home.aboutProduct.colors.title")}</h3>
+                </div>
+                <div className="about-product-colors-grid">
+                  {colors.length > 0 ? (
+                    colors.map(color => (
+                      <div key={color.id} className="about-product-color-swatch">
+                        <div 
+                          className="about-product-color-swatch__color" 
+                          style={{ backgroundColor: color.hex || '#ccc' }}
+                          title={color.name}
+                        />
+                        <span className="about-product-color-swatch__name">{color.name}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="about-product-color-placeholder">
+                      <p className="color-text-muted">Farbpalette wird hier angezeigt</p>
+                    </div>
+                  )}
+                </div>
+                {t("home.aboutProduct.colors.note") && (
+                  <p className="about-product-colors-note">{t("home.aboutProduct.colors.note")}</p>
+                )}
+              </div>
+
+              {/* Safety Instructions Section */}
+              <div className="about-product-modal__section">
+                <div className="about-product-modal__section-header">
+                  <ShieldCheck size={24} />
+                  <h3>{t("home.aboutProduct.safety.title")}</h3>
+                </div>
+                <ul className="about-product-list about-product-list--safety">
+                  {(t("home.aboutProduct.safety.items", { returnObjects: true }) || []).map((item, idx) => (
+                    <li key={idx}>
+                      <span className="about-product-list__icon">
+                        {idx === 0 && <Wrench size={18} />}
+                        {idx === 1 && <Baby size={18} />}
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <section className="newsletter-section" id="newsletter">
         <div className="container newsletter-content">

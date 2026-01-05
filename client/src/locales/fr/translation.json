@@ -149,6 +149,38 @@
       "placeholder": "Ton adresse e-mail",
       "submit": "S'inscrire"
     },
+    "aboutProduct": {
+      "eyebrow": "À propos du produit",
+      "title": "Qualité avec caractère",
+      "subtitle": "Découvrez nos matériaux, couleurs et conseils d'entretien.",
+      "moreInfo": "En savoir plus",
+      "preview": {
+        "materials": "Matériaux sélectionnés avec soin",
+        "colors": "Couleurs",
+        "safety": "Consignes de sécurité"
+      },
+      "materials": {
+        "title": "Matériaux sélectionnés avec responsabilité",
+        "paragraph1": "Pour tous nos paniers, nous utilisons du fil Bobbiny de haute qualité en coton 100% recyclé. Le fil est fabriqué à partir de résidus textiles et traité de manière respectueuse des ressources. Il est certifié OEKO-TEX® STANDARD 100 (Classe I), testé pour les substances nocives et adapté au contact avec les peaux sensibles.",
+        "paragraph2": "Grâce au processus de recyclage, les couleurs sont créées sans teinture chimique supplémentaire. Cela signifie que chaque fil est légèrement différent. De légères variations de teinte sont donc tout à fait naturelles et font de chaque pièce un exemplaire unique – aucun panier n'est exactement identique à un autre.",
+        "paragraph3": "Les éléments en bois utilisés sont créés en étroite collaboration avec Ta-Das Kordelshop. Le bois naturel est soigneusement fabriqué et travaillé. Le grain et la teinte peuvent légèrement varier et soulignent le caractère naturel et artisanal des paniers.",
+        "paragraph4": "C'est ainsi que naissent des produits durables et stables avec du caractère : fabriqués de manière durable, traités avec qualité et consciemment individuels.",
+        "bobbinyLink": "Site Bobbiny",
+        "tadasLink": "Ta-Das Kordelshop"
+      },
+      "colors": {
+        "title": "Couleurs",
+        "note": ""
+      },
+      "safety": {
+        "title": "Consignes de sécurité",
+        "items": [
+          "Les étiquettes et petits emblèmes sont fixés avec des vis.",
+          "Convient aux jeunes enfants uniquement sous surveillance, car de petites pièces pourraient se détacher et être avalées."
+        ]
+      },
+      "close": "Fermer"
+    },
     "loadError": "Impossible de charger la page d'accueil. Merci de réessayer."
   },
   "productList": {
