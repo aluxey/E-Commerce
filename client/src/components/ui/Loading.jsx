@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '../../utils/cn';
+import { Skeleton } from './Skeleton';
 
 /* Blur-Up Image Component */
 const BlurUpImage = React.forwardRef(({
