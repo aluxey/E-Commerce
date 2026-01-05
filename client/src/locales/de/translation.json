@@ -746,5 +746,12 @@
     "totalColors": "{{count}} Farben verfügbar",
     "filteredColors": "{{filtered}} von {{total}} Farben",
     "noResults": "Keine Farbe gefunden"
+  },
+  "mobileHome": {
+    "ctaBanner": {
+      "title": "Bereit, dein Lieblingsstück zu finden?",
+      "subtitle": "Entdecke handgemachte Unikate aus recycelter Baumwolle.",
+      "cta": "Shop entdecken"
+    }
   }
 }

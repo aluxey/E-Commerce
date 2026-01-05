@@ -6,6 +6,8 @@ import MiniItemCard from "../components/MiniItemCard";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
 import { listColors } from "../services/adminColors";
+import { useHomeVariant } from "../config/features";
+import MobileHome from "../components/mobile/MobileHome";
 import "../styles/home.css";
 
 // Assets
@@ -25,6 +27,7 @@ export default function Home() {
   const [error, setError] = useState(false);
   const [aboutProductOpen, setAboutProductOpen] = useState(false);
   const { t } = useTranslation();
+  const homeVariant = useHomeVariant();
   const valueProps = t("home.valueProps", { returnObjects: true }) || [];
   const heroHighlights = t("home.highlights", { returnObjects: true }) || [];
 
@@ -81,6 +84,21 @@ export default function Home() {
         }))
       : fallbackCategories;
 
+  // Render Mobile Home for mobile variant
+  if (homeVariant === "mobile") {
+    return (
+      <MobileHome
+        latestItems={latestItems}
+        topItems={topItems}
+        displayCategories={displayCategories}
+        colors={colors}
+        loading={loading}
+        error={error}
+      />
+    );
+  }
+
+  // Desktop layout
   return (
     <div className="home-page">
       <section className="hero-section">
