@@ -352,7 +352,7 @@ export default function Home() {
                       <div key={color.id} className="about-product-color-swatch">
                         <div 
                           className="about-product-color-swatch__color" 
-                          style={{ backgroundColor: color.hex || '#ccc' }}
+                          style={{ backgroundColor: color.hex_code || color.hex || '#ccc' }}
                           title={color.name}
                         />
                         <span className="about-product-color-swatch__name">{color.name}</span>

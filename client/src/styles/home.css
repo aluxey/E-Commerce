@@ -545,7 +545,7 @@
 .about-product-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 1200;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -783,13 +783,52 @@
     grid-template-columns: repeat(2, 1fr);
   }
   
+  .about-product-modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+  
+  .about-product-modal {
+    max-height: 85vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    animation: slideUpMobile 0.3s ease;
+  }
+  
+  @keyframes slideUpMobile {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .about-product-modal__close {
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 36px;
+    height: 36px;
+  }
+  
   .about-product-modal__content {
-    padding: 1.5rem;
-    padding-top: 3.5rem;
+    padding: 1.25rem;
+    padding-top: 3rem;
+    max-height: 85vh;
+  }
+  
+  .about-product-modal__section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
   }
   
   .about-product-modal__section-header h3 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+  }
+  
+  .about-product-modal__section p {
+    font-size: 0.95rem;
   }
   
   .about-product-modal__links {
@@ -798,6 +837,31 @@
   
   .about-product-link {
     justify-content: center;
+  }
+  
+  .about-product-colors-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .about-product-color-swatch__color {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .about-product-color-swatch__name {
+    font-size: 0.7rem;
+    max-width: 70px;
+  }
+  
+  .about-product-list li {
+    font-size: 0.9rem;
+    padding: 0.6rem 0;
+  }
+  
+  .about-product-list__icon {
+    width: 28px;
+    height: 28px;
   }
 }
 
