@@ -74,3 +74,4 @@ Card.propTypes = {
 };
 
 export { Card };
+export { cardVariants } from '../../utils/cardVariants';

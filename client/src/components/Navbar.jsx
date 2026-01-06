@@ -20,7 +20,7 @@ const Navbar = () => {
     const links = [
       { to: "/", label: t('nav.home') },
       { to: "/items", label: t('nav.shop') },
-      { href: "mailto:contact@sabbels-handmade.com", label: t('nav.contact') },
+      { href: "mailto:sabbelshandmade@gmail.com", label: t('nav.contact') },
     ];
     if (userData?.role === "admin") {
       links.push({ to: "/admin", label: t('nav.admin') });
@@ -133,7 +133,7 @@ const Navbar = () => {
                   </Link>
                 </div>
               )}
-              <a className="navbar__mobile-contact" href="mailto:contact@sabbels-handmade.com" onClick={closeMenu}>
+              <a className="navbar__mobile-contact" href="mailto:sabbelshandmade@gmail.com" onClick={closeMenu}>
                 {t('nav.emailUs')}
               </a>
               {renderLanguageSwitcher()}

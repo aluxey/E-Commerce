@@ -18,6 +18,44 @@
     "languageDe": "Allemand",
     "languageFr": "Français"
   },
+  "contact": {
+    "title": "Nous contacter",
+    "description": "Une question ou une demande spéciale ? N'hésite pas à m'écrire !",
+    "fields": {
+      "name": "Nom",
+      "email": "E-mail",
+      "subject": "Sujet",
+      "message": "Message",
+      "attachment": "Pièce jointe (optionnel)"
+    },
+    "placeholders": {
+      "name": "Ton nom",
+      "email": "ton@email.fr",
+      "message": "Ton message..."
+    },
+    "subjectPlaceholder": "Choisis un sujet",
+    "subjects": {
+      "customOrder": "Demande sur-mesure",
+      "question": "Question générale",
+      "orderIssue": "Question sur ma commande",
+      "collaboration": "Collaboration",
+      "other": "Autre"
+    },
+    "addFile": "Ajouter un fichier",
+    "removeFile": "Supprimer le fichier",
+    "fileHint": "Max. 10 Mo. Formats acceptés : images, PDF, Word",
+    "send": "Envoyer le message",
+    "sending": "Envoi en cours...",
+    "cancel": "Annuler",
+    "success": {
+      "title": "Message envoyé !",
+      "message": "Merci pour ton message. Je te réponds dès que possible."
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite. Merci de réessayer.",
+      "fileTooLarge": "Le fichier est trop volumineux. Maximum 10 Mo."
+    }
+  },
   "footer": {
     "shop": "Boutique",
     "collections": "Collections",

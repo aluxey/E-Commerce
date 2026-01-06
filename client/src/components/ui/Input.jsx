@@ -107,3 +107,4 @@ Input.propTypes = {
 };
 
 export { Input };
+export { inputVariants } from '../../utils/inputVariants';

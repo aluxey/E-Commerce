@@ -103,3 +103,4 @@ Modal.propTypes = {
 };
 
 export { Modal };
+export { modalVariants } from '../../utils/modalVariants';

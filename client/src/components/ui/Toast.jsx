@@ -95,3 +95,4 @@ Toast.propTypes = {
 };
 
 export { Toast };
+export { toastVariants } from '../../utils/toastVariants';

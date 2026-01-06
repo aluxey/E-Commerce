@@ -48,7 +48,7 @@ export default function Footer() {
           <h4>{t('footer.contact')}</h4>
           <ul>
             <li>
-              <a href="mailto:contact@sabbels-handmade.com">contact@sabbels-handmade.com</a>
+              <a href="mailto:sabbelshandmade@gmail.com">sabbelshandmade@gmail.com</a>
             </li>
             <li>
               <a href="tel:+33123456789">+33 1 23 45 67 89</a>

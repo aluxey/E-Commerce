@@ -70,3 +70,4 @@ Button.propTypes = {
 };
 
 export { Button };
+export { buttonVariants } from '../../utils/buttonVariants';

@@ -5,6 +5,7 @@ import { ChevronRight, Leaf, Palette, ShieldCheck, ExternalLink, Wrench, Baby } 
 import ProductScroller from "./ProductScroller";
 import TrustChips from "./TrustChips";
 import Accordion from "./Accordion";
+import ContactModal from "../ContactModal";
 import "./styles/MobileHome.css";
 
 // Assets
@@ -37,6 +38,7 @@ export default function MobileHome({
 }) {
   const { t } = useTranslation();
   const [openAccordion, setOpenAccordion] = useState(null);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
 
   // Trust/value chips from translations
   const trustChips = [
@@ -82,12 +84,12 @@ export default function MobileHome({
             <Link to="/items" className="mh-btn mh-btn--primary">
               {t("home.hero.ctaShop")}
             </Link>
-            <a
-              href="mailto:contact@sabbels-handmade.com?subject=Individuelle%20Anfrage"
+            <button
               className="mh-btn mh-btn--secondary"
+              onClick={() => setContactModalOpen(true)}
             >
               {t("home.hero.ctaCustom")}
-            </a>
+            </button>
           </div>
         </div>
       </section>
@@ -253,15 +255,21 @@ export default function MobileHome({
             <Link to="/items" className="mh-btn mh-btn--primary">
               {t("home.aboutMe.ctaShop")}
             </Link>
-            <a 
-              href="mailto:contact@sabbels-handmade.com" 
+            <button 
               className="mh-btn mh-btn--secondary"
+              onClick={() => setContactModalOpen(true)}
             >
               {t("home.aboutMe.ctaContact")}
-            </a>
+            </button>
           </div>
         </div>
       </section>
+
+      {/* Contact Modal */}
+      <ContactModal 
+        isOpen={contactModalOpen} 
+        onClose={() => setContactModalOpen(false)} 
+      />
     </div>
   );
 }

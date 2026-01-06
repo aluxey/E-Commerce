@@ -18,6 +18,44 @@
     "languageDe": "Deutsch",
     "languageFr": "Französisch"
   },
+  "contact": {
+    "title": "Kontakt aufnehmen",
+    "description": "Hast du Fragen oder einen Sonderwunsch? Schreib mir gerne!",
+    "fields": {
+      "name": "Name",
+      "email": "E-Mail",
+      "subject": "Betreff",
+      "message": "Nachricht",
+      "attachment": "Anhang (optional)"
+    },
+    "placeholders": {
+      "name": "Dein Name",
+      "email": "deine@email.de",
+      "message": "Deine Nachricht..."
+    },
+    "subjectPlaceholder": "Wähle einen Betreff",
+    "subjects": {
+      "customOrder": "Individuelle Anfrage",
+      "question": "Allgemeine Frage",
+      "orderIssue": "Frage zu meiner Bestellung",
+      "collaboration": "Zusammenarbeit",
+      "other": "Sonstiges"
+    },
+    "addFile": "Datei hinzufügen",
+    "removeFile": "Datei entfernen",
+    "fileHint": "Max. 10 MB. Erlaubt: Bilder, PDF, Word",
+    "send": "Nachricht senden",
+    "sending": "Wird gesendet...",
+    "cancel": "Abbrechen",
+    "success": {
+      "title": "Nachricht gesendet!",
+      "message": "Vielen Dank für deine Nachricht. Ich melde mich so schnell wie möglich bei dir."
+    },
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+      "fileTooLarge": "Die Datei ist zu groß. Maximal 10 MB erlaubt."
+    }
+  },
   "footer": {
     "shop": "Shop",
     "collections": "Kollektionen",

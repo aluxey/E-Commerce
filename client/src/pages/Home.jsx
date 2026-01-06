@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Package, Sparkles, Leaf, Palette, ShieldCheck, X, ExternalLink, Wrench, Baby } from "lucide-react";
 import MiniItemCard from "../components/MiniItemCard";
 import HeroCarousel from "../components/HeroCarousel";
+import ContactModal from "../components/ContactModal";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
 import { listColors } from "../services/adminColors";
@@ -28,6 +29,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [aboutProductOpen, setAboutProductOpen] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
   const { t } = useTranslation();
   const homeVariant = useHomeVariant();
   const valueProps = t("home.valueProps", { returnObjects: true }) || [];
@@ -114,13 +116,13 @@ export default function Home() {
               <Link to="/items" className="btn btn-primary" aria-label={t("home.hero.ctaShop")}>
                 {t("home.hero.ctaShop")}
               </Link>
-              <a
-                href="mailto:contact@sabbels-handmade.com?subject=Individuelle%20Anfrage%20-%20Sabbels%20Handmade"
+              <button
                 className="btn btn-secondary"
+                onClick={() => setContactModalOpen(true)}
                 aria-label={t("home.hero.ctaCustom")}
               >
                 {t("home.hero.ctaCustom")}
-              </a>
+              </button>
             </div>
             <div className="hero-highlights">
               {heroHighlights.map(highlight => (
@@ -392,13 +394,22 @@ export default function Home() {
               <Link to="/items" className="btn btn-primary">
                 {t("home.aboutMe.ctaShop")}
               </Link>
-              <a href="mailto:contact@sabbels-handmade.com" className="btn btn-ghost">
+              <button 
+                className="btn btn-ghost"
+                onClick={() => setContactModalOpen(true)}
+              >
                 {t("home.aboutMe.ctaContact")}
-              </a>
+              </button>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Contact Modal */}
+      <ContactModal 
+        isOpen={contactModalOpen} 
+        onClose={() => setContactModalOpen(false)} 
+      />
     </div>
   );
 }
