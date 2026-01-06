@@ -1,5 +1,7 @@
 /* ======================
    HERO CAROUSEL STYLES
+   Desktop-only carousel
+   Mobile is handled in MobileHome.jsx
    ====================== */
 
 /* Desktop Carousel */
@@ -104,82 +106,4 @@
 .hero-carousel__dot--active {
   background: var(--color-primary-dark);
   transform: scale(1.15);
-}
-
-/* Mobile Gallery - Hidden on desktop */
-.hero-gallery-mobile {
-  display: none;
-}
-
-/* Mobile styles */
-@media (max-width: 860px) {
-  /* Hide desktop carousel on mobile */
-  .hero-carousel {
-    display: none;
-  }
-
-  /* Show mobile gallery */
-  .hero-gallery-mobile {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 100%;
-  }
-
-  .hero-gallery-mobile__main {
-    width: 100%;
-    height: 280px;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--color-border);
-  }
-
-  .hero-gallery-mobile__main img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .hero-gallery-mobile__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.5rem;
-  }
-
-  .hero-gallery-mobile__item {
-    aspect-ratio: 1;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--color-border);
-  }
-
-  .hero-gallery-mobile__item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .hero-gallery-mobile__item:hover img {
-    transform: scale(1.05);
-  }
-}
-
-@media (max-width: 600px) {
-  .hero-gallery-mobile__main {
-    height: 220px;
-    border-radius: 16px;
-  }
-
-  .hero-gallery-mobile__grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-  }
-
-  .hero-gallery-mobile__item {
-    border-radius: 10px;
-    aspect-ratio: 4/3;
-  }
 }

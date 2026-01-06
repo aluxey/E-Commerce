@@ -17,8 +17,12 @@ const CAROUSEL_IMAGES = [
   { src: image4, alt: "Kunsthandwerk" },
 ];
 
-const AUTO_SLIDE_INTERVAL = 3000; // 5 seconds
+const AUTO_SLIDE_INTERVAL = 5000; // 5 seconds
 
+/**
+ * HeroCarousel - Desktop only smooth carousel
+ * Mobile version is handled separately in MobileHome.jsx
+ */
 export default function HeroCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -48,67 +52,50 @@ export default function HeroCarousel() {
   const handleMouseLeave = () => setIsAutoPlaying(true);
 
   return (
-    <>
-      {/* Desktop Carousel */}
-      <div
-        className="hero-carousel"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+    <div
+      className="hero-carousel"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="hero-carousel__track">
+        {CAROUSEL_IMAGES.map((image, index) => (
+          <div
+            key={index}
+            className={`hero-carousel__slide ${index === currentIndex ? "hero-carousel__slide--active" : ""}`}
+            style={{ transform: `translateX(${(index - currentIndex) * 100}%)` }}
+          >
+            <img src={image.src} alt={image.alt} />
+          </div>
+        ))}
+      </div>
+
+      {/* Navigation Arrows */}
+      <button
+        className="hero-carousel__arrow hero-carousel__arrow--prev"
+        onClick={goToPrev}
+        aria-label="Image précédente"
       >
-        <div className="hero-carousel__track">
-          {CAROUSEL_IMAGES.map((image, index) => (
-            <div
-              key={index}
-              className={`hero-carousel__slide ${index === currentIndex ? "hero-carousel__slide--active" : ""}`}
-              style={{ transform: `translateX(${(index - currentIndex) * 100}%)` }}
-            >
-              <img src={image.src} alt={image.alt} />
-            </div>
-          ))}
-        </div>
+        <ChevronLeft size={24} />
+      </button>
+      <button
+        className="hero-carousel__arrow hero-carousel__arrow--next"
+        onClick={goToNext}
+        aria-label="Image suivante"
+      >
+        <ChevronRight size={24} />
+      </button>
 
-        {/* Navigation Arrows */}
-        <button
-          className="hero-carousel__arrow hero-carousel__arrow--prev"
-          onClick={goToPrev}
-          aria-label="Image précédente"
-        >
-          <ChevronLeft size={24} />
-        </button>
-        <button
-          className="hero-carousel__arrow hero-carousel__arrow--next"
-          onClick={goToNext}
-          aria-label="Image suivante"
-        >
-          <ChevronRight size={24} />
-        </button>
-
-        {/* Dots Indicator */}
-        <div className="hero-carousel__dots">
-          {CAROUSEL_IMAGES.map((_, index) => (
-            <button
-              key={index}
-              className={`hero-carousel__dot ${index === currentIndex ? "hero-carousel__dot--active" : ""}`}
-              onClick={() => goToSlide(index)}
-              aria-label={`Aller à l'image ${index + 1}`}
-            />
-          ))}
-        </div>
+      {/* Dots Indicator */}
+      <div className="hero-carousel__dots">
+        {CAROUSEL_IMAGES.map((_, index) => (
+          <button
+            key={index}
+            className={`hero-carousel__dot ${index === currentIndex ? "hero-carousel__dot--active" : ""}`}
+            onClick={() => goToSlide(index)}
+            aria-label={`Aller à l'image ${index + 1}`}
+          />
+        ))}
       </div>
-
-      {/* Mobile Gallery - shows images in a nice grid/stack */}
-      <div className="hero-gallery-mobile">
-        <div className="hero-gallery-mobile__main">
-          <img src={CAROUSEL_IMAGES[0].src} alt={CAROUSEL_IMAGES[0].alt} />
-        </div>
-        <div className="hero-gallery-mobile__grid">
-          {CAROUSEL_IMAGES.slice(1, 5).map((image, index) => (
-            <div key={index} className="hero-gallery-mobile__item">
-              <img src={image.src} alt={image.alt} />
-            </div>
-          ))}
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

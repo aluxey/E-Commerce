@@ -8,11 +8,23 @@ import Accordion from "./Accordion";
 import "./styles/MobileHome.css";
 
 // Assets - reuse from parent
-import purpleBlackBox from "../../assets/mainPic.jpg";
+import mainPic from "../../assets/carroussel/mainPic.jpg";
+import image1 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.49.jpeg";
+import image2 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50.jpeg";
+import image3 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50 (1).jpeg";
+import image4 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50 (2).jpeg";
 import deskOrganizer from "../../assets/products/desk_organizer.jpg";
 import greyBasket from "../../assets/products/grey_basket.jpg";
 
-const CATEGORY_IMAGES = [deskOrganizer, greyBasket, purpleBlackBox];
+const HERO_GALLERY_IMAGES = [
+  { src: mainPic, alt: "Handgemachte Produkte" },
+  { src: image1, alt: "Handgemachte Körbe" },
+  { src: image2, alt: "Strickarbeiten" },
+  { src: image3, alt: "Handgefertigte Accessoires" },
+  { src: image4, alt: "Kunsthandwerk" },
+];
+
+const CATEGORY_IMAGES = [deskOrganizer, greyBasket, mainPic];
 
 export default function MobileHome({ 
   latestItems, 
@@ -39,15 +51,28 @@ export default function MobileHome({
 
   return (
     <div className="mobile-home">
-      {/* ============ HERO SECTION ============ */}
+      {/* ============ HERO SECTION WITH GALLERY ============ */}
       <section className="mh-hero">
-        <div className="mh-hero__image">
-          <img 
-            src={purpleBlackBox} 
-            alt={t("home.hero.title")}
-            loading="eager"
-            fetchpriority="high"
-          />
+        <div className="mh-hero__gallery">
+          <div className="mh-hero__main-image">
+            <img 
+              src={HERO_GALLERY_IMAGES[0].src} 
+              alt={HERO_GALLERY_IMAGES[0].alt}
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
+          <div className="mh-hero__thumbnails">
+            {HERO_GALLERY_IMAGES.slice(1, 5).map((image, index) => (
+              <div key={index} className="mh-hero__thumbnail">
+                <img 
+                  src={image.src} 
+                  alt={image.alt}
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
         </div>
         <div className="mh-hero__content">
           <h1 className="mh-hero__title">{t("home.hero.title")}</h1>
