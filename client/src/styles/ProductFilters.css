@@ -89,7 +89,8 @@
   padding: 0.6rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.9rem;
+  /* 16px prevents iOS zoom on focus */
+  font-size: 16px;
 }
 
 .price-group input:focus {
@@ -105,14 +106,17 @@
 }
 
 .color-swatch {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 2px solid transparent;
   padding: 2px;
   background: transparent;
   cursor: pointer;
   transition: transform 0.2s, border-color 0.2s;
+  /* Ensure minimum touch target for accessibility */
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .color-swatch:hover {

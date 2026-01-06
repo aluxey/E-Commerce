@@ -262,6 +262,12 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   background-color: var(--color-background);
@@ -270,6 +276,9 @@ body {
   line-height: 1.6;
   letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
 }
 
 /* Enhanced Typography System */
@@ -570,10 +579,26 @@ img {
 /* Enhanced Container & Layout System */
 .container {
   width: 100%;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
   padding-left: var(--spacing-4);
   padding-right: var(--spacing-4);
+}
+
+/* Mobile container - prevent overflow */
+@media (max-width: 639px) {
+  .container {
+    padding-left: var(--spacing-3);
+    padding-right: var(--spacing-3);
+  }
+}
+
+@media (max-width: 359px) {
+  .container {
+    padding-left: var(--spacing-2);
+    padding-right: var(--spacing-2);
+  }
 }
 
 .container-xs { max-width: var(--container-xs); }
