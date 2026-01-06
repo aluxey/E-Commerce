@@ -87,10 +87,28 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
 // JSON parser for other routes
 app.use(express.json())
 
-// CORS
+// CORS - allow Netlify and localhost
+const allowedOrigins = [
+  'https://sabbelshandmade.netlify.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  ...CLIENT_ORIGIN
+]
+
 app.use(
   cors({
-    origin: CLIENT_ORIGIN.length ? CLIENT_ORIGIN : true,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true)
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true)
+      }
+      // In development, allow all
+      if (process.env.NODE_ENV !== 'production') {
+        return callback(null, true)
+      }
+      callback(new Error('Not allowed by CORS'))
+    },
     credentials: true,
   })
 )
