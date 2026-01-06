@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 import multer from 'multer'
 
 const PORT = process.env.PORT || 3000
@@ -12,9 +12,8 @@ const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Email configuration
-const EMAIL_USER = process.env.EMAIL_USER || 'sabbelshandmade@gmail.com'
-const EMAIL_PASS = process.env.EMAIL_PASS // Gmail App Password
+// Email configuration - using Resend
+const RESEND_API_KEY = process.env.RESEND_API_KEY
 const EMAIL_TO = 'sabbelshandmade@gmail.com'
 
 if (!STRIPE_SECRET_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
@@ -24,14 +23,8 @@ if (!STRIPE_SECRET_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 const stripe = new Stripe(STRIPE_SECRET_KEY || '', { apiVersion: '2023-10-16' })
 const supabase = createClient(SUPABASE_URL || '', SUPABASE_SERVICE_ROLE_KEY || '')
 
-// Configure nodemailer transporter
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS,
-  },
-})
+// Configure Resend for emails
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
 
 // Configure multer for file uploads (max 10MB)
 const upload = multer({
@@ -386,17 +379,17 @@ async function sendOrderRecapEmail(orderId) {
       </html>
     `
 
-    // Send email
-    if (EMAIL_PASS) {
-      await transporter.sendMail({
-        from: `"Sabbels Handmade" <${EMAIL_USER}>`,
+    // Send email using Resend
+    if (resend) {
+      await resend.emails.send({
+        from: 'Sabbels Handmade <onboarding@resend.dev>',
         to: EMAIL_TO,
         subject: `🧶 Nouvelle commande #${orderId} - ${order.total?.toFixed(2) || '0.00'} €`,
         html: emailHtml,
       })
       console.log(`Order recap email sent for order #${orderId}`)
     } else {
-      console.log('EMAIL_PASS not configured, skipping order email')
+      console.log('RESEND_API_KEY not configured, skipping order email')
     }
   } catch (err) {
     console.error('Failed to send order recap email:', err)
@@ -479,28 +472,27 @@ app.post('/api/contact', upload.single('attachment'), async (req, res) => {
     `
 
     const mailOptions = {
-      from: `"Sabbels Handmade Contact" <${EMAIL_USER}>`,
+      from: 'Sabbels Handmade Contact <onboarding@resend.dev>',
       to: EMAIL_TO,
       replyTo: email,
       subject: `📬 ${subject} - de ${name}`,
       html: emailHtml,
     }
 
-    // Add attachment if present
+    // Add attachment if present (Resend supports attachments)
     if (attachment) {
       mailOptions.attachments = [{
         filename: attachment.originalname,
         content: attachment.buffer,
-        contentType: attachment.mimetype,
       }]
     }
 
-    if (EMAIL_PASS) {
-      await transporter.sendMail(mailOptions)
+    if (resend) {
+      await resend.emails.send(mailOptions)
       console.log(`Contact email sent from ${email}`)
       return res.status(200).json({ success: true, message: 'Message envoyé avec succès' })
     } else {
-      console.log('EMAIL_PASS not configured, contact form submission logged only')
+      console.log('RESEND_API_KEY not configured, contact form submission logged only')
       console.log({ name, email, subject, message, hasAttachment: !!attachment })
       return res.status(200).json({ success: true, message: 'Message reçu (mode test)' })
     }
