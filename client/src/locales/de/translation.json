@@ -30,9 +30,7 @@
     "faq": "FAQ",
     "shipping": "Versand & Rücksendungen",
     "contact": "Kontakt",
-    "newsletter": "Newsletter",
-    "emailPlaceholder": "Deine E-Mail",
-    "submit": "OK",
+    "followUs": "Folge uns",
     "socialLabel": "Social Media",
     "copyright": "Alle Rechte vorbehalten.",
     "terms": "AGB",
@@ -57,9 +55,9 @@
         "text": "Jedes Stück ein Unikat"
       },
       {
-        "icon": "⏱️",
-        "title": "Fix versandbereit",
-        "text": "Innerhalb von 3–5 Werktagen"
+        "icon": "📸",
+        "title": "Fragen oder Sonderwünsche?",
+        "text": "Schreib mir auf Instagram @sabbels_handmade"
       },
       {
         "icon": "📦",
@@ -142,13 +140,6 @@
       "viewAll": "Alle Bestseller",
       "empty": "Bald findest du hier unsere Bestseller."
     },
-    "newsletter": {
-      "eyebrow": "Newsletter",
-      "title": "Bleib auf dem Laufenden",
-      "text": "Einmal im Monat erhältst du News zu neuen Farben, limitierten Drops und kleinen Einblicken in das Atelier.",
-      "placeholder": "Deine E-Mail Adresse",
-      "submit": "Anmelden"
-    },
     "aboutProduct": {
       "eyebrow": "Über das Produkt",
       "title": "Qualität mit Charakter",
@@ -181,7 +172,16 @@
       },
       "close": "Schließen"
     },
-    "loadError": "Die Startseite konnte nicht geladen werden. Bitte versuche es erneut."
+    "loadError": "Die Startseite konnte nicht geladen werden. Bitte versuche es erneut.",
+    "aboutMe": {
+      "eyebrow": "Sabbels Handmade",
+      "title": "Über mich",
+      "paragraph1": "Ich bin Sabrina und häkeln ist meine Leidenschaft. Mit jeder Masche entsteht etwas, das nicht nur praktisch ist, sondern Freude schenken soll. Zu sehen, dass meine handgemachten Produkte Menschen glücklich machen, erfüllt mich jedes Mal aufs Neue.",
+      "paragraph2": "Mein Alltag ist bunt und lebendig: Ich bin Mama, Oma, Teil einer chaotischen Familie und lebe mit vielen Katzen und einem Hund zusammen. Dieses kleine, liebevolle Chaos ist mein Normalzustand – und genau darin sitze ich, häkle und lasse neue Ideen entstehen.",
+      "highlight": "Jedes Stück wird mit viel Herz, Geduld und Freude gefertigt – mitten aus dem Leben, genauso wie es ist.",
+      "ctaShop": "Kollektion entdecken",
+      "ctaContact": "Kontakt aufnehmen"
+    }
   },
   "productList": {
     "filtersButton": "Filter",

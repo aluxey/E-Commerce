@@ -55,12 +55,16 @@ export default function Footer() {
             </li>
           </ul>
         </div>
-        <div className="footer-newsletter">
-          <h4>{t('footer.newsletter')}</h4>
-          <form onSubmit={e => e.preventDefault()}>
-            <input type="email" placeholder={t('footer.emailPlaceholder')} required />
-            <button type="submit">{t('footer.submit')}</button>
-          </form>
+        <div className="footer-section footer-instagram">
+          <h4>{t('footer.followUs')}</h4>
+          <a 
+            href="https://instagram.com/sabbels_handmade" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="footer-instagram-link"
+          >
+            @sabbels_handmade
+          </a>
         </div>
       </div>
 

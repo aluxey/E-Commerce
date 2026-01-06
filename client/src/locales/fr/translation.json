@@ -30,9 +30,7 @@
     "faq": "FAQ",
     "shipping": "Livraison & retours",
     "contact": "Contact",
-    "newsletter": "Newsletter",
-    "emailPlaceholder": "Votre e-mail",
-    "submit": "OK",
+    "followUs": "Suivez-nous",
     "socialLabel": "Réseaux sociaux",
     "copyright": "Tous droits réservés.",
     "terms": "CGV",
@@ -57,9 +55,9 @@
         "text": "Chaque pièce est unique"
       },
       {
-        "icon": "⏱️",
-        "title": "Prêt à envoyer",
-        "text": "Sous 3 à 5 jours ouvrés"
+        "icon": "📸",
+        "title": "Questions ou demandes spéciales ?",
+        "text": "Écris-moi sur Instagram @sabbels_handmade"
       },
       {
         "icon": "📦",
@@ -142,13 +140,6 @@
       "viewAll": "Tous les best-sellers",
       "empty": "Les best-sellers arrivent bientôt ici."
     },
-    "newsletter": {
-      "eyebrow": "Newsletter",
-      "title": "Reste informé·e",
-      "text": "Une fois par mois : nouvelles couleurs, drops limités et coulisses de l'atelier.",
-      "placeholder": "Ton adresse e-mail",
-      "submit": "S'inscrire"
-    },
     "aboutProduct": {
       "eyebrow": "À propos du produit",
       "title": "Qualité avec caractère",
@@ -181,7 +172,16 @@
       },
       "close": "Fermer"
     },
-    "loadError": "Impossible de charger la page d'accueil. Merci de réessayer."
+    "loadError": "Impossible de charger la page d'accueil. Merci de réessayer.",
+    "aboutMe": {
+      "eyebrow": "Sabbels Handmade",
+      "title": "À propos de moi",
+      "paragraph1": "Je suis Sabrina et le crochet est ma passion. Avec chaque maille naît quelque chose qui n'est pas seulement pratique, mais qui doit apporter de la joie. Voir que mes produits faits main rendent les gens heureux me comble à chaque fois.",
+      "paragraph2": "Mon quotidien est coloré et vivant : je suis maman, mamie, membre d'une famille chaotique et je vis avec beaucoup de chats et un chien. Ce petit chaos affectueux est mon état normal – et c'est exactement là que je m'assois, je crochète et je laisse naître de nouvelles idées.",
+      "highlight": "Chaque pièce est fabriquée avec beaucoup de cœur, de patience et de joie – au milieu de la vie, telle qu'elle est.",
+      "ctaShop": "Découvrir la collection",
+      "ctaContact": "Nous contacter"
+    }
   },
   "productList": {
     "filtersButton": "Filtres",

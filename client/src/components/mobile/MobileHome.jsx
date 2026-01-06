@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { ChevronRight, Leaf, Palette, ShieldCheck, ExternalLink, Wrench, Baby, ChevronDown } from "lucide-react";
+import { ChevronRight, Leaf, Palette, ShieldCheck, ExternalLink, Wrench, Baby } from "lucide-react";
 import ProductScroller from "./ProductScroller";
 import TrustChips from "./TrustChips";
 import Accordion from "./Accordion";
 import "./styles/MobileHome.css";
 
-// Assets - reuse from parent
+// Assets
 import mainPic from "../../assets/carroussel/mainPic.jpg";
 import image1 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.49.jpeg";
 import image2 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50.jpeg";
 import image3 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50 (1).jpeg";
 import image4 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50 (2).jpeg";
+import aboutMeSabrina from "../../assets/aboutMeSabrina.jpeg";
 import deskOrganizer from "../../assets/products/desk_organizer.jpg";
 import greyBasket from "../../assets/products/grey_basket.jpg";
 
@@ -51,7 +52,7 @@ export default function MobileHome({
 
   return (
     <div className="mobile-home">
-      {/* ============ HERO SECTION WITH GALLERY ============ */}
+      {/* ============ 1. HERO SECTION WITH GALLERY ============ */}
       <section className="mh-hero">
         <div className="mh-hero__gallery">
           <div className="mh-hero__main-image">
@@ -91,25 +92,10 @@ export default function MobileHome({
         </div>
       </section>
 
-      {/* ============ TRUST CHIPS ============ */}
+      {/* ============ 2. TRUST CHIPS (Value Props) ============ */}
       <TrustChips chips={trustChips} />
 
-      {/* ============ BESTSELLERS (Priority position) ============ */}
-      <section className="mh-section">
-        <div className="mh-section__header">
-          <h2 className="mh-section__title">{t("home.bestsellers.title")}</h2>
-          <Link to="/items" className="mh-section__link">
-            {t("home.bestsellers.viewAll")} <ChevronRight size={16} />
-          </Link>
-        </div>
-        <ProductScroller 
-          items={topItems} 
-          loading={loading} 
-          emptyMessage={t("home.bestsellers.empty")}
-        />
-      </section>
-
-      {/* ============ CATEGORIES ============ */}
+      {/* ============ 3. CATEGORIES ============ */}
       <section className="mh-section mh-section--alt">
         <div className="mh-section__header">
           <h2 className="mh-section__title">{t("home.categories.title")}</h2>
@@ -138,7 +124,37 @@ export default function MobileHome({
         </div>
       </section>
 
-      {/* ============ ABOUT PRODUCT (Accordions) ============ */}
+      {/* ============ 4. NEW ARRIVALS (Neu) ============ */}
+      <section className="mh-section">
+        <div className="mh-section__header">
+          <h2 className="mh-section__title">{t("home.new.title")}</h2>
+          <Link to="/items" className="mh-section__link">
+            {t("home.new.viewAll")} <ChevronRight size={16} />
+          </Link>
+        </div>
+        <ProductScroller 
+          items={latestItems} 
+          loading={loading} 
+          emptyMessage={t("home.new.empty")}
+        />
+      </section>
+
+      {/* ============ 5. BESTSELLERS ============ */}
+      <section className="mh-section mh-section--alt">
+        <div className="mh-section__header">
+          <h2 className="mh-section__title">{t("home.bestsellers.title")}</h2>
+          <Link to="/items" className="mh-section__link">
+            {t("home.bestsellers.viewAll")} <ChevronRight size={16} />
+          </Link>
+        </div>
+        <ProductScroller 
+          items={topItems} 
+          loading={loading} 
+          emptyMessage={t("home.bestsellers.empty")}
+        />
+      </section>
+
+      {/* ============ 6. ABOUT PRODUCT (Accordions) ============ */}
       <section className="mh-section">
         <div className="mh-section__header">
           <h2 className="mh-section__title">{t("home.aboutProduct.title")}</h2>
@@ -218,45 +234,33 @@ export default function MobileHome({
         </div>
       </section>
 
-      {/* ============ NEW ARRIVALS ============ */}
-      <section className="mh-section mh-section--alt">
-        <div className="mh-section__header">
-          <h2 className="mh-section__title">{t("home.new.title")}</h2>
-          <Link to="/items" className="mh-section__link">
-            {t("home.new.viewAll")} <ChevronRight size={16} />
-          </Link>
-        </div>
-        <ProductScroller 
-          items={latestItems} 
-          loading={loading} 
-          emptyMessage={t("home.new.empty")}
-        />
-      </section>
-
-      {/* ============ CTA BANNER ============ */}
-      <section className="mh-cta-banner">
-        <h2>{t("mobileHome.ctaBanner.title", "Bereit, dein Lieblingsstück zu finden?")}</h2>
-        <p>{t("mobileHome.ctaBanner.subtitle", "Entdecke handgemachte Unikate aus recycelter Baumwolle.")}</p>
-        <Link to="/items" className="mh-btn mh-btn--primary mh-btn--large">
-          {t("mobileHome.ctaBanner.cta", "Shop entdecken")}
-        </Link>
-      </section>
-
-      {/* ============ NEWSLETTER ============ */}
-      <section className="mh-section mh-newsletter">
-        <h2 className="mh-section__title">{t("home.newsletter.title")}</h2>
-        <p className="mh-newsletter__text">{t("home.newsletter.text")}</p>
-        <form className="mh-newsletter__form" onSubmit={e => e.preventDefault()}>
-          <input
-            type="email"
-            placeholder={t("home.newsletter.placeholder")}
-            className="mh-input"
-            required
+      {/* ============ 7. ABOUT ME ============ */}
+      <section className="mh-section mh-about-me">
+        <div className="mh-about-me__image">
+          <img 
+            src={aboutMeSabrina} 
+            alt="Sabrina - Sabbels Handmade"
+            loading="lazy"
           />
-          <button type="submit" className="mh-btn mh-btn--primary">
-            {t("home.newsletter.submit")}
-          </button>
-        </form>
+        </div>
+        <div className="mh-about-me__content">
+          <span className="mh-eyebrow">{t("home.aboutMe.eyebrow")}</span>
+          <h2 className="mh-section__title">{t("home.aboutMe.title")}</h2>
+          <p>{t("home.aboutMe.paragraph1")}</p>
+          <p>{t("home.aboutMe.paragraph2")}</p>
+          <p className="mh-about-me__highlight">{t("home.aboutMe.highlight")}</p>
+          <div className="mh-about-me__actions">
+            <Link to="/items" className="mh-btn mh-btn--primary">
+              {t("home.aboutMe.ctaShop")}
+            </Link>
+            <a 
+              href="mailto:contact@sabbels-handmade.com" 
+              className="mh-btn mh-btn--secondary"
+            >
+              {t("home.aboutMe.ctaContact")}
+            </a>
+          </div>
+        </div>
       </section>
     </div>
   );

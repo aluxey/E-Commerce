@@ -12,6 +12,7 @@ import MobileHome from "../components/mobile/MobileHome";
 import "../styles/home.css";
 
 // Assets
+import aboutMeSabrina from "../assets/aboutMeSabrina.jpeg";
 import deskOrganizer from "../assets/products/desk_organizer.jpg";
 import greyBasket from "../assets/products/grey_basket.jpg";
 import purpleBlackBox from "../assets/carroussel/mainPic.jpg";
@@ -220,39 +221,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="story-section" id="story">
-        <div className="container story-grid">
-          <div className="story-visual">
-            <img src={deskOrganizer} alt="Garn und Accessoires" />
-            <div className="story-note">
-              <span>{t("home.story.noteTitle")}</span>
-              <p>{t("home.story.noteText")}</p>
-            </div>
-          </div>
-          <div className="story-content">
-            <span className="eyebrow">{t("home.story.eyebrow")}</span>
-            <h2>{t("home.story.title")}</h2>
-            <p>{t("home.story.paragraph1")}</p>
-            <p>{t("home.story.paragraph2")}</p>
-            <div className="story-pills">
-              {(t("home.story.pills", { returnObjects: true }) || []).map(pill => (
-                <span className="story-pill" key={pill}>
-                  {pill}
-                </span>
-              ))}
-            </div>
-            <div className="story-actions">
-              <Link to="/items" className="btn btn-primary">
-                {t("home.story.ctaShop")}
-              </Link>
-              <a href="mailto:contact@sabbels-handmade.com" className="btn btn-ghost">
-                {t("home.story.ctaContact")}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="product-section product-section--alt">
         <div className="container">
           <div className="section-header">
@@ -409,24 +377,26 @@ export default function Home() {
         </div>
       )}
 
-      <section className="newsletter-section" id="newsletter">
-        <div className="container newsletter-content">
-          <div>
-            <span className="eyebrow">{t("home.newsletter.eyebrow")}</span>
-            <h2>{t("home.newsletter.title")}</h2>
-            <p className="color-text-muted">{t("home.newsletter.text")}</p>
+      <section className="about-me-section" id="about-me">
+        <div className="container about-me-grid">
+          <div className="about-me-visual">
+            <img src={aboutMeSabrina} alt="Sabrina - Sabbels Handmade" />
           </div>
-          <form className="newsletter-form" onSubmit={e => e.preventDefault()}>
-            <input
-              type="email"
-              placeholder={t("home.newsletter.placeholder")}
-              className="newsletter-input"
-              required
-            />
-            <button type="submit" className="btn btn-primary">
-              {t("home.newsletter.submit")}
-            </button>
-          </form>
+          <div className="about-me-content">
+            <span className="eyebrow">{t("home.aboutMe.eyebrow")}</span>
+            <h2>{t("home.aboutMe.title")}</h2>
+            <p>{t("home.aboutMe.paragraph1")}</p>
+            <p>{t("home.aboutMe.paragraph2")}</p>
+            <p className="about-me-highlight">{t("home.aboutMe.highlight")}</p>
+            <div className="about-me-actions">
+              <Link to="/items" className="btn btn-primary">
+                {t("home.aboutMe.ctaShop")}
+              </Link>
+              <a href="mailto:contact@sabbels-handmade.com" className="btn btn-ghost">
+                {t("home.aboutMe.ctaContact")}
+              </a>
+            </div>
+          </div>
         </div>
       </section>
     </div>

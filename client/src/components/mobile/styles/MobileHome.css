@@ -684,6 +684,92 @@
 }
 
 /* ==========================================
+   ABOUT ME SECTION
+   ========================================== */
+.mh-about-me {
+  background: linear-gradient(135deg, rgba(183, 92, 59, 0.08), rgba(125, 154, 131, 0.08));
+}
+
+.mh-about-me__image {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto var(--mh-spacing-lg);
+  border-radius: var(--mh-radius-lg);
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--color-border, #e8e4df);
+}
+
+.mh-about-me__image img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/5;
+  object-fit: cover;
+}
+
+.mh-about-me__content {
+  text-align: center;
+}
+
+.mh-eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-primary, #b75c3b);
+  margin-bottom: var(--mh-spacing-xs);
+}
+
+.mh-about-me__content .mh-section__title {
+  color: var(--color-primary-dark, #8b4528);
+  margin-bottom: var(--mh-spacing-md);
+}
+
+.mh-about-me__content p {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-text-muted, #6b7280);
+  margin: 0 0 var(--mh-spacing-md);
+  text-align: left;
+}
+
+.mh-about-me__highlight {
+  padding: var(--mh-spacing-md);
+  background: rgba(255, 255, 255, 0.7);
+  border-left: 3px solid var(--color-primary, #b75c3b);
+  border-radius: 0 var(--mh-radius-sm) var(--mh-radius-sm) 0;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--color-text-main, #2f3a3a) !important;
+  margin-bottom: var(--mh-spacing-lg) !important;
+}
+
+.mh-about-me__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mh-spacing-sm);
+}
+
+.mh-about-me__actions .mh-btn {
+  width: 100%;
+}
+
+/* Larger mobile (430px+) */
+@media (min-width: 430px) {
+  .mh-about-me__actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .mh-about-me__actions .mh-btn {
+    width: auto;
+    flex: 1;
+    max-width: 200px;
+  }
+}
+
+/* ==========================================
    CTA BANNER
    ========================================== */
 .mh-cta-banner {
