@@ -3,15 +3,16 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Package, Sparkles, Leaf, Palette, ShieldCheck, X, ExternalLink, Wrench, Baby } from "lucide-react";
 import MiniItemCard from "../components/MiniItemCard";
+import HeroCarousel from "../components/HeroCarousel";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
 import { listColors } from "../services/adminColors";
 import "../styles/home.css";
 
 // Assets
-import purpleBlackBox from "../assets/mainPic.jpg";
 import deskOrganizer from "../assets/products/desk_organizer.jpg";
 import greyBasket from "../assets/products/grey_basket.jpg";
+import purpleBlackBox from "../assets/carroussel/mainPic.jpg";
 
 // Default images for categories (can be overridden by DB)
 const CATEGORY_IMAGES = [deskOrganizer, greyBasket, purpleBlackBox];
@@ -118,9 +119,7 @@ export default function Home() {
           </div>
 
           <div className="hero-visual animate-fade-in">
-            <div className="hero-photo">
-              <img src={purpleBlackBox} alt="Handgemachte Körbe und Strick" />
-            </div>
+            <HeroCarousel />
             <div className="hero-floating-card">
               <p className="hero-floating-title">{t("home.hero.floatingTitle")}</p>
               <p className="hero-floating-text">{t("home.hero.floatingText")}</p>

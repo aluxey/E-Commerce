@@ -112,6 +112,7 @@
 .hero-visual {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
@@ -142,6 +143,7 @@
   border-radius: 16px;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
+  z-index: 20;
 }
 
 .hero-floating-title {
@@ -166,6 +168,7 @@
   border-radius: var(--radius-pill);
   font-weight: 700;
   box-shadow: 0 16px 30px rgba(183, 92, 59, 0.15);
+  z-index: 20;
 }
 
 /* VALUE PROPS */
