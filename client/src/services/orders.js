@@ -28,6 +28,8 @@ export const fetchUserOrders = async (userId) => {
       )
     `)
     .eq('user_id', userId)
+    // Only show confirmed orders (paid, shipped, delivered) - not pending or failed
+    .in('status', ['paid', 'shipped', 'delivered'])
     .order('created_at', { ascending: false });
 
   return { data: data || [], error };

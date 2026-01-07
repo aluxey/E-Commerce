@@ -45,28 +45,60 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
     return res.status(400).json({ error: `Webhook Error: ${err.message}` })
   }
 
+  console.log(`[Webhook] Received event: ${event.type}`)
+
   try {
     switch (event.type) {
       case 'payment_intent.succeeded': {
         const pi = event.data.object
         const orderId = pi.metadata?.order_id
+        console.log(`[Webhook] Payment succeeded for order: ${orderId}`)
+        
         if (orderId) {
-          await supabase.from('orders').update({ status: 'paid' }).eq('id', orderId)
-          // Send order recap email to shop owner
-          await sendOrderRecapEmail(orderId)
+          // Update order status to paid
+          const { error: updateError } = await supabase
+            .from('orders')
+            .update({ status: 'paid' })
+            .eq('id', orderId)
+          
+          if (updateError) {
+            console.error(`[Webhook] Failed to update order ${orderId}:`, updateError)
+          } else {
+            console.log(`[Webhook] Order ${orderId} marked as paid`)
+            
+            // Send order recap email to shop owner
+            try {
+              await sendOrderRecapEmail(orderId)
+              console.log(`[Webhook] Email sent for order ${orderId}`)
+            } catch (emailErr) {
+              console.error(`[Webhook] Failed to send email for order ${orderId}:`, emailErr)
+            }
+          }
         }
         break
       }
       case 'payment_intent.payment_failed': {
         const pi = event.data.object
         const orderId = pi.metadata?.order_id
+        console.log(`[Webhook] Payment failed for order: ${orderId}`)
+        
         if (orderId) {
           await supabase.from('orders').update({ status: 'failed' }).eq('id', orderId)
         }
         break
       }
+      case 'payment_intent.canceled': {
+        const pi = event.data.object
+        const orderId = pi.metadata?.order_id
+        console.log(`[Webhook] Payment canceled for order: ${orderId}`)
+        
+        if (orderId) {
+          await supabase.from('orders').update({ status: 'canceled' }).eq('id', orderId)
+        }
+        break
+      }
       default:
-        // no-op for now
+        console.log(`[Webhook] Unhandled event type: ${event.type}`)
         break
     }
   } catch (err) {
@@ -499,6 +531,80 @@ app.post('/api/contact', upload.single('attachment'), async (req, res) => {
   } catch (err) {
     console.error('Contact form error:', err)
     return res.status(500).json({ error: 'Erreur lors de l\'envoi du message' })
+  }
+})
+
+// ============ CLEANUP ABANDONED ORDERS ============
+
+/**
+ * Clean up abandoned orders (pending for more than 24 hours)
+ * This removes incomplete checkout attempts
+ */
+async function cleanupAbandonedOrders() {
+  try {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    
+    // First, get the orders to delete so we can also delete their items
+    const { data: abandonedOrders, error: fetchError } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('status', 'pending')
+      .lt('created_at', twentyFourHoursAgo)
+    
+    if (fetchError) {
+      console.error('[Cleanup] Error fetching abandoned orders:', fetchError)
+      return { deleted: 0, error: fetchError }
+    }
+    
+    if (!abandonedOrders || abandonedOrders.length === 0) {
+      console.log('[Cleanup] No abandoned orders to clean up')
+      return { deleted: 0, error: null }
+    }
+    
+    const orderIds = abandonedOrders.map(o => o.id)
+    
+    // Delete order items first (foreign key constraint)
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .delete()
+      .in('order_id', orderIds)
+    
+    if (itemsError) {
+      console.error('[Cleanup] Error deleting order items:', itemsError)
+    }
+    
+    // Delete the orders
+    const { error: ordersError } = await supabase
+      .from('orders')
+      .delete()
+      .in('id', orderIds)
+    
+    if (ordersError) {
+      console.error('[Cleanup] Error deleting orders:', ordersError)
+      return { deleted: 0, error: ordersError }
+    }
+    
+    console.log(`[Cleanup] Successfully deleted ${orderIds.length} abandoned orders`)
+    return { deleted: orderIds.length, error: null }
+  } catch (err) {
+    console.error('[Cleanup] Unexpected error:', err)
+    return { deleted: 0, error: err }
+  }
+}
+
+// Run cleanup on server start
+cleanupAbandonedOrders()
+
+// Run cleanup every 6 hours
+setInterval(cleanupAbandonedOrders, 6 * 60 * 60 * 1000)
+
+// Manual cleanup endpoint (admin only - for testing)
+app.post('/api/admin/cleanup-orders', async (req, res) => {
+  try {
+    const result = await cleanupAbandonedOrders()
+    res.json({ success: true, ...result })
+  } catch (err) {
+    res.status(500).json({ error: 'Cleanup failed' })
   }
 })
 
