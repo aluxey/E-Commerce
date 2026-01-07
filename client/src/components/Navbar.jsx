@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Search, ShoppingCart, User } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.jpg";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../hooks/useCart";
-import "../styles/navbar.css";
 import { signOut } from "../services/auth";
-import { useTranslation } from "react-i18next";
+import "../styles/navbar.css";
 
 const Navbar = () => {
   const { session, userData } = useAuth();
@@ -41,6 +41,18 @@ const Navbar = () => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location]);
+
+  // Lock body scroll when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
 
   const handleLogout = async () => {
     await signOut();

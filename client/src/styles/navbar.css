@@ -288,11 +288,14 @@
     z-index: 1050;
     border-top-left-radius: 24px;
     border-bottom-left-radius: 24px;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Smooth spring-like easing */
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.4s; /* Smooth spring-like easing */
+    visibility: hidden;
   }
 
   .navbar__links.is-open {
     transform: translateX(0);
+    visibility: visible;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0s;
   }
 
   .navbar__link {
