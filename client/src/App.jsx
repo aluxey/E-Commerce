@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
 const Home = lazy(() => import("./pages/Home"));
 const AdminLayout = lazy(() => import("./pages/AdminLayout"));
@@ -33,6 +34,7 @@ function App() {
 
   return (
     <CartProvider>
+      <ScrollToTop />
       <Navbar />
       <Suspense fallback={<div>{t('status.loading')}</div>}>
         <Routes>

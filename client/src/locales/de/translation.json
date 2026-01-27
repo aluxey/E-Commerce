@@ -783,7 +783,9 @@
     "clearSearch": "Suche löschen",
     "totalColors": "{{count}} Farben verfügbar",
     "filteredColors": "{{filtered}} von {{total}} Farben",
-    "noResults": "Keine Farbe gefunden"
+    "noResults": "Keine Farbe gefunden",
+    "swatchLabel": "Farboptionen",
+    "moreColors": "{{count}} weitere Farben anzeigen"
   },
   "mobileHome": {
     "ctaBanner": {

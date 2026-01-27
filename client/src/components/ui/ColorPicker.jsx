@@ -18,6 +18,7 @@ export default function ColorPicker({ colors = [], selectedColor, onChange, labe
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const maxVisibleSwatches = 8;
   const containerRef = useRef(null);
   const searchInputRef = useRef(null);
   const listRef = useRef(null);
@@ -36,6 +37,12 @@ export default function ColorPicker({ colors = [], selectedColor, onChange, labe
       color.label.toLowerCase().includes(query)
     );
   }, [colors, searchQuery]);
+
+  const visibleSwatches = useMemo(
+    () => colors.slice(0, maxVisibleSwatches),
+    [colors, maxVisibleSwatches]
+  );
+  const remainingCount = colors.length - visibleSwatches.length;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -130,6 +137,11 @@ export default function ColorPicker({ colors = [], selectedColor, onChange, labe
     searchInputRef.current?.focus();
   }, []);
 
+  const openDropdown = useCallback(() => {
+    setIsOpen(true);
+    setSearchQuery("");
+  }, []);
+
   // Group colors by first letter for better organization (optional feature)
   const colorGroups = useMemo(() => {
     const groups = {};
@@ -153,6 +165,47 @@ export default function ColorPicker({ colors = [], selectedColor, onChange, labe
     >
       {label && (
         <label className="color-picker-label">{label}:</label>
+      )}
+
+      {colors.length > 0 && (
+        <div
+          className="color-picker-swatches"
+          role="listbox"
+          aria-label={t("colorPicker.swatchLabel")}
+        >
+          {visibleSwatches.map(color => {
+            const isSelected = selectedColor === color.value;
+            return (
+              <button
+                key={color.value}
+                type="button"
+                className={`color-picker-swatch ${isSelected ? "is-selected" : ""}`}
+                onClick={() => handleSelect(color.value)}
+                role="option"
+                aria-selected={isSelected}
+                aria-label={color.label}
+                title={color.label}
+              >
+                <span
+                  className="color-picker-swatch-fill"
+                  style={{ backgroundColor: color.hex }}
+                >
+                  {isSelected && <Check size={14} className="color-picker-swatch-check" />}
+                </span>
+              </button>
+            );
+          })}
+          {remainingCount > 0 && (
+            <button
+              type="button"
+              className="color-picker-swatch color-picker-swatch--more"
+              onClick={openDropdown}
+              aria-label={t("colorPicker.moreColors", { count: remainingCount })}
+            >
+              +{remainingCount}
+            </button>
+          )}
+        </div>
       )}
       
       {/* Trigger button showing selected color */}
