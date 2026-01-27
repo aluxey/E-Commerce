@@ -1,5 +1,15 @@
 # Changelog: Recent Refactors & UX Improvements
 
+## 2026-01-28: Sélecteur couleurs & scroll navigation
+
+- Ajout de swatches cliquables + bouton “+X” avec recherche pour le sélecteur de couleurs.
+- Reset automatique du scroll à chaque changement de page via `ScrollToTop`.
+
+## 2026-01-27: Ajout backlog de finalisation
+
+- Documentation d’un backlog actionnable (contenu, UX mobile, navigation, catalogue, pages légales, home).
+- Ajout des dépendances explicites et points bloquants associés.
+
 ## 2025-12-26: Pattern Type (Style de crochet)
 
 - Ajout du champ `pattern_type` aux produits pour spécifier le style de crochet (Rechtsmuster ou Gänsefüsschen)

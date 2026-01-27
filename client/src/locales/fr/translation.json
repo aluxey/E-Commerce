@@ -783,6 +783,8 @@
     "clearSearch": "Effacer la recherche",
     "totalColors": "{{count}} couleurs disponibles",
     "filteredColors": "{{filtered}} sur {{total}} couleurs",
-    "noResults": "Aucune couleur trouvée"
+    "noResults": "Aucune couleur trouvée",
+    "swatchLabel": "Options de couleur",
+    "moreColors": "Afficher {{count}} couleurs supplémentaires"
   }
 }

@@ -15,7 +15,8 @@
 5. [API (Backend)](#5-api-backend)
 6. [Base de données](#6-base-de-données)
 7. [Flux de données](#7-flux-de-données)
-8. [Guide de contribution](#8-guide-de-contribution)
+8. [Backlog & priorités](#8-backlog--priorités)
+9. [Guide de contribution](#9-guide-de-contribution)
 
 ---
 
@@ -235,6 +236,8 @@ Point d'entrée React qui configure tous les providers :
 | `/profile`  | `Profile`       | Authentifié |
 | `/admin/*`  | `AdminLayout`   | Admin only  |
 
+Le composant `ScrollToTop` force un retour en haut de page à chaque changement de route pour éviter les scrolls résiduels lors des navigations. 
+
 ### 4.3 Contexts (État Global)
 
 #### `AuthContext.jsx`
@@ -390,6 +393,8 @@ updateOrderStatus(id, status); // Modifier statut
 | `PrivateRoute.jsx`   | Route protégée             | `children`, `role?`                              |
 | `CheckoutForm.jsx`   | Formulaire paiement Stripe | `onSuccess?`                                     |
 | `Stripe.jsx`         | Wrapper Stripe Elements    | -                                                |
+| `ColorPicker.jsx`    | Sélecteur couleurs swatches + recherche | `colors`, `selectedColor`, `onChange`   |
+| `ScrollToTop.jsx`    | Remise à zéro du scroll à chaque route | -                                     |
 | `ToastHost.jsx`      | Conteneur notifications    | -                                                |
 | `ErrorBoundary.jsx`  | Capture erreurs React      | `children`, `fallback?`                          |
 
@@ -753,9 +758,65 @@ $$ LANGUAGE sql STABLE SECURITY DEFINER;
 
 ---
 
-## 8. Guide de Contribution
+## 8. Backlog & priorités
 
-### 8.1 Workflow Git
+Liste de tâches actionnables pour finaliser le site, avec dépendances explicites.
+
+### 8.1 Contenu & médias
+
+- Remplacer les images des catégories (images fournies via WhatsApp le 05/01).
+- Ajouter “Pflegehinweise” (care instructions) dans une section dédiée et/ou sur chaque fiche produit selon le modèle retenu.
+- Créer la page “Unsere Produkte bei euch zu Hause” (photos clients) :
+  - Ajouter la page + intégration au menu/footer.
+  - Prévoir une grille responsive avec lightbox (clic pour agrandir).
+
+### 8.2 UX / Mobile (priorité haute)
+
+- Rendre le sélecteur de couleurs cliquable et accessible (chips/swatches).
+  - Gérer l’affichage complet (scroll horizontal, wrap, ou “+X” si trop de couleurs).
+- ✅ Implémenté : swatches cliquables avec bouton “+X” et scroll horizontal sur mobile.
+- Galerie mobile : première image visible + vraie galerie.
+  - Sur mobile, afficher la première image comme visuel principal.
+  - Ajouter une galerie swipe/carrousel pour les autres images.
+
+### 8.3 Bugs & navigation
+
+- Corriger le comportement de scroll au reload/navigation :
+  - Forcer le scroll en haut à chaque navigation (sauf comportement “retour position” explicitement souhaité).
+- ✅ Implémenté : reset du scroll à chaque changement de route via `ScrollToTop`.
+
+### 8.4 Catalogue / Collections
+
+- Bouton “See Kollektion” : afficher tous les produits, triés par catégories.
+  - Garder l’affichage “tous les produits”.
+  - Ajouter un regroupement/ordre par catégorie (titres de sections + listing).
+  - Définir une logique claire d’ordre des catégories.
+
+### 8.5 Pages légales & conformité
+
+- Ajouter les pages :
+  - Privacy Policy
+  - Legal Notice / Impressum
+  - Cancellation Policy / Widerruf
+  - Terms & Conditions / AGB
+- Intégrer les PDFs dès réception :
+  - Liens en footer + éventuellement sur checkout.
+  - Vérifier l’ouverture mobile + accessibilité.
+
+### 8.6 Home (contenu marketing)
+
+- Ajouter un bloc “customer pictures”.
+- Ajouter un bloc “produits disponibles à acheter maintenant” (in-stock/ready-to-ship).
+- Ajouter une info visible : délai de fabrication 1–2 semaines (home + idéalement fiche produit + checkout).
+
+### 8.7 Dépendances & points bloquants
+
+- Les éléments “je t’explique mieux quand tu y es” doivent être notés comme dépendances.
+- Les pages légales impactent footer + checkout : à planifier proprement pour éviter les oublis.
+
+## 9. Guide de Contribution
+
+### 9.1 Workflow Git
 
 ```bash
 # 1. Créer une branche depuis main
@@ -772,7 +833,7 @@ git push origin feature/nom-feature
 # Créer Pull Request sur GitHub/GitLab
 ```
 
-### 8.2 Conventions de Commit
+### 9.2 Conventions de Commit
 
 Format : `type: description`
 
@@ -786,14 +847,14 @@ Format : `type: description`
 | `test`     | Ajout/modification tests              |
 | `chore`    | Maintenance (dépendances, config)     |
 
-### 8.3 Ajouter une Nouvelle Page
+### 9.3 Ajouter une Nouvelle Page
 
 1. Créer le fichier dans `client/src/pages/NomPage.jsx`
 2. Ajouter la route dans `App.jsx`
 3. Créer le CSS dans `client/src/styles/nompage.css`
 4. Ajouter les traductions dans `locales/de/translation.json` et `locales/fr/translation.json`
 
-### 8.4 Ajouter un Nouveau Service
+### 9.4 Ajouter un Nouveau Service
 
 1. Créer le fichier dans `client/src/services/monService.js`
 2. Importer Supabase client
@@ -808,14 +869,14 @@ export const fetchMaRessource = async params => {
 };
 ```
 
-### 8.5 Modifier le Schéma BDD
+### 9.5 Modifier le Schéma BDD
 
 1. Créer un fichier migration `Database/migrations/YYYYMMDD_description.sql`
 2. Tester dans Supabase SQL Editor (environnement dev)
 3. Mettre à jour `Database/BDD_struct.sql`
 4. Mettre à jour `Database/RLS.sql` si nouvelles tables/policies
 
-### 8.6 Checklist Avant PR
+### 9.6 Checklist Avant PR
 
 - [ ] Code testé localement (client + api)
 - [ ] Pas d'erreurs ESLint (`npm run lint`)
@@ -824,7 +885,7 @@ export const fetchMaRessource = async params => {
 - [ ] Pas de `console.log` en production
 - [ ] Types/validation ajoutés si nouveau endpoint
 
-### 8.7 Variables d'Environnement
+### 9.7 Variables d'Environnement
 
 **Ne jamais commiter de fichiers `.env` !**
 
