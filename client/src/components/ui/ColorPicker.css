@@ -61,6 +61,7 @@
 
 .color-picker-swatch.is-selected .color-picker-swatch-fill {
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.35);
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-primary) 35%, transparent);
 }
 
