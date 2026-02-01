@@ -1,6 +1,11 @@
 import { useTranslation } from "react-i18next";
 import '../styles/footer.css';
 
+import impressumPdf from '../assets/CGU/Impressum_Sabrina_Loeber_260121_192428.pdf';
+import agbPdf from '../assets/CGU/AGB_Onlineshop_Sabrina_Loeber_260121_192407.pdf';
+import widerrufPdf from '../assets/CGU/Widerrufsbelehrung_Sabrina_Loeber_260121_192338.pdf';
+import datenschutzPdf from '../assets/CGU/Datenschutzerklaerung_Sabrina_Loeber-1_260121_192311.pdf';
+
 export default function Footer() {
   const { t } = useTranslation();
   const year = new Date().getFullYear();
@@ -88,9 +93,11 @@ export default function Footer() {
 
       <div className="footer-bottom">
         <p>© {year} Sabbels Handmade. {t('footer.copyright')}</p>
-        <p>
-          <a href="/cgv">{t('footer.terms')}</a> • <a href="/politique-confidentialite">{t('footer.privacy')}</a> •{' '}
-          <a href="/mentions-legales">{t('footer.imprint')}</a>
+        <p className="footer-legal-links">
+          <a href={agbPdf} target="_blank" rel="noopener noreferrer">{t('footer.terms')}</a> •{' '}
+          <a href={datenschutzPdf} target="_blank" rel="noopener noreferrer">{t('footer.privacy')}</a> •{' '}
+          <a href={widerrufPdf} target="_blank" rel="noopener noreferrer">{t('footer.withdrawal')}</a> •{' '}
+          <a href={impressumPdf} target="_blank" rel="noopener noreferrer">{t('footer.imprint')}</a>
         </p>
       </div>
     </footer>
