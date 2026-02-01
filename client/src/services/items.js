@@ -3,8 +3,9 @@ import { supabase } from "../supabase/supabaseClient";
 export const fetchLatestItems = async (limit = 4) => {
   const { data, error } = await supabase
     .from('items')
-    .select('*, item_images ( image_url ), item_variants ( id, size, price, stock )')
+    .select('*, item_images ( image_url, position ), item_variants ( id, size, price, stock )')
     .order('created_at', { ascending: false })
+    .order('position', { foreignTable: 'item_images', ascending: true })
     .limit(limit);
   return { data: data || [], error };
 };
@@ -20,7 +21,7 @@ export const fetchItemsWithRelations = async () => {
     .from('items')
     .select(`
       *,
-      item_images ( image_url ),
+      item_images ( image_url, position ),
       item_variants ( id, size, price, stock ),
       categories (
         id,
@@ -28,7 +29,8 @@ export const fetchItemsWithRelations = async () => {
         parent_id,
         parent:parent_id ( id, name )
       )
-    `);
+    `)
+    .order('position', { foreignTable: 'item_images', ascending: true });
   return { data: data || [], error };
 };
 
@@ -53,7 +55,7 @@ export const fetchItemDetail = async id => {
     .from('items')
     .select(`
       *,
-      item_images ( image_url ),
+      item_images ( image_url, position ),
       item_variants ( id, size, price, stock ),
       categories (
         id,
@@ -63,6 +65,7 @@ export const fetchItemDetail = async id => {
       )
     `)
     .eq('id', id)
+    .order('position', { foreignTable: 'item_images', ascending: true })
     .single();
   return { data, error };
 };
@@ -73,10 +76,11 @@ export const fetchRelatedItems = async (categoryId, excludeId, limit = 4) => {
     .from('items')
     .select(`
       *,
-      item_images ( image_url ),
+      item_images ( image_url, position ),
       item_variants ( id, size, price, stock )
     `)
     .eq('category_id', categoryId)
+    .order('position', { foreignTable: 'item_images', ascending: true })
     .limit(limit);
   
   if (excludeId) {
