@@ -220,6 +220,25 @@
       "highlight": "Chaque pièce est fabriquée avec beaucoup de cœur, de patience et de joie – au milieu de la vie, telle qu'elle est.",
       "ctaShop": "Découvrir la collection",
       "ctaContact": "Nous contacter"
+    },
+    "testimonials": {
+      "eyebrow": "Témoignages",
+      "title": "Ce que disent nos clients",
+      "subtitle": "Découvrez les retours de ceux qui ont craqué pour nos créations.",
+      "carouselLabel": "Carrousel de témoignages",
+      "prev": "Témoignage précédent",
+      "next": "Témoignage suivant",
+      "goToSlide": "Aller au témoignage",
+      "of": "sur",
+      "outOf": "sur",
+      "photoBy": "Photo de",
+      "viewProduct": "Voir le produit",
+      "empty": "Aucun témoignage pour le moment.",
+      "types": {
+        "product": "Avis produit",
+        "service": "Avis service",
+        "general": "Avis général"
+      }
     }
   },
   "productList": {
@@ -513,7 +532,8 @@
       "orders": "Commandes",
       "users": "Utilisateurs",
       "open": "Ouvrir le menu",
-      "close": "Fermer le menu"
+      "close": "Fermer le menu",
+      "testimonials": "Témoignages"
     },
     "products": {
       "eyebrow": "Catalogue",
@@ -742,6 +762,72 @@
       "eyebrow": "Clients",
       "title": "Utilisateurs",
       "subtitle": "Gérez les comptes utilisateurs et leurs rôles."
+    },
+    "testimonials": {
+      "eyebrow": "Retours clients",
+      "title": "Témoignages",
+      "subtitle": "Gérez les avis et témoignages de vos clients.",
+      "list": "Liste des témoignages",
+      "count": "témoignage(s)",
+      "add": "Nouveau témoignage",
+      "editTitle": "Modifier le témoignage",
+      "createTitle": "Nouveau témoignage",
+      "featured": "Mis en avant",
+      "forProduct": "Produit",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "setFeatured": "Mettre en avant",
+      "unfeatured": "Retirer de la une",
+      "filterStatus": "Filtrer par statut",
+      "filterType": "Filtrer par type",
+      "allStatuses": "Tous les statuts",
+      "allTypes": "Tous les types",
+      "statuses": {
+        "pending": "En attente",
+        "approved": "Approuvé",
+        "rejected": "Rejeté"
+      },
+      "types": {
+        "product": "Produit",
+        "service": "Service",
+        "general": "Général"
+      },
+      "form": {
+        "author": "Nom de l'auteur",
+        "authorPlaceholder": "Ex: Marie D.",
+        "content": "Témoignage",
+        "contentPlaceholder": "Le témoignage du client...",
+        "rating": "Note",
+        "type": "Type",
+        "product": "Produit (optionnel)",
+        "noProduct": "Aucun produit",
+        "status": "Statut",
+        "featured": "Mettre en avant sur le site",
+        "image": "Image (optionnel)",
+        "uploadHint": "Cliquez ou glissez une image"
+      },
+      "error": {
+        "load": "Impossible de charger les témoignages.",
+        "authorRequired": "Le nom de l'auteur est requis.",
+        "contentRequired": "Le contenu est requis.",
+        "save": "Sauvegarde impossible.",
+        "upload": "Erreur lors du téléchargement de l'image.",
+        "delete": "Suppression impossible.",
+        "update": "Mise à jour impossible."
+      },
+      "success": {
+        "create": "Témoignage créé.",
+        "update": "Témoignage mis à jour.",
+        "delete": "Témoignage supprimé.",
+        "statusUpdated": "Statut mis à jour."
+      },
+      "confirm": {
+        "delete": "Supprimer ce témoignage ?"
+      },
+      "empty": {
+        "title": "Aucun témoignage",
+        "description": "Commencez par ajouter votre premier témoignage."
+      }
     },
     "common": {
       "save": "Enregistrer",

@@ -5,9 +5,11 @@ import { Package, Sparkles, Leaf, Palette, ShieldCheck, X, ExternalLink, Wrench,
 import MiniItemCard from "../components/MiniItemCard";
 import HeroCarousel from "../components/HeroCarousel";
 import ContactModal from "../components/ContactModal";
+import TestimonialsCarousel from "../components/TestimonialsCarousel";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
 import { listColors } from "../services/adminColors";
+import { fetchFeaturedTestimonials } from "../services/testimonials";
 import { useHomeVariant } from "../config/features";
 import MobileHome from "../components/mobile/MobileHome";
 import "../styles/home.css";
@@ -26,7 +28,9 @@ export default function Home() {
   const [topItems, setTopItems] = useState([]);
   const [dbCategories, setDbCategories] = useState([]);
   const [colors, setColors] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
   const [error, setError] = useState(false);
   const [aboutProductOpen, setAboutProductOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
@@ -72,7 +76,21 @@ export default function Home() {
       }
     };
 
+    const fetchTestimonialsData = async () => {
+      try {
+        const { data, error } = await fetchFeaturedTestimonials(10);
+        if (!error) {
+          setTestimonials(data || []);
+        }
+      } catch (err) {
+        console.error("Error fetching testimonials:", err);
+      } finally {
+        setTestimonialsLoading(false);
+      }
+    };
+
     fetchData();
+    fetchTestimonialsData();
   }, []);
 
   // Build categories for display: use DB categories or fallback to translations
@@ -96,6 +114,8 @@ export default function Home() {
         topItems={topItems}
         displayCategories={displayCategories}
         colors={colors}
+        testimonials={testimonials}
+        testimonialsLoading={testimonialsLoading}
         loading={loading}
         error={error}
       />
@@ -404,6 +424,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <TestimonialsCarousel 
+        testimonials={testimonials} 
+        loading={testimonialsLoading} 
+      />
 
       {/* Contact Modal */}
       <ContactModal 

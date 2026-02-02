@@ -6,6 +6,7 @@ import ProductScroller from "./ProductScroller";
 import TrustChips from "./TrustChips";
 import Accordion from "./Accordion";
 import ContactModal from "../ContactModal";
+import TestimonialsCarousel from "../TestimonialsCarousel";
 import "./styles/MobileHome.css";
 
 // Assets
@@ -32,7 +33,9 @@ export default function MobileHome({
   latestItems, 
   topItems, 
   displayCategories, 
-  colors, 
+  colors,
+  testimonials,
+  testimonialsLoading, 
   loading, 
   error 
 }) {
@@ -264,6 +267,12 @@ export default function MobileHome({
           </div>
         </div>
       </section>
+
+      {/* ============ 8. TESTIMONIALS ============ */}
+      <TestimonialsCarousel 
+        testimonials={testimonials || []} 
+        loading={testimonialsLoading} 
+      />
 
       {/* Contact Modal */}
       <ContactModal 

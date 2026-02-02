@@ -220,6 +220,25 @@
       "highlight": "Jedes Stück wird mit viel Herz, Geduld und Freude gefertigt – mitten aus dem Leben, genauso wie es ist.",
       "ctaShop": "Kollektion entdecken",
       "ctaContact": "Kontakt aufnehmen"
+    },
+    "testimonials": {
+      "eyebrow": "Kundenstimmen",
+      "title": "Was unsere Kunden sagen",
+      "subtitle": "Entdecke die Erfahrungen derer, die unsere Kreationen lieben.",
+      "carouselLabel": "Testimonial-Karussell",
+      "prev": "Vorheriges Testimonial",
+      "next": "Nächstes Testimonial",
+      "goToSlide": "Gehe zu Testimonial",
+      "of": "von",
+      "outOf": "von",
+      "photoBy": "Foto von",
+      "viewProduct": "Produkt ansehen",
+      "empty": "Noch keine Kundenstimmen.",
+      "types": {
+        "product": "Produktbewertung",
+        "service": "Servicebewertung",
+        "general": "Allgemeine Bewertung"
+      }
     }
   },
   "productList": {
@@ -513,7 +532,8 @@
       "orders": "Bestellungen",
       "users": "Benutzer",
       "open": "Menü öffnen",
-      "close": "Menü schließen"
+      "close": "Menü schließen",
+      "testimonials": "Kundenstimmen"
     },
     "products": {
       "eyebrow": "Katalog",
@@ -742,6 +762,72 @@
       "eyebrow": "Kunden",
       "title": "Benutzer",
       "subtitle": "Verwalte Benutzerkonten und ihre Rollen."
+    },
+    "testimonials": {
+      "eyebrow": "Kundenfeedback",
+      "title": "Kundenstimmen",
+      "subtitle": "Verwalte Bewertungen und Kundenstimmen.",
+      "list": "Liste der Kundenstimmen",
+      "count": "Kundenstimme(n)",
+      "add": "Neue Kundenstimme",
+      "editTitle": "Kundenstimme bearbeiten",
+      "createTitle": "Neue Kundenstimme",
+      "featured": "Hervorgehoben",
+      "forProduct": "Produkt",
+      "approve": "Genehmigen",
+      "reject": "Ablehnen",
+      "setFeatured": "Hervorheben",
+      "unfeatured": "Nicht mehr hervorheben",
+      "filterStatus": "Nach Status filtern",
+      "filterType": "Nach Typ filtern",
+      "allStatuses": "Alle Status",
+      "allTypes": "Alle Typen",
+      "statuses": {
+        "pending": "Ausstehend",
+        "approved": "Genehmigt",
+        "rejected": "Abgelehnt"
+      },
+      "types": {
+        "product": "Produkt",
+        "service": "Service",
+        "general": "Allgemein"
+      },
+      "form": {
+        "author": "Name des Autors",
+        "authorPlaceholder": "z.B.: Marie D.",
+        "content": "Kundenstimme",
+        "contentPlaceholder": "Die Kundenstimme...",
+        "rating": "Bewertung",
+        "type": "Typ",
+        "product": "Produkt (optional)",
+        "noProduct": "Kein Produkt",
+        "status": "Status",
+        "featured": "Auf der Seite hervorheben",
+        "image": "Bild (optional)",
+        "uploadHint": "Klicke oder ziehe ein Bild hierher"
+      },
+      "error": {
+        "load": "Kundenstimmen konnten nicht geladen werden.",
+        "authorRequired": "Name des Autors ist erforderlich.",
+        "contentRequired": "Inhalt ist erforderlich.",
+        "save": "Speichern fehlgeschlagen.",
+        "upload": "Fehler beim Hochladen des Bildes.",
+        "delete": "Löschen fehlgeschlagen.",
+        "update": "Aktualisierung fehlgeschlagen."
+      },
+      "success": {
+        "create": "Kundenstimme erstellt.",
+        "update": "Kundenstimme aktualisiert.",
+        "delete": "Kundenstimme gelöscht.",
+        "statusUpdated": "Status aktualisiert."
+      },
+      "confirm": {
+        "delete": "Diese Kundenstimme löschen?"
+      },
+      "empty": {
+        "title": "Keine Kundenstimmen",
+        "description": "Füge deine erste Kundenstimme hinzu."
+      }
     },
     "common": {
       "save": "Speichern",

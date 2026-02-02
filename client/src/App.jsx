@@ -17,6 +17,7 @@ const AdminColors = lazy(() => import("./pages/AdminColors"));
 const AdminCategories = lazy(() => import("./pages/AdminCategories"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const AdminTestimonials = lazy(() => import("./pages/AdminTestimonials"));
 const AuthForm = lazy(() => import("./pages/AuthForm"));
 const Login = lazy(() => import("./pages/Login"));
 const ItemList = lazy(() => import("./pages/ProductList"));
@@ -50,6 +51,7 @@ function App() {
             <Route path="categories" element={<AdminCategories />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="testimonials" element={<AdminTestimonials />} />
           </Route>
           <Route path="/items" element={<ItemList />} />
           <Route path="/item/:id" element={<ItemDetail />} />
