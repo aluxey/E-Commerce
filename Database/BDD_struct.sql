@@ -139,6 +139,19 @@ create table public.stripe_events (
   received_at timestamp without time zone default now()
 );
 
+-- Photos clients (mur de photos)
+create table public.customer_photos (
+  id          bigserial primary key,
+  image_url   text not null,
+  position    integer not null default 0,
+  is_visible  boolean not null default true,
+  created_at  timestamp without time zone default now()
+);
+
+create index idx_customer_photos_visible
+  on public.customer_photos(is_visible, position asc)
+  where is_visible = true;
+
 -- Trigger 'updated_at'
 create or replace function public.set_updated_at() returns trigger
 language plpgsql as $$
@@ -166,35 +179,6 @@ create trigger trg_orders_updated_at
 
 create trigger trg_payments_updated_at
   before update on public.payments
-  for each row execute function public.set_updated_at();
-
--- Testimonials table
-create table public.testimonials (
-  id           bigserial primary key,
-  user_id      uuid references public.users(id) on delete set null,
-  item_id      bigint references public.items(id) on delete set null,
-  order_id     uuid references public.orders(id) on delete set null,
-  author_name  text not null,
-  content      text not null,
-  image_url    text,
-  rating       integer check (rating is null or rating between 1 and 5),
-  type         text not null default 'product'
-               check (type in ('product','service','general')),
-  is_featured  boolean not null default false,
-  status       text not null default 'pending'
-               check (status in ('pending','approved','rejected')),
-  created_at   timestamp without time zone default now(),
-  updated_at   timestamp without time zone default now()
-);
-
-create index idx_testimonials_featured 
-  on public.testimonials(is_featured, created_at desc) 
-  where status = 'approved';
-create index idx_testimonials_status on public.testimonials(status);
-create index idx_testimonials_item on public.testimonials(item_id);
-
-create trigger trg_testimonials_updated_at
-  before update on public.testimonials
   for each row execute function public.set_updated_at();
 
 create or replace function public.assert_item_has_color(p_item_id bigint) returns void

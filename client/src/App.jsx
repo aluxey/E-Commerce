@@ -17,7 +17,7 @@ const AdminColors = lazy(() => import("./pages/AdminColors"));
 const AdminCategories = lazy(() => import("./pages/AdminCategories"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
-const AdminTestimonials = lazy(() => import("./pages/AdminTestimonials"));
+const AdminCustomerPhotos = lazy(() => import("./pages/AdminCustomerPhotos"));
 const AuthForm = lazy(() => import("./pages/AuthForm"));
 const Login = lazy(() => import("./pages/Login"));
 const ItemList = lazy(() => import("./pages/ProductList"));
@@ -27,6 +27,7 @@ const StripeCheckout = lazy(() => import("./components/Stripe"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const Profile = lazy(() => import("./pages/Profile"));
 const MyOrders = lazy(() => import("./pages/MyOrders"));
+const CustomerPhotos = lazy(() => import("./pages/CustomerPhotos"));
 
 import './styles/global.css';
 
@@ -51,9 +52,10 @@ function App() {
             <Route path="categories" element={<AdminCategories />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="users" element={<AdminUsers />} />
-            <Route path="testimonials" element={<AdminTestimonials />} />
+            <Route path="photos" element={<AdminCustomerPhotos />} />
           </Route>
           <Route path="/items" element={<ItemList />} />
+          <Route path="/photos" element={<CustomerPhotos />} />
           <Route path="/item/:id" element={<ItemDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<Profile />} />

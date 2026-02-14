@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useState } from 'react';
 import { useTranslation } from "react-i18next";
 import { NavLink, Outlet } from "react-router-dom";
-import { BarChart3, ShoppingBasket, Target, Palette, FolderKanban, Package, Users, X, Menu, MessageSquareQuote } from "lucide-react";
+import { BarChart3, ShoppingBasket, Target, Palette, FolderKanban, Package, Users, Camera, X, Menu } from "lucide-react";
 import "../styles/Admin.css";
 import "../styles/adminForms.css";
 
@@ -16,7 +16,7 @@ const navItems = (t) => [
   { to: "/admin/categories", label: t("admin.nav.categories"), icon: <FolderKanban size={18} /> },
   { to: "/admin/orders", label: t("admin.nav.orders"), icon: <Package size={18} /> },
   { to: "/admin/users", label: t("admin.nav.users"), icon: <Users size={18} /> },
-  { to: "/admin/testimonials", label: t("admin.nav.testimonials"), icon: <MessageSquareQuote size={18} /> },
+  { to: "/admin/photos", label: t("admin.nav.customerPhotos"), icon: <Camera size={18} /> },
 ];
 
 const AdminLayout = () => {

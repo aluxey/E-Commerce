@@ -149,6 +149,38 @@ begin
   end loop;
 end$$;
 
+-- =================== customer_photos ===================
+
+alter table public.customer_photos enable row level security;
+
+create policy "customer_photos: public read visible"
+  on public.customer_photos for select
+  to anon, authenticated
+  using ( is_visible = true );
+
+create policy "customer_photos: admin read all"
+  on public.customer_photos for select
+  to authenticated
+  using ( public.is_admin(auth.uid()) );
+
+create policy "customer_photos: admin write"
+  on public.customer_photos for insert
+  to authenticated
+  with check ( public.is_admin(auth.uid()) );
+
+create policy "customer_photos: admin update"
+  on public.customer_photos for update
+  to authenticated
+  using ( public.is_admin(auth.uid()) )
+  with check ( public.is_admin(auth.uid()) );
+
+create policy "customer_photos: admin delete"
+  on public.customer_photos for delete
+  to authenticated
+  using ( public.is_admin(auth.uid()) );
+
+-- =================== Storage ===================
+
 -- Lecture publique de ton bucket
 create policy "Storage: read product-images"
   on storage.objects for select

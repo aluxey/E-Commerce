@@ -6,7 +6,7 @@ import ProductScroller from "./ProductScroller";
 import TrustChips from "./TrustChips";
 import Accordion from "./Accordion";
 import ContactModal from "../ContactModal";
-import TestimonialsCarousel from "../TestimonialsCarousel";
+import CustomerPhotoWall from "../CustomerPhotoWall";
 import "./styles/MobileHome.css";
 
 // Assets
@@ -34,8 +34,7 @@ export default function MobileHome({
   topItems, 
   displayCategories, 
   colors,
-  testimonials,
-  testimonialsLoading, 
+  previewPhotos,
   loading, 
   error 
 }) {
@@ -268,11 +267,18 @@ export default function MobileHome({
         </div>
       </section>
 
-      {/* ============ 8. TESTIMONIALS ============ */}
-      <TestimonialsCarousel 
-        testimonials={testimonials || []} 
-        loading={testimonialsLoading} 
-      />
+      {/* ============ 8. CUSTOMER PHOTOS ============ */}
+      {previewPhotos && previewPhotos.length > 0 && (
+        <section className="mh-section mh-section--alt">
+          <div className="mh-section__header">
+            <h2 className="mh-section__title">{t("home.customerPhotos.title")}</h2>
+            <Link to="/photos" className="mh-section__link">
+              {t("home.customerPhotos.seeAll")} <ChevronRight size={16} />
+            </Link>
+          </div>
+          <CustomerPhotoWall photos={previewPhotos} preview previewLimit={6} />
+        </section>
+      )}
 
       {/* Contact Modal */}
       <ContactModal 

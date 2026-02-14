@@ -5,13 +5,13 @@ import { Package, Sparkles, Leaf, Palette, ShieldCheck, X, ExternalLink, Wrench,
 import MiniItemCard from "../components/MiniItemCard";
 import HeroCarousel from "../components/HeroCarousel";
 import ContactModal from "../components/ContactModal";
-import TestimonialsCarousel from "../components/TestimonialsCarousel";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
 import { listColors } from "../services/adminColors";
-import { fetchFeaturedTestimonials } from "../services/testimonials";
+import { fetchPreviewPhotos } from "../services/customerPhotos";
 import { useHomeVariant } from "../config/features";
 import MobileHome from "../components/mobile/MobileHome";
+import CustomerPhotoWall from "../components/CustomerPhotoWall";
 import "../styles/home.css";
 
 // Assets
@@ -28,9 +28,8 @@ export default function Home() {
   const [topItems, setTopItems] = useState([]);
   const [dbCategories, setDbCategories] = useState([]);
   const [colors, setColors] = useState([]);
-  const [testimonials, setTestimonials] = useState([]);
+  const [previewPhotos, setPreviewPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
   const [error, setError] = useState(false);
   const [aboutProductOpen, setAboutProductOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
@@ -51,17 +50,19 @@ export default function Home() {
     const fetchData = async () => {
       try {
         setError(false);
-        const [latestResp, topResp, categoriesResp, colorsResp] = await Promise.all([
+        const [latestResp, topResp, categoriesResp, colorsResp, photosResp] = await Promise.all([
           fetchLatestItems(4),
           fetchTopItems(4),
           fetchCategories(),
           listColors(),
+          fetchPreviewPhotos(8),
         ]);
         if (latestResp.error) throw latestResp.error;
         if (topResp.error) throw topResp.error;
         setLatestItems(latestResp.data || []);
         setTopItems(topResp.data || []);
         setColors(colorsResp.data || []);
+        setPreviewPhotos(photosResp.data || []);
 
         // Filter to get only main categories (no parent_id)
         const mainCategories = (categoriesResp.data || [])
@@ -76,21 +77,7 @@ export default function Home() {
       }
     };
 
-    const fetchTestimonialsData = async () => {
-      try {
-        const { data, error } = await fetchFeaturedTestimonials(10);
-        if (!error) {
-          setTestimonials(data || []);
-        }
-      } catch (err) {
-        console.error("Error fetching testimonials:", err);
-      } finally {
-        setTestimonialsLoading(false);
-      }
-    };
-
     fetchData();
-    fetchTestimonialsData();
   }, []);
 
   // Build categories for display: use DB categories or fallback to translations
@@ -114,8 +101,7 @@ export default function Home() {
         topItems={topItems}
         displayCategories={displayCategories}
         colors={colors}
-        testimonials={testimonials}
-        testimonialsLoading={testimonialsLoading}
+        previewPhotos={previewPhotos}
         loading={loading}
         error={error}
       />
@@ -425,11 +411,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <TestimonialsCarousel 
-        testimonials={testimonials} 
-        loading={testimonialsLoading} 
-      />
+      {/* Customer Photos Preview */}
+      {previewPhotos.length > 0 && (
+        <section className="photo-wall-preview">
+          <div className="container">
+            <div className="section-header">
+              <div>
+                <span className="eyebrow">{t("home.customerPhotos.eyebrow")}</span>
+                <h2>{t("home.customerPhotos.title")}</h2>
+                <p className="color-text-muted">{t("home.customerPhotos.subtitle")}</p>
+              </div>
+              <Link to="/photos" className="link-cta">
+                {t("home.customerPhotos.seeAll")}
+              </Link>
+            </div>
+            <CustomerPhotoWall photos={previewPhotos} preview previewLimit={8} />
+          </div>
+        </section>
+      )}
 
       {/* Contact Modal */}
       <ContactModal 

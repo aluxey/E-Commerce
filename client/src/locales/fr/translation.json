@@ -74,7 +74,8 @@
     "terms": "CGV",
     "privacy": "Confidentialité",
     "withdrawal": "Rétractation",
-    "imprint": "Mentions légales"
+    "imprint": "Mentions légales",
+    "gallery": "Galerie"
   },
   "home": {
     "hero": {
@@ -221,25 +222,25 @@
       "ctaShop": "Découvrir la collection",
       "ctaContact": "Nous contacter"
     },
-    "testimonials": {
-      "eyebrow": "Témoignages",
-      "title": "Ce que disent nos clients",
-      "subtitle": "Découvrez les retours de ceux qui ont craqué pour nos créations.",
-      "carouselLabel": "Carrousel de témoignages",
-      "prev": "Témoignage précédent",
-      "next": "Témoignage suivant",
-      "goToSlide": "Aller au témoignage",
-      "of": "sur",
-      "outOf": "sur",
-      "photoBy": "Photo de",
-      "viewProduct": "Voir le produit",
-      "empty": "Aucun témoignage pour le moment.",
-      "types": {
-        "product": "Avis produit",
-        "service": "Avis service",
-        "general": "Avis général"
-      }
+    "customerPhotos": {
+      "eyebrow": "Galerie clients",
+      "title": "Nos produits chez vous",
+      "subtitle": "Découvrez nos créations artisanales dans votre intérieur.",
+      "seeAll": "Voir toutes les photos"
     }
+  },
+  "customerPhotos": {
+    "eyebrow": "Galerie clients",
+    "title": "Nos produits chez vous",
+    "subtitle": "Découvrez comment nos créations artisanales s'intègrent dans votre intérieur.",
+    "empty": "Aucune photo pour le moment.",
+    "openPhoto": "Agrandir la photo",
+    "photoAlt": "Produit client",
+    "lightboxLabel": "Galerie photos",
+    "close": "Fermer",
+    "prev": "Photo précédente",
+    "next": "Photo suivante",
+    "loadError": "Impossible de charger les photos."
   },
   "productList": {
     "filtersButton": "Filtres",
@@ -531,9 +532,9 @@
       "categories": "Catégories",
       "orders": "Commandes",
       "users": "Utilisateurs",
+      "customerPhotos": "Photos",
       "open": "Ouvrir le menu",
-      "close": "Fermer le menu",
-      "testimonials": "Témoignages"
+      "close": "Fermer le menu"
     },
     "products": {
       "eyebrow": "Catalogue",
@@ -763,70 +764,34 @@
       "title": "Utilisateurs",
       "subtitle": "Gérez les comptes utilisateurs et leurs rôles."
     },
-    "testimonials": {
-      "eyebrow": "Retours clients",
-      "title": "Témoignages",
-      "subtitle": "Gérez les avis et témoignages de vos clients.",
-      "list": "Liste des témoignages",
-      "count": "témoignage(s)",
-      "add": "Nouveau témoignage",
-      "editTitle": "Modifier le témoignage",
-      "createTitle": "Nouveau témoignage",
-      "featured": "Mis en avant",
-      "forProduct": "Produit",
-      "approve": "Approuver",
-      "reject": "Rejeter",
-      "setFeatured": "Mettre en avant",
-      "unfeatured": "Retirer de la une",
-      "filterStatus": "Filtrer par statut",
-      "filterType": "Filtrer par type",
-      "allStatuses": "Tous les statuts",
-      "allTypes": "Tous les types",
-      "statuses": {
-        "pending": "En attente",
-        "approved": "Approuvé",
-        "rejected": "Rejeté"
-      },
-      "types": {
-        "product": "Produit",
-        "service": "Service",
-        "general": "Général"
-      },
-      "form": {
-        "author": "Nom de l'auteur",
-        "authorPlaceholder": "Ex: Marie D.",
-        "content": "Témoignage",
-        "contentPlaceholder": "Le témoignage du client...",
-        "rating": "Note",
-        "type": "Type",
-        "product": "Produit (optionnel)",
-        "noProduct": "Aucun produit",
-        "status": "Statut",
-        "featured": "Mettre en avant sur le site",
-        "image": "Image (optionnel)",
-        "uploadHint": "Cliquez ou glissez une image"
+    "customerPhotos": {
+      "eyebrow": "Galerie",
+      "title": "Photos clients",
+      "subtitle": "Gérez les photos de vos clients affichées sur le site.",
+      "upload": "Ajouter des photos",
+      "uploadHint": "Glissez-déposez vos images ici ou cliquez pour sélectionner",
+      "toggleVisible": "Rendre visible",
+      "toggleHidden": "Masquer",
+      "delete": "Supprimer",
+      "confirmDelete": "Supprimer cette photo ?",
+      "reorderHint": "Glissez pour réorganiser l'ordre",
+      "photoAlt": "Photo client #{{position}}",
+      "empty": {
+        "title": "Aucune photo",
+        "description": "Ajoutez votre première photo client."
       },
       "error": {
-        "load": "Impossible de charger les témoignages.",
-        "authorRequired": "Le nom de l'auteur est requis.",
-        "contentRequired": "Le contenu est requis.",
-        "save": "Sauvegarde impossible.",
-        "upload": "Erreur lors du téléchargement de l'image.",
-        "delete": "Suppression impossible.",
-        "update": "Mise à jour impossible."
+        "load": "Impossible de charger les photos.",
+        "upload": "Erreur lors de l'envoi.",
+        "delete": "Erreur lors de la suppression.",
+        "reorder": "Impossible de sauvegarder l'ordre.",
+        "toggle": "Impossible de changer la visibilité."
       },
       "success": {
-        "create": "Témoignage créé.",
-        "update": "Témoignage mis à jour.",
-        "delete": "Témoignage supprimé.",
-        "statusUpdated": "Statut mis à jour."
-      },
-      "confirm": {
-        "delete": "Supprimer ce témoignage ?"
-      },
-      "empty": {
-        "title": "Aucun témoignage",
-        "description": "Commencez par ajouter votre premier témoignage."
+        "upload": "Photo(s) ajoutée(s).",
+        "delete": "Photo supprimée.",
+        "reorder": "Ordre sauvegardé.",
+        "visibility": "Visibilité modifiée."
       }
     },
     "common": {

@@ -1,0 +1,313 @@
+/* =============================================
+   Customer Photo Wall - Grille masonry + lightbox
+   ============================================= */
+
+.photo-wall {
+  padding: var(--spacing-lg) 0;
+}
+
+.photo-wall__grid {
+  column-count: 4;
+  column-gap: var(--spacing-md);
+}
+
+.photo-wall__item {
+  break-inside: avoid;
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--rad-md);
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.photo-wall__item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.photo-wall__item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* Lightbox Overlay */
+.photo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  animation: lightbox-fade-in 0.25s ease;
+}
+
+@keyframes lightbox-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.photo-lightbox__content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.photo-lightbox__content img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: var(--rad-md);
+  display: block;
+}
+
+.photo-lightbox__close {
+  position: absolute;
+  top: -48px;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: opacity 0.2s;
+}
+
+.photo-lightbox__close:hover {
+  opacity: 0.7;
+}
+
+.photo-lightbox__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.photo-lightbox__nav:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.photo-lightbox__nav--prev {
+  left: -64px;
+}
+
+.photo-lightbox__nav--next {
+  right: -64px;
+}
+
+/* Section apercu sur la Home */
+.photo-wall-preview {
+  padding: var(--spacing-xl) 0;
+}
+
+.photo-wall-preview .photo-wall__grid {
+  column-count: 4;
+}
+
+.photo-wall-preview__cta {
+  text-align: center;
+  margin-top: var(--spacing-lg);
+}
+
+/* Page photos complete */
+.photo-wall-page {
+  min-height: 60vh;
+  padding-top: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
+}
+
+.photo-wall-page .section-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Empty state */
+.photo-wall__empty {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+}
+
+/* =============================================
+   Admin - Customer Photo Manager
+   ============================================= */
+
+.photo-manager__upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  border: 2px dashed var(--adm-border);
+  border-radius: var(--rad-md);
+  background: var(--adm-surface-alt);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  color: var(--adm-muted);
+  text-align: center;
+}
+
+.photo-manager__upload-zone:hover,
+.photo-manager__upload-zone.is-dragging {
+  border-color: var(--adm-brand);
+  background: rgba(183, 92, 59, 0.05);
+}
+
+.photo-manager__upload-zone p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.photo-manager__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.photo-manager__card {
+  position: relative;
+  border-radius: var(--rad-md);
+  overflow: hidden;
+  border: 1px solid var(--adm-border);
+  background: var(--adm-surface);
+  transition: box-shadow 0.2s;
+}
+
+.photo-manager__card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.photo-manager__card.is-hidden {
+  opacity: 0.5;
+}
+
+.photo-manager__card-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-manager__card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  gap: 0.25rem;
+}
+
+.photo-manager__card-pos {
+  font-size: 0.75rem;
+  color: var(--adm-muted);
+  font-weight: 600;
+}
+
+.photo-manager__card-btns {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* Drag handle pour le reordonnement */
+.photo-manager__drag-handle {
+  cursor: grab;
+  color: var(--adm-muted);
+  padding: 0.25rem;
+}
+
+.photo-manager__drag-handle:active {
+  cursor: grabbing;
+}
+
+.photo-manager__reorder-hint {
+  font-size: 0.85rem;
+  color: var(--adm-muted);
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+.photo-manager__card.is-dragging {
+  opacity: 0.4;
+}
+
+.photo-manager__card.drag-over {
+  outline: 2px solid var(--adm-brand);
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .photo-wall__grid {
+    column-count: 3;
+  }
+
+  .photo-wall-preview .photo-wall__grid {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 768px) {
+  .photo-wall__grid {
+    column-count: 2;
+  }
+
+  .photo-wall-preview .photo-wall__grid {
+    column-count: 2;
+  }
+
+  .photo-lightbox__nav--prev {
+    left: 8px;
+  }
+
+  .photo-lightbox__nav--next {
+    right: 8px;
+  }
+
+  .photo-lightbox__content img {
+    max-width: 95vw;
+    max-height: 80vh;
+  }
+
+  .photo-manager__grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .photo-wall__grid {
+    column-count: 2;
+    column-gap: var(--spacing-sm);
+  }
+
+  .photo-wall__item {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .photo-wall-preview .photo-wall__grid {
+    column-count: 2;
+  }
+
+  .photo-lightbox {
+    padding: var(--spacing-sm);
+  }
+
+  .photo-lightbox__close {
+    top: -40px;
+  }
+}

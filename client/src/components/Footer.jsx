@@ -25,6 +25,9 @@ export default function Footer() {
             <li>
               <a href="/meilleures-ventes">{t('footer.best')}</a>
             </li>
+            <li>
+              <a href="/photos">{t('footer.gallery')}</a>
+            </li>
           </ul>
         </div>
         <div className="footer-section">
