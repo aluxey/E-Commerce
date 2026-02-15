@@ -77,6 +77,78 @@
     "imprint": "Impressum",
     "gallery": "Galerie"
   },
+  "legal": {
+    "badge": "Rechtliche Informationen",
+    "openPdf": "PDF öffnen",
+    "downloadPdf": "PDF herunterladen",
+    "viewerTitle": "Dokumentvorschau: {{title}}",
+    "mobileHint": "Falls die Vorschau mobil nicht lädt, nutze bitte \"PDF öffnen\".",
+    "fallback": "Dein Browser kann dieses PDF nicht anzeigen. Dokument öffnen:",
+    "backToShop": "Zurück zum Shop",
+    "textSectionTitle": "Dokumenttext (offizielle Version)",
+    "textSectionLabel": "Rechtstext",
+    "documents": {
+      "terms": {
+        "title": "Allgemeine Geschäftsbedingungen (AGB)",
+        "summary": "Vertrags-, Zahlungs- und Lieferbedingungen für alle Bestellungen im Shop.",
+        "content": [
+          "Allgemeine Geschäftsbedingungen (AGB)",
+          "Diese AGB gelten für alle Verträge über den Onlineshop.",
+          "Anbieter: Sabrina Löber, Detmolderstraße 45, 32683 Barntrup, E-Mail: Sabbelsusi@msn.com",
+          "Alle Preise sind Endpreise. Keine Umsatzsteuer gemäß § 19 UStG.",
+          "Zahlung per PayPal oder Überweisung.",
+          "Kein Widerrufsrecht bei personalisierten Produkten.",
+          "Es gilt deutsches Recht. Stand: Januar 2026"
+        ]
+      },
+      "privacy": {
+        "title": "Datenschutzerklärung",
+        "summary": "Wie personenbezogene Daten erhoben, verarbeitet und geschützt werden.",
+        "content": [
+          "Datenschutzerklärung",
+          "Verantwortliche Stelle",
+          "Sabrina Löber, Detmolderstraße 45, 32683 Barntrup",
+          "E-Mail: Sabbelsusi@msn.com",
+          "Beim Besuch der Webseite werden technisch notwendige Zugriffsdaten verarbeitet (z. B. IP-Adresse, Browser).",
+          "Bei Kontaktaufnahme per E-Mail werden Daten ausschließlich zur Bearbeitung der Anfrage verwendet.",
+          "Es werden keine Analyse- oder Tracking-Tools eingesetzt.",
+          "Du hast jederzeit das Recht auf Auskunft, Berichtigung und Löschung deiner Daten.",
+          "Stand: Januar 2026"
+        ]
+      },
+      "cancellation": {
+        "title": "Widerrufsbelehrung",
+        "summary": "Informationen zum Widerrufsrecht, Fristen und Ablauf von Rückgaben.",
+        "content": [
+          "Widerrufsbelehrung",
+          "Du hast das Recht, binnen 14 Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.",
+          "Die Frist beginnt mit Erhalt der Ware.",
+          "Zur Ausübung des Widerrufs genügt eine E-Mail an Sabbelsusi@msn.com.",
+          "Kein Widerrufsrecht bei personalisierten Waren."
+        ]
+      },
+      "imprint": {
+        "title": "Impressum",
+        "summary": "Rechtliche Anbieterkennzeichnung mit Kontaktdaten und Verantwortlichkeiten.",
+        "content": [
+          "Impressum",
+          "Angaben gemäß § 5 TMG",
+          "Sabrina Löber",
+          "Detmolderstraße 45",
+          "32683 Barntrup",
+          "Deutschland",
+          "Telefon: 0163 6063872",
+          "E-Mail: Sabbelsusi@msn.com",
+          "Unternehmensform",
+          "Kleinunternehmerin – Handmade",
+          "Umsatzsteuer",
+          "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.",
+          "Streitbeilegung",
+          "Ich bin nicht verpflichtet und nicht bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+        ]
+      }
+    }
+  },
   "home": {
     "hero": {
       "eyebrow": "Warm. Handgemacht. Persönlich.",
@@ -402,7 +474,9 @@
     "payNow": "Jetzt bezahlen",
     "successMessage": "Zahlung erfolgreich! Weiterleitung...",
     "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
-    "paymentError": "Beim Bezahlen ist ein Fehler aufgetreten."
+    "paymentError": "Beim Bezahlen ist ein Fehler aufgetreten.",
+    "legalPrefix": "Mit dem Bezahlen akzeptierst du folgende Dokumente:",
+    "legalLinksLabel": "Links zu rechtlichen Dokumenten"
   },
   "stripe": {
     "preparing": "Zahlung wird vorbereitet...",

@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { CartProvider } from "./context/CartContext";
 import { useTranslation } from "react-i18next";
+import { LEGAL_DOCUMENTS } from "./config/legalDocuments";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
@@ -28,6 +29,7 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const Profile = lazy(() => import("./pages/Profile"));
 const MyOrders = lazy(() => import("./pages/MyOrders"));
 const CustomerPhotos = lazy(() => import("./pages/CustomerPhotos"));
+const LegalDocument = lazy(() => import("./pages/LegalDocument"));
 
 import './styles/global.css';
 
@@ -59,6 +61,13 @@ function App() {
           <Route path="/item/:id" element={<ItemDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<Profile />} />
+          {LEGAL_DOCUMENTS.map(document => (
+            <Route
+              key={document.id}
+              path={document.path}
+              element={<LegalDocument docId={document.id} />}
+            />
+          ))}
           <Route
             path="/orders"
             element={

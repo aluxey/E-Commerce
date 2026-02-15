@@ -156,6 +156,49 @@
   border: 1px solid color-mix(in oklab, var(--color-error) 40%, var(--color-surface) 60%);
 }
 
+.checkout-legal {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--color-accent) 8%, var(--color-surface) 92%);
+  border: 1px solid color-mix(in oklab, var(--color-accent) 20%, var(--color-border) 80%);
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+}
+
+.checkout-legal p {
+  margin: 0;
+}
+
+.checkout-legal-links {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+}
+
+.checkout-legal-links span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.checkout-legal-links a {
+  color: var(--color-accent-700);
+  font-weight: 500;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+
+.checkout-legal-links a:hover,
+.checkout-legal-links a:focus-visible {
+  color: var(--color-primary-500);
+}
+
+.checkout-legal-separator {
+  color: var(--color-text-secondary);
+}
+
 .stripe-loading,
 .stripe-waiting,
 .stripe-error {

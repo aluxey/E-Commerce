@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { PaymentElement, AddressElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LEGAL_DOCUMENTS } from '../config/legalDocuments';
 
 const CheckoutForm = ({ onSuccess }) => {
   const stripe = useStripe();
@@ -94,6 +95,18 @@ const CheckoutForm = ({ onSuccess }) => {
           {isLoading ? <div className="spinner" id="spinner"></div> : t('checkout.payNow')}
         </span>
       </button>
+
+      <div className="checkout-legal" role="note" aria-label={t('checkout.legalLinksLabel')}>
+        <p>{t('checkout.legalPrefix')}</p>
+        <div className="checkout-legal-links">
+          {LEGAL_DOCUMENTS.map((document, index) => (
+            <span key={document.id}>
+              {index > 0 ? <span className="checkout-legal-separator" aria-hidden="true">•</span> : null}
+              <Link to={document.path}>{t(`footer.${document.footerKey}`)}</Link>
+            </span>
+          ))}
+        </div>
+      </div>
 
       {/* Message d'erreur ou de succès */}
       {message && (

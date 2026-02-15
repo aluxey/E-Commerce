@@ -77,6 +77,78 @@
     "imprint": "Mentions légales",
     "gallery": "Galerie"
   },
+  "legal": {
+    "badge": "Informations légales",
+    "openPdf": "Ouvrir le PDF",
+    "downloadPdf": "Télécharger le PDF",
+    "viewerTitle": "Aperçu du document : {{title}}",
+    "mobileHint": "Sur mobile, utilise \"Ouvrir le PDF\" si l'aperçu ne s'affiche pas.",
+    "fallback": "Votre navigateur ne peut pas afficher ce PDF. Ouvrir le document :",
+    "backToShop": "Retour à la boutique",
+    "textSectionTitle": "Texte du document (version officielle)",
+    "textSectionLabel": "Texte légal",
+    "documents": {
+      "terms": {
+        "title": "Conditions générales de vente (CGV)",
+        "summary": "Les conditions contractuelles, de paiement et de livraison applicables à toutes les commandes.",
+        "content": [
+          "Allgemeine Geschäftsbedingungen (AGB)",
+          "Diese AGB gelten für alle Verträge über den Onlineshop.",
+          "Anbieter: Sabrina Löber, Detmolderstraße 45, 32683 Barntrup, E-Mail: Sabbelsusi@msn.com",
+          "Alle Preise sind Endpreise. Keine Umsatzsteuer gemäß § 19 UStG.",
+          "Zahlung per PayPal oder Überweisung.",
+          "Kein Widerrufsrecht bei personalisierten Produkten.",
+          "Es gilt deutsches Recht. Stand: Januar 2026"
+        ]
+      },
+      "privacy": {
+        "title": "Politique de confidentialité",
+        "summary": "Comment les données personnelles sont collectées, traitées et protégées.",
+        "content": [
+          "Datenschutzerklärung",
+          "Verantwortliche Stelle",
+          "Sabrina Löber, Detmolderstraße 45, 32683 Barntrup",
+          "E-Mail: Sabbelsusi@msn.com",
+          "Beim Besuch der Webseite werden technisch notwendige Zugriffsdaten verarbeitet (z. B. IP-Adresse, Browser).",
+          "Bei Kontaktaufnahme per E-Mail werden Daten ausschließlich zur Bearbeitung der Anfrage verwendet.",
+          "Es werden keine Analyse- oder Tracking-Tools eingesetzt.",
+          "Du hast jederzeit das Recht auf Auskunft, Berichtigung und Löschung deiner Daten.",
+          "Stand: Januar 2026"
+        ]
+      },
+      "cancellation": {
+        "title": "Politique de rétractation",
+        "summary": "Droit de rétractation, délais et procédure de retour conformément au droit allemand.",
+        "content": [
+          "Widerrufsbelehrung",
+          "Du hast das Recht, binnen 14 Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.",
+          "Die Frist beginnt mit Erhalt der Ware.",
+          "Zur Ausübung des Widerrufs genügt eine E-Mail an Sabbelsusi@msn.com.",
+          "Kein Widerrufsrecht bei personalisierten Waren."
+        ]
+      },
+      "imprint": {
+        "title": "Mentions légales",
+        "summary": "Informations légales de l'éditeur du site, coordonnées et responsabilité.",
+        "content": [
+          "Impressum",
+          "Angaben gemäß § 5 TMG",
+          "Sabrina Löber",
+          "Detmolderstraße 45",
+          "32683 Barntrup",
+          "Deutschland",
+          "Telefon: 0163 6063872",
+          "E-Mail: Sabbelsusi@msn.com",
+          "Unternehmensform",
+          "Kleinunternehmerin – Handmade",
+          "Umsatzsteuer",
+          "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.",
+          "Streitbeilegung",
+          "Ich bin nicht verpflichtet und nicht bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+        ]
+      }
+    }
+  },
   "home": {
     "hero": {
       "eyebrow": "Chaleur. Fait main. Personnel.",
@@ -402,7 +474,9 @@
     "payNow": "Payer maintenant",
     "successMessage": "Paiement réussi ! Redirection...",
     "unexpectedError": "Une erreur inattendue est survenue.",
-    "paymentError": "Une erreur est survenue lors du paiement."
+    "paymentError": "Une erreur est survenue lors du paiement.",
+    "legalPrefix": "En validant votre paiement, vous acceptez les documents suivants :",
+    "legalLinksLabel": "Liens vers les documents légaux"
   },
   "stripe": {
     "preparing": "Préparation du paiement...",
