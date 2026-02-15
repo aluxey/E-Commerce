@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Package, Sparkles, Leaf, Palette, ShieldCheck, X, ExternalLink, Wrench, Baby } from "lucide-react";
@@ -16,12 +16,30 @@ import "../styles/home.css";
 
 // Assets
 import aboutMeSabrina from "../assets/aboutMeSabrina.jpeg";
-import deskOrganizer from "../assets/products/desk_organizer.jpg";
-import greyBasket from "../assets/products/grey_basket.jpg";
-import purpleBlackBox from "../assets/carroussel/mainPic.jpg";
+import bestSellerCategoryImage from "../assets/products/WhatsApp Image 2026-01-06 at 20.35.30.jpeg";
+import collectionCategoryImage from "../assets/products/WhatsApp Image 2026-02-15 at 20.53.52.jpeg";
+import basketCategoryImage from "../assets/products/WhatsApp Image 2026-02-15 at 20.51.11.jpeg";
+import woodBottomCategoryImage from "../assets/products/WhatsApp Image 2026-01-06 at 20.39.30.jpeg";
 
 // Default images for categories (can be overridden by DB)
-const CATEGORY_IMAGES = [deskOrganizer, greyBasket, purpleBlackBox];
+const CATEGORY_IMAGES = [
+  bestSellerCategoryImage,
+  collectionCategoryImage,
+  basketCategoryImage,
+  woodBottomCategoryImage,
+];
+const WOOD_CATEGORY_PATTERN = /(holz|wood|bois|holzboden|holzb[öo]den)/i;
+const BESTSELLER_CATEGORY_PATTERN = /(bestseller|best seller)/i;
+const COLLECTION_CATEGORY_PATTERN = /(kollektion|kollektionen|collection|collections)/i;
+const BASKET_CATEGORY_PATTERN = /(k[öo]rbe|basket|paniers)/i;
+
+const getCategoryImage = (name = "", fallbackIndex = 0) => {
+  if (WOOD_CATEGORY_PATTERN.test(name)) return woodBottomCategoryImage;
+  if (BESTSELLER_CATEGORY_PATTERN.test(name)) return bestSellerCategoryImage;
+  if (COLLECTION_CATEGORY_PATTERN.test(name)) return collectionCategoryImage;
+  if (BASKET_CATEGORY_PATTERN.test(name)) return basketCategoryImage;
+  return CATEGORY_IMAGES[fallbackIndex % CATEGORY_IMAGES.length];
+};
 
 export default function Home() {
   const [latestItems, setLatestItems] = useState([]);
@@ -37,12 +55,26 @@ export default function Home() {
   const homeVariant = useHomeVariant();
   const valueProps = t("home.valueProps", { returnObjects: true }) || [];
   const heroHighlights = t("home.highlights", { returnObjects: true }) || [];
+  const allItemsLink = "/items?sort=name";
+  const newestItemsLink = "/items?sort=newest";
+  const topItemsLink = "/items?sort=top-rated";
+  const woodCategoryCard = useMemo(
+    () => ({
+      id: "wood-baskets",
+      name: t("home.categories.wood.name", { defaultValue: "Körbe mit Holzböden" }),
+      blurb: t("home.categories.wood.blurb", { defaultValue: "" }),
+      image: woodBottomCategoryImage,
+      link: t("home.categories.wood.link", { defaultValue: "/items?search=holz" }),
+    }),
+    [t]
+  );
 
   // Fallback categories from translations (used if DB is empty)
   const fallbackCategories = (t("home.categories.cards", { returnObjects: true }) || []).map(
     (cat, idx) => ({
       ...cat,
-      image: CATEGORY_IMAGES[idx] || purpleBlackBox,
+      image: getCategoryImage(cat?.name || "", idx),
+      link: cat.link || `/items?category=${encodeURIComponent(cat.name || "")}`,
     })
   );
 
@@ -64,11 +96,10 @@ export default function Home() {
         setColors(colorsResp.data || []);
         setPreviewPhotos(photosResp.data || []);
 
-        // Filter to get only main categories (no parent_id)
-        const mainCategories = (categoriesResp.data || [])
-          .filter(cat => !cat.parent_id)
-          .slice(0, 3); // Limit to 3 for display
-        setDbCategories(mainCategories);
+        const allCategories = categoriesResp.data || [];
+        const mainCategories = allCategories.filter(cat => !cat.parent_id);
+        const categoriesForHome = (mainCategories.length ? mainCategories : allCategories).slice(0, 4);
+        setDbCategories(categoriesForHome);
       } catch (error) {
         console.error("Error fetching home data:", error);
         setError(true);
@@ -81,17 +112,28 @@ export default function Home() {
   }, []);
 
   // Build categories for display: use DB categories or fallback to translations
-  const displayCategories =
+  const baseDisplayCategories =
     dbCategories.length > 0
       ? dbCategories.map((cat, idx) => ({
           id: cat.id,
           name: cat.name,
           icon: cat.icon || "📦",
           blurb: t(`home.categories.blurbs.${cat.name}`, { defaultValue: "" }),
-          image: CATEGORY_IMAGES[idx % CATEGORY_IMAGES.length],
+          image: getCategoryImage(cat?.name || "", idx),
           link: `/items?categoryId=${cat.id}`,
         }))
       : fallbackCategories;
+
+  const displayCategories = useMemo(() => {
+    const categories = baseDisplayCategories || [];
+    const hasWoodCategory = categories.some(cat => WOOD_CATEGORY_PATTERN.test(cat?.name || ""));
+
+    if (hasWoodCategory) {
+      return categories.slice(0, 4);
+    }
+
+    return [...categories.slice(0, 3), woodCategoryCard];
+  }, [baseDisplayCategories, woodCategoryCard]);
 
   // Render Mobile Home for mobile variant
   if (homeVariant === "mobile") {
@@ -119,7 +161,7 @@ export default function Home() {
             <h1 className="hero-title">{t("home.hero.title")}</h1>
             <p className="hero-subtitle">{t("home.hero.subtitle")}</p>
             <div className="hero-actions">
-              <Link to="/items" className="btn btn-primary" aria-label={t("home.hero.ctaShop")}>
+              <Link to={newestItemsLink} className="btn btn-primary" aria-label={t("home.hero.ctaShop")}>
                 {t("home.hero.ctaShop")}
               </Link>
               <button
@@ -172,6 +214,13 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="lead-time-strip" aria-label={t("home.leadTime.title")}>
+        <div className="container lead-time-content">
+          <span className="lead-time-badge">{t("home.leadTime.badge")}</span>
+          <p className="lead-time-text">{t("home.leadTime.text")}</p>
+        </div>
+      </section>
+
       <section className="categories-section" id="kategorien">
         <div className="container">
           <div className="section-header">
@@ -180,7 +229,7 @@ export default function Home() {
               <h2>{t("home.categories.title")}</h2>
               <p className="color-text-muted">{t("home.categories.subtitle")}</p>
             </div>
-            <Link to="/items" className="link-cta">
+            <Link to={allItemsLink} className="link-cta">
               {t("home.categories.viewAll")}
             </Link>
           </div>
@@ -209,7 +258,7 @@ export default function Home() {
               <h2>{t("home.new.title")}</h2>
               <p className="color-text-muted">{t("home.new.subtitle")}</p>
             </div>
-            <Link to="/items" className="link-cta">
+            <Link to={newestItemsLink} className="link-cta">
               {t("home.new.viewAll")}
             </Link>
           </div>
@@ -237,7 +286,7 @@ export default function Home() {
               <h2>{t("home.bestsellers.title")}</h2>
               <p className="color-text-muted">{t("home.bestsellers.subtitle")}</p>
             </div>
-            <Link to="/items" className="link-cta">
+            <Link to={topItemsLink} className="link-cta">
               {t("home.bestsellers.viewAll")}
             </Link>
           </div>
@@ -397,7 +446,7 @@ export default function Home() {
             <p>{t("home.aboutMe.paragraph2")}</p>
             <p className="about-me-highlight">{t("home.aboutMe.highlight")}</p>
             <div className="about-me-actions">
-              <Link to="/items" className="btn btn-primary">
+              <Link to={newestItemsLink} className="btn btn-primary">
                 {t("home.aboutMe.ctaShop")}
               </Link>
               <button 

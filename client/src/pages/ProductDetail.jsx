@@ -355,6 +355,11 @@ export default function ItemDetail() {
             */}
           </div>
 
+          <div className="pd-lead-time" role="note" aria-label={t("productDetail.leadTime.title")}>
+            <span className="pd-lead-time__badge">{t("productDetail.leadTime.badge")}</span>
+            <p className="pd-lead-time__text">{t("productDetail.leadTime.text")}</p>
+          </div>
+
           <div className="pd-options">
             <div className="option-group">
               <label>

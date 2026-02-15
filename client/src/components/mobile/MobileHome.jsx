@@ -16,8 +16,10 @@ import image2 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.5
 import image3 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50 (1).jpeg";
 import image4 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50 (2).jpeg";
 import aboutMeSabrina from "../../assets/aboutMeSabrina.jpeg";
-import deskOrganizer from "../../assets/products/desk_organizer.jpg";
-import greyBasket from "../../assets/products/grey_basket.jpg";
+import bestSellerCategoryImage from "../../assets/products/WhatsApp Image 2026-01-06 at 20.35.30.jpeg";
+import collectionCategoryImage from "../../assets/products/WhatsApp Image 2026-02-15 at 20.53.52.jpeg";
+import basketCategoryImage from "../../assets/products/WhatsApp Image 2026-02-15 at 20.51.11.jpeg";
+import woodBottomCategoryImage from "../../assets/products/WhatsApp Image 2026-01-06 at 20.39.30.jpeg";
 
 const HERO_GALLERY_IMAGES = [
   { src: mainPic, alt: "Handgemachte Produkte" },
@@ -27,7 +29,12 @@ const HERO_GALLERY_IMAGES = [
   { src: image4, alt: "Kunsthandwerk" },
 ];
 
-const CATEGORY_IMAGES = [deskOrganizer, greyBasket, mainPic];
+const CATEGORY_IMAGES = [
+  bestSellerCategoryImage,
+  collectionCategoryImage,
+  basketCategoryImage,
+  woodBottomCategoryImage,
+];
 
 export default function MobileHome({ 
   latestItems, 
@@ -41,6 +48,9 @@ export default function MobileHome({
   const { t } = useTranslation();
   const [openAccordion, setOpenAccordion] = useState(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
+  const allItemsLink = "/items?sort=name";
+  const newestItemsLink = "/items?sort=newest";
+  const topItemsLink = "/items?sort=top-rated";
 
   // Trust/value chips from translations
   const trustChips = [
@@ -83,7 +93,7 @@ export default function MobileHome({
           <h1 className="mh-hero__title">{t("home.hero.title")}</h1>
           <p className="mh-hero__subtitle">{t("home.hero.subtitle")}</p>
           <div className="mh-hero__actions">
-            <Link to="/items" className="mh-btn mh-btn--primary">
+            <Link to={newestItemsLink} className="mh-btn mh-btn--primary">
               {t("home.hero.ctaShop")}
             </Link>
             <button
@@ -96,6 +106,11 @@ export default function MobileHome({
         </div>
       </section>
 
+      <section className="mh-lead-time">
+        <span className="mh-lead-time__badge">{t("home.leadTime.badge")}</span>
+        <p className="mh-lead-time__text">{t("home.leadTime.text")}</p>
+      </section>
+
       {/* ============ 2. TRUST CHIPS (Value Props) ============ */}
       <TrustChips chips={trustChips} />
 
@@ -105,7 +120,7 @@ export default function MobileHome({
           <h2 className="mh-section__title">{t("home.categories.title")}</h2>
         </div>
         <div className="mh-categories">
-          {displayCategories.slice(0, 3).map((cat, idx) => (
+          {displayCategories.slice(0, 4).map((cat, idx) => (
             <Link 
               to={cat.link} 
               className="mh-category-tile" 
@@ -121,7 +136,7 @@ export default function MobileHome({
               </div>
             </Link>
           ))}
-          <Link to="/items" className="mh-category-tile mh-category-tile--cta">
+          <Link to={allItemsLink} className="mh-category-tile mh-category-tile--cta">
             <span>{t("home.categories.viewAll")}</span>
             <ChevronRight size={24} />
           </Link>
@@ -132,7 +147,7 @@ export default function MobileHome({
       <section className="mh-section">
         <div className="mh-section__header">
           <h2 className="mh-section__title">{t("home.new.title")}</h2>
-          <Link to="/items" className="mh-section__link">
+          <Link to={newestItemsLink} className="mh-section__link">
             {t("home.new.viewAll")} <ChevronRight size={16} />
           </Link>
         </div>
@@ -147,7 +162,7 @@ export default function MobileHome({
       <section className="mh-section mh-section--alt">
         <div className="mh-section__header">
           <h2 className="mh-section__title">{t("home.bestsellers.title")}</h2>
-          <Link to="/items" className="mh-section__link">
+          <Link to={topItemsLink} className="mh-section__link">
             {t("home.bestsellers.viewAll")} <ChevronRight size={16} />
           </Link>
         </div>
@@ -254,7 +269,7 @@ export default function MobileHome({
           <p>{t("home.aboutMe.paragraph2")}</p>
           <p className="mh-about-me__highlight">{t("home.aboutMe.highlight")}</p>
           <div className="mh-about-me__actions">
-            <Link to="/items" className="mh-btn mh-btn--primary">
+            <Link to={newestItemsLink} className="mh-btn mh-btn--primary">
               {t("home.aboutMe.ctaShop")}
             </Link>
             <button 

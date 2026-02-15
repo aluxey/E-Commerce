@@ -1,6 +1,6 @@
 # Todo List - Sabbels Handmade
 
-> Derniere mise a jour : 14 fevrier 2026
+> Derniere mise a jour : 15 fevrier 2026
 
 ---
 
@@ -47,23 +47,23 @@ Les demandes business de Sabrina, a traiter en priorite avant les todos techniqu
 > Bloquant pour la mise en production (obligatoire legalement en Allemagne).
 > Impact : footer + checkout.
 
-- [ ] **Privacy Policy / Datenschutz**
-- [ ] **Legal Notice / Impressum**
-- [ ] **Cancellation Policy / Widerrufsbelehrung**
-- [ ] **Terms & Conditions / AGB**
-- [ ] Integrer les liens dans le footer
-- [ ] Integrer les liens sur la page checkout
-- [ ] Verifier l'ouverture mobile + accessibilite des PDFs
+- [x] ~~**Privacy Policy / Datenschutz**~~ -- page dediee + PDF integre (fait le 15/02/2026)
+- [x] ~~**Legal Notice / Impressum**~~ -- page dediee + PDF integre (fait le 15/02/2026)
+- [x] ~~**Cancellation Policy / Widerrufsbelehrung**~~ -- page dediee + PDF integre (fait le 15/02/2026)
+- [x] ~~**Terms & Conditions / AGB**~~ -- page dediee + PDF integre (fait le 15/02/2026)
+- [x] ~~Integrer les liens dans le footer~~ -- liens vers pages legales (fait le 15/02/2026)
+- [x] ~~Integrer les liens sur la page checkout~~ -- liens legaux visibles avant paiement (fait le 15/02/2026)
+- [x] ~~Verifier l'ouverture mobile + accessibilite des PDFs~~ -- valide et corrige (fait le 15/02/2026)
 
 ### 6. Home -- Contenu Marketing
 
 - [x] ~~**Suppression des temoignages (testimonials)**~~ -- fonctionnalite retiree, remplacee par le mur de photos clients (fait le 14/02/2026)
 - [x] ~~**Bloc "customer pictures"**~~ -- section photos clients sur la page d'accueil (fait le 14/02/2026)
 - [ ] **Bloc "produits disponibles a acheter maintenant"** -- mettre en avant les produits en stock / ready-to-ship
-- [ ] **Info delai de fabrication 1-2 semaines**
-  - [ ] Sur la page d'accueil
-  - [ ] Sur la fiche produit
-  - [ ] Sur la page checkout
+- [x] ~~**Info delai de fabrication 1-2 semaines**~~ -- Home, fiche produit et checkout (fait le 15/02/2026)
+  - [x] ~~Sur la page d'accueil~~ -- fait le 15/02/2026
+  - [x] ~~Sur la fiche produit~~ -- fait le 15/02/2026
+  - [x] ~~Sur la page checkout~~ -- fait le 15/02/2026
 
 ### Dependances & Points Bloquants
 

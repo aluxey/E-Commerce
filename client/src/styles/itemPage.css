@@ -255,6 +255,36 @@
   letter-spacing: -0.02em;
 }
 
+/* Manufacturing lead time */
+.pd-lead-time {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 12px;
+  background: #fff6ec;
+  border: 1px solid rgba(183, 92, 59, 0.24);
+}
+
+.pd-lead-time__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  background: rgba(183, 92, 59, 0.16);
+}
+
+.pd-lead-time__text {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--color-text-primary);
+}
+
 /* Badges (hidden for now) */
 .pd-badges {
   display: flex;

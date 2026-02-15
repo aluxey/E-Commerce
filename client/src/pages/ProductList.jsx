@@ -8,6 +8,15 @@ import { fetchCategories, fetchItemRatings, fetchItemsWithRelations } from '../s
 import '../styles/ProductList.css';
 import { useTranslation } from 'react-i18next';
 
+const VALID_SORTS = new Set(['name', 'price', 'price-desc', 'newest', 'top-rated']);
+
+const normalizeCategoryValue = (value = '') =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+
 export default function ProductList() {
   const location = useLocation();
   const [items, setItems] = useState([]);
@@ -84,15 +93,38 @@ export default function ProductList() {
     loadData();
   }, []);
 
-  // Sync search from URL
+  // Sync filters from URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const q = params.get('search') || '';
     setSearchTerm(q);
 
+    const sortParam = params.get('sort');
+    setSortBy(VALID_SORTS.has(sortParam) ? sortParam : 'name');
+
+    const minPriceParam = params.get('minPrice');
+    const maxPriceParam = params.get('maxPrice');
+    setPriceRange({
+      min: minPriceParam !== null && !Number.isNaN(Number(minPriceParam)) ? minPriceParam : '',
+      max: maxPriceParam !== null && !Number.isNaN(Number(maxPriceParam)) ? maxPriceParam : '',
+    });
+
     const catId = params.get('categoryId');
-    if (catId) setSelectedCategory(catId);
-  }, [location.search]);
+    if (catId && !Number.isNaN(Number(catId))) {
+      setSelectedCategory(String(Number(catId)));
+      return;
+    }
+
+    const categoryParam = params.get('category');
+    if (categoryParam) {
+      const normalizedParam = normalizeCategoryValue(categoryParam);
+      const matchedCategory = categories.find(cat => normalizeCategoryValue(cat.name) === normalizedParam);
+      setSelectedCategory(matchedCategory ? String(matchedCategory.id) : '');
+      return;
+    }
+
+    setSelectedCategory('');
+  }, [location.search, categories]);
 
   // Category Helpers
   const categoryMeta = useMemo(() => {
@@ -179,12 +211,28 @@ export default function ProductList() {
       switch (sortBy) {
         case 'price': return (a.price || 0) - (b.price || 0);
         case 'price-desc': return (b.price || 0) - (a.price || 0);
+        case 'newest': {
+          const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return bDate - aDate;
+        }
+        case 'top-rated': {
+          const aRating = avgRatings[a.id] || 0;
+          const bRating = avgRatings[b.id] || 0;
+          if (bRating !== aRating) return bRating - aRating;
+
+          const aReviews = reviewCounts[a.id] || 0;
+          const bReviews = reviewCounts[b.id] || 0;
+          if (bReviews !== aReviews) return bReviews - aReviews;
+
+          return a.name.localeCompare(b.name);
+        }
         default: return a.name.localeCompare(b.name);
       }
     });
 
     setFilteredItems(result);
-  }, [items, searchTerm, selectedCategory, priceRange, sortBy, categoryMeta, listDescendants]);
+  }, [items, searchTerm, selectedCategory, priceRange, sortBy, categoryMeta, listDescendants, avgRatings, reviewCounts]);
 
   const handleClearFilters = () => {
     setSearchTerm('');
@@ -245,6 +293,8 @@ export default function ProductList() {
                 <option value="name">{t('productList.sortName')}</option>
                 <option value="price">{t('productList.sortPrice')}</option>
                 <option value="price-desc">{t('productList.sortPriceDesc')}</option>
+                <option value="newest">{t('productList.sortNewest')}</option>
+                <option value="top-rated">{t('productList.sortTopRated')}</option>
               </select>
             </div>
           </div>

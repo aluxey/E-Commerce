@@ -172,6 +172,37 @@
 }
 
 /* ==========================================
+   LEAD TIME
+   ========================================== */
+.mh-lead-time {
+  margin: var(--mh-spacing-sm) var(--mh-spacing-md) 0;
+  padding: var(--mh-spacing-sm) var(--mh-spacing-md);
+  border-radius: var(--mh-radius-md);
+  border: 1px solid rgba(183, 92, 59, 0.25);
+  background: #fff6ec;
+}
+
+.mh-lead-time__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-primary-dark, #8b4528);
+  background: rgba(183, 92, 59, 0.16);
+}
+
+.mh-lead-time__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--color-text-main, #2f3a3a);
+}
+
+/* ==========================================
    TRUST CHIPS
    ========================================== */
 .mh-trust-chips {

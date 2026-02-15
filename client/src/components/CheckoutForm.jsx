@@ -85,6 +85,11 @@ const CheckoutForm = ({ onSuccess }) => {
         <PaymentElement id="payment-element" options={paymentElementOptions} />
       </div>
 
+      <div className="checkout-lead-time" role="note" aria-label={t('checkout.leadTime.title')}>
+        <span className="checkout-lead-time__badge">{t('checkout.leadTime.badge')}</span>
+        <p className="checkout-lead-time__text">{t('checkout.leadTime.text')}</p>
+      </div>
+
       <button
         disabled={isLoading || !stripe || !elements}
         id="submit"

@@ -160,6 +160,11 @@
       "floatingText": "Chaque colis part avec un mot personnalisé et un emballage responsable.",
       "badge": "Nouvelles couleurs disponibles"
     },
+    "leadTime": {
+      "badge": "Délai de fabrication",
+      "title": "1 à 2 semaines de fabrication",
+      "text": "Les commandes personnalisées sont généralement fabriquées en 1 à 2 semaines avant expédition."
+    },
     "highlights": [
       {
         "icon": "🤲",
@@ -219,8 +224,18 @@
           "name": "Accessoires",
           "blurb": "Petites pièces coup de cœur pour chaque jour.",
           "link": "/items?category=Accessories"
+        },
+        {
+          "name": "Paniers avec fond en bois",
+          "blurb": "Des paniers faits main avec fond en bois pour une touche naturelle.",
+          "link": "/items?search=bois"
         }
       ],
+      "wood": {
+        "name": "Paniers avec fond en bois",
+        "blurb": "Des paniers faits main avec fond en bois pour une touche naturelle.",
+        "link": "/items?search=bois"
+      },
       "cta": "Découvrir maintenant"
     },
     "new": {
@@ -322,6 +337,8 @@
     "sortName": "Nom (A–Z)",
     "sortPrice": "Prix croissant",
     "sortPriceDesc": "Prix décroissant",
+    "sortNewest": "Plus récents",
+    "sortTopRated": "Mieux notés",
     "noResultsTitle": "Aucun résultat",
     "noResultsText": "Modifie tes filtres",
     "clearAll": "Tout effacer"
@@ -380,6 +397,11 @@
     "quantity": "Quantité",
     "adding": "Ajout...",
     "addToCart": "Ajouter au panier",
+    "leadTime": {
+      "badge": "Délai de fabrication",
+      "title": "1 à 2 semaines de fabrication",
+      "text": "Les commandes personnalisées sont généralement fabriquées en 1 à 2 semaines avant expédition."
+    },
     "tabs": {
       "details": "Détails",
       "reviews": "Avis",
@@ -472,6 +494,11 @@
     "shippingAddress": "Adresse de livraison",
     "paymentInfo": "Informations de paiement",
     "payNow": "Payer maintenant",
+    "leadTime": {
+      "badge": "Délai de fabrication",
+      "title": "1 à 2 semaines de fabrication",
+      "text": "Les commandes personnalisées sont généralement fabriquées en 1 à 2 semaines avant expédition."
+    },
     "successMessage": "Paiement réussi ! Redirection...",
     "unexpectedError": "Une erreur inattendue est survenue.",
     "paymentError": "Une erreur est survenue lors du paiement.",

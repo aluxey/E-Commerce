@@ -160,6 +160,11 @@
       "floatingText": "Jedes Paket wird mit persönlicher Karte und nachhaltiger Verpackung verschickt.",
       "badge": "Neue Farbtöne verfügbar"
     },
+    "leadTime": {
+      "badge": "Fertigungszeit",
+      "title": "1-2 Wochen Handarbeit",
+      "text": "Individuell gefertigte Bestellungen brauchen in der Regel 1-2 Wochen bis zum Versand."
+    },
     "highlights": [
       {
         "icon": "🤲",
@@ -219,8 +224,18 @@
           "name": "Accessoires",
           "blurb": "Kleine Lieblingsstücke für jeden Tag.",
           "link": "/items?category=Accessories"
+        },
+        {
+          "name": "Körbe mit Holzböden",
+          "blurb": "Handgemachte Körbe mit Holzböden für ein warmes, natürliches Design.",
+          "link": "/items?search=holz"
         }
       ],
+      "wood": {
+        "name": "Körbe mit Holzböden",
+        "blurb": "Handgemachte Körbe mit Holzböden für ein warmes, natürliches Design.",
+        "link": "/items?search=holz"
+      },
       "cta": "Jetzt entdecken"
     },
     "new": {
@@ -322,6 +337,8 @@
     "sortName": "Name (A–Z)",
     "sortPrice": "Preis aufsteigend",
     "sortPriceDesc": "Preis absteigend",
+    "sortNewest": "Neueste zuerst",
+    "sortTopRated": "Am besten bewertet",
     "noResultsTitle": "Keine Ergebnisse",
     "noResultsText": "Passe deine Filter an",
     "clearAll": "Alles zurücksetzen"
@@ -380,6 +397,11 @@
     "quantity": "Menge",
     "adding": "Wird hinzugefügt...",
     "addToCart": "In den Warenkorb",
+    "leadTime": {
+      "badge": "Fertigungszeit",
+      "title": "1-2 Wochen Handarbeit",
+      "text": "Individuell gefertigte Bestellungen brauchen in der Regel 1-2 Wochen bis zum Versand."
+    },
     "tabs": {
       "details": "Details",
       "reviews": "Bewertungen",
@@ -472,6 +494,11 @@
     "shippingAddress": "Lieferadresse",
     "paymentInfo": "Zahlungsinformationen",
     "payNow": "Jetzt bezahlen",
+    "leadTime": {
+      "badge": "Fertigungszeit",
+      "title": "1-2 Wochen Handarbeit",
+      "text": "Individuell gefertigte Bestellungen brauchen in der Regel 1-2 Wochen bis zum Versand."
+    },
     "successMessage": "Zahlung erfolgreich! Weiterleitung...",
     "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
     "paymentError": "Beim Bezahlen ist ein Fehler aufgetreten.",

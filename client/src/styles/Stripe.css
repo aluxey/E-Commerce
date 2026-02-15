@@ -111,6 +111,33 @@
   transform: none;
 }
 
+.checkout-lead-time {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(183, 92, 59, 0.24);
+  background: #fff6ec;
+}
+
+.checkout-lead-time__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.3rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--color-accent-dark);
+  background: rgba(183, 92, 59, 0.16);
+}
+
+.checkout-lead-time__text {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--color-text-primary);
+}
+
 .spinner {
   display: inline-block;
   width: 20px;
