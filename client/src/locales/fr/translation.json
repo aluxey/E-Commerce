@@ -463,7 +463,9 @@
   "cart": {
     "emptyTitle": "Votre panier est vide",
     "emptyCta": "Continuer mes achats",
+    "emptyMessage": "Votre panier est vide pour le moment.",
     "title": "Mon panier",
+    "items": "articles",
     "size": "Taille",
     "color": "Couleur",
     "hookType": "Type de crochet",
@@ -473,10 +475,23 @@
     "quantityIncrease": "Augmenter la quantité",
     "itemTotal": "Sous-total",
     "total": "Total : {{total}}€",
+    "subtotal": "Sous-total",
+    "shippingLabel": "Livraison",
+    "shippingCalculated": "Calculé à l'étape suivante",
+    "summaryTitle": "Récapitulatif",
+    "totalLabel": "Total",
     "checkout": "Passer au paiement",
     "loginPrompt": "Connectez-vous pour payer",
     "login": "Connexion",
-    "continueShopping": "Continuer mes achats"
+    "continueShopping": "Continuer mes achats",
+    "shipping": {
+      "title": "Livraison rapide",
+      "desc": "Expédition sous 24-48h"
+    },
+    "secure": {
+      "title": "Paiement sécurisé",
+      "desc": "Transactions chiffrées SSL"
+    }
   },
   "payment": {
     "verifying": "Vérification du paiement...",
@@ -486,9 +501,20 @@
     "backHome": "Retour à l'accueil",
     "processingTitle": "Paiement en cours",
     "processingText": "Votre paiement est en traitement. Nous vous enverrons une confirmation dès que ce sera terminé.",
+    "manualTitle": "Paiement soumis",
+    "manualText": "Si vous avez finalisé le paiement SumUp, nous validerons votre commande sous peu.",
     "errorTitle": "Erreur de paiement",
     "errorText": "Une erreur est survenue lors du paiement. Merci de réessayer.",
-    "backToCart": "Retour au panier"
+    "backToCart": "Retour au panier",
+    "continueShopping": "Continuer mes achats",
+    "sumupPay": "Payer avec SumUp",
+    "sumupInfo": "Le paiement s'ouvre dans un onglet sécurisé SumUp.",
+    "sumupReturn": "Après paiement, reviens ici pour suivre ta commande.",
+    "methodTitle": "Moyen de paiement",
+    "secure": "Paiement sécurisé",
+    "encrypted": "Données chiffrées",
+    "securityNotice": "Paiement 100% sécurisé",
+    "orderCreated": "Commande créée (ID: {{id}}). Finalisez le paiement SumUp dans l'onglet ouvert."
   },
   "checkout": {
     "shippingAddress": "Adresse de livraison",
@@ -917,17 +943,30 @@
     "hello": "Bonjour {{name}}",
     "lead": "Gère ton compte, suis tes commandes et offre-toi de nouvelles pièces faites main.",
     "memberSince": "Membre depuis {{date}}",
+    "memberSinceShort": "Membre depuis",
     "role": "Rôle : {{role}}",
     "account": "Informations du compte",
     "email": "Email",
     "username": "Nom d'utilisateur",
     "fullName": "Nom complet",
+    "accountStatus": "Compte actif",
     "actions": "Actions",
+    "actionsTitle": "Actions rapides",
+    "actionsSubtitle": "Gagne du temps sur les tâches courantes",
     "orders": "Mes commandes",
+    "ordersDesc": "Suivre mes commandes et leurs statuts",
     "collection": "Voir la collection",
+    "cartDesc": "Valider mon panier actuel",
+    "shopDesc": "Découvrir les nouveautés",
     "viewCart": "Voir le panier",
     "shop": "Découvrir la boutique",
-    "roleLabel": "Rôle"
+    "roleLabel": "Rôle",
+    "securityTitle": "Sécurité du compte",
+    "securityDesc": "Authentification sécurisée et données protégées.",
+    "supportTitle": "Aide & support",
+    "supportDesc": "Besoin d’aide ? Consulte la FAQ ou contacte-nous.",
+    "historyTitle": "Historique de commandes",
+    "historyDesc": "Retrouve tes commandes passées et leurs statuts"
   },
   "colorPicker": {
     "selectColor": "Choisir une couleur",

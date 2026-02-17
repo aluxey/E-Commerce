@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { listOrders, updateOrderStatus } from '../../services/adminOrders';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
 import { pushToast } from '../../utils/toast';
@@ -7,6 +7,7 @@ import { ORDER_STATUS_OPTIONS, getStatusStyle, getStatusLabel } from '../../util
 
 export default function OrderManager() {
   const [orders, setOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(false);
@@ -18,15 +19,15 @@ export default function OrderManager() {
     try {
       const { data, error: fetchErr } = await listOrders();
       if (fetchErr) throw fetchErr;
-      const filtered = filterStatus === 'all' ? data : (data || []).filter(o => o.status === filterStatus);
-      setOrders(filtered || []);
+      setAllOrders(data || []);
+      setOrders(data || []);
     } catch (err) {
       console.error('Erreur lors du chargement des commandes:', err);
       setError('Impossible de charger les commandes / Bestellungen konnten nicht geladen werden.');
     } finally {
       setLoading(false);
     }
-  }, [filterStatus]);
+  }, []);
 
   const updateOrderStatusRecompute = async (orderId, newStatus) => {
     try {
@@ -70,20 +71,56 @@ export default function OrderManager() {
     fetchOrders();
   }, [fetchOrders]);
 
+  useEffect(() => {
+    const filtered = filterStatus === 'all' ? allOrders : allOrders.filter(o => o.status === filterStatus);
+    setOrders(filtered);
+  }, [filterStatus, allOrders]);
+
+  const metrics = useMemo(() => {
+    const total = allOrders.length;
+    const pending = allOrders.filter(o => o.status === 'pending').length;
+    const paid = allOrders.filter(o => o.status === 'paid').length;
+    const revenue = allOrders.reduce((sum, o) => sum + Number(o.total || calculateOrderTotal(o.order_items) || 0), 0);
+    return { total, pending, paid, revenue };
+  }, [allOrders]);
+
   return (
     <div className="order-manager">
-      <h2>Gestion des Commandes / Bestellungen</h2>
+      <div className="order-header">
+        <div>
+          <h2>Gestion des commandes</h2>
+          <p className="order-subtitle">Suivi, statut et préparation des commandes.</p>
+        </div>
+        <div className="order-toolbar">
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} aria-label="Filtrer par statut / Nach Status filtern">
+            <option value="all">Tous les statuts</option>
+            {ORDER_STATUS_OPTIONS.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.labelFallback}
+              </option>
+            ))}
+          </select>
+          <button className="btn btn-outline" onClick={fetchOrders} aria-label="Actualiser / Aktualisieren">Actualiser</button>
+        </div>
+      </div>
 
-      <div className="order-filters">
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} aria-label="Filtrer par statut / Nach Status filtern">
-          <option value="all">Tous les statuts / Alle Status</option>
-          {ORDER_STATUS_OPTIONS.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.labelFallback}
-            </option>
-          ))}
-        </select>
-        <button onClick={fetchOrders} aria-label="Actualiser / Aktualisieren">Actualiser / Aktualisieren</button>
+      <div className="order-metrics">
+        <div className="order-metric">
+          <span className="metric-label">Commandes</span>
+          <strong className="metric-value">{metrics.total}</strong>
+        </div>
+        <div className="order-metric">
+          <span className="metric-label">En attente</span>
+          <strong className="metric-value">{metrics.pending}</strong>
+        </div>
+        <div className="order-metric">
+          <span className="metric-label">Payées</span>
+          <strong className="metric-value">{metrics.paid}</strong>
+        </div>
+        <div className="order-metric">
+          <span className="metric-label">Revenu estimé</span>
+          <strong className="metric-value">{formatMoney(metrics.revenue, 'EUR')}</strong>
+        </div>
       </div>
 
       {loading && <LoadingMessage message="Chargement des commandes..." />}
@@ -92,44 +129,53 @@ export default function OrderManager() {
         <>
           <div className="orders-container">
             <div className="orders-list">
-              <h3>Liste des commandes / Bestellungen ({orders.length})</h3>
+              <div className="orders-list__header">
+                <div>
+                  <h3>Commandes ({orders.length})</h3>
+                  <p className="order-subtitle">Clique sur une ligne pour voir le détail et mettre à jour le statut.</p>
+                </div>
+              </div>
               {orders.length === 0 ? (
-                <p>Aucune commande trouvée / Keine Bestellungen</p>
+                <p className="order-empty">Aucune commande trouvée.</p>
               ) : (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Client</th>
-                      <th>Date</th>
-                      <th>Total</th>
-                      <th>Statut</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.map(order => (
-                      <tr key={order.id}>
-                        <td data-label="ID">#{order.id.slice(0, 8)}</td>
-                        <td data-label="Client">
-                          {order.user ? order.user.email : order.customer_email}
-                        </td>
-                        <td data-label="Date">{formatDate(order.created_at)}</td>
-                        <td data-label="Total">
-                          {formatMoney(order.total ?? calculateOrderTotal(order.order_items), order.currency || 'EUR')}
-                        </td>
-                        <td data-label="Statut">
-                          <span style={getStatusStyle(order.status)}>
-                            {getStatusLabel(order.status)}
-                          </span>
-                        </td>
-                        <td data-label="Actions">
-                          <button onClick={() => setSelectedOrder(order)} aria-label="Détails / Details">Détails / Details</button>
-                        </td>
+                <div className="orders-table-wrapper">
+                  <table className="orders-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Client</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Statut</th>
+                        <th></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {orders.map(order => (
+                        <tr key={order.id} onClick={() => setSelectedOrder(order)} className="order-row">
+                          <td data-label="ID">#{order.id.slice(0, 8)}</td>
+                          <td data-label="Client">
+                            {order.user ? order.user.email : order.customer_email}
+                          </td>
+                          <td data-label="Date">{formatDate(order.created_at)}</td>
+                          <td data-label="Total">
+                            {formatMoney(order.total ?? calculateOrderTotal(order.order_items), order.currency || 'EUR')}
+                          </td>
+                          <td data-label="Statut">
+                            <span className="status-chip" style={getStatusStyle(order.status)}>
+                              {getStatusLabel(order.status)}
+                            </span>
+                          </td>
+                          <td data-label="Actions" className="text-right">
+                            <button className="btn btn-outline btn-xs" onClick={e => { e.stopPropagation(); setSelectedOrder(order); }}>
+                              Détails
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </div>

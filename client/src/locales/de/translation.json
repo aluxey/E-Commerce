@@ -463,7 +463,9 @@
   "cart": {
     "emptyTitle": "Dein Warenkorb ist leer",
     "emptyCta": "Weiter einkaufen",
+    "emptyMessage": "Dein Warenkorb ist derzeit leer.",
     "title": "Mein Warenkorb",
+    "items": "Artikel",
     "size": "Größe",
     "color": "Farbe",
     "hookType": "Hakeltyp",
@@ -473,10 +475,23 @@
     "quantityIncrease": "Menge erhöhen",
     "itemTotal": "Zwischensumme",
     "total": "Gesamt: {{total}}€",
+    "subtotal": "Zwischensumme",
+    "shippingLabel": "Versand",
+    "shippingCalculated": "Wird im nächsten Schritt berechnet",
+    "summaryTitle": "Bestellübersicht",
+    "totalLabel": "Gesamt",
     "checkout": "Zur Kasse",
     "loginPrompt": "Bitte anmelden, um zu bezahlen",
     "login": "Anmelden",
-    "continueShopping": "Weiter einkaufen"
+    "continueShopping": "Weiter einkaufen",
+    "shipping": {
+      "title": "Schneller Versand",
+      "desc": "Versand in 24-48h"
+    },
+    "secure": {
+      "title": "Sichere Zahlung",
+      "desc": "SSL-verschlüsselte Transaktionen"
+    }
   },
   "payment": {
     "verifying": "Zahlung wird geprüft...",
@@ -486,9 +501,20 @@
     "backHome": "Zur Startseite",
     "processingTitle": "Zahlung wird verarbeitet",
     "processingText": "Deine Zahlung wird verarbeitet. Wir senden dir eine Bestätigung, sobald sie abgeschlossen ist.",
+    "manualTitle": "Zahlung übermittelt",
+    "manualText": "Wenn du die SumUp-Zahlung abgeschlossen hast, bestätigen wir deine Bestellung in Kürze.",
     "errorTitle": "Zahlungsfehler",
     "errorText": "Beim Bezahlen ist ein Fehler aufgetreten. Bitte versuche es erneut.",
-    "backToCart": "Zurück zum Warenkorb"
+    "backToCart": "Zurück zum Warenkorb",
+    "continueShopping": "Weiter einkaufen",
+    "sumupPay": "Mit SumUp bezahlen",
+    "sumupInfo": "Die Zahlung öffnet sich in einem sicheren SumUp-Tab.",
+    "sumupReturn": "Nach der Zahlung bitte hierher zurückkehren, um deine Bestellung zu verfolgen.",
+    "methodTitle": "Zahlungsmethode",
+    "secure": "Sichere Zahlung",
+    "encrypted": "Verschlüsselte Daten",
+    "securityNotice": "100% sichere Zahlung",
+    "orderCreated": "Bestellung erstellt (ID: {{id}}). Bitte schließe die SumUp-Zahlung im geöffneten Tab ab."
   },
   "checkout": {
     "shippingAddress": "Lieferadresse",
@@ -917,17 +943,30 @@
     "hello": "Hallo {{name}}",
     "lead": "Verwalte dein Konto, prüfe Bestellungen und gönn dir neue handgemachte Stücke.",
     "memberSince": "Mitglied seit {{date}}",
+    "memberSinceShort": "Mitglied seit",
     "role": "Rolle: {{role}}",
     "account": "Kontodaten",
     "email": "E-Mail",
     "username": "Benutzername",
     "fullName": "Name",
+    "accountStatus": "Konto aktiv",
     "actions": "Aktionen",
+    "actionsTitle": "Schnellzugriff",
+    "actionsSubtitle": "Spare Zeit bei den häufigen Aufgaben",
     "orders": "Meine Bestellungen",
+    "ordersDesc": "Bestellungen und Status verfolgen",
     "collection": "Zur Kollektion",
+    "cartDesc": "Aktuellen Warenkorb abschließen",
+    "shopDesc": "Neuheiten entdecken",
     "viewCart": "Warenkorb ansehen",
     "shop": "Shop entdecken",
-    "roleLabel": "Rolle"
+    "roleLabel": "Rolle",
+    "securityTitle": "Kontosicherheit",
+    "securityDesc": "Sichere Anmeldung und geschützte Daten.",
+    "supportTitle": "Hilfe & Support",
+    "supportDesc": "Braucht du Hilfe? Sieh in die FAQ oder kontaktiere uns.",
+    "historyTitle": "Bestellhistorie",
+    "historyDesc": "Finde deine früheren Bestellungen und deren Status"
   },
   "colorPicker": {
     "selectColor": "Farbe wählen",
