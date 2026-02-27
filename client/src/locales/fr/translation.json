@@ -16,7 +16,8 @@
     "brandSubtitle": "Tricot fait main depuis le Schleswig",
     "languageLabel": "Langue",
     "languageDe": "Allemand",
-    "languageFr": "Français"
+    "languageFr": "Français",
+    "brandName": "Sabbels Handmade"
   },
   "contact": {
     "title": "Nous contacter",
@@ -54,7 +55,8 @@
     "errors": {
       "generic": "Une erreur s'est produite. Merci de réessayer.",
       "fileTooLarge": "Le fichier est trop volumineux. Maximum 10 Mo."
-    }
+    },
+    "fileSizeKb": "{{size}} Ko"
   },
   "footer": {
     "shop": "Boutique",
@@ -75,7 +77,12 @@
     "privacy": "Confidentialité",
     "withdrawal": "Rétractation",
     "imprint": "Mentions légales",
-    "gallery": "Galerie"
+    "gallery": "Galerie",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "pinterest": "Pinterest",
+    "email": "sabbelshandmade@gmail.com",
+    "instagramHandle": "@sabbels_handmade"
   },
   "legal": {
     "badge": "Informations légales",
@@ -288,7 +295,9 @@
       },
       "colors": {
         "title": "Couleurs",
-        "note": ""
+        "note": "",
+        "paletteAvailable": "Palette de couleurs disponible",
+        "placeholder": "La palette de couleurs sera affichée ici"
       },
       "safety": {
         "title": "Consignes de sécurité",
@@ -307,7 +316,8 @@
       "paragraph2": "Mon quotidien est coloré et vivant : je suis maman, mamie, membre d'une famille chaotique et je vis avec beaucoup de chats et un chien. Ce petit chaos affectueux est mon état normal – et c'est exactement là que je m'assois, je crochète et je laisse naître de nouvelles idées.",
       "highlight": "Chaque pièce est fabriquée avec beaucoup de cœur, de patience et de joie – au milieu de la vie, telle qu'elle est.",
       "ctaShop": "Découvrir la collection",
-      "ctaContact": "Nous contacter"
+      "ctaContact": "Nous contacter",
+      "imageAlt": "Sabrina - Sabbels Handmade"
     },
     "customerPhotos": {
       "eyebrow": "Galerie clients",
@@ -353,7 +363,9 @@
     "colors": "Couleurs",
     "reset": "Réinitialiser",
     "close": "Fermer",
-    "allColors": "Toutes les couleurs"
+    "allColors": "Toutes les couleurs",
+    "maxPlaceholder": "Max",
+    "minPlaceholder": "0"
   },
   "itemCard": {
     "imageUnavailable": "Image indisponible",
@@ -375,7 +387,16 @@
   "status": {
     "loading": "Chargement...",
     "error": "Une erreur est survenue",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "noResults": "Aucun article disponible",
+    "imageLoadFailed": "Échec du chargement de l'image"
+  },
+  "errors": {
+    "network": "Erreur réseau. Vérifiez votre connexion.",
+    "unauthorized": "Session expirée. Reconnectez-vous.",
+    "notFound": "Ressource non trouvée.",
+    "duplicate": "Cette entrée existe déjà.",
+    "unknown": "Erreur inconnue."
   },
   "productDetail": {
     "loading": "Chargement du produit...",
@@ -433,9 +454,12 @@
       "option": "{{count}} étoile",
       "option_plural": "{{count}} étoiles",
       "submit": "Noter",
+      "loginRequired": "Vous devez être connecté pour laisser un avis.",
       "listTitle": "Avis clients",
       "noReviews": "Aucun avis pour le moment.",
-      "anonymous": "Anonyme"
+      "anonymous": "Anonyme",
+      "commentPlaceholder": "Partagez votre expérience (optionnel)...",
+      "submitting": "Envoi..."
     },
     "deliveryInfo": {
       "title": "Informations de livraison",
@@ -458,7 +482,9 @@
     },
     "errors": {
       "load": "Le produit est introuvable ou temporairement indisponible."
-    }
+    },
+    "imageAria": "Image {{index}}",
+    "imagePreviewAlt": "Aperçu {{index}}"
   },
   "cart": {
     "emptyTitle": "Votre panier est vide",
@@ -556,9 +582,13 @@
     "errors": {
       "invalidCredentials": "Email ou mot de passe incorrect.",
       "notFound": "Aucun compte associé à cet email.",
+      "emailNotConfirmed": "Email non confirmé. Vérifie ta boîte mail.",
+      "tooManyRequests": "Trop de tentatives. Réessaie plus tard.",
       "fallback": "Échec de la connexion. Réessaie plus tard.",
       "unexpected": "Une erreur inattendue est survenue."
-    }
+    },
+    "emailPlaceholder": "email@example.com",
+    "passwordPlaceholder": "••••••••"
   },
   "signup": {
     "title": "Inscription",
@@ -583,9 +613,13 @@
     "errors": {
       "alreadyUsed": "Cet email est déjà utilisé.",
       "invalidEmail": "Format d'email invalide.",
+      "passwordWeak": "Mot de passe trop faible.",
       "fallback": "Échec de l'inscription. Réessaie plus tard.",
       "unexpected": "Une erreur inattendue est survenue."
-    }
+    },
+    "emailPlaceholder": "email@example.com",
+    "passwordEmpty": "Vide",
+    "passwordPlaceholder": "••••••••"
   },
   "orders": {
     "title": "Mes commandes",
@@ -647,7 +681,8 @@
           "title": "Variantes",
           "desc": "Gestion des déclinaisons"
         }
-      }
+      },
+      "loadingError": "Erreur lors du chargement des indicateurs."
     },
     "nav": {
       "label": "Navigation administrateur",
@@ -692,7 +727,14 @@
           "descriptionLabel": "Description",
           "descriptionPlaceholder": "Décrivez votre produit en quelques phrases...",
           "patternTypeLabel": "Style de crochet",
-          "patternTypeNone": "Non applicable"
+          "patternTypeNone": "Non applicable",
+          "allInCategory": "toutes",
+          "categoryPlaceholder": "Choisir une catégorie...",
+          "editTab": "Éditer",
+          "markdownHint": "Markdown supporté : **gras**, *italique*, listes, etc.",
+          "noPreview": "Aucune description à prévisualiser",
+          "otherCategories": "Autres",
+          "previewTab": "Aperçu"
         },
         "colors": {
           "title": "Couleurs disponibles",
@@ -701,7 +743,9 @@
           "createColors": "Créer des couleurs",
           "selected": "{{count}} couleur sélectionnée",
           "selected_plural": "{{count}} couleurs sélectionnées",
-          "selectWarning": "Sélectionnez au moins une couleur"
+          "selectWarning": "Sélectionnez au moins une couleur",
+          "selectAll": "Tout sélectionner",
+          "unselectAll": "Tout désélectionner"
         },
         "variants": {
           "title": "Variantes (Tailles & Prix)",
@@ -718,7 +762,14 @@
           "sizeLabel": "Taille",
           "colorLabel": "Couleur",
           "priceLabel": "Prix (€)",
-          "stockLabel": "Stock"
+          "stockLabel": "Stock",
+          "duplicateSize": "cette taille existe déjà.",
+          "invalidPrice": "prix invalide.",
+          "pricePlaceholder": "29.90",
+          "sectionTitle": "Variantes ({{count}})",
+          "sizePlaceholder": "M",
+          "sizeRequired": "la taille est requise.",
+          "stockPlaceholder": "10"
         },
         "images": {
           "title": "Images du produit",
@@ -726,7 +777,17 @@
           "dropzone": "Glissez-déposez vos images ici",
           "browse": "Parcourir",
           "hint": "Les images sont optionnelles mais recommandées pour une meilleure conversion.",
-          "primary": "Principal"
+          "primary": "Principal",
+          "allImages": "Toutes les images ({{count}})",
+          "dragToReorder": "Glisser pour réordonner",
+          "existingCount": "{{count}} existante",
+          "existingCount_plural": "{{count}} existantes",
+          "imageAlt": "Image {{index}}",
+          "new": "Nouveau",
+          "newCount": "{{count}} nouvelle",
+          "newCount_plural": "{{count}} nouvelles",
+          "or": "ou",
+          "reorderHint": "Glissez les images pour les réordonner. La première image sera l'image principale. Total: {{count}}"
         },
         "review": {
           "title": "Résumé",
@@ -737,12 +798,22 @@
           "imagesSection": "Images",
           "noColor": "Aucune couleur",
           "noImage": "Aucune image",
-          "displayPrice": "Prix affiché"
+          "displayPrice": "Prix affiché",
+          "labels": {
+            "category": "Catégorie",
+            "description": "Description",
+            "name": "Nom",
+            "patternType": "Style de crochet",
+            "status": "Statut"
+          },
+          "moreImages": "+{{count}}",
+          "moreVariants": "+{{count}} autres"
         },
         "prev": "Précédent",
         "next": "Suivant",
         "create": "Créer le produit",
-        "update": "Mettre à jour"
+        "update": "Mettre à jour",
+        "submitting": "En cours..."
       },
       "messages": {
         "created": "Produit créé",
@@ -753,13 +824,30 @@
         "variantRequired": "Au moins une variante valide est requise.",
         "variantsGenerated": "{{count}} variantes générées",
         "selectSizeColor": "Sélectionnez au moins une taille et une couleur",
-        "validPrice": "Définissez un prix de base valide"
+        "validPrice": "Définissez un prix de base valide",
+        "positivePrice": "Le prix doit être positif.",
+        "selectSize": "Sélectionnez au moins une taille"
       },
       "empty": {
         "title": "Aucun produit",
         "description": "Commencez par créer votre premier produit.",
         "cta": "+ Créer un produit"
-      }
+      },
+      "error": {
+        "delete": "Erreur lors de la suppression.",
+        "imageDelete": "Impossible de supprimer l'image.",
+        "load": "Erreur lors du chargement des produits."
+      },
+      "manager": {
+        "count": "{{count}} produits",
+        "title": "Gestion des produits",
+        "variantCount": "{{count}} variante",
+        "variantCount_plural": "{{count}} variantes"
+      },
+      "success": {
+        "imageDeleted": "Image supprimée"
+      },
+      "unsaved": "Des modifications produit ne sont pas sauvegardées. Quitter la page ?"
     },
     "variants": {
       "eyebrow": "Déclinaisons",
@@ -790,6 +878,21 @@
         "description": "Commencez par créer une variante pour vos produits.",
         "filtered": "Aucun résultat pour ces filtres.",
         "cta": "+ Créer une variante"
+      },
+      "error": {
+        "load": "Impossible de charger les variantes."
+      },
+      "loading": "Chargement des variantes...",
+      "manager": {
+        "count": "{{count}} variante",
+        "count_plural": "{{count}} variantes",
+        "title": "Gestion des variantes"
+      },
+      "placeholders": {
+        "price": "29.90",
+        "size": "Ex: M, L, XL",
+        "sku": "Auto-généré",
+        "stock": "10"
       }
     },
     "colors": {
@@ -809,7 +912,9 @@
         "namePlaceholder": "Ex: Bleu Glacé",
         "code": "Code interne",
         "codeHint": "Slug technique (a-z, 0-9, tirets)",
-        "hex": "Code hexadécimal"
+        "hex": "Code hexadécimal",
+        "codePlaceholder": "ex: bleu_glace",
+        "hexPlaceholder": "#1E90FF"
       },
       "error": {
         "load": "Impossible de charger les couleurs.",
@@ -879,17 +984,116 @@
       "empty": {
         "title": "Aucune catégorie",
         "description": "Créez votre première catégorie pour organiser vos produits."
+      },
+      "manager": {
+        "productsCount": "{{count}} produits",
+        "stats": "{{categories}} catégories • {{products}} produits"
       }
     },
     "orders": {
       "eyebrow": "Ventes",
       "title": "Commandes",
-      "subtitle": "Suivez et gérez les commandes de vos clients."
+      "subtitle": "Suivez et gérez les commandes de vos clients.",
+      "deletedProduct": "Produit supprimé",
+      "error": {
+        "load": "Impossible de charger les commandes.",
+        "statusUpdate": "Erreur lors de la mise à jour du statut."
+      },
+      "guestClient": "Client invité",
+      "loading": "Chargement des commandes...",
+      "manager": {
+        "allStatuses": "Tous les statuts",
+        "cards": {
+          "client": "Client",
+          "paymentMethod": "Méthode de paiement",
+          "shipping": "Livraison"
+        },
+        "columns": {
+          "client": "Client",
+          "date": "Date",
+          "status": "Statut",
+          "total": "Total"
+        },
+        "createdOn": "Créée le {{date}}",
+        "details": "Détails",
+        "empty": "Aucune commande trouvée.",
+        "filterByStatus": "Filtrer par statut",
+        "itemsTitle": "Articles commandés",
+        "labels": {
+          "currency": "Devise:",
+          "email": "Email:",
+          "name": "Nom:",
+          "paymentIntent": "Payment Intent:",
+          "phone": "Téléphone:"
+        },
+        "lastUpdateOn": "Dernière mise à jour le {{date}}",
+        "listHint": "Clique sur une ligne pour voir le détail et mettre à jour le statut.",
+        "listTitle": "Commandes ({{count}})",
+        "metrics": {
+          "estimatedRevenue": "Revenu estimé",
+          "orders": "Commandes",
+          "paid": "Payées",
+          "pending": "En attente"
+        },
+        "orderChip": "Commande #{{id}}",
+        "orderDetailsTitle": "Détails de la commande",
+        "refresh": "Actualiser",
+        "subtitle": "Suivi, statut et préparation des commandes.",
+        "title": "Gestion des commandes",
+        "totalLabel": "Total:",
+        "updateStatus": "Modifier le statut"
+      },
+      "notAvailable": "N/A",
+      "notProvided": "Non renseignée",
+      "quantity": "Qté {{count}}",
+      "success": {
+        "statusUpdated": "Statut mis à jour."
+      }
     },
     "users": {
       "eyebrow": "Clients",
       "title": "Utilisateurs",
-      "subtitle": "Gérez les comptes utilisateurs et leurs rôles."
+      "subtitle": "Gérez les comptes utilisateurs et leurs rôles.",
+      "confirm": {
+        "delete": "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
+      },
+      "error": {
+        "delete": "Suppression impossible.",
+        "load": "Impossible de charger les utilisateurs.",
+        "roleUpdate": "Erreur lors du changement de rôle."
+      },
+      "loading": "Chargement des utilisateurs...",
+      "manager": {
+        "allRoles": "Tous les rôles",
+        "changeRole": "Changer le rôle",
+        "columns": {
+          "actions": "Actions",
+          "createdAt": "Créé le",
+          "email": "Email",
+          "orders": "Commandes",
+          "role": "Rôle",
+          "totalSpent": "Total dépensé"
+        },
+        "details": "Détails",
+        "filterByRole": "Filtrer par rôle",
+        "labels": {
+          "createdAt": "Créé le :",
+          "email": "Email :",
+          "orders": "Commandes :",
+          "role": "Rôle :"
+        },
+        "searchPlaceholder": "Rechercher par email",
+        "title": "Gestion des utilisateurs",
+        "userDetailsTitle": "Détails de l'utilisateur"
+      },
+      "roles": {
+        "admin": "Administrateur",
+        "client": "Utilisateur"
+      },
+      "success": {
+        "delete": "Utilisateur supprimé.",
+        "roleUpdate": "Rôle mis à jour."
+      }
     },
     "customerPhotos": {
       "eyebrow": "Galerie",
@@ -931,7 +1135,8 @@
       "search": "Rechercher",
       "loading": "Chargement...",
       "noResults": "Aucun résultat",
-      "required": "Requis"
+      "required": "Requis",
+      "close": "Fermer"
     }
   },
   "profile": {
@@ -978,5 +1183,14 @@
     "noResults": "Aucune couleur trouvée",
     "swatchLabel": "Options de couleur",
     "moreColors": "Afficher {{count}} couleurs supplémentaires"
+  },
+  "carousel": {
+    "goToImage": "Aller à l'image {{index}}",
+    "nextImage": "Image suivante",
+    "prevImage": "Image précédente"
+  },
+  "mobileHome": {
+    "productCarouselLabel": "Carrousel produits",
+    "trustIndicatorsLabel": "Indicateurs de confiance"
   }
 }

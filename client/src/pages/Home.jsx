@@ -402,7 +402,7 @@ export default function Home() {
                     ))
                   ) : (
                     <div className="about-product-color-placeholder">
-                      <p className="color-text-muted">Farbpalette wird hier angezeigt</p>
+                      <p className="color-text-muted">{t("home.aboutProduct.colors.placeholder")}</p>
                     </div>
                   )}
                 </div>
@@ -437,7 +437,7 @@ export default function Home() {
       <section className="about-me-section" id="about-me">
         <div className="container about-me-grid">
           <div className="about-me-visual">
-            <img src={aboutMeSabrina} alt="Sabrina - Sabbels Handmade" />
+            <img src={aboutMeSabrina} alt={t("home.aboutMe.imageAlt")} />
           </div>
           <div className="about-me-content">
             <span className="eyebrow">{t("home.aboutMe.eyebrow")}</span>

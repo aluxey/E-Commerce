@@ -95,7 +95,7 @@ export default function Login({ onSuccess }) {
           id="email"
           name="email"
           type="email"
-          placeholder="email@example.com"
+          placeholder={t('login.emailPlaceholder')}
           required
           value={form.email}
           onChange={handleChange}
@@ -115,7 +115,7 @@ export default function Login({ onSuccess }) {
           id="password"
           name="password"
           type="password"
-          placeholder="••••••••"
+          placeholder={t('login.passwordPlaceholder')}
           required
           value={form.password}
           onChange={handleChange}

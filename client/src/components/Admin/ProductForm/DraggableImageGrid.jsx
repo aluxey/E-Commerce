@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * DraggableImageGrid - A drag-and-drop image grid component
@@ -18,6 +19,7 @@ export default function DraggableImageGrid({
   onSetPrimary,
   primaryIndex,
 }) {
+  const { t } = useTranslation();
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
 
@@ -88,18 +90,18 @@ export default function DraggableImageGrid({
             onDrop={e => handleDrop(e, index)}
             onClick={() => onSetPrimary(index)}
           >
-            <img src={image.src} alt={`Image ${index + 1}`} />
+            <img src={image.src} alt={t("admin.products.wizard.images.imageAlt", { index: index + 1 })} />
 
             {/* Primary badge */}
-            {isPrimary && <span className="image-badge">Principal</span>}
+            {isPrimary && <span className="image-badge">{t("admin.products.wizard.images.primary")}</span>}
 
             {/* Type indicator for mixed grids */}
             {image.type === "new" && !isPrimary && (
-              <span className="image-badge image-badge--new">Nouveau</span>
+              <span className="image-badge image-badge--new">{t("admin.products.wizard.images.new")}</span>
             )}
 
             {/* Drag handle indicator */}
-            <span className="drag-handle" title="Glisser pour réordonner">
+            <span className="drag-handle" title={t("admin.products.wizard.images.dragToReorder")}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <circle cx="9" cy="6" r="1.5" />
                 <circle cx="15" cy="6" r="1.5" />
@@ -118,7 +120,7 @@ export default function DraggableImageGrid({
                 onRemove(index);
               }}
               className="btn-remove-image"
-              aria-label="Supprimer"
+              aria-label={t("admin.common.delete")}
             >
               &times;
             </button>

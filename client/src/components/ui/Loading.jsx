@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ImageOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "../../utils/cn";
 import { Skeleton } from "./Skeleton";
 
@@ -20,6 +21,7 @@ const BlurUpImage = React.forwardRef(
     },
     ref
   ) => {
+    const { t } = useTranslation();
     const [isLoaded, setIsLoaded] = useState(false);
     const [hasError, setHasError] = useState(false);
     const [currentSrc, setCurrentSrc] = useState(placeholderSrc || "");
@@ -91,7 +93,7 @@ const BlurUpImage = React.forwardRef(
         {hasError && (
           <div className="blur-up-image-fallback">
             <span className="blur-up-image-icon"><ImageOff size={24} /></span>
-            <span className="blur-up-image-text">Failed to load image</span>
+            <span className="blur-up-image-text">{t("status.imageLoadFailed")}</span>
           </div>
         )}
       </div>

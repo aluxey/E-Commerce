@@ -1,12 +1,15 @@
+import { useTranslation } from "react-i18next";
+
 /**
  * TrustChips - Horizontal scrollable row of trust/value indicators
  * Mobile-optimized with snap scrolling
  */
 export default function TrustChips({ chips }) {
+  const { t } = useTranslation();
   if (!chips || chips.length === 0) return null;
 
   return (
-    <div className="mh-trust-chips" role="list" aria-label="Trust indicators">
+    <div className="mh-trust-chips" role="list" aria-label={t("mobileHome.trustIndicatorsLabel")}>
       <div className="mh-trust-chips__track">
         {chips.map((chip, idx) => (
           <div 

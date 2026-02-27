@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 /**
  * ReviewStep - Final review before submission
  */
@@ -10,42 +12,43 @@ export default function ReviewStep({
   minVariantPrice,
   categoryName,
 }) {
+  const { t } = useTranslation();
   return (
     <div className="wizard-step">
       <div className="step-header">
-        <h3>Résumé</h3>
-        <p className="step-description">Vérifiez les informations avant de créer le produit.</p>
+        <h3>{t("admin.products.wizard.review.title")}</h3>
+        <p className="step-description">{t("admin.products.wizard.review.description")}</p>
       </div>
 
       <div className="review-grid">
         <div className="review-section">
-          <h4>Informations</h4>
+          <h4>{t("admin.products.wizard.review.infoSection")}</h4>
           <dl className="review-list">
             <div className="review-item">
-              <dt>Nom</dt>
+              <dt>{t("admin.products.wizard.review.labels.name")}</dt>
               <dd>{form.name || '—'}</dd>
             </div>
             <div className="review-item">
-              <dt>Catégorie</dt>
+              <dt>{t("admin.products.wizard.review.labels.category")}</dt>
               <dd>{categoryName(Number(form.category_id)) || '—'}</dd>
             </div>
             <div className="review-item">
-              <dt>Statut</dt>
+              <dt>{t("admin.products.wizard.review.labels.status")}</dt>
               <dd>
                 <span className={`status-badge status-${form.status}`}>
-                  {form.status === 'active' ? 'Actif' : form.status === 'draft' ? 'Brouillon' : 'Archivé'}
+                  {form.status === 'active' ? t("admin.products.wizard.info.statusActive") : form.status === 'draft' ? t("admin.products.wizard.info.statusDraft") : t("admin.products.wizard.info.statusArchived")}
                 </span>
               </dd>
             </div>
             {form.pattern_type && (
               <div className="review-item">
-                <dt>Style de crochet</dt>
+                <dt>{t("admin.products.wizard.review.labels.patternType")}</dt>
                 <dd>{form.pattern_type === 'rechtsmuster' ? 'Rechtsmuster' : 'Gänsefüsschen'}</dd>
               </div>
             )}
             {form.description && (
               <div className="review-item review-item--full">
-                <dt>Description</dt>
+                <dt>{t("admin.products.wizard.review.labels.description")}</dt>
                 <dd>{form.description}</dd>
               </div>
             )}
@@ -53,26 +56,26 @@ export default function ReviewStep({
         </div>
 
         <div className="review-section">
-          <h4>Variantes ({variants.filter(v => v.size).length})</h4>
+          <h4>{t("admin.products.wizard.review.variantsSection", { count: variants.filter(v => v.size).length })}</h4>
           <div className="review-variants">
             {variants.filter(v => v.size).slice(0, 6).map((v, i) => (
               <div key={i} className="review-variant">
                 <span>{v.size}</span>
                 <span>{Number(v.price).toFixed(2)}€</span>
-                <span className="stock">Stock: {v.stock}</span>
+                <span className="stock">{t("admin.products.wizard.variants.stockLabel")}: {v.stock}</span>
               </div>
             ))}
             {variants.filter(v => v.size).length > 6 && (
-              <span className="muted">+{variants.filter(v => v.size).length - 6} autres</span>
+              <span className="muted">{t("admin.products.wizard.review.moreVariants", { count: variants.filter(v => v.size).length - 6 })}</span>
             )}
           </div>
           {minVariantPrice != null && (
-            <p className="price-highlight">Prix affiché: <strong>{minVariantPrice.toFixed(2)}€</strong></p>
+            <p className="price-highlight">{t("admin.products.wizard.review.displayPrice")}: <strong>{minVariantPrice.toFixed(2)}€</strong></p>
           )}
         </div>
 
         <div className="review-section">
-          <h4>Images ({existingImages.length + imagePreviews.length})</h4>
+          <h4>{t("admin.products.wizard.review.imagesSection", { count: existingImages.length + imagePreviews.length })}</h4>
           {(existingImages.length > 0 || imagePreviews.length > 0) ? (
             <div className="review-images">
               {existingImages.slice(0, 4).map((img, i) => (
@@ -91,11 +94,11 @@ export default function ReviewStep({
                 );
               })}
               {(existingImages.length + imagePreviews.length) > 4 && (
-                <span className="muted">+{existingImages.length + imagePreviews.length - 4}</span>
+                <span className="muted">{t("admin.products.wizard.review.moreImages", { count: existingImages.length + imagePreviews.length - 4 })}</span>
               )}
             </div>
           ) : (
-            <span className="muted">Aucune image</span>
+            <span className="muted">{t("admin.products.wizard.review.noImage")}</span>
           )}
         </div>
       </div>

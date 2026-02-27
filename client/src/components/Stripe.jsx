@@ -157,7 +157,7 @@ const StripeCheckout = () => {
                         {item.size && `${item.size} • `}{item.color}
                         {item.hook_type && ` • ${t(`productDetail.hookTypes.${item.hook_type}`)}`}
                       </span>
-                      <span className="qty">Qté: {item.quantity}</span>
+                      <span className="qty">{t('orders.quantity', { count: item.quantity })}</span>
                     </div>
                     <span className="price">{(unit * item.quantity).toFixed(2)}€</span>
                   </div>
@@ -168,7 +168,7 @@ const StripeCheckout = () => {
             <div className="summary-divider"></div>
 
             <div className="summary-total-row">
-              <span>Total</span>
+              <span>{t('cart.totalLabel')}</span>
               <strong className="total-amount">{total.toFixed(2)}€</strong>
             </div>
 

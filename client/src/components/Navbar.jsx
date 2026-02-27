@@ -94,10 +94,10 @@ const Navbar = () => {
         <div className="navbar__container">
           <Link to="/" className="navbar__brand" onClick={closeMenu}>
             <div className="navbar__logo">
-              <img src={logo} alt="Sabbels Handmade" className="navbar__logo-img" />
+              <img src={logo} alt={t('nav.brandName')} className="navbar__logo-img" />
             </div>
             <div className="navbar__brand-text">
-              <span className="navbar__brand-title">Sabbels Handmade</span>
+              <span className="navbar__brand-title">{t('nav.brandName')}</span>
               <span className="navbar__brand-subtitle">{t('nav.brandSubtitle')}</span>
             </div>
           </Link>

@@ -37,7 +37,7 @@ export default function ProductScroller({ items, loading, emptyMessage }) {
   }
 
   return (
-    <div className="mh-scroller" role="region" aria-label="Product carousel">
+    <div className="mh-scroller" role="region" aria-label={t("mobileHome.productCarouselLabel")}>
       <div className="mh-scroller__track">
         {items.map(item => (
           <ProductCard key={item.id} item={item} />

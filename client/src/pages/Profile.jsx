@@ -157,7 +157,7 @@ export default function Profile() {
               <p className="profile-muted">{t('profile.supportDesc', 'Besoin d’aide ? Consulte la FAQ ou contacte-nous.')}</p>
               <div className="profile-support-links">
                 <Link to="/orders" className="support-link">{t('profile.orders')}</Link>
-                <Link to="/client#faq" className="support-link">FAQ</Link>
+                <Link to="/client#faq" className="support-link">{t('footer.faq')}</Link>
                 <Link to="/items" className="support-link">{t('profile.collection')}</Link>
               </div>
             </div>

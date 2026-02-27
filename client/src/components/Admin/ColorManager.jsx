@@ -273,7 +273,7 @@ export default function ColorManager() {
   };
 
   if (loading) return <LoadingMessage message={t("admin.common.loading", "Chargement...")} />;
-  if (error) return <ErrorMessage title="Erreur" message={error} onRetry={fetchColors} />;
+  if (error) return <ErrorMessage title={t("status.error")} message={error} onRetry={fetchColors} />;
 
   return (
     <div className="color-manager-v2">
@@ -429,7 +429,7 @@ export default function ColorManager() {
                     name="code"
                     value={form.code}
                     onChange={handleChange}
-                    placeholder="ex: bleu_glace"
+                    placeholder={t("admin.colors.form.codePlaceholder", "ex: bleu_glace")}
                     required
                   />
                   <p className="input-hint">
@@ -454,7 +454,7 @@ export default function ColorManager() {
                       name="hex_code"
                       value={form.hex_code}
                       onChange={handleChange}
-                      placeholder="#1E90FF"
+                      placeholder={t("admin.colors.form.hexPlaceholder", "#1E90FF")}
                       required
                     />
                   </div>

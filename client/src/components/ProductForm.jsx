@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../supabase/supabaseClient';
 
 const ProductForm = () => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
@@ -61,7 +63,7 @@ const ProductForm = () => {
     const uploads = Array.from(files).map(file => uploadImage(file, itemId));
     await Promise.all(uploads);
 
-    setMessage('Produit et images ajoutés !');
+    setMessage(t('admin.products.messages.created'));
     setName('');
     setPrice('');
     setDescription('');
@@ -70,16 +72,16 @@ const ProductForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="product-form">
-      <h2 className="form-title">Ajouter un produit</h2>
-      <input value={name} onChange={e => setName(e.target.value)} placeholder="Nom" required />
-      <input value={price} onChange={e => setPrice(e.target.value)} placeholder="Prix" required />
+      <h2 className="form-title">{t('admin.products.newProduct')}</h2>
+      <input value={name} onChange={e => setName(e.target.value)} placeholder={t('admin.products.wizard.info.nameLabel')} required />
+      <input value={price} onChange={e => setPrice(e.target.value)} placeholder={t('admin.products.wizard.variants.priceLabel')} required />
       <textarea
         value={description}
         onChange={e => setDescription(e.target.value)}
-        placeholder="Description"
+        placeholder={t('admin.products.wizard.info.descriptionLabel')}
       />
       <input type="file" multiple onChange={e => setFiles(e.target.files)} />
-      <button type="submit">Ajouter</button>
+      <button type="submit">{t('admin.common.create')}</button>
       {message && (
         <p className={`message ${message.includes('succès') ? 'success' : 'error'}`}>{message}</p>
       )}

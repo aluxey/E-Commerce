@@ -1,6 +1,7 @@
 import { pushToast } from "@/utils/toast";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const PRODUCT_DRAFT_KEY = "admin-product-draft";
 
@@ -15,7 +16,12 @@ export const STEPS = {
   REVIEW: 3,
 };
 
-export const STEP_LABELS = ["Informations", "Variantes", "Images", "Résumé"];
+export const STEP_LABEL_KEYS = [
+  "admin.products.wizard.steps.info",
+  "admin.products.wizard.steps.variants",
+  "admin.products.wizard.steps.images",
+  "admin.products.wizard.steps.review",
+];
 
 // Helper functions
 export const createEmptyVariant = () => ({
@@ -48,6 +54,7 @@ export const buildSku = (itemId, variant) => {
  * Hook for managing product form state and logic
  */
 export function useProductForm() {
+  const { t } = useTranslation();
   const [editingId, setEditingId] = useState(null);
   const [currentStep, setCurrentStep] = useState(STEPS.INFO);
   const [showWizard, setShowWizard] = useState(false);
@@ -95,7 +102,7 @@ export function useProductForm() {
   // Hook for unsaved changes warning
   useUnsavedChanges(
     isDirty,
-    "Des modifications produit ne sont pas sauvegardées. Quitter la page ?"
+    t("admin.products.unsaved")
   );
 
   // Load draft on mount (only when not editing)
@@ -175,13 +182,13 @@ export function useProductForm() {
   // Generate variants automatically (preserves existing variant IDs when regenerating)
   const generateVariants = useCallback(() => {
     if (!selectedSizes.length) {
-      pushToast({ message: "Sélectionnez au moins une taille", variant: "warning" });
+      pushToast({ message: t("admin.products.messages.selectSize"), variant: "warning" });
       return;
     }
 
     const price = parseFloat(String(basePrice).replace(",", "."));
     if (Number.isNaN(price) || price < 0) {
-      pushToast({ message: "Définissez un prix de base valide", variant: "warning" });
+      pushToast({ message: t("admin.products.messages.validPrice"), variant: "warning" });
       return;
     }
 
@@ -206,8 +213,8 @@ export function useProductForm() {
 
     setVariants(newVariants);
     setIsDirty(true);
-    pushToast({ message: `${newVariants.length} variantes générées`, variant: "success" });
-  }, [selectedSizes, basePrice, baseStock, variants]);
+    pushToast({ message: t("admin.products.messages.variantsGenerated", { count: newVariants.length }), variant: "success" });
+  }, [selectedSizes, basePrice, baseStock, variants, t]);
 
   // Add empty variant row
   const addVariantRow = useCallback(() => {
@@ -250,15 +257,15 @@ export function useProductForm() {
       const price = parseFloat(String(variant.price).replace(",", "."));
       const stock = Math.max(0, parseInt(variant.stock, 10) || 0);
 
-      if (!size) errors.push(`Variante #${index + 1}: la taille est requise.`);
-      if (Number.isNaN(price)) errors.push(`Variante #${index + 1}: prix invalide.`);
+      if (!size) errors.push(`Variante #${index + 1}: ${t("admin.products.wizard.variants.sizeRequired")}`);
+      if (Number.isNaN(price)) errors.push(`Variante #${index + 1}: ${t("admin.products.wizard.variants.invalidPrice")}`);
       if (!Number.isNaN(price) && price < 0)
-        errors.push(`Variante #${index + 1}: le prix doit être positif.`);
+        errors.push(`Variante #${index + 1}: ${t("admin.products.messages.positivePrice")}`);
 
       const key = size || "—";
       if (size && !Number.isNaN(price)) {
         if (combos.has(key)) {
-          errors.push(`Variante #${index + 1}: cette taille existe déjà.`);
+          errors.push(`Variante #${index + 1}: ${t("admin.products.wizard.variants.duplicateSize")}`);
         } else {
           combos.add(key);
         }
@@ -274,10 +281,10 @@ export function useProductForm() {
     });
 
     const valid = cleaned.filter(v => v.size && !Number.isNaN(v.price) && v.price >= 0);
-    if (!valid.length) errors.push("Au moins une variante valide est requise.");
+    if (!valid.length) errors.push(t("admin.products.messages.variantRequired"));
 
     return { errors, validVariants: valid };
-  }, [variants]);
+  }, [variants, t]);
 
   // Image handling
   const onFilesSelected = useCallback(files => {

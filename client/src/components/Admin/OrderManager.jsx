@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { listOrders, updateOrderStatus } from '../../services/adminOrders';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
 import { pushToast } from '../../utils/toast';
@@ -6,6 +7,7 @@ import { formatDate, formatMoney } from '../../utils/formatters';
 import { ORDER_STATUS_OPTIONS, getStatusStyle, getStatusLabel } from '../../utils/orderStatus';
 
 export default function OrderManager() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [allOrders, setAllOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -22,12 +24,12 @@ export default function OrderManager() {
       setAllOrders(data || []);
       setOrders(data || []);
     } catch (err) {
-      console.error('Erreur lors du chargement des commandes:', err);
-      setError('Impossible de charger les commandes / Bestellungen konnten nicht geladen werden.');
+      console.error('Order loading error:', err);
+      setError(t('admin.orders.error.load'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const updateOrderStatusRecompute = async (orderId, newStatus) => {
     try {
@@ -38,10 +40,10 @@ export default function OrderManager() {
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
       }
-      pushToast({ message: 'Statut mis à jour / Status aktualisiert', variant: 'success' });
+      pushToast({ message: t('admin.orders.success.statusUpdated'), variant: 'success' });
     } catch (err) {
-      console.error('Erreur lors de la mise à jour du statut:', err);
-      pushToast({ message: 'Erreur lors de la mise à jour du statut / Aktualisierung fehlgeschlagen.', variant: 'error' });
+      console.error('Order status update error:', err);
+      pushToast({ message: t('admin.orders.error.statusUpdate'), variant: 'error' });
     }
   };
 
@@ -53,8 +55,8 @@ export default function OrderManager() {
     }, 0);
   };
 
-  const formatAddress = addr => {
-    if (!addr) return 'Non renseignée';
+  const formatAddress = useCallback(addr => {
+    if (!addr) return t('admin.orders.notProvided');
     if (typeof addr === 'string') return addr;
     const parts = [
       addr.name,
@@ -64,8 +66,8 @@ export default function OrderManager() {
       addr.state,
       addr.country,
     ].filter(Boolean);
-    return parts.length ? parts.join(', ') : 'Non renseignée';
-  };
+    return parts.length ? parts.join(', ') : t('admin.orders.notProvided');
+  }, [t]);
 
   useEffect(() => {
     fetchOrders();
@@ -88,65 +90,67 @@ export default function OrderManager() {
     <div className="order-manager">
       <div className="order-header">
         <div>
-          <h2>Gestion des commandes</h2>
-          <p className="order-subtitle">Suivi, statut et préparation des commandes.</p>
+          <h2>{t('admin.orders.manager.title')}</h2>
+          <p className="order-subtitle">{t('admin.orders.manager.subtitle')}</p>
         </div>
         <div className="order-toolbar">
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} aria-label="Filtrer par statut / Nach Status filtern">
-            <option value="all">Tous les statuts</option>
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} aria-label={t('admin.orders.manager.filterByStatus')}>
+            <option value="all">{t('admin.orders.manager.allStatuses')}</option>
             {ORDER_STATUS_OPTIONS.map(option => (
               <option key={option.value} value={option.value}>
-                {option.labelFallback}
+                {t(option.labelKey, option.labelFallback)}
               </option>
             ))}
           </select>
-          <button className="btn btn-outline" onClick={fetchOrders} aria-label="Actualiser / Aktualisieren">Actualiser</button>
+          <button className="btn btn-outline" onClick={fetchOrders} aria-label={t('admin.orders.manager.refresh')}>
+            {t('admin.orders.manager.refresh')}
+          </button>
         </div>
       </div>
 
       <div className="order-metrics">
         <div className="order-metric">
-          <span className="metric-label">Commandes</span>
+          <span className="metric-label">{t('admin.orders.manager.metrics.orders')}</span>
           <strong className="metric-value">{metrics.total}</strong>
         </div>
         <div className="order-metric">
-          <span className="metric-label">En attente</span>
+          <span className="metric-label">{t('admin.orders.manager.metrics.pending')}</span>
           <strong className="metric-value">{metrics.pending}</strong>
         </div>
         <div className="order-metric">
-          <span className="metric-label">Payées</span>
+          <span className="metric-label">{t('admin.orders.manager.metrics.paid')}</span>
           <strong className="metric-value">{metrics.paid}</strong>
         </div>
         <div className="order-metric">
-          <span className="metric-label">Revenu estimé</span>
+          <span className="metric-label">{t('admin.orders.manager.metrics.estimatedRevenue')}</span>
           <strong className="metric-value">{formatMoney(metrics.revenue, 'EUR')}</strong>
         </div>
       </div>
 
-      {loading && <LoadingMessage message="Chargement des commandes..." />}
-      {error && !loading && <ErrorMessage title="Erreur" message={error} onRetry={fetchOrders} />}
+      {loading && <LoadingMessage message={t('admin.orders.loading')} />}
+      {error && !loading && <ErrorMessage title={t('status.error')} message={error} onRetry={fetchOrders} />}
       {!loading && !error && (
         <>
           <div className="orders-container">
             <div className="orders-list">
               <div className="orders-list__header">
                 <div>
-                  <h3>Commandes ({orders.length})</h3>
-                  <p className="order-subtitle">Clique sur une ligne pour voir le détail et mettre à jour le statut.</p>
+                  <h3>{t('admin.orders.manager.listTitle', { count: orders.length })}</h3>
+                  <p className="order-subtitle">{t('admin.orders.manager.listHint')}</p>
                 </div>
               </div>
               {orders.length === 0 ? (
-                <p className="order-empty">Aucune commande trouvée.</p>
+                <p className="order-empty">{t('admin.orders.manager.empty')}</p>
               ) : (
                 <div className="orders-table-wrapper">
                   <table className="orders-table">
                     <thead>
                       <tr>
                         <th>ID</th>
-                        <th>Client</th>
-                        <th>Date</th>
-                        <th>Total</th>
-                        <th>Statut</th>
+                        <th>{t('admin.orders.manager.columns.client')}</th>
+                        <th>{t('admin.orders.manager.columns.date')}</th>
+                        <th>{t('admin.orders.manager.columns.total')}</th>
+                        <th>{t('admin.orders.manager.columns.status')}</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -154,21 +158,21 @@ export default function OrderManager() {
                       {orders.map(order => (
                         <tr key={order.id} onClick={() => setSelectedOrder(order)} className="order-row">
                           <td data-label="ID">#{order.id.slice(0, 8)}</td>
-                          <td data-label="Client">
+                          <td data-label={t('admin.orders.manager.columns.client')}>
                             {order.user ? order.user.email : order.customer_email}
                           </td>
-                          <td data-label="Date">{formatDate(order.created_at)}</td>
-                          <td data-label="Total">
+                          <td data-label={t('admin.orders.manager.columns.date')}>{formatDate(order.created_at)}</td>
+                          <td data-label={t('admin.orders.manager.columns.total')}>
                             {formatMoney(order.total ?? calculateOrderTotal(order.order_items), order.currency || 'EUR')}
                           </td>
-                          <td data-label="Statut">
+                          <td data-label={t('admin.orders.manager.columns.status')}>
                             <span className="status-chip" style={getStatusStyle(order.status)}>
-                              {getStatusLabel(order.status)}
+                              {getStatusLabel(order.status, t)}
                             </span>
                           </td>
                           <td data-label="Actions" className="text-right">
                             <button className="btn btn-outline btn-xs" onClick={e => { e.stopPropagation(); setSelectedOrder(order); }}>
-                              Détails
+                              {t('admin.orders.manager.details')}
                             </button>
                           </td>
                         </tr>
@@ -185,45 +189,45 @@ export default function OrderManager() {
               <div className="order-modal" onClick={e => e.stopPropagation()}>
                 <div className="order-modal__header">
                   <div>
-                    <p className="order-chip">Commande #{selectedOrder.id.slice(0, 8)}</p>
-                    <h3>Détails de la commande</h3>
+                    <p className="order-chip">{t('admin.orders.manager.orderChip', { id: selectedOrder.id.slice(0, 8) })}</p>
+                    <h3>{t('admin.orders.manager.orderDetailsTitle')}</h3>
                     <p className="order-meta">
-                      Créée le {formatDate(selectedOrder.created_at)}
+                      {t('admin.orders.manager.createdOn', { date: formatDate(selectedOrder.created_at) })}
                     </p>
                   </div>
                   <div className="order-status">
                     <span style={getStatusStyle(selectedOrder.status)}>
-                      {getStatusLabel(selectedOrder.status)}
+                      {getStatusLabel(selectedOrder.status, t)}
                     </span>
-                    <button className="order-close" onClick={() => setSelectedOrder(null)} aria-label="Fermer">×</button>
+                    <button className="order-close" onClick={() => setSelectedOrder(null)} aria-label={t('admin.common.close')}>×</button>
                   </div>
                 </div>
 
                 <div className="order-modal__grid">
                   <div className="order-card">
-                    <h4>Client</h4>
-                    <p><strong>Email:</strong> {selectedOrder.user?.email || selectedOrder.customer_email || '—'}</p>
-                    <p><strong>Nom:</strong> {selectedOrder.user ? `${selectedOrder.user.first_name || ''} ${selectedOrder.user.last_name || ''}`.trim() : 'Client invité'}</p>
-                    <p><strong>Téléphone:</strong> {selectedOrder.customer_phone || 'N/A'}</p>
+                    <h4>{t('admin.orders.manager.cards.client')}</h4>
+                    <p><strong>{t('admin.orders.manager.labels.email')}</strong> {selectedOrder.user?.email || selectedOrder.customer_email || '—'}</p>
+                    <p><strong>{t('admin.orders.manager.labels.name')}</strong> {selectedOrder.user ? `${selectedOrder.user.first_name || ''} ${selectedOrder.user.last_name || ''}`.trim() : t('admin.orders.guestClient')}</p>
+                    <p><strong>{t('admin.orders.manager.labels.phone')}</strong> {selectedOrder.customer_phone || t('admin.orders.notAvailable')}</p>
                   </div>
 
                   <div className="order-card">
-                    <h4>Livraison</h4>
+                    <h4>{t('admin.orders.manager.cards.shipping')}</h4>
                     <p>{formatAddress(selectedOrder.shipping_address)}</p>
                   </div>
 
                   <div className="order-card">
-                    <h4>Méthode de paiement</h4>
-                    <p><strong>Payment Intent:</strong> {selectedOrder.payment_intent_id || '—'}</p>
-                    <p><strong>Devise:</strong> {(selectedOrder.currency || 'eur').toUpperCase()}</p>
+                    <h4>{t('admin.orders.manager.cards.paymentMethod')}</h4>
+                    <p><strong>{t('admin.orders.manager.labels.paymentIntent')}</strong> {selectedOrder.payment_intent_id || '—'}</p>
+                    <p><strong>{t('admin.orders.manager.labels.currency')}</strong> {(selectedOrder.currency || 'eur').toUpperCase()}</p>
                   </div>
                 </div>
 
                 <div className="order-items">
                   <div className="order-items__header">
-                    <h4>Articles commandés</h4>
+                    <h4>{t('admin.orders.manager.itemsTitle')}</h4>
                     <div className="order-total">
-                      Total: {formatMoney(selectedOrder.total ?? calculateOrderTotal(selectedOrder.order_items), selectedOrder.currency || 'EUR')}
+                      {t('admin.orders.manager.totalLabel')} {formatMoney(selectedOrder.total ?? calculateOrderTotal(selectedOrder.order_items), selectedOrder.currency || 'EUR')}
                     </div>
                   </div>
                   {selectedOrder.order_items?.map(item => {
@@ -234,11 +238,11 @@ export default function OrderManager() {
                     return (
                       <div key={item.id} className="order-item">
                         <div className="order-item__main">
-                          <span className="order-item__title">{item.items?.name || 'Produit supprimé'}</span>
+                          <span className="order-item__title">{item.items?.name || t('admin.orders.deletedProduct')}</span>
                           {variantDesc && <span className="order-item__variant">{variantDesc}</span>}
                         </div>
                         <div className="order-item__meta">
-                          <span>Qté {item.quantity}</span>
+                          <span>{t('admin.orders.quantity', { count: item.quantity })}</span>
                           <span>{formatMoney(unit, selectedOrder.currency || 'EUR')}</span>
                           <strong>{formatMoney(item.quantity * unit, selectedOrder.currency || 'EUR')}</strong>
                         </div>
@@ -250,11 +254,11 @@ export default function OrderManager() {
                 <div className="order-footer">
                   <div>
                     <p className="order-meta">
-                      Dernière mise à jour le {formatDate(selectedOrder.updated_at || selectedOrder.created_at)}
+                      {t('admin.orders.manager.lastUpdateOn', { date: formatDate(selectedOrder.updated_at || selectedOrder.created_at) })}
                     </p>
                   </div>
                   <div className="order-status-update">
-                    <label htmlFor="order-status">Modifier le statut</label>
+                    <label htmlFor="order-status">{t('admin.orders.manager.updateStatus')}</label>
                     <select
                       id="order-status"
                       value={selectedOrder.status}
@@ -262,7 +266,7 @@ export default function OrderManager() {
                     >
                       {ORDER_STATUS_OPTIONS.map(option => (
                         <option key={option.value} value={option.value}>
-                          {option.labelFallback}
+                          {t(option.labelKey, option.labelFallback)}
                         </option>
                       ))}
                     </select>

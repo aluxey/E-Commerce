@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import i18n from '../i18n';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -16,7 +17,7 @@ class ErrorBoundary extends Component {
 
   render() {
     if (this.state.hasError) {
-      return this.props.fallback || <h1>Something went wrong.</h1>;
+      return this.props.fallback || <h1>{i18n.t('status.error')}</h1>;
     }
     return this.props.children;
   }

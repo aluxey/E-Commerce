@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fetchOrdersStats } from '@/services/orders';
 
-// Utilitaire: formatage monnaie EUR
-const fmtEUR = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
-
 export function useAdminStats() {
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState({
@@ -56,17 +55,21 @@ export function useAdminStats() {
         });
       } catch (e) {
         console.error('[AdminStats] error:', e);
-        setError('Erreur lors du chargement des indicateurs.');
+        setError(t('admin.dashboard.loadingError'));
       } finally {
         setLoading(false);
       }
     }
 
     fetchStats();
-  }, []);
+  }, [t]);
 
   const computed = useMemo(() => {
     const { revenue30d, revenuePrev30d, orders30d, ordersPrev30d, avgOrderValue30d, pendingOrders } = stats;
+    const fmtEUR = new Intl.NumberFormat(i18n.language === 'fr' ? 'fr-FR' : 'de-DE', {
+      style: 'currency',
+      currency: 'EUR',
+    });
 
     const revenueDeltaPct = revenuePrev30d > 0
       ? ((revenue30d - revenuePrev30d) / revenuePrev30d) * 100
@@ -86,7 +89,7 @@ export function useAdminStats() {
       avgOrder: fmtEUR.format(avgOrderValue30d || 0),
       pendingOrders,
     };
-  }, [stats, loading, error]);
+  }, [stats, loading, error, i18n.language]);
 
   return computed;
 }

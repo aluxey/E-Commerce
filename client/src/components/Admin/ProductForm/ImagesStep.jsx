@@ -1,4 +1,5 @@
 import { useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import DraggableImageGrid from "./DraggableImageGrid";
 
 /**
@@ -18,6 +19,8 @@ export default function ImagesStep({
   setAsPrimary,
   reorderImages,
 }) {
+  const { t } = useTranslation();
+
   // Build unified image array for the draggable grid
   const unifiedImages = useMemo(() => {
     const unified = [];
@@ -90,10 +93,9 @@ export default function ImagesStep({
   return (
     <div className="wizard-step">
       <div className="step-header">
-        <h3>Images du produit</h3>
+        <h3>{t("admin.products.wizard.images.title")}</h3>
         <p className="step-description">
-          Ajoutez des photos de votre produit. Glissez-déposez pour réordonner. Cliquez sur une
-          image pour la définir comme principale.
+          {t("admin.products.wizard.images.description")}
         </p>
       </div>
 
@@ -106,10 +108,10 @@ export default function ImagesStep({
       >
         <div className="upload-zone__content">
           <span className="upload-icon">📁</span>
-          <p>Glissez-déposez vos images ici</p>
-          <span className="upload-or">ou</span>
+          <p>{t("admin.products.wizard.images.dropzone")}</p>
+          <span className="upload-or">{t("admin.products.wizard.images.or")}</span>
           <label className="btn btn-outline" htmlFor="file-input-wizard">
-            Parcourir
+            {t("admin.products.wizard.images.browse")}
           </label>
           <input
             id="file-input-wizard"
@@ -126,12 +128,13 @@ export default function ImagesStep({
       {totalImages > 0 && (
         <div className="images-section">
           <h4>
-            Toutes les images ({totalImages})
+            {t("admin.products.wizard.images.allImages", { count: totalImages })}
             {existingImages.length > 0 && imagePreviews.length > 0 && (
               <span className="image-count-detail">
-                {" "}
-                - {existingImages.length} existante{existingImages.length > 1 ? "s" : ""},{" "}
-                {imagePreviews.length} nouvelle{imagePreviews.length > 1 ? "s" : ""}
+                {" - "}
+                {t("admin.products.wizard.images.existingCount", { count: existingImages.length })}
+                {", "}
+                {t("admin.products.wizard.images.newCount", { count: imagePreviews.length })}
               </span>
             )}
           </h4>
@@ -147,14 +150,13 @@ export default function ImagesStep({
 
       {totalImages === 0 && (
         <p className="hint">
-          Les images sont optionnelles mais recommandées pour une meilleure conversion.
+          {t("admin.products.wizard.images.hint")}
         </p>
       )}
 
       {totalImages > 0 && (
         <p className="hint">
-          Glissez les images pour les réordonner. La première image sera l'image principale. Total:{" "}
-          {totalImages} image{totalImages > 1 ? "s" : ""}
+          {t("admin.products.wizard.images.reorderHint", { count: totalImages })}
         </p>
       )}
     </div>

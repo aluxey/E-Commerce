@@ -37,7 +37,7 @@ export default function AuthForm({ onSuccess }) {
 
   const getPasswordStrength = useMemo(() => {
     const pwd = form.password;
-    if (!pwd) return { score: 0, label: 'Vide' };
+    if (!pwd) return { score: 0, label: t('signup.passwordEmpty') };
     let score = 0;
     if (pwd.length >= 8) score++;
     if (/[A-Z]/.test(pwd)) score++;
@@ -115,7 +115,7 @@ export default function AuthForm({ onSuccess }) {
           id="email"
           name="email"
           type="email"
-          placeholder="email@example.com"
+          placeholder={t('signup.emailPlaceholder')}
           value={form.email}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -137,7 +137,7 @@ export default function AuthForm({ onSuccess }) {
             id="password"
             name="password"
             type={showPassword ? 'text' : 'password'}
-            placeholder="••••••••"
+            placeholder={t('signup.passwordPlaceholder')}
             value={form.password}
             onChange={handleChange}
             onBlur={handleBlur}

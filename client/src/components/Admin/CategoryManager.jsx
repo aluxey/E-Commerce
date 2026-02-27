@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   countAllCategoryProducts,
   deleteCategory,
@@ -15,6 +16,7 @@ import { pushToast } from "../../utils/toast";
 const ICONS = ["🧺", "🎁", "⭐", "🌸", "🍂", "❄️", "🐰", "🏠", "👜", "✨"];
 
 export default function CategoryManager() {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
   const [productCounts, setProductCounts] = useState({});
   const [loading, setLoading] = useState(true);
@@ -32,7 +34,7 @@ export default function CategoryManager() {
       countAllCategoryProducts(),
     ]);
     if (catRes.error) {
-      setError("Erreur de chargement");
+      setError(t("admin.categories.error.load"));
     } else {
       setCategories(catRes.data || []);
       setProductCounts(countRes.data || {});
@@ -40,7 +42,7 @@ export default function CategoryManager() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [t]);
 
   const mainCategories = useMemo(() => categories.filter(c => !c.parent_id), [categories]);
   const getSubcats = (parentId) => categories.filter(c => c.parent_id === parentId);
@@ -67,7 +69,7 @@ export default function CategoryManager() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!form.name.trim()) return pushToast({ message: "Nom requis", variant: "error" });
+    if (!form.name.trim()) return pushToast({ message: t("admin.categories.error.nameRequired"), variant: "error" });
     
     setSaving(true);
     try {
@@ -83,12 +85,12 @@ export default function CategoryManager() {
       if (result.error) {
         console.error("Supabase error:", result.error);
         pushToast({ 
-          message: result.error.message || "Erreur lors de l'enregistrement", 
+          message: result.error.message || t("admin.categories.error.save"), 
           variant: "error" 
         });
       } else {
         pushToast({ 
-          message: modal.category ? "Catégorie modifiée ✓" : "Catégorie créée ✓", 
+          message: modal.category ? t("admin.categories.success.update") : t("admin.categories.success.create"), 
           variant: "success" 
         });
         closeModal();
@@ -96,7 +98,7 @@ export default function CategoryManager() {
       }
     } catch (err) {
       console.error("Unexpected error:", err);
-      pushToast({ message: "Erreur inattendue", variant: "error" });
+      pushToast({ message: t("login.errors.unexpected"), variant: "error" });
     }
     setSaving(false);
   };
@@ -106,16 +108,16 @@ export default function CategoryManager() {
       hasSubcategories(cat.id),
       hasProductsInCategory(cat.id),
     ]);
-    if (subs > 0) return pushToast({ message: "Supprimez d'abord les sous-catégories", variant: "error" });
-    if (prods > 0) return pushToast({ message: "Catégorie utilisée par des produits", variant: "error" });
-    if (!confirm(`Supprimer "${cat.name}" ?`)) return;
+    if (subs > 0) return pushToast({ message: t("admin.categories.error.hasSubcategories"), variant: "error" });
+    if (prods > 0) return pushToast({ message: t("admin.categories.error.hasProducts"), variant: "error" });
+    if (!window.confirm(t("admin.categories.confirm.delete", { name: cat.name }))) return;
     
     const { error } = await deleteCategory(cat.id);
     if (error) {
       console.error("Delete error:", error);
-      pushToast({ message: error.message || "Erreur de suppression", variant: "error" });
+      pushToast({ message: error.message || t("admin.categories.error.delete"), variant: "error" });
     } else {
-      pushToast({ message: "Supprimée ✓", variant: "success" });
+      pushToast({ message: t("admin.categories.success.delete"), variant: "success" });
       fetchData();
     }
   };
@@ -128,11 +130,16 @@ export default function CategoryManager() {
       {/* Header */}
       <div className="cat-header">
         <div>
-          <h2>Catégories</h2>
-          <p className="cat-subtitle">{categories.length} catégories • {Object.values(productCounts).reduce((a, b) => a + b, 0)} produits</p>
+          <h2>{t("admin.categories.title")}</h2>
+          <p className="cat-subtitle">
+            {t("admin.categories.manager.stats", {
+              categories: categories.length,
+              products: Object.values(productCounts).reduce((a, b) => a + b, 0),
+            })}
+          </p>
         </div>
         <button className="cat-btn cat-btn--primary" onClick={() => openModal()}>
-          + Nouvelle catégorie
+          + {t("admin.categories.createTitle")}
         </button>
       </div>
 
@@ -140,9 +147,9 @@ export default function CategoryManager() {
       {mainCategories.length === 0 ? (
         <div className="cat-empty">
           <span className="cat-empty-icon">📂</span>
-          <p>Aucune catégorie</p>
+          <p>{t("admin.categories.empty.title")}</p>
           <button className="cat-btn cat-btn--primary" onClick={() => openModal()}>
-            Créer une catégorie
+            {t("admin.categories.createTitle")}
           </button>
         </div>
       ) : (
@@ -156,11 +163,11 @@ export default function CategoryManager() {
                   <span className="cat-card-icon">{cat.icon || "📦"}</span>
                   <div className="cat-card-info">
                     <h3>{cat.name}</h3>
-                    <span className="cat-card-meta">{count} produits</span>
+                    <span className="cat-card-meta">{t("admin.categories.manager.productsCount", { count })}</span>
                   </div>
                   <div className="cat-card-actions">
-                    <button onClick={() => openModal(cat)} title="Modifier">✏️</button>
-                    <button onClick={() => handleDelete(cat)} disabled={subcats.length > 0 || count > 0} title="Supprimer">🗑️</button>
+                    <button onClick={() => openModal(cat)} title={t("admin.common.edit")}>✏️</button>
+                    <button onClick={() => handleDelete(cat)} disabled={subcats.length > 0 || count > 0} title={t("admin.common.delete")}>🗑️</button>
                   </div>
                 </div>
                 
@@ -176,7 +183,7 @@ export default function CategoryManager() {
                     </div>
                   ))}
                   <button className="cat-add-sub" onClick={() => openModal(null, cat.id)}>
-                    + Sous-catégorie
+                    + {t("admin.categories.addSub")}
                   </button>
                 </div>
               </div>
@@ -190,7 +197,7 @@ export default function CategoryManager() {
         <div className="cat-modal-overlay" onClick={closeModal}>
           <div className="cat-modal" onClick={e => e.stopPropagation()}>
             <div className="cat-modal-header">
-              <h3>{modal.category ? "Modifier" : modal.parentId ? "Nouvelle sous-catégorie" : "Nouvelle catégorie"}</h3>
+              <h3>{modal.category ? t("admin.categories.editTitle") : modal.parentId ? t("admin.categories.createSubTitle") : t("admin.categories.createTitle")}</h3>
               <button onClick={closeModal} className="cat-modal-close">×</button>
             </div>
             
@@ -214,7 +221,7 @@ export default function CategoryManager() {
                 type="text"
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="Nom de la catégorie"
+                placeholder={t("admin.categories.form.namePlaceholder")}
                 className="cat-input"
                 autoFocus
               />
@@ -226,7 +233,7 @@ export default function CategoryManager() {
                   onChange={e => setForm(f => ({ ...f, parent_id: e.target.value || null }))}
                   className="cat-select"
                 >
-                  <option value="">— Catégorie principale —</option>
+                  <option value="">{t("admin.categories.form.noParent")}</option>
                   {mainCategories.map(cat => (
                     <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                   ))}
@@ -235,9 +242,9 @@ export default function CategoryManager() {
 
               {/* Actions */}
               <div className="cat-modal-actions">
-                <button type="button" onClick={closeModal} className="cat-btn">Annuler</button>
+                <button type="button" onClick={closeModal} className="cat-btn">{t("admin.common.cancel")}</button>
                 <button type="submit" disabled={saving} className="cat-btn cat-btn--primary">
-                  {saving ? "..." : modal.category ? "Enregistrer" : "Créer"}
+                  {saving ? "..." : modal.category ? t("admin.common.save") : t("admin.common.create")}
                 </button>
               </div>
             </form>

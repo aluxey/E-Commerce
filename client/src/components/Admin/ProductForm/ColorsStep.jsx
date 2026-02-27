@@ -1,7 +1,10 @@
+import { useTranslation } from "react-i18next";
+
 /**
  * ColorsStep - Color selection step
  */
 export default function ColorsStep({ colors, selectedColors, toggleColor, setSelectedColors }) {
+  const { t } = useTranslation();
   // Sélectionner ou désélectionner toutes les couleurs
   const handleSelectAll = () => {
     if (selectedColors.length === colors.length) {
@@ -18,25 +21,25 @@ export default function ColorsStep({ colors, selectedColors, toggleColor, setSel
   return (
     <div className="wizard-step">
       <div className="step-header">
-        <h3>Couleurs disponibles</h3>
+        <h3>{t("admin.products.wizard.colors.title")}</h3>
         <p className="step-description">
-          Sélectionnez les couleurs dans lesquelles ce produit est disponible.
+          {t("admin.products.wizard.colors.description")}
         </p>
       </div>
 
       {colors.length === 0 ? (
         <div className="empty-state-inline">
           <span className="empty-icon">🎨</span>
-          <p>Aucune couleur disponible.</p>
+          <p>{t("admin.products.wizard.colors.noColors")}</p>
           <a href="/admin/colors" className="btn btn-outline btn-sm">
-            Créer des couleurs
+            {t("admin.products.wizard.colors.createColors")}
           </a>
         </div>
       ) : (
         <>
           <div className="color-actions">
             <button type="button" className="btn btn-outline btn-sm" onClick={handleSelectAll}>
-              {allSelected ? "Tout désélectionner" : "Tout sélectionner"}
+              {allSelected ? t("admin.products.wizard.colors.unselectAll") : t("admin.products.wizard.colors.selectAll")}
             </button>
           </div>
           <div className="color-grid">
@@ -62,11 +65,10 @@ export default function ColorsStep({ colors, selectedColors, toggleColor, setSel
       <div className="selection-summary">
         {selectedColors.length > 0 ? (
           <p>
-            ✓ {selectedColors.length} couleur{selectedColors.length > 1 ? "s" : ""} sélectionnée
-            {selectedColors.length > 1 ? "s" : ""}
+            ✓ {t("admin.products.wizard.colors.selected", { count: selectedColors.length })}
           </p>
         ) : (
-          <p className="warning">Sélectionnez au moins une couleur</p>
+          <p className="warning">{t("admin.products.wizard.colors.selectWarning")}</p>
         )}
       </div>
     </div>

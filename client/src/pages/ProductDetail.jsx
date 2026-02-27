@@ -312,9 +312,9 @@ export default function ItemDetail() {
                   key={idx}
                   className={`pd-thumb ${activeImage === img.image_url ? "active" : ""}`}
                   onClick={() => setActiveImage(img.image_url)}
-                  aria-label={`Image ${idx + 1}`}
+                  aria-label={t("productDetail.imageAria", { index: idx + 1 })}
                 >
-                  <img src={img.image_url} alt={`Aperçu ${idx + 1}`} />
+                  <img src={img.image_url} alt={t("productDetail.imagePreviewAlt", { index: idx + 1 })} />
                 </button>
               ))}
             </div>
@@ -529,7 +529,7 @@ export default function ItemDetail() {
                           onClick={() => setRating(n)}
                           onMouseEnter={() => setHoverRating(n)}
                           onMouseLeave={() => setHoverRating(0)}
-                          aria-label={`${n} étoile${n > 1 ? "s" : ""}`}
+                          aria-label={t("productDetail.reviews.option", { count: n })}
                         >
                           <Star size={20} fill={n <= (hoverRating || rating) ? "currentColor" : "none"} />
                         </button>
@@ -543,10 +543,7 @@ export default function ItemDetail() {
                     <textarea
                       value={reviewComment}
                       onChange={e => setReviewComment(e.target.value)}
-                      placeholder={
-                        t("") ||
-                        "Partagez votre expérience (optionnel)..."
-                      }
+                      placeholder={t("productDetail.reviews.commentPlaceholder")}
                       rows={3}
                       maxLength={500}
                     />
@@ -564,7 +561,7 @@ export default function ItemDetail() {
                     {isSubmittingReview ? (
                       <>
                         <div className="btn-spinner"></div>
-                        Envoi...
+                        {t("productDetail.reviews.submitting")}
                       </>
                     ) : (
                       t("productDetail.reviews.submit")
@@ -574,8 +571,7 @@ export default function ItemDetail() {
                   {!session && (
                     <p className="login-hint">
                       <a href="/login">
-                        {t("productDetail.reviews.loginRequired") ||
-                          "Connectez-vous pour laisser un avis"}
+                        {t("productDetail.reviews.loginRequired")}
                       </a>
                     </p>
                   )}

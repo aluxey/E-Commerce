@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { listUsers, updateUserRole, deleteUser as deleteUserService } from '../../services/adminUsers';
 import { pushToast } from '../../utils/toast';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
-
-const roleOptions = [
-  { value: 'client', label: 'Utilisateur' },
-  { value: 'admin', label: 'Administrateur' },
-];
 
 const getRoleStyle = role => {
   const colors = {
@@ -25,12 +21,30 @@ const getRoleStyle = role => {
 };
 
 export default function UserManager() {
+  const { t, i18n } = useTranslation();
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [filterRole, setFilterRole] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const roleOptions = useMemo(
+    () => [
+      { value: 'client', label: t('admin.users.roles.client') },
+      { value: 'admin', label: t('admin.users.roles.admin') },
+    ],
+    [t]
+  );
+
+  const roleLabelMap = useMemo(
+    () =>
+      roleOptions.reduce((acc, opt) => {
+        acc[opt.value] = opt.label;
+        return acc;
+      }, {}),
+    [roleOptions]
+  );
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -50,45 +64,46 @@ export default function UserManager() {
 
       setUsers(filtered);
     } catch (err) {
-      console.error('Erreur lors du chargement des utilisateurs:', err);
-      setError('Impossible de charger les utilisateurs / Benutzer konnten nicht geladen werden.');
+      console.error('User loading error:', err);
+      setError(t('admin.users.error.load'));
     } finally {
       setLoading(false);
     }
-  }, [filterRole, searchTerm]);
+  }, [filterRole, searchTerm, t]);
 
   const handleRoleChange = async (userId, newRole) => {
     const { error: roleErr } = await updateUserRole(userId, newRole);
     if (roleErr) {
-      pushToast({ message: 'Erreur lors du changement de rôle / Rollenwechsel fehlgeschlagen.', variant: 'error' });
+      pushToast({ message: t('admin.users.error.roleUpdate'), variant: 'error' });
     } else {
       fetchUsers();
       if (selectedUser && selectedUser.id === userId) {
         setSelectedUser({ ...selectedUser, role: newRole });
       }
-      pushToast({ message: 'Rôle mis à jour / Rolle aktualisiert', variant: 'success' });
+      pushToast({ message: t('admin.users.success.roleUpdate'), variant: 'success' });
     }
   };
 
   const handleDeleteUser = async userId => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) return;
+    if (!window.confirm(t('admin.users.confirm.delete'))) return;
     const { error: delErr } = await deleteUserService(userId);
     if (delErr) {
-      pushToast({ message: 'Suppression impossible / Löschen unmöglich.', variant: 'error' });
+      pushToast({ message: t('admin.users.error.delete'), variant: 'error' });
     } else {
       fetchUsers();
       if (selectedUser && selectedUser.id === userId) setSelectedUser(null);
-      pushToast({ message: 'Utilisateur supprimé / Benutzer gelöscht', variant: 'success' });
+      pushToast({ message: t('admin.users.success.delete'), variant: 'success' });
     }
   };
 
   const formatDate = useCallback(dateString => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
+    const locale = i18n.language === 'fr' ? 'fr-FR' : 'de-DE';
+    return new Date(dateString).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
-  }, []);
+  }, [i18n.language]);
 
   const statsByUser = useMemo(() => {
     const map = new Map();
@@ -107,16 +122,16 @@ export default function UserManager() {
     fetchUsers();
   }, [fetchUsers]);
 
-  if (loading) return <LoadingMessage message="Chargement des utilisateurs..." />;
-  if (error) return <ErrorMessage title="Erreur" message={error} onRetry={fetchUsers} />;
+  if (loading) return <LoadingMessage message={t('admin.users.loading')} />;
+  if (error) return <ErrorMessage title={t('status.error')} message={error} onRetry={fetchUsers} />;
 
   return (
     <div>
-      <h2>Gestion des utilisateurs / Benutzer</h2>
+      <h2>{t('admin.users.manager.title')}</h2>
 
       <div className="user-filters">
-        <select value={filterRole} onChange={e => setFilterRole(e.target.value)} aria-label="Filtrer par rôle / Nach Rolle filtern">
-          <option value="all">Tous les rôles / Alle Rollen</option>
+        <select value={filterRole} onChange={e => setFilterRole(e.target.value)} aria-label={t('admin.users.manager.filterByRole')}>
+          <option value="all">{t('admin.users.manager.allRoles')}</option>
           {roleOptions.map(opt => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
@@ -126,7 +141,7 @@ export default function UserManager() {
 
         <input
           type="text"
-          placeholder="Rechercher par email / Nach Email suchen"
+          placeholder={t('admin.users.manager.searchPlaceholder')}
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
@@ -135,12 +150,12 @@ export default function UserManager() {
       <table className="users-table">
         <thead>
           <tr>
-            <th>Email</th>
-            <th>Créé le</th>
-            <th>Rôle</th>
-            <th>Commandes</th>
-            <th>Total Dépensé</th>
-            <th>Actions</th>
+            <th>{t('admin.users.manager.columns.email')}</th>
+            <th>{t('admin.users.manager.columns.createdAt')}</th>
+            <th>{t('admin.users.manager.columns.role')}</th>
+            <th>{t('admin.users.manager.columns.orders')}</th>
+            <th>{t('admin.users.manager.columns.totalSpent')}</th>
+            <th>{t('admin.users.manager.columns.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -151,12 +166,12 @@ export default function UserManager() {
                   <td>{user.email}</td>
                 <td>{formatDate(user.created_at)}</td>
                 <td>
-                  <span style={getRoleStyle(user.role)}>{user.role}</span>
+                  <span style={getRoleStyle(user.role)}>{roleLabelMap[user.role] || user.role}</span>
                   <br />
                   <select
                     value={user.role}
                     onChange={e => handleRoleChange(user.id, e.target.value)}
-                    aria-label="Changer le rôle / Rolle ändern"
+                    aria-label={t('admin.users.manager.changeRole')}
                   >
                     {roleOptions.map(opt => (
                       <option key={opt.value} value={opt.value}>
@@ -168,9 +183,11 @@ export default function UserManager() {
                 <td>{stats.totalOrders}</td>
                 <td>{stats.totalSpent.toFixed(2)} €</td>
                 <td>
-                  <button onClick={() => setSelectedUser(user)} aria-label="Détails / Details">Détails / Details</button>
-                  <button onClick={() => handleDeleteUser(user.id)} className="link-danger" aria-label="Supprimer / Löschen">
-                    Supprimer / Löschen
+                  <button onClick={() => setSelectedUser(user)} aria-label={t('admin.users.manager.details')}>
+                    {t('admin.users.manager.details')}
+                  </button>
+                  <button onClick={() => handleDeleteUser(user.id)} className="link-danger" aria-label={t('admin.common.delete')}>
+                    {t('admin.common.delete')}
                   </button>
                 </td>
               </tr>
@@ -190,18 +207,18 @@ export default function UserManager() {
             boxShadow: 'var(--shadow-sm)',
           }}
         >
-          <h3>Détails de l'utilisateur / Nutzerdetails</h3>
+          <h3>{t('admin.users.manager.userDetailsTitle')}</h3>
           <p>
-            <strong>Email :</strong> {selectedUser.email}
+            <strong>{t('admin.users.manager.labels.email')}</strong> {selectedUser.email}
           </p>
           <p>
-            <strong>Créé le :</strong> {formatDate(selectedUser.created_at)}
+            <strong>{t('admin.users.manager.labels.createdAt')}</strong> {formatDate(selectedUser.created_at)}
           </p>
           <p>
-            <strong>Rôle :</strong> {selectedUser.role}
+            <strong>{t('admin.users.manager.labels.role')}</strong> {roleLabelMap[selectedUser.role] || selectedUser.role}
           </p>
           <p>
-            <strong>Commandes :</strong>
+            <strong>{t('admin.users.manager.labels.orders')}</strong>
           </p>
           <ul>
             {selectedUser.orders &&

@@ -1,6 +1,7 @@
-import { STEPS, STEP_LABELS, buildSku, sanitizeText, useProductForm } from "@/hooks/useProductForm";
+import { STEPS, STEP_LABEL_KEYS, buildSku, sanitizeText, useProductForm } from "@/hooks/useProductForm";
 import { supabase } from "@/supabase/supabaseClient";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Search, X, Check, ChevronLeft, ChevronRight, Package, Camera, Trash2 } from "lucide-react";
 import {
   deleteItem,
@@ -23,6 +24,7 @@ export const TABLE_ITEMS = "items";
 const TABLE_VARIANTS = "item_variants";
 
 export default function ProductManager() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -86,7 +88,7 @@ export default function ProductManager() {
       setProducts(data || []);
     } catch (err) {
       console.error("Erreur lors du chargement des produits :", err.message);
-      setError("Erreur lors du chargement des produits.");
+      setError(t("admin.products.error.load"));
       setProducts([]);
     } finally {
       setLoading(false);
@@ -140,7 +142,7 @@ export default function ProductManager() {
     try {
       const trimmedName = sanitizeText(form.name);
       if (!trimmedName) {
-        pushToast({ message: "Le nom du produit est requis.", variant: "error" });
+        pushToast({ message: t("admin.products.messages.nameRequired"), variant: "error" });
         return;
       }
 
@@ -232,11 +234,11 @@ export default function ProductManager() {
 
       resetForm();
       fetchProducts();
-      pushToast({ message: editingId ? "Produit mis à jour" : "Produit créé", variant: "success" });
+      pushToast({ message: editingId ? t("admin.products.messages.updated") : t("admin.products.messages.created"), variant: "success" });
       clearDraft();
     } catch (err) {
       console.error("Erreur sauvegarde produit:", err.message);
-      pushToast({ message: "Erreur lors de l'enregistrement du produit.", variant: "error" });
+      pushToast({ message: t("admin.products.messages.error"), variant: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -244,15 +246,15 @@ export default function ProductManager() {
 
   // Delete product
   const handleDelete = async id => {
-    if (!confirm("Supprimer ce produit ?")) return;
+    if (!window.confirm(t("admin.products.deleteConfirm"))) return;
     try {
       const { error } = await deleteItem(id);
       if (error) throw error;
       fetchProducts();
-      pushToast({ message: "Produit supprimé", variant: "success" });
+      pushToast({ message: t("admin.products.messages.deleted"), variant: "success" });
     } catch (err) {
       console.error("Erreur lors de la suppression :", err.message);
-      pushToast({ message: "Erreur lors de la suppression.", variant: "error" });
+      pushToast({ message: t("admin.products.error.delete"), variant: "error" });
     }
   };
 
@@ -294,10 +296,10 @@ export default function ProductManager() {
         );
       }
 
-      pushToast({ message: "Image supprimée", variant: "success" });
+      pushToast({ message: t("admin.products.success.imageDeleted"), variant: "success" });
     } catch (err) {
       console.error("Erreur suppression image:", err.message);
-      pushToast({ message: "Impossible de supprimer l'image.", variant: "error" });
+      pushToast({ message: t("admin.products.error.imageDelete"), variant: "error" });
     }
   };
 
@@ -318,10 +320,10 @@ export default function ProductManager() {
             : p
         )
       );
-      pushToast({ message: "Image supprimée", variant: "info" });
+      pushToast({ message: t("admin.products.success.imageDeleted"), variant: "info" });
     } catch (err) {
       console.error("Erreur suppression image:", err.message);
-      pushToast({ message: "Impossible de supprimer l'image.", variant: "error" });
+      pushToast({ message: t("admin.products.error.imageDelete"), variant: "error" });
     }
   };
 
@@ -451,23 +453,23 @@ export default function ProductManager() {
       {/* Header avec actions */}
       <div className="manager-header">
         <div className="manager-header__left">
-          <h2>Gestion des Produits</h2>
+          <h2>{t("admin.products.manager.title")}</h2>
           <span className="product-count">
-            {products.length} produit{products.length !== 1 ? "s" : ""}
+            {t("admin.products.manager.count", { count: products.length })}
           </span>
         </div>
         <div className="manager-header__right">
           <div className="search-box">
             <input
               type="search"
-              placeholder="Rechercher un produit..."
+              placeholder={t("admin.products.search")}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
             />
             <span className="search-icon"><Search size={18} /></span>
           </div>
           <button className="btn btn-primary" onClick={openNewProduct}>
-            + Nouveau produit
+            {t("admin.products.newProduct")}
           </button>
         </div>
       </div>
@@ -477,7 +479,7 @@ export default function ProductManager() {
         <div className="wizard-overlay" onClick={e => e.target === e.currentTarget && resetForm()}>
           <div className="wizard-modal">
             <div className="wizard-header">
-              <h2>{editingId ? "Modifier le produit" : "Nouveau produit"}</h2>
+              <h2>{editingId ? t("admin.products.editProduct") : t("admin.products.newProduct")}</h2>
               <button className="btn-close" onClick={resetForm}>
                 <X size={20} />
               </button>
@@ -485,7 +487,7 @@ export default function ProductManager() {
 
             {/* Progress bar */}
             <div className="wizard-progress">
-              {STEP_LABELS.map((label, idx) => (
+              {STEP_LABEL_KEYS.map((key, idx) => (
                 <button
                   key={idx}
                   type="button"
@@ -496,7 +498,7 @@ export default function ProductManager() {
                   disabled={idx > currentStep && !canProceed(currentStep)}
                 >
                   <span className="step-number">{idx < currentStep ? <Check size={14} /> : idx + 1}</span>
-                  <span className="step-label">{label}</span>
+                  <span className="step-label">{t(key)}</span>
                 </button>
               ))}
             </div>
@@ -510,7 +512,7 @@ export default function ProductManager() {
                 <div className="wizard-footer__left">
                   {currentStep > STEPS.INFO && (
                     <button type="button" className="btn btn-outline" onClick={prevStep}>
-                      <ChevronLeft size={16} /> Précédent
+                      <ChevronLeft size={16} /> {t("admin.products.wizard.prev")}
                     </button>
                   )}
                 </div>
@@ -522,14 +524,14 @@ export default function ProductManager() {
                     onClick={nextStep}
                     disabled={!canProceed(currentStep)}
                   >
-                    Suivant <ChevronRight size={16} />
+                    {t("admin.products.wizard.next")} <ChevronRight size={16} />
                   </button>
                   <button
                     type="submit"
                     className={`btn btn-primary btn-lg ${currentStep !== STEPS.REVIEW ? "hidden" : ""}`}
                     disabled={isSubmitting}
                   >
-                    <Check size={16} /> {isSubmitting ? "En cours..." : editingId ? "Mettre à jour" : "Créer le produit"}
+                    <Check size={16} /> {isSubmitting ? t("admin.products.wizard.submitting") : editingId ? t("admin.products.wizard.update") : t("admin.products.wizard.create")}
                   </button>
                 </div>
               </div>
@@ -539,16 +541,16 @@ export default function ProductManager() {
       )}
 
       {/* Liste des produits */}
-      {loading && <p className="loading-state">Chargement en cours...</p>}
+      {loading && <p className="loading-state">{t("admin.common.loading")}</p>}
       {error && <p className="error-msg">{error}</p>}
 
       {!loading && filteredProducts.length === 0 && (
         <div className="empty-state">
           <span className="empty-icon"><Package size={48} /></span>
-          <h3>Aucun produit</h3>
-          <p>Commencez par créer votre premier produit.</p>
+          <h3>{t("admin.products.empty.title")}</h3>
+          <p>{t("admin.products.empty.description")}</p>
           <button className="btn btn-primary" onClick={openNewProduct}>
-            + Créer un produit
+            {t("admin.products.empty.cta")}
           </button>
         </div>
       )}
@@ -572,15 +574,14 @@ export default function ProductManager() {
                 <div className="product-card__content">
                   <h3 className="product-title">{p.name}</h3>
                   <p className="product-meta">
-                    {categoryName(p.category_id)} • {variantCount} variante
-                    {variantCount !== 1 ? "s" : ""}
+                    {categoryName(p.category_id)} • {t("admin.products.manager.variantCount", { count: variantCount })}
                   </p>
                   <p className="product-price">{Number(p.price).toFixed(2)}€</p>
                 </div>
 
                 <div className="product-card__actions">
                   <button onClick={() => handleEdit(p)} className="btn btn-outline btn-sm">
-                    Modifier
+                    {t("admin.common.edit")}
                   </button>
                   <button onClick={() => handleDelete(p.id)} className="btn btn-danger btn-sm">
                     <Trash2 size={16} />

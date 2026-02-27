@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Target, Pencil, Trash2, Check, X } from 'lucide-react';
 import { deleteVariant, listItemsBasic, listVariants, upsertVariant } from '../../services/adminVariants';
 import { ErrorMessage, LoadingMessage } from '../StatusMessage';
 import { pushToast } from '../../utils/toast';
 
 export default function VariantManager() {
+  const { t } = useTranslation();
   const [variants, setVariants] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -27,7 +29,7 @@ export default function VariantManager() {
     setError(null);
     const [variantsResp, itemsResp] = await Promise.all([listVariants(), listItemsBasic()]);
     if (variantsResp.error || itemsResp.error) {
-      setError('Impossible de charger les variantes.');
+      setError(t('admin.variants.error.load'));
       setVariants([]);
       setProducts([]);
     } else {
@@ -65,12 +67,12 @@ export default function VariantManager() {
       };
 
       if (!payload.item_id || !payload.size || Number.isNaN(payload.price)) {
-        pushToast({ message: 'Produit, taille et prix sont requis.', variant: 'error' });
+        pushToast({ message: t('admin.variants.messages.required'), variant: 'error' });
         return;
       }
 
       if (payload.price < 0) {
-        pushToast({ message: 'Le prix doit être positif.', variant: 'error' });
+        pushToast({ message: t('admin.variants.messages.positivePrice'), variant: 'error' });
         return;
       }
 
@@ -93,10 +95,10 @@ export default function VariantManager() {
 
       resetForm();
       fetchVariants();
-      pushToast({ message: editingId ? 'Variante mise à jour' : 'Variante créée', variant: 'success' });
+      pushToast({ message: editingId ? t('admin.variants.messages.updated') : t('admin.variants.messages.created'), variant: 'success' });
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      pushToast({ message: 'Impossible de sauvegarder la variante.', variant: 'error' });
+      pushToast({ message: t('admin.variants.messages.error'), variant: 'error' });
     }
   };
 
@@ -113,11 +115,11 @@ export default function VariantManager() {
   };
 
   const handleDelete = async id => {
-    if (confirm('Supprimer cette variante ?')) {
+    if (window.confirm(t('admin.variants.deleteConfirm'))) {
       const { error } = await deleteVariant(id);
       if (!error) {
         fetchVariants();
-        pushToast({ message: 'Variante supprimée', variant: 'success' });
+        pushToast({ message: t('admin.variants.messages.deleted'), variant: 'success' });
       }
     }
   };
@@ -151,22 +153,22 @@ export default function VariantManager() {
     fetchVariants();
   }, []);
 
-  if (loading) return <LoadingMessage message="Chargement des variantes..." />;
-  if (error) return <ErrorMessage title="Erreur" message={error} onRetry={fetchVariants} />;
+  if (loading) return <LoadingMessage message={t('admin.variants.loading')} />;
+  if (error) return <ErrorMessage title={t('status.error')} message={error} onRetry={fetchVariants} />;
 
   return (
     <div className="variant-manager">
       {/* Header */}
       <div className="manager-header">
         <div className="manager-header__left">
-          <h2>Gestion des Variantes</h2>
-          <span className="product-count">{variants.length} variante{variants.length !== 1 ? 's' : ''}</span>
+          <h2>{t('admin.variants.manager.title')}</h2>
+          <span className="product-count">{t('admin.variants.manager.count', { count: variants.length })}</span>
         </div>
         <div className="manager-header__right">
           <div className="search-box">
             <input
               type="search"
-              placeholder="Rechercher..."
+              placeholder={t('admin.variants.search')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
             />
@@ -177,7 +179,7 @@ export default function VariantManager() {
             onChange={e => setFilterProduct(e.target.value)}
             className="filter-select"
           >
-            <option value="">Tous les produits</option>
+            <option value="">{t('admin.variants.filterAll')}</option>
             {products.map(p => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
@@ -186,7 +188,7 @@ export default function VariantManager() {
             className="btn btn-primary"
             onClick={() => { resetForm(); setShowForm(true); }}
           >
-            + Nouvelle variante
+            {t('admin.variants.newVariant')}
           </button>
         </div>
       </div>
@@ -196,16 +198,16 @@ export default function VariantManager() {
         <div className="wizard-overlay" onClick={e => e.target === e.currentTarget && resetForm()}>
           <div className="wizard-modal" style={{ maxWidth: '500px' }}>
             <div className="wizard-header">
-              <h2>{editingId ? 'Modifier la variante' : 'Nouvelle variante'}</h2>
+              <h2>{editingId ? t('admin.variants.editVariant') : t('admin.variants.newVariant')}</h2>
               <button className="btn-close" onClick={resetForm}><X size={20} /></button>
             </div>
 
             <form onSubmit={handleSubmit} className="wizard-content">
               <div className="form-grid">
                 <div className="form-group">
-                  <label>Produit <span className="required">*</span></label>
+                  <label>{t('admin.variants.productLabel')} <span className="required">*</span></label>
                   <select name="item_id" value={form.item_id} onChange={handleChange} required>
-                    <option value="">Sélectionner un produit</option>
+                    <option value="">{t('admin.variants.selectProduct')}</option>
                     {products.map(product => (
                       <option key={product.id} value={product.id}>
                         {product.name}
@@ -215,51 +217,51 @@ export default function VariantManager() {
                 </div>
 
                 <div className="form-group">
-                  <label>Taille <span className="required">*</span></label>
+                  <label>{t('admin.variants.sizeLabel')} <span className="required">*</span></label>
                   <input
                     name="size"
                     value={form.size}
                     onChange={handleChange}
-                    placeholder="Ex: M, L, XL"
+                    placeholder={t('admin.variants.placeholders.size')}
                     required
                   />
                 </div>
 
                 <div className="form-row two-col">
                   <div className="form-group">
-                    <label>Prix (€) <span className="required">*</span></label>
+                    <label>{t('admin.variants.priceLabel')} <span className="required">*</span></label>
                     <input
                       name="price"
                       type="number"
                       step="0.01"
                       value={form.price}
                       onChange={handleChange}
-                      placeholder="29.90"
+                      placeholder={t('admin.variants.placeholders.price')}
                       required
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Stock</label>
+                    <label>{t('admin.variants.stockLabel')}</label>
                     <input
                       name="stock"
                       type="number"
                       min={0}
                       value={form.stock}
                       onChange={handleChange}
-                      placeholder="10"
+                      placeholder={t('admin.variants.placeholders.stock')}
                     />
                   </div>
                 </div>
 
                 {editingId && form.sku && (
                   <div className="form-group">
-                    <label>SKU</label>
+                    <label>{t('admin.variants.skuLabel')}</label>
                     <input
                       name="sku"
                       value={form.sku}
                       onChange={handleChange}
-                      placeholder="Auto-généré"
+                      placeholder={t('admin.variants.placeholders.sku')}
                       disabled
                     />
                   </div>
@@ -268,10 +270,10 @@ export default function VariantManager() {
 
               <div className="wizard-footer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--adm-border)' }}>
                 <button type="button" className="btn btn-outline" onClick={resetForm}>
-                  Annuler
+                  {t('admin.common.cancel')}
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  <Check size={16} /> {editingId ? 'Mettre à jour' : 'Créer'}
+                  <Check size={16} /> {editingId ? t('admin.common.update') : t('admin.common.create')}
                 </button>
               </div>
             </form>
@@ -283,11 +285,11 @@ export default function VariantManager() {
       {filteredVariants.length === 0 && (
         <div className="empty-state">
           <span className="empty-icon"><Target size={48} /></span>
-          <h3>Aucune variante</h3>
-          <p>{searchQuery || filterProduct ? 'Aucun résultat pour ces filtres.' : 'Commencez par créer une variante pour vos produits.'}</p>
+          <h3>{t('admin.variants.empty.title')}</h3>
+          <p>{searchQuery || filterProduct ? t('admin.variants.empty.filtered') : t('admin.variants.empty.description')}</p>
           {!searchQuery && !filterProduct && (
             <button className="btn btn-primary" onClick={() => setShowForm(true)}>
-              + Créer une variante
+              {t('admin.variants.empty.cta')}
             </button>
           )}
         </div>
@@ -307,14 +309,14 @@ export default function VariantManager() {
                     <button
                       onClick={() => handleEdit(variant)}
                       className="btn-icon"
-                      aria-label="Modifier"
+                      aria-label={t('admin.common.edit')}
                     >
                       <Pencil size={16} />
                     </button>
                     <button
                       onClick={() => handleDelete(variant.id)}
                       className="btn-icon btn-remove"
-                      aria-label="Supprimer"
+                      aria-label={t('admin.common.delete')}
                     >
                       <Trash2 size={16} />
                     </button>
@@ -329,7 +331,7 @@ export default function VariantManager() {
                   <div className="variant-meta">
                     <span className="variant-price">{Number(variant.price).toFixed(2)}€</span>
                     <span className={`variant-stock ${variant.stock === 0 ? 'out-of-stock' : ''}`}>
-                      Stock: {variant.stock}
+                      {t('admin.variants.stockLabel')}: {variant.stock}
                     </span>
                   </div>
 

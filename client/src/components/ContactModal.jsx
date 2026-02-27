@@ -205,7 +205,7 @@ export default function ContactModal({ isOpen, onClose }) {
                   <Paperclip size={16} />
                   <span className="contact-form__file-name">{attachment.name}</span>
                   <span className="contact-form__file-size">
-                    ({(attachment.size / 1024).toFixed(1)} KB)
+                    ({t('contact.fileSizeKb', { size: (attachment.size / 1024).toFixed(1) })})
                   </span>
                   <button
                     type="button"

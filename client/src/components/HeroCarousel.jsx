@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import "../styles/hero-carousel.css";
 
 // Import carousel images
@@ -24,6 +25,7 @@ const AUTO_SLIDE_INTERVAL = 5000; // 5 seconds
  * Mobile version is handled separately in MobileHome.jsx
  */
 export default function HeroCarousel() {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
@@ -73,14 +75,14 @@ export default function HeroCarousel() {
       <button
         className="hero-carousel__arrow hero-carousel__arrow--prev"
         onClick={goToPrev}
-        aria-label="Image précédente"
+        aria-label={t("carousel.prevImage")}
       >
         <ChevronLeft size={24} />
       </button>
       <button
         className="hero-carousel__arrow hero-carousel__arrow--next"
         onClick={goToNext}
-        aria-label="Image suivante"
+        aria-label={t("carousel.nextImage")}
       >
         <ChevronRight size={24} />
       </button>
@@ -92,7 +94,7 @@ export default function HeroCarousel() {
             key={index}
             className={`hero-carousel__dot ${index === currentIndex ? "hero-carousel__dot--active" : ""}`}
             onClick={() => goToSlide(index)}
-            aria-label={`Aller à l'image ${index + 1}`}
+            aria-label={t("carousel.goToImage", { index: index + 1 })}
           />
         ))}
       </div>

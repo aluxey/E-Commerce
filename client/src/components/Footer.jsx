@@ -53,7 +53,7 @@ export default function Footer() {
           <h4>{t('footer.contact')}</h4>
           <ul>
             <li>
-              <a href="mailto:sabbelshandmade@gmail.com">sabbelshandmade@gmail.com</a>
+              <a href="mailto:sabbelshandmade@gmail.com">{t('footer.email')}</a>
             </li>
             <li>
               <a href="tel:+33123456789">+33 1 23 45 67 89</a>
@@ -68,31 +68,31 @@ export default function Footer() {
             rel="noopener noreferrer"
             className="footer-instagram-link"
           >
-            @sabbels_handmade
+            {t('footer.instagramHandle')}
           </a>
         </div>
       </div>
 
       <div className="footer-social" aria-label={t('footer.socialLabel')}>
-        <a href="#" aria-label={`${t('footer.socialLabel')} - Facebook`} className="social-icon" target="_blank" rel="noreferrer">
+        <a href="#" aria-label={`${t('footer.socialLabel')} - ${t('footer.facebook')}`} className="social-icon" target="_blank" rel="noreferrer">
           <svg width="24" height="24">
-            <title>Facebook</title>
+            <title>{t('footer.facebook')}</title>
           </svg>
         </a>
-        <a href="#" aria-label={`${t('footer.socialLabel')} - Instagram`} className="social-icon" target="_blank" rel="noreferrer">
+        <a href="#" aria-label={`${t('footer.socialLabel')} - ${t('footer.instagram')}`} className="social-icon" target="_blank" rel="noreferrer">
           <svg width="24" height="24">
-            <title>Instagram</title>
+            <title>{t('footer.instagram')}</title>
           </svg>
         </a>
-        <a href="#" aria-label={`${t('footer.socialLabel')} - Pinterest`} className="social-icon" target="_blank" rel="noreferrer">
+        <a href="#" aria-label={`${t('footer.socialLabel')} - ${t('footer.pinterest')}`} className="social-icon" target="_blank" rel="noreferrer">
           <svg width="24" height="24">
-            <title>Pinterest</title>
+            <title>{t('footer.pinterest')}</title>
           </svg>
         </a>
       </div>
 
       <div className="footer-bottom">
-        <p>© {year} Sabbels Handmade. {t('footer.copyright')}</p>
+        <p>© {year} {t('nav.brandName')}. {t('footer.copyright')}</p>
         <p className="footer-legal-links">
           {LEGAL_DOCUMENTS.map((document, index) => (
             <span key={document.id}>

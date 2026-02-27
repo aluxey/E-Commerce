@@ -96,7 +96,7 @@ export default function ProductFilters({
                 min="0"
                 value={priceRange.min}
                 onChange={(e) => onPriceChange({ ...priceRange, min: e.target.value })}
-                placeholder="0"
+                placeholder={t('filters.minPlaceholder')}
               />
             </div>
             <div className="price-group">
@@ -106,7 +106,7 @@ export default function ProductFilters({
                 min="0"
                 value={priceRange.max}
                 onChange={(e) => onPriceChange({ ...priceRange, max: e.target.value })}
-                placeholder="Max"
+                placeholder={t('filters.maxPlaceholder')}
               />
             </div>
           </div>

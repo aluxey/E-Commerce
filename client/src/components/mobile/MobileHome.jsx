@@ -227,7 +227,7 @@ export default function MobileHome({
                 )}
               </div>
             ) : (
-              <p className="mh-muted">{t("home.aboutProduct.colors.note") || "Farbpalette verfügbar"}</p>
+              <p className="mh-muted">{t("home.aboutProduct.colors.note") || t("home.aboutProduct.colors.paletteAvailable")}</p>
             )}
           </Accordion>
 
@@ -258,7 +258,7 @@ export default function MobileHome({
         <div className="mh-about-me__image">
           <img 
             src={aboutMeSabrina} 
-            alt="Sabrina - Sabbels Handmade"
+            alt={t("home.aboutMe.imageAlt")}
             loading="lazy"
           />
         </div>
