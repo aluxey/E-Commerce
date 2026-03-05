@@ -1,25 +1,25 @@
+import { Baby, ExternalLink, Leaf, Palette, ShieldCheck, Sparkles, Wrench, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Package, Sparkles, Leaf, Palette, ShieldCheck, X, ExternalLink, Wrench, Baby } from "lucide-react";
-import MiniItemCard from "../components/MiniItemCard";
-import HeroCarousel from "../components/HeroCarousel";
 import ContactModal from "../components/ContactModal";
+import CustomerPhotoWall from "../components/CustomerPhotoWall";
+import HeroCarousel from "../components/HeroCarousel";
+import MiniItemCard from "../components/MiniItemCard";
+import MobileHome from "../components/mobile/MobileHome";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
-import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
+import { useHomeVariant } from "../config/features";
 import { listColors } from "../services/adminColors";
 import { fetchPreviewPhotos } from "../services/customerPhotos";
-import { useHomeVariant } from "../config/features";
-import MobileHome from "../components/mobile/MobileHome";
-import CustomerPhotoWall from "../components/CustomerPhotoWall";
+import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
 import "../styles/home.css";
 
 // Assets
 import aboutMeSabrina from "../assets/aboutMeSabrina.jpeg";
 import bestSellerCategoryImage from "../assets/products/WhatsApp Image 2026-01-06 at 20.35.30.jpeg";
-import collectionCategoryImage from "../assets/products/WhatsApp Image 2026-02-15 at 20.53.52.jpeg";
-import basketCategoryImage from "../assets/products/WhatsApp Image 2026-02-15 at 20.51.11.jpeg";
-import woodBottomCategoryImage from "../assets/products/WhatsApp Image 2026-01-06 at 20.39.30.jpeg";
+import collectionCategoryImage from "../assets/products/WhatsApp Image 2026-01-06 at 20.39.30.jpeg";
+import woodBottomCategoryImage from "../assets/products/WhatsApp Image 2026-02-15 at 20.51.11.jpeg";
+import basketCategoryImage from "../assets/products/WhatsApp Image 2026-02-15 at 20.53.52.jpeg";
 
 // Default images for categories (can be overridden by DB)
 const CATEGORY_IMAGES = [
@@ -449,7 +449,7 @@ export default function Home() {
               <Link to={newestItemsLink} className="btn btn-primary">
                 {t("home.aboutMe.ctaShop")}
               </Link>
-              <button 
+              <button
                 className="btn btn-ghost"
                 onClick={() => setContactModalOpen(true)}
               >
@@ -480,9 +480,9 @@ export default function Home() {
       )}
 
       {/* Contact Modal */}
-      <ContactModal 
-        isOpen={contactModalOpen} 
-        onClose={() => setContactModalOpen(false)} 
+      <ContactModal
+        isOpen={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
       />
     </div>
   );

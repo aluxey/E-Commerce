@@ -1,12 +1,17 @@
 # TODO - Deployment Readiness (Pro)
 
 Date: 2026-03-05
+Derniere mise a jour: 2026-03-05 (API security pass)
 
 ## Derniers changements integres
 
 - Footer nettoye et liens corriges vers des pages reelles.
 - Hash links homogeneises (`#faq`, `#about-me`) sur variantes desktop/mobile.
 - Documentation regroupee dans `Docs/` avec archivage des anciens snapshots.
+- API securisee: auth admin, rate limiting, CORS durci, headers de securite.
+- Validation stricte ajoutee sur `checkout` et `contact` + format d'erreur unifie.
+- `api/.env.example` ajoute avec variables de rate-limit.
+- Tests API de securite ajoutes (`npm --prefix api test`).
 
 ## Etat des lieux rapide
 
@@ -18,21 +23,21 @@ Points positifs:
 
 Points critiques avant deploiement pro:
 - Lint en echec (8 erreurs, 4 warnings) sur le client.
-- Pas de tests automatises (unitaires/integration/E2E) detectes.
+- Couverture de test encore insuffisante (pas d'integration DB/webhook, pas d'E2E).
 - Pas de CI/CD pipeline versionnee dans `.github/workflows`.
-- Endpoint admin sensible non protege: `POST /api/admin/cleanup-orders`.
 - Flux paiement incoherent: creation PaymentIntent Stripe mais redirection SumUp statique.
-- Pas de `*.env.example` alors que le README les mentionne.
+- `client/.env.example` encore manquant.
 
 ---
 
 ## P0 - Blocants go-live (a faire en premier)
 
-- [ ] Securiser l'API admin
-  - [ ] Proteger `/api/admin/cleanup-orders` via auth + role admin cote serveur.
-  - [ ] Ajouter rate limiting sur `/api/*`.
-  - [ ] Ajouter `helmet` et durcir CORS en production.
-  - Done quand: un utilisateur non admin recoit `401/403` sur endpoint admin.
+- [x] Securiser l'API admin
+  - [x] Proteger `/api/admin/cleanup-orders` via auth + role admin cote serveur.
+  - [x] Ajouter rate limiting sur `/api/*`.
+  - [x] Durcir CORS en production + ajouter headers de securite.
+  - [x] Externaliser les seuils de rate-limit via variables d'environnement.
+  - Done: un utilisateur non admin recoit `401/403` sur endpoint admin.
 
 - [ ] Stabiliser le flux de paiement
   - [ ] Choisir une seule strategie: Stripe complet OU SumUp complet.
@@ -46,8 +51,9 @@ Points critiques avant deploiement pro:
   - Done quand: lint vert en local + CI.
 
 - [ ] Ajouter les environnements standardises
-  - [ ] Creer `client/.env.example` et `api/.env.example`.
-  - [ ] Documenter les variables obligatoires vs optionnelles.
+  - [x] Creer `api/.env.example` avec variables obligatoires et options.
+  - [ ] Creer `client/.env.example`.
+  - [ ] Aligner le README avec les templates reellement presents.
   - Done quand: un nouveau dev peut lancer le projet sans guess.
 
 ---
@@ -60,16 +66,17 @@ Points critiques avant deploiement pro:
   - Done quand: aucune PR ne merge sans pipeline verte.
 
 - [ ] Introduire des tests critiques
-  - [ ] Unit tests services/formatters/hooks critiques.
-  - [ ] Integration tests API checkout/webhook/contact.
+  - [x] Base de tests API securite (validation payload + rate-limit).
+  - [ ] Unit tests services/formatters/hooks critiques (client).
+  - [ ] Integration tests API checkout/webhook/contact avec mocks DB/Stripe.
   - [ ] E2E minimal: login -> panier -> checkout -> confirmation.
   - Done quand: couverture de base sur parcours business principaux.
 
-- [ ] Renforcer validation et robustesse API
-  - [ ] Validation schema des payloads (`zod`/`joi`) pour checkout/contact.
-  - [ ] Limites explicites (quantites max, tailles payload, types MIME upload).
-  - [ ] Gestion d'erreurs standardisee (codes + messages).
-  - Done quand: payload invalide renvoie 4xx predictible, jamais 500.
+- [x] Renforcer validation et robustesse API
+  - [x] Validation stricte des payloads checkout/contact.
+  - [x] Limites explicites (quantites max, tailles payload, types MIME upload).
+  - [x] Gestion d'erreurs standardisee (codes + messages).
+  - Done: payload invalide renvoie 4xx predictible, jamais 500 sur ces endpoints.
 
 - [ ] Observabilite
   - [ ] Logging structure (request id, route, status, duree).
@@ -106,10 +113,10 @@ Points critiques avant deploiement pro:
 ## Proposition de plan 30 jours
 
 Semaine 1:
-- P0 securite API + lint vert + env examples.
+- Securite API (fait) + lint client vert + `client/.env.example`.
 
 Semaine 2:
-- P0 paiement unifie + premiers tests integration checkout/webhook.
+- P0 paiement unifie + tests integration checkout/webhook.
 
 Semaine 3:
 - CI complete + E2E smoke + observabilite minimale.
