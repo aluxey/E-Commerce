@@ -15,6 +15,17 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 // Email configuration - using Resend
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const EMAIL_TO = 'sabbelshandmade@gmail.com'
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+const MAX_CART_ITEMS = 100
+const MAX_ITEM_QUANTITY = 50
+const ALLOWED_CURRENCIES = new Set(['eur'])
+const ALLOWED_CONTACT_SUBJECTS = new Set(['custom-order', 'question', 'order-issue', 'collaboration', 'other'])
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const ALLOWED_ATTACHMENT_MIME = new Set([
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+])
 
 if (!STRIPE_SECRET_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.error('Missing required environment variables for API server.')
@@ -30,9 +41,41 @@ const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const isAllowedImage = typeof file.mimetype === 'string' && file.mimetype.startsWith('image/')
+    if (isAllowedImage || ALLOWED_ATTACHMENT_MIME.has(file.mimetype)) {
+      return cb(null, true)
+    }
+    const error = new Error('Unsupported file type. Allowed: images, PDF, DOC, DOCX.')
+    error.code = 'UNSUPPORTED_FILE_TYPE'
+    return cb(error)
+  },
 })
 
 const app = express()
+app.disable('x-powered-by')
+app.set('trust proxy', 1)
+
+// Basic security headers without extra dependencies
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('Referrer-Policy', 'no-referrer')
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-site')
+  if (IS_PRODUCTION) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+  }
+  next()
+})
+
+function sendError(res, status, code, message, details) {
+  return res.status(status).json({
+    error: message,
+    code,
+    ...(details ? { details } : {}),
+  })
+}
 
 // Webhook needs the raw body
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -42,7 +85,7 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
     event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET)
   } catch (err) {
     console.error('Webhook signature verification failed.', err.message)
-    return res.status(400).json({ error: `Webhook Error: ${err.message}` })
+    return sendError(res, 400, 'INVALID_WEBHOOK_SIGNATURE', `Webhook Error: ${err.message}`)
   }
 
   console.log(`[Webhook] Received event: ${event.type}`)
@@ -103,40 +146,108 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
     }
   } catch (err) {
     console.error('Webhook handling error:', err)
-    return res.status(500).json({ error: 'Internal webhook error' })
+    return sendError(res, 500, 'WEBHOOK_INTERNAL_ERROR', 'Internal webhook error')
   }
 
   res.json({ received: true })
 })
 
-// JSON parser for other routes
-app.use(express.json())
+function createIpRateLimiter({ windowMs, max, message }) {
+  const bucket = new Map()
+
+  // Cleanup stale entries periodically
+  const timer = setInterval(() => {
+    const now = Date.now()
+    for (const [ip, entry] of bucket.entries()) {
+      if (entry.resetAt <= now) bucket.delete(ip)
+    }
+  }, Math.max(30_000, Math.floor(windowMs / 2)))
+  if (typeof timer.unref === 'function') timer.unref()
+
+  return (req, res, next) => {
+    const forwarded = req.headers['x-forwarded-for']
+    const forwardedIp = Array.isArray(forwarded) ? forwarded[0] : forwarded
+    const ip = (forwardedIp || '').split(',')[0].trim() || req.socket.remoteAddress || 'unknown'
+    const now = Date.now()
+    const current = bucket.get(ip)
+
+    if (!current || current.resetAt <= now) {
+      bucket.set(ip, { count: 1, resetAt: now + windowMs })
+      res.setHeader('RateLimit-Limit', String(max))
+      res.setHeader('RateLimit-Remaining', String(Math.max(0, max - 1)))
+      res.setHeader('RateLimit-Reset', String(Math.ceil((now + windowMs) / 1000)))
+      return next()
+    }
+
+    current.count += 1
+    const remaining = Math.max(0, max - current.count)
+    res.setHeader('RateLimit-Limit', String(max))
+    res.setHeader('RateLimit-Remaining', String(remaining))
+    res.setHeader('RateLimit-Reset', String(Math.ceil(current.resetAt / 1000)))
+
+    if (current.count > max) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((current.resetAt - now) / 1000))
+      res.setHeader('Retry-After', String(retryAfterSeconds))
+      return sendError(res, 429, 'RATE_LIMITED', message || 'Too many requests', { retryAfterSeconds })
+    }
+
+    return next()
+  }
+}
 
 // CORS - allow Netlify and localhost
-const allowedOrigins = [
-  'https://sabbelshandmade.netlify.app',
-  'http://localhost:5173',
-  'http://localhost:3000',
-  ...CLIENT_ORIGIN
-]
+const defaultAllowedOrigins = IS_PRODUCTION
+  ? ['https://sabbelshandmade.netlify.app']
+  : [
+      'https://sabbelshandmade.netlify.app',
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+    ]
+const allowedOrigins = [...new Set([...defaultAllowedOrigins, ...CLIENT_ORIGIN])]
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, etc.)
+      // Allow requests with no origin (curl/monitoring/backends)
       if (!origin) return callback(null, true)
       if (allowedOrigins.includes(origin)) {
         return callback(null, true)
       }
-      // In development, allow all
-      if (process.env.NODE_ENV !== 'production') {
-        return callback(null, true)
-      }
-      callback(new Error('Not allowed by CORS'))
+      return callback(null, false)
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature'],
   })
 )
+
+const apiLimiter = createIpRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: IS_PRODUCTION ? 300 : 1200,
+  message: 'Too many API requests',
+})
+const checkoutLimiter = createIpRateLimiter({
+  windowMs: 10 * 60 * 1000,
+  max: IS_PRODUCTION ? 25 : 100,
+  message: 'Too many checkout attempts',
+})
+const contactLimiter = createIpRateLimiter({
+  windowMs: 10 * 60 * 1000,
+  max: IS_PRODUCTION ? 10 : 50,
+  message: 'Too many contact attempts',
+})
+const adminLimiter = createIpRateLimiter({
+  windowMs: 10 * 60 * 1000,
+  max: IS_PRODUCTION ? 10 : 30,
+  message: 'Too many admin requests',
+})
+
+app.use('/api', apiLimiter)
+
+// JSON parser for other routes
+app.use(express.json({ limit: '1mb' }))
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true })
@@ -144,23 +255,161 @@ app.get('/api/health', (_req, res) => {
 
 // Helpers
 async function getUserFromAuthHeader(authHeader) {
-  if (!authHeader) return null
-  const token = authHeader.replace('Bearer ', '')
+  if (!authHeader || typeof authHeader !== 'string' || !authHeader.startsWith('Bearer ')) return null
+  const token = authHeader.slice('Bearer '.length).trim()
+  if (!token || token.split('.').length !== 3) return null
   const { data, error } = await supabase.auth.getUser(token)
   if (error) return null
   return data.user
 }
 
-function normalizeCartItems(rawItems) {
-  if (!Array.isArray(rawItems)) return []
-  return rawItems
-    .map(i => ({
-      item_id: i.item_id || i.id || i.itemId,
-      quantity: Math.max(1, Number(i.quantity) || 1),
-      variant_id: i.variant_id != null ? Number(i.variant_id) : i.variantId != null ? Number(i.variantId) : null,
-      customization: i.customization || {},
-    }))
-    .filter(i => i.item_id)
+async function getUserProfile(userId) {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, role, email')
+    .eq('id', userId)
+    .single()
+
+  if (error) return null
+  return data
+}
+
+async function requireAdmin(req, res, next) {
+  try {
+    const user = await getUserFromAuthHeader(req.headers.authorization)
+    if (!user) return sendError(res, 401, 'UNAUTHORIZED', 'Unauthorized')
+
+    const profile = await getUserProfile(user.id)
+    if (!profile || profile.role !== 'admin') {
+      return sendError(res, 403, 'FORBIDDEN', 'Forbidden: admin access required')
+    }
+
+    req.authUser = user
+    req.authProfile = profile
+    return next()
+  } catch (error) {
+    console.error('Admin auth error:', error)
+    return sendError(res, 500, 'AUTHORIZATION_ERROR', 'Authorization check failed')
+  }
+}
+
+function parsePositiveInt(value) {
+  const num = Number(value)
+  return Number.isInteger(num) && num > 0 ? num : null
+}
+
+function normalizeCustomization(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return {}
+  return input
+}
+
+function validateAndNormalizeCheckoutPayload(body) {
+  const details = []
+  const currencyRaw = typeof body?.currency === 'string' ? body.currency.trim().toLowerCase() : ''
+  const currency = currencyRaw || 'eur'
+  if (!ALLOWED_CURRENCIES.has(currency)) {
+    details.push({
+      field: 'currency',
+      issue: `Unsupported currency. Allowed: ${[...ALLOWED_CURRENCIES].join(', ')}`,
+    })
+  }
+
+  if (!Array.isArray(body?.cartItems)) {
+    details.push({ field: 'cartItems', issue: 'cartItems must be an array' })
+    return { ok: false, details }
+  }
+
+  if (body.cartItems.length === 0) {
+    details.push({ field: 'cartItems', issue: 'cartItems cannot be empty' })
+  }
+  if (body.cartItems.length > MAX_CART_ITEMS) {
+    details.push({ field: 'cartItems', issue: `cartItems cannot exceed ${MAX_CART_ITEMS} items` })
+  }
+
+  const normalizedItems = []
+  body.cartItems.forEach((item, index) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      details.push({ field: `cartItems[${index}]`, issue: 'Item must be an object' })
+      return
+    }
+
+    const itemId = parsePositiveInt(item.item_id ?? item.id ?? item.itemId)
+    const variantId = parsePositiveInt(item.variant_id ?? item.variantId)
+    const quantity = parsePositiveInt(item.quantity)
+    const customization = normalizeCustomization(item.customization)
+
+    if (!itemId) details.push({ field: `cartItems[${index}].item_id`, issue: 'Must be a positive integer' })
+    if (!variantId) details.push({ field: `cartItems[${index}].variant_id`, issue: 'Must be a positive integer' })
+    if (!quantity) details.push({ field: `cartItems[${index}].quantity`, issue: 'Must be a positive integer' })
+    if (quantity && quantity > MAX_ITEM_QUANTITY) {
+      details.push({
+        field: `cartItems[${index}].quantity`,
+        issue: `Cannot exceed ${MAX_ITEM_QUANTITY}`,
+      })
+    }
+
+    if (itemId && variantId && quantity && quantity <= MAX_ITEM_QUANTITY) {
+      normalizedItems.push({
+        item_id: itemId,
+        variant_id: variantId,
+        quantity,
+        customization,
+      })
+    }
+  })
+
+  if (details.length) return { ok: false, details }
+  return {
+    ok: true,
+    value: {
+      currency,
+      cartItems: normalizedItems,
+    },
+  }
+}
+
+function validateContactPayload(body) {
+  const details = []
+  const name = typeof body?.name === 'string' ? body.name.trim() : ''
+  const email = typeof body?.email === 'string' ? body.email.trim() : ''
+  const subject = typeof body?.subject === 'string' ? body.subject.trim() : ''
+  const message = typeof body?.message === 'string' ? body.message.trim() : ''
+
+  if (name.length < 2 || name.length > 120) {
+    details.push({ field: 'name', issue: 'Name must be between 2 and 120 characters' })
+  }
+  if (!email || email.length > 254 || !EMAIL_REGEX.test(email)) {
+    details.push({ field: 'email', issue: 'Invalid email format' })
+  }
+  if (!ALLOWED_CONTACT_SUBJECTS.has(subject)) {
+    details.push({ field: 'subject', issue: 'Invalid subject value' })
+  }
+  if (message.length < 5 || message.length > 5000) {
+    details.push({ field: 'message', issue: 'Message must be between 5 and 5000 characters' })
+  }
+
+  if (details.length) return { ok: false, details }
+  return { ok: true, value: { name, email, subject, message } }
+}
+
+function uploadContactAttachment(req, res, next) {
+  upload.single('attachment')(req, res, err => {
+    if (!err) return next()
+
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return sendError(res, 413, 'FILE_TOO_LARGE', 'Attachment is too large (max 10MB)')
+      }
+      return sendError(res, 400, 'UPLOAD_ERROR', err.message)
+    }
+
+    if (err?.code === 'UNSUPPORTED_FILE_TYPE') {
+      return sendError(res, 400, 'UNSUPPORTED_FILE_TYPE', err.message)
+    }
+
+    console.error('Upload middleware error:', err)
+    return sendError(res, 500, 'UPLOAD_ERROR', 'Attachment upload failed')
+  })
 }
 
 async function gatherCartPricing(cartItems) {
@@ -204,32 +453,30 @@ async function gatherCartPricing(cartItems) {
   }
 }
 
-app.post('/api/checkout', async (req, res) => {
+app.post('/api/checkout', checkoutLimiter, async (req, res) => {
   try {
     const user = await getUserFromAuthHeader(req.headers.authorization)
-    if (!user) return res.status(401).json({ error: 'Unauthorized' })
+    if (!user) return sendError(res, 401, 'UNAUTHORIZED', 'Unauthorized')
 
-    const currency = (req.body.currency || 'eur').toLowerCase()
-    const cartItems = normalizeCartItems(req.body.cartItems)
-    if (!cartItems.length) return res.status(400).json({ error: 'Cart is empty' })
-
-    if (cartItems.some(ci => !ci.variant_id)) {
-      return res.status(400).json({ error: 'Chaque article doit inclure un variant_id.' })
+    const validation = validateAndNormalizeCheckoutPayload(req.body)
+    if (!validation.ok) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid checkout payload', validation.details)
     }
+    const { currency, cartItems } = validation.value
 
     const { totalCents: amount, variantsById } = await gatherCartPricing(cartItems)
-    if (amount <= 0) return res.status(400).json({ error: 'Invalid amount' })
+    if (amount <= 0) return sendError(res, 400, 'INVALID_AMOUNT', 'Invalid amount')
 
     for (const item of cartItems) {
       const variant = variantsById.get(item.variant_id)
       if (!variant) {
-        return res.status(400).json({ error: `Variant ${item.variant_id} introuvable` })
+        return sendError(res, 400, 'INVALID_VARIANT', `Variant ${item.variant_id} introuvable`)
       }
       if (variant.item_id !== item.item_id) {
-        return res.status(400).json({ error: 'Variant et produit incompatibles' })
+        return sendError(res, 400, 'ITEM_VARIANT_MISMATCH', 'Variant et produit incompatibles')
       }
       if (variant.stock != null && variant.stock < item.quantity) {
-        return res.status(400).json({ error: 'Stock insuffisant pour un des variants' })
+        return sendError(res, 400, 'INSUFFICIENT_STOCK', 'Stock insuffisant pour un des variants')
       }
     }
 
@@ -277,7 +524,7 @@ app.post('/api/checkout', async (req, res) => {
     return res.status(200).json({ clientSecret: paymentIntent.client_secret, orderId: order.id })
   } catch (err) {
     console.error('Checkout error:', err)
-    return res.status(500).json({ error: 'Checkout failed' })
+    return sendError(res, 500, 'CHECKOUT_FAILED', 'Checkout failed')
   }
 })
 
@@ -431,21 +678,14 @@ async function sendOrderRecapEmail(orderId) {
 /**
  * Contact form endpoint
  */
-app.post('/api/contact', upload.single('attachment'), async (req, res) => {
+app.post('/api/contact', contactLimiter, uploadContactAttachment, async (req, res) => {
   try {
-    const { name, email, subject, message } = req.body
+    const validation = validateContactPayload(req.body)
+    if (!validation.ok) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid contact payload', validation.details)
+    }
+    const { name, email, subject, message } = validation.value
     const attachment = req.file
-
-    // Validation
-    if (!name || !email || !subject || !message) {
-      return res.status(400).json({ error: 'Tous les champs sont requis (nom, email, sujet, message)' })
-    }
-
-    // Simple email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: 'Format d\'email invalide' })
-    }
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -530,7 +770,7 @@ app.post('/api/contact', upload.single('attachment'), async (req, res) => {
     }
   } catch (err) {
     console.error('Contact form error:', err)
-    return res.status(500).json({ error: 'Erreur lors de l\'envoi du message' })
+    return sendError(res, 500, 'CONTACT_SEND_FAILED', 'Erreur lors de l\'envoi du message')
   }
 })
 
@@ -599,13 +839,32 @@ cleanupAbandonedOrders()
 setInterval(cleanupAbandonedOrders, 6 * 60 * 60 * 1000)
 
 // Manual cleanup endpoint (admin only - for testing)
-app.post('/api/admin/cleanup-orders', async (req, res) => {
+app.post('/api/admin/cleanup-orders', adminLimiter, requireAdmin, async (req, res) => {
   try {
     const result = await cleanupAbandonedOrders()
     res.json({ success: true, ...result })
   } catch (err) {
-    res.status(500).json({ error: 'Cleanup failed' })
+    return sendError(res, 500, 'CLEANUP_FAILED', 'Cleanup failed')
   }
+})
+
+// Last-resort API error handler
+app.use((err, _req, res, _next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return sendError(res, 413, 'FILE_TOO_LARGE', 'Attachment is too large (max 10MB)')
+    }
+    return sendError(res, 400, 'UPLOAD_ERROR', err.message)
+  }
+  if (err?.type === 'entity.too.large') {
+    return sendError(res, 413, 'PAYLOAD_TOO_LARGE', 'Request payload too large')
+  }
+  if (err instanceof SyntaxError && err?.status === 400 && 'body' in err) {
+    return sendError(res, 400, 'INVALID_JSON', 'Invalid JSON payload')
+  }
+
+  console.error('Unhandled API error:', err)
+  return sendError(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal server error')
 })
 
 app.listen(PORT, () => {

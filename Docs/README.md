@@ -8,6 +8,7 @@ Ce dossier centralise toute la documentation projet.
 - [Vue d'ensemble base de donnees](./database/overview.md)
 - [Checklist diagnostic mobile](./checklists/mobile_diagnostic.md)
 - [Changelog](./reference/changelog.md)
+- [TODO deploiement pro](./reference/deployment_readiness_todo.md)
 
 ## Archives
 
