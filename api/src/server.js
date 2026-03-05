@@ -4,6 +4,7 @@ import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import multer from 'multer'
+import { fileURLToPath } from 'url'
 
 const PORT = process.env.PORT || 3000
 const CLIENT_ORIGIN = (process.env.CLIENT_ORIGIN || '').split(',').map(s => s.trim()).filter(Boolean)
@@ -26,6 +27,36 @@ const ALLOWED_ATTACHMENT_MIME = new Set([
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ])
+
+function getEnvPositiveInt(name, fallback) {
+  const raw = process.env[name]
+  if (!raw) return fallback
+  const parsed = Number(raw)
+  if (!Number.isFinite(parsed) || parsed <= 0 || !Number.isInteger(parsed)) {
+    console.warn(`[api] Invalid ${name}="${raw}", using fallback ${fallback}`)
+    return fallback
+  }
+  return parsed
+}
+
+const RATE_LIMITS = {
+  api: {
+    windowMs: getEnvPositiveInt('API_RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000),
+    max: getEnvPositiveInt('API_RATE_LIMIT_MAX', IS_PRODUCTION ? 300 : 1200),
+  },
+  checkout: {
+    windowMs: getEnvPositiveInt('CHECKOUT_RATE_LIMIT_WINDOW_MS', 10 * 60 * 1000),
+    max: getEnvPositiveInt('CHECKOUT_RATE_LIMIT_MAX', IS_PRODUCTION ? 25 : 100),
+  },
+  contact: {
+    windowMs: getEnvPositiveInt('CONTACT_RATE_LIMIT_WINDOW_MS', 10 * 60 * 1000),
+    max: getEnvPositiveInt('CONTACT_RATE_LIMIT_MAX', IS_PRODUCTION ? 10 : 50),
+  },
+  admin: {
+    windowMs: getEnvPositiveInt('ADMIN_RATE_LIMIT_WINDOW_MS', 10 * 60 * 1000),
+    max: getEnvPositiveInt('ADMIN_RATE_LIMIT_MAX', IS_PRODUCTION ? 10 : 30),
+  },
+}
 
 if (!STRIPE_SECRET_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.error('Missing required environment variables for API server.')
@@ -224,23 +255,23 @@ app.use(
 )
 
 const apiLimiter = createIpRateLimiter({
-  windowMs: 15 * 60 * 1000,
-  max: IS_PRODUCTION ? 300 : 1200,
+  windowMs: RATE_LIMITS.api.windowMs,
+  max: RATE_LIMITS.api.max,
   message: 'Too many API requests',
 })
 const checkoutLimiter = createIpRateLimiter({
-  windowMs: 10 * 60 * 1000,
-  max: IS_PRODUCTION ? 25 : 100,
+  windowMs: RATE_LIMITS.checkout.windowMs,
+  max: RATE_LIMITS.checkout.max,
   message: 'Too many checkout attempts',
 })
 const contactLimiter = createIpRateLimiter({
-  windowMs: 10 * 60 * 1000,
-  max: IS_PRODUCTION ? 10 : 50,
+  windowMs: RATE_LIMITS.contact.windowMs,
+  max: RATE_LIMITS.contact.max,
   message: 'Too many contact attempts',
 })
 const adminLimiter = createIpRateLimiter({
-  windowMs: 10 * 60 * 1000,
-  max: IS_PRODUCTION ? 10 : 30,
+  windowMs: RATE_LIMITS.admin.windowMs,
+  max: RATE_LIMITS.admin.max,
   message: 'Too many admin requests',
 })
 
@@ -832,11 +863,21 @@ async function cleanupAbandonedOrders() {
   }
 }
 
-// Run cleanup on server start
-cleanupAbandonedOrders()
+let cleanupInterval = null
 
-// Run cleanup every 6 hours
-setInterval(cleanupAbandonedOrders, 6 * 60 * 60 * 1000)
+export function startServer() {
+  // Run cleanup on server start
+  cleanupAbandonedOrders()
+
+  // Run cleanup every 6 hours
+  cleanupInterval = setInterval(cleanupAbandonedOrders, 6 * 60 * 60 * 1000)
+  if (typeof cleanupInterval.unref === 'function') cleanupInterval.unref()
+
+  const server = app.listen(PORT, () => {
+    console.log(`[api] listening on :${PORT}`)
+  })
+  return server
+}
 
 // Manual cleanup endpoint (admin only - for testing)
 app.post('/api/admin/cleanup-orders', adminLimiter, requireAdmin, async (req, res) => {
@@ -867,6 +908,16 @@ app.use((err, _req, res, _next) => {
   return sendError(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal server error')
 })
 
-app.listen(PORT, () => {
-  console.log(`[api] listening on :${PORT}`)
-})
+const isMainModule = process.argv[1] === fileURLToPath(import.meta.url)
+if (isMainModule && process.env.NODE_ENV !== 'test') {
+  startServer()
+}
+
+export const testUtils = {
+  createIpRateLimiter,
+  validateAndNormalizeCheckoutPayload,
+  validateContactPayload,
+  getEnvPositiveInt,
+}
+
+export { app, RATE_LIMITS }

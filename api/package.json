@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "node --env-file=.env --watch src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "NODE_ENV=test SUPABASE_URL=https://example.supabase.co SUPABASE_SERVICE_ROLE_KEY=test-service-role STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy API_RATE_LIMIT_MAX=2 API_RATE_LIMIT_WINDOW_MS=60000 node --test tests/**/*.test.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.51.0",
