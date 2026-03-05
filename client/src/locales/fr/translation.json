@@ -517,6 +517,14 @@
     "secure": {
       "title": "Paiement sécurisé",
       "desc": "Transactions chiffrées SSL"
+    },
+    "toast": {
+      "added": "{{name}} ajouté au panier.",
+      "quantityIncreased": "Quantité de {{name}} mise à {{count}}.",
+      "quantityDecreased": "Quantité de {{name}} réduite à {{count}}.",
+      "removed": "{{name}} supprimé du panier.",
+      "stockLimit": "Stock maximum atteint pour {{name}} ({{stock}}).",
+      "unavailable": "Ce produit n'est pas disponible pour l'ajout."
     }
   },
   "payment": {
@@ -682,7 +690,12 @@
           "desc": "Gestion des déclinaisons"
         }
       },
-      "loadingError": "Erreur lors du chargement des indicateurs."
+      "loadingError": "Erreur lors du chargement des indicateurs.",
+      "toasts": {
+        "ready": "Tableau de bord admin chargé.",
+        "loadingError": "Impossible de charger les indicateurs du dashboard.",
+        "openingSection": "Ouverture de la section {{section}}."
+      }
     },
     "nav": {
       "label": "Navigation administrateur",

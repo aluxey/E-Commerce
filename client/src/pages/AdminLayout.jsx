@@ -1,5 +1,4 @@
 import PrivateRoute from "@/components/PrivateRoute";
-import ToastHost from "@/components/ToastHost";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from 'react';
 import { useTranslation } from "react-i18next";
@@ -66,7 +65,6 @@ const AdminLayout = () => {
             <Outlet />
           </div>
         </div>
-        <ToastHost />
       </div>
     </PrivateRoute>
   );

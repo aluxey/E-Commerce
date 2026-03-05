@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { CartContext } from "../../context/CartContextObject";
+import { pushToast } from "../../utils/toast";
 
 /**
  * ProductScroller - Horizontal card scroller for mobile
@@ -51,7 +52,7 @@ export default function ProductScroller({ items, loading, emptyMessage }) {
  * Individual product card for the scroller
  */
 function ProductCard({ item }) {
-  const { addItem } = useContext(CartContext);
+  const { addItem, cart } = useContext(CartContext);
   const { t } = useTranslation();
   
   const imageUrl = item?.item_images?.[0]?.image_url;
@@ -66,8 +67,29 @@ function ProductCard({ item }) {
   const handleAdd = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!preferredVariant) return;
+    if (!preferredVariant) {
+      pushToast({
+        message: t("cart.toast.unavailable"),
+        variant: "warning",
+      });
+      return;
+    }
+
+    const stock = preferredVariant.stock ?? null;
+    const existingQty = cart.find(line => line.variantId === preferredVariant.id)?.quantity || 0;
+    if (stock != null && existingQty >= stock) {
+      pushToast({
+        message: t("cart.toast.stockLimit", { name: item.name, stock }),
+        variant: "warning",
+      });
+      return;
+    }
+
     addItem({ item, variant: preferredVariant });
+    pushToast({
+      message: t("cart.toast.added", { name: item.name }),
+      variant: "success",
+    });
   };
 
   const isOutOfStock = !preferredVariant || (preferredVariant.stock != null && preferredVariant.stock <= 0);

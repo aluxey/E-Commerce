@@ -1,5 +1,7 @@
 import { ErrorMessage, LoadingMessage } from '@/components/StatusMessage';
 import { useAdminStats } from '@/hooks/useAdminStats';
+import { pushToast } from '@/utils/toast';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBasket, Package, Users, Palette, FolderKanban, Target, Euro, ShoppingCart, BarChart3, Clock } from 'lucide-react';
 import '../styles/Admin.css';
@@ -31,6 +33,32 @@ const AdminDashboard = () => {
   const stats = useAdminStats();
   const isLoading = stats.loading;
   const { t } = useTranslation();
+  const hasShownReadyToast = useRef(false);
+  const lastErrorRef = useRef(null);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (stats.error) {
+      if (lastErrorRef.current !== stats.error) {
+        pushToast({
+          message: t('admin.dashboard.toasts.loadingError'),
+          variant: 'error',
+        });
+        lastErrorRef.current = stats.error;
+      }
+      return;
+    }
+
+    lastErrorRef.current = null;
+    if (!hasShownReadyToast.current) {
+      pushToast({
+        message: t('admin.dashboard.toasts.ready'),
+        variant: 'success',
+      });
+      hasShownReadyToast.current = true;
+    }
+  }, [isLoading, stats.error, t]);
 
   const shortcuts = [
     { to: '/admin/products', title: t('admin.dashboard.shortcuts.products.title'), desc: t('admin.dashboard.shortcuts.products.desc'), icon: <ShoppingBasket size={24} /> },
@@ -91,7 +119,18 @@ const AdminDashboard = () => {
         <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontFamily: 'Cormorant Garamond, serif' }}>{t('admin.dashboard.quickAccess')}</h2>
         <div className="admin-shortcuts">
           {shortcuts.map(card => (
-            <Link key={card.to} to={card.to} className="shortcut-card">
+            <Link
+              key={card.to}
+              to={card.to}
+              className="shortcut-card"
+              onClick={() =>
+                pushToast({
+                  message: t('admin.dashboard.toasts.openingSection', { section: card.title }),
+                  variant: 'info',
+                  duration: 1800,
+                })
+              }
+            >
               <span className="shortcut-icon" aria-hidden="true">{card.icon}</span>
               <div>
                 <p className="shortcut-title">{card.title}</p>

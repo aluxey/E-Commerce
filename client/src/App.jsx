@@ -8,6 +8,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
+import ToastHost from "./components/ToastHost";
 
 const Home = lazy(() => import("./pages/Home"));
 const AdminLayout = lazy(() => import("./pages/AdminLayout"));
@@ -87,6 +88,7 @@ function App() {
           <Route path="/payment-success" element={<PaymentSuccess />} />
         </Routes>
       </Suspense>
+      <ToastHost />
       <Footer />
     </CartProvider>
   );

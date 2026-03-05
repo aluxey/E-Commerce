@@ -35,7 +35,7 @@ export default function CustomerPhotoManager() {
     const { data, error: fetchErr } = await listAllPhotos();
     if (fetchErr) {
       setError(t("admin.customerPhotos.error.load"));
-      pushToast(t("admin.customerPhotos.error.load"), "error");
+      pushToast({ message: t("admin.customerPhotos.error.load"), variant: "error" });
     } else {
       setPhotos(data);
     }
@@ -63,14 +63,14 @@ export default function CustomerPhotoManager() {
 
         const { error: upErr } = await uploadPhoto(file, currentMax + 1 + i);
         if (upErr) {
-          pushToast(t("admin.customerPhotos.error.upload"), "error");
+          pushToast({ message: t("admin.customerPhotos.error.upload"), variant: "error" });
         } else {
           successCount++;
         }
       }
 
       if (successCount > 0) {
-        pushToast(t("admin.customerPhotos.success.upload"), "success");
+        pushToast({ message: t("admin.customerPhotos.success.upload"), variant: "success" });
         await fetchPhotos();
       }
       setUploading(false);
@@ -112,9 +112,9 @@ export default function CustomerPhotoManager() {
 
       const { error: delErr } = await deletePhoto(photo.id, photo.image_url);
       if (delErr) {
-        pushToast(t("admin.customerPhotos.error.delete"), "error");
+        pushToast({ message: t("admin.customerPhotos.error.delete"), variant: "error" });
       } else {
-        pushToast(t("admin.customerPhotos.success.delete"), "success");
+        pushToast({ message: t("admin.customerPhotos.success.delete"), variant: "success" });
         setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
       }
     },
@@ -127,9 +127,9 @@ export default function CustomerPhotoManager() {
       const newState = !photo.is_visible;
       const { error: togErr } = await toggleVisibility(photo.id, newState);
       if (togErr) {
-        pushToast(t("admin.customerPhotos.error.toggle"), "error");
+        pushToast({ message: t("admin.customerPhotos.error.toggle"), variant: "error" });
       } else {
-        pushToast(t("admin.customerPhotos.success.visibility"), "success");
+        pushToast({ message: t("admin.customerPhotos.success.visibility"), variant: "success" });
         setPhotos((prev) =>
           prev.map((p) => (p.id === photo.id ? { ...p, is_visible: newState } : p))
         );
@@ -195,10 +195,10 @@ export default function CustomerPhotoManager() {
       // Persister en base
       const { error: reorderErr } = await reorderPhotos(updates);
       if (reorderErr) {
-        pushToast(t("admin.customerPhotos.error.reorder"), "error");
+        pushToast({ message: t("admin.customerPhotos.error.reorder"), variant: "error" });
         await fetchPhotos();
       } else {
-        pushToast(t("admin.customerPhotos.success.reorder"), "success");
+        pushToast({ message: t("admin.customerPhotos.success.reorder"), variant: "success" });
       }
     },
     [draggedIndex, photos, t, fetchPhotos]

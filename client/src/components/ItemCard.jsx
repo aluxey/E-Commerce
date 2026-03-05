@@ -2,11 +2,12 @@ import { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Plus } from 'lucide-react';
 import { CartContext } from '../context/CartContextObject';
+import { pushToast } from '../utils/toast';
 import '../styles/Item.css';
 import { useTranslation } from 'react-i18next';
 
 export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categoryLabel = '' }) {
-  const { addItem } = useContext(CartContext);
+  const { addItem, cart } = useContext(CartContext);
   const imageUrl = item.item_images?.[0]?.image_url;
   const variants = useMemo(() => item.item_variants || [], [item.item_variants]);
   const { t } = useTranslation();
@@ -25,8 +26,29 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categor
 
   const handleAddToCart = e => {
     e.preventDefault();
-    if (!preferredVariant) return;
+    if (!preferredVariant) {
+      pushToast({
+        message: t('cart.toast.unavailable'),
+        variant: 'warning',
+      });
+      return;
+    }
+
+    const stock = preferredVariant.stock ?? null;
+    const existingQty = cart.find(line => line.variantId === preferredVariant.id)?.quantity || 0;
+    if (stock != null && existingQty >= stock) {
+      pushToast({
+        message: t('cart.toast.stockLimit', { name: item.name, stock }),
+        variant: 'warning',
+      });
+      return;
+    }
+
     addItem({ item, variant: preferredVariant });
+    pushToast({
+      message: t('cart.toast.added', { name: item.name }),
+      variant: 'success',
+    });
   };
 
   const roundedRating = useMemo(() => {

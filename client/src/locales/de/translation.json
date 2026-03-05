@@ -517,6 +517,14 @@
     "secure": {
       "title": "Sichere Zahlung",
       "desc": "SSL-verschlüsselte Transaktionen"
+    },
+    "toast": {
+      "added": "{{name}} zum Warenkorb hinzugefügt.",
+      "quantityIncreased": "Menge von {{name}} auf {{count}} erhöht.",
+      "quantityDecreased": "Menge von {{name}} auf {{count}} reduziert.",
+      "removed": "{{name}} aus dem Warenkorb entfernt.",
+      "stockLimit": "Maximaler Bestand für {{name}} erreicht ({{stock}}).",
+      "unavailable": "Dieses Produkt ist derzeit nicht zum Hinzufügen verfügbar."
     }
   },
   "payment": {
@@ -682,7 +690,12 @@
           "desc": "Ausführungen verwalten"
         }
       },
-      "loadingError": "Fehler beim Laden der Kennzahlen."
+      "loadingError": "Fehler beim Laden der Kennzahlen.",
+      "toasts": {
+        "ready": "Admin-Dashboard geladen.",
+        "loadingError": "Die Dashboard-Kennzahlen konnten nicht geladen werden.",
+        "openingSection": "Bereich {{section}} wird geöffnet."
+      }
     },
     "nav": {
       "label": "Admin Navigation",

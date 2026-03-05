@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CartContext } from '../context/CartContextObject';
+import { pushToast } from '../utils/toast';
 
 import '../styles/cart.css';
 
@@ -16,6 +17,39 @@ const Cart = () => {
     return cart.reduce((total, item) => {
       return total + (Number(item.unit_price) || 0) * item.quantity;
     }, 0);
+  };
+
+  const handleIncrease = item => {
+    addItem(item);
+    pushToast({
+      message: t('cart.toast.quantityIncreased', { name: item.name, count: item.quantity + 1 }),
+      variant: 'success',
+    });
+  };
+
+  const handleDecrease = item => {
+    if (item.quantity <= 1) {
+      removeItem(item);
+      pushToast({
+        message: t('cart.toast.removed', { name: item.name }),
+        variant: 'info',
+      });
+      return;
+    }
+
+    decreaseItem(item);
+    pushToast({
+      message: t('cart.toast.quantityDecreased', { name: item.name, count: item.quantity - 1 }),
+      variant: 'info',
+    });
+  };
+
+  const handleRemove = item => {
+    removeItem(item);
+    pushToast({
+      message: t('cart.toast.removed', { name: item.name }),
+      variant: 'info',
+    });
   };
 
   if (cart.length === 0) {
@@ -62,7 +96,7 @@ const Cart = () => {
                     <div className="item-header">
                       <h3>{item.name}</h3>
                       <button
-                        onClick={() => removeItem(item)}
+                        onClick={() => handleRemove(item)}
                         className="btn-remove-mobile"
                         aria-label={t('cart.remove')}
                       >
@@ -83,7 +117,7 @@ const Cart = () => {
                     <div className="item-pricing-row">
                       <div className="quantity-controls-wrapper">
                         <button
-                          onClick={() => decreaseItem(item)}
+                          onClick={() => handleDecrease(item)}
                           aria-label={t('cart.quantityDecrease')}
                           className="qty-btn"
                         >
@@ -91,7 +125,7 @@ const Cart = () => {
                         </button>
                         <span className="qty-display">{item.quantity}</span>
                         <button
-                          onClick={() => addItem(item)}
+                          onClick={() => handleIncrease(item)}
                           disabled={cannotIncrease}
                           aria-label={t('cart.quantityIncrease')}
                           className="qty-btn"
@@ -108,7 +142,7 @@ const Cart = () => {
                   </div>
 
                   <button
-                    onClick={() => removeItem(item)}
+                    onClick={() => handleRemove(item)}
                     className="btn-remove-desktop"
                     aria-label={t('cart.remove')}
                   >

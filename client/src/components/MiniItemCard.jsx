@@ -1,10 +1,11 @@
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContextObject';
+import { pushToast } from '../utils/toast';
 import { useTranslation } from 'react-i18next';
 
 export default function MiniItemCard({ item }) {
-  const { addItem } = useContext(CartContext);
+  const { addItem, cart } = useContext(CartContext);
   const imageUrl = item?.item_images?.[0]?.image_url;
   const variants = item?.item_variants || [];
   const preferredVariant = variants.find(v => (v.stock ?? 0) > 0) || variants[0] || null;
@@ -13,8 +14,29 @@ export default function MiniItemCard({ item }) {
 
   const handleAdd = e => {
     e.preventDefault();
-    if (!preferredVariant) return;
+    if (!preferredVariant) {
+      pushToast({
+        message: t('cart.toast.unavailable'),
+        variant: 'warning',
+      });
+      return;
+    }
+
+    const stock = preferredVariant.stock ?? null;
+    const existingQty = cart.find(line => line.variantId === preferredVariant.id)?.quantity || 0;
+    if (stock != null && existingQty >= stock) {
+      pushToast({
+        message: t('cart.toast.stockLimit', { name: item.name, stock }),
+        variant: 'warning',
+      });
+      return;
+    }
+
     addItem({ item, variant: preferredVariant });
+    pushToast({
+      message: t('cart.toast.added', { name: item.name }),
+      variant: 'success',
+    });
   };
 
   return (

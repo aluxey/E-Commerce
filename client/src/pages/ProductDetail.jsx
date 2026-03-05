@@ -2,11 +2,12 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Star, Check, X, Minus, Plus } from "lucide-react";
+import { Star, Minus, Plus } from "lucide-react";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import ColorPicker from "../components/ui/ColorPicker";
 import { useAuth } from "../context/AuthContext";
 import { CartContext } from "../context/CartContextObject";
+import { pushToast } from "../utils/toast";
 import { listColors } from "../services/adminColors";
 import { fetchItemDetail, fetchRelatedItems } from "../services/items";
 import { loadAllRatings, submitRating } from "../services/ratings";
@@ -30,14 +31,13 @@ export default function ItemDetail() {
   const [activeTab, setActiveTab] = useState("details");
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
   const [relatedItems, setRelatedItems] = useState([]);
   const [selectedHookType, setSelectedHookType] = useState("default");
   // const [deliveryDate, setDeliveryDate] = useState(''); // Temporarily disabled
   const [error, setError] = useState(false);
 
   const navigate = useNavigate();
-  const { addItem } = useContext(CartContext);
+  const { addItem, cart } = useContext(CartContext);
   const { session } = useAuth();
   const { t, i18n } = useTranslation();
   const locale = useMemo(() => (i18n.language === "fr" ? "fr-FR" : "de-DE"), [i18n.language]);
@@ -227,16 +227,41 @@ export default function ItemDetail() {
   };
 
   const handleAddToCart = async () => {
-    if (!selectedVariant || isOutOfStock) return;
+    if (!selectedVariant) {
+      pushToast({
+        message: t("cart.toast.unavailable"),
+        variant: "warning",
+      });
+      return;
+    }
+
+    if (isOutOfStock) {
+      pushToast({
+        message: t("productDetail.outOfStock"),
+        variant: "warning",
+      });
+      return;
+    }
+
     setIsAddingToCart(true);
 
     const stock = selectedVariant.stock ?? null;
     const safeQuantity = Math.max(1, stock != null ? Math.min(quantity, stock) : quantity);
+    const existingQty = cart.find(line => line.variantId === selectedVariant.id)?.quantity || 0;
 
     const colorObj = colors.find(c => c.id === selectedColor) || null;
 
     // Simulation d'un délai pour l'UX
     setTimeout(() => {
+      if (stock != null && existingQty + safeQuantity > stock) {
+        setIsAddingToCart(false);
+        pushToast({
+          message: t("cart.toast.stockLimit", { name: item.name, stock }),
+          variant: "warning",
+        });
+        return;
+      }
+
       addItem({
         item: {
           ...item,
@@ -253,10 +278,10 @@ export default function ItemDetail() {
       });
 
       setIsAddingToCart(false);
-      setShowNotification(true);
-
-      // Masquer la notification après 3s
-      setTimeout(() => setShowNotification(false), 3000);
+      pushToast({
+        message: t("cart.toast.added", { name: item.name }),
+        variant: "success",
+      });
     }, 500);
   };
 
@@ -286,16 +311,6 @@ export default function ItemDetail() {
 
   return (
     <>
-      {/* Notification */}
-      {showNotification && (
-        <div className="notification success">
-          <div className="notification-content">
-            <span><Check size={16} /> {t("productDetail.notificationAdded")}</span>
-            <button onClick={() => setShowNotification(false)}><X size={16} /></button>
-          </div>
-        </div>
-      )}
-
       <div className="product-detail">
         <div className="pd-gallery">
           <div className="pd-main-image">
