@@ -1,7 +1,7 @@
 # TODO - Deployment Readiness (Pro)
 
 Date: 2026-03-05
-Derniere mise a jour: 2026-03-05 (API security pass)
+Derniere mise a jour: 2026-03-05 (API security + lint cleanup)
 
 ## Derniers changements integres
 
@@ -12,17 +12,19 @@ Derniere mise a jour: 2026-03-05 (API security pass)
 - Validation stricte ajoutee sur `checkout` et `contact` + format d'erreur unifie.
 - `api/.env.example` ajoute avec variables de rate-limit.
 - Tests API de securite ajoutes (`npm --prefix api test`).
+- Lint client corrige (`npm --prefix client run lint` OK).
+- Build client revalide apres corrections lint.
 
 ## Etat des lieux rapide
 
 Points positifs:
 - Build client OK (`npm --prefix client run build`).
+- Lint client OK (`npm --prefix client run lint`).
 - Structure documentation assainie et centralisee.
 - Base API presente avec endpoint health (`/api/health`).
 - RLS/Supabase et separation client/API en place.
 
 Points critiques avant deploiement pro:
-- Lint en echec (8 erreurs, 4 warnings) sur le client.
 - Couverture de test encore insuffisante (pas d'integration DB/webhook, pas d'E2E).
 - Pas de CI/CD pipeline versionnee dans `.github/workflows`.
 - Flux paiement incoherent: creation PaymentIntent Stripe mais redirection SumUp statique.
@@ -45,10 +47,10 @@ Points critiques avant deploiement pro:
   - [ ] Garantir la reconciliation paiement -> commande (webhook/idempotence).
   - Done quand: une commande payee passe a `paid` de facon deterministe, sans intervention manuelle.
 
-- [ ] Corriger la qualite minimale de code
-  - [ ] Passer `npm --prefix client run lint` a zero erreur.
-  - [ ] Traiter les warnings hooks (deps manquantes) prioritaires.
-  - Done quand: lint vert en local + CI.
+- [x] Corriger la qualite minimale de code
+  - [x] Passer `npm --prefix client run lint` a zero erreur.
+  - [x] Traiter les warnings hooks (deps manquantes) prioritaires.
+  - Done: lint vert en local (la verification obligatoire en PR sera couverte par le chantier CI).
 
 - [ ] Ajouter les environnements standardises
   - [x] Creer `api/.env.example` avec variables obligatoires et options.
@@ -113,7 +115,7 @@ Points critiques avant deploiement pro:
 ## Proposition de plan 30 jours
 
 Semaine 1:
-- Securite API (fait) + lint client vert + `client/.env.example`.
+- Securite API (fait) + lint client vert (fait) + `client/.env.example`.
 
 Semaine 2:
 - P0 paiement unifie + tests integration checkout/webhook.

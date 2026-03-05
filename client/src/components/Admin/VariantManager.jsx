@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, Target, Pencil, Trash2, Check, X } from 'lucide-react';
 import { deleteVariant, listItemsBasic, listVariants, upsertVariant } from '../../services/adminVariants';
@@ -24,7 +24,7 @@ export default function VariantManager() {
   });
   const [editingId, setEditingId] = useState(null);
 
-  const fetchVariants = async () => {
+  const fetchVariants = useCallback(async () => {
     setLoading(true);
     setError(null);
     const [variantsResp, itemsResp] = await Promise.all([listVariants(), listItemsBasic()]);
@@ -37,7 +37,7 @@ export default function VariantManager() {
       setProducts(itemsResp.data || []);
     }
     setLoading(false);
-  };
+  }, [t]);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -151,7 +151,7 @@ export default function VariantManager() {
 
   useEffect(() => {
     fetchVariants();
-  }, []);
+  }, [fetchVariants]);
 
   if (loading) return <LoadingMessage message={t('admin.variants.loading')} />;
   if (error) return <ErrorMessage title={t('status.error')} message={error} onRetry={fetchVariants} />;

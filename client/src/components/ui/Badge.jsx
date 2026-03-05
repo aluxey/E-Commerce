@@ -42,4 +42,3 @@ Badge.propTypes = {
 };
 
 export { Badge };
-export { badgeVariants } from '../../utils/badgeVariants';

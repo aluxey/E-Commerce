@@ -1,6 +1,6 @@
 import { STEPS, STEP_LABEL_KEYS, buildSku, sanitizeText, useProductForm } from "@/hooks/useProductForm";
 import { supabase } from "@/supabase/supabaseClient";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Search, X, Check, ChevronLeft, ChevronRight, Package, Camera, Trash2 } from "lucide-react";
 import {
@@ -79,7 +79,7 @@ export default function ProductManager() {
   } = formHook;
 
   // Data fetching
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -93,17 +93,17 @@ export default function ProductManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
-  const fetchCategoriesList = async () => {
+  const fetchCategoriesList = useCallback(async () => {
     const { data, error } = await listCategories();
     if (!error) setCategories(data || []);
-  };
+  }, []);
 
   useEffect(() => {
     fetchProducts();
     fetchCategoriesList();
-  }, []);
+  }, [fetchProducts, fetchCategoriesList]);
 
   // Upload image helper
   const uploadImage = async (file, itemId, position = 0) => {

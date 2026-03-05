@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   countAllCategoryProducts,
@@ -27,7 +27,7 @@ export default function CategoryManager() {
   const [form, setForm] = useState({ name: "", icon: "🧺", parent_id: null });
   const [saving, setSaving] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const [catRes, countRes] = await Promise.all([
       listCategoriesWithParent(),
@@ -40,9 +40,9 @@ export default function CategoryManager() {
       setProductCounts(countRes.data || {});
     }
     setLoading(false);
-  };
+  }, [t]);
 
-  useEffect(() => { fetchData(); }, [t]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const mainCategories = useMemo(() => categories.filter(c => !c.parent_id), [categories]);
   const getSubcats = (parentId) => categories.filter(c => c.parent_id === parentId);

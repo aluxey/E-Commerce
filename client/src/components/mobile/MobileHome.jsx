@@ -42,8 +42,7 @@ export default function MobileHome({
   displayCategories, 
   colors,
   previewPhotos,
-  loading, 
-  error 
+  loading 
 }) {
   const { t } = useTranslation();
   const [openAccordion, setOpenAccordion] = useState(null);

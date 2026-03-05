@@ -77,4 +77,3 @@ Skeleton.propTypes = {
 };
 
 export { Skeleton };
-export { skeletonVariants } from '../../utils/skeletonVariants';
