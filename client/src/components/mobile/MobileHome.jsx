@@ -174,7 +174,7 @@ export default function MobileHome({
       </section>
 
       {/* ============ 6. ABOUT PRODUCT (Accordions) ============ */}
-      <section className="mh-section">
+      <section className="mh-section" id="faq">
         <div className="mh-section__header">
           <h2 className="mh-section__title">{t("home.aboutProduct.title")}</h2>
         </div>
@@ -254,7 +254,7 @@ export default function MobileHome({
       </section>
 
       {/* ============ 7. ABOUT ME ============ */}
-      <section className="mh-section mh-about-me">
+      <section className="mh-section mh-about-me" id="about-me">
         <div className="mh-about-me__image">
           <img 
             src={aboutMeSabrina} 

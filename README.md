@@ -141,16 +141,16 @@ Exécuter dans l'ordre sur votre projet Supabase :
 
 ## 📁 Documentation
 
-- [Documentation complète](./Docs/PROJECT_DOCUMENTATION.md)
-- [Changelog](./Docs/Changelog.md)
-- [Audit technique](./Docs/AUDIT_TECHNIQUE.md)
-- [Guide i18n](./Docs/i18n.md)
+- [Index documentation](./Docs/README.md)
+- [Changelog](./Docs/reference/changelog.md)
+- [Guide i18n](./Docs/guides/i18n.md)
+- [Vue d'ensemble BDD](./Docs/database/overview.md)
 
 ---
 
 ## 🤝 Contribution
 
-1. Lire [Agents.md](./Agents.md) avant toute modification
+1. Lire les instructions de collaboration du repository (`AGENTS.md`) si presentes
 2. Créer une branche feature (`git checkout -b feature/ma-feature`)
 3. Commiter avec des messages clairs
 4. Mettre à jour la documentation si nécessaire

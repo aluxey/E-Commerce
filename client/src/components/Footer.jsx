@@ -14,16 +14,16 @@ export default function Footer() {
           <h4>{t('footer.shop')}</h4>
           <ul>
             <li>
-              <a href="/collections">{t('footer.collections')}</a>
+              <Link to="/items?sort=name">{t('footer.collections')}</Link>
             </li>
             <li>
-              <a href="/nouveautes">{t('footer.new')}</a>
+              <Link to="/items?sort=newest">{t('footer.new')}</Link>
             </li>
             <li>
-              <a href="/meilleures-ventes">{t('footer.best')}</a>
+              <Link to="/items?sort=top-rated">{t('footer.best')}</Link>
             </li>
             <li>
-              <a href="/photos">{t('footer.gallery')}</a>
+              <Link to="/photos">{t('footer.gallery')}</Link>
             </li>
           </ul>
         </div>
@@ -31,10 +31,7 @@ export default function Footer() {
           <h4>{t('footer.about')}</h4>
           <ul>
             <li>
-              <a href="/qui-sommes-nous">{t('footer.who')}</a>
-            </li>
-            <li>
-              <a href="/notre-histoire">{t('footer.story')}</a>
+              <Link to="/client#about-me">{t('footer.who')}</Link>
             </li>
           </ul>
         </div>
@@ -42,10 +39,10 @@ export default function Footer() {
           <h4>{t('footer.support')}</h4>
           <ul>
             <li>
-              <a href="/faq">{t('footer.faq')}</a>
+              <Link to="/client#faq">{t('footer.faq')}</Link>
             </li>
             <li>
-              <a href="/livraison-retours">{t('footer.shipping')}</a>
+              <Link to="/legal/cancellation">{t('footer.shipping')}</Link>
             </li>
           </ul>
         </div>
@@ -56,7 +53,7 @@ export default function Footer() {
               <a href="mailto:sabbelshandmade@gmail.com">{t('footer.email')}</a>
             </li>
             <li>
-              <a href="tel:+33123456789">+33 1 23 45 67 89</a>
+              <a href="tel:+491636063872">+49 163 6063872</a>
             </li>
           </ul>
         </div>
@@ -71,24 +68,6 @@ export default function Footer() {
             {t('footer.instagramHandle')}
           </a>
         </div>
-      </div>
-
-      <div className="footer-social" aria-label={t('footer.socialLabel')}>
-        <a href="#" aria-label={`${t('footer.socialLabel')} - ${t('footer.facebook')}`} className="social-icon" target="_blank" rel="noreferrer">
-          <svg width="24" height="24">
-            <title>{t('footer.facebook')}</title>
-          </svg>
-        </a>
-        <a href="#" aria-label={`${t('footer.socialLabel')} - ${t('footer.instagram')}`} className="social-icon" target="_blank" rel="noreferrer">
-          <svg width="24" height="24">
-            <title>{t('footer.instagram')}</title>
-          </svg>
-        </a>
-        <a href="#" aria-label={`${t('footer.socialLabel')} - ${t('footer.pinterest')}`} className="social-icon" target="_blank" rel="noreferrer">
-          <svg width="24" height="24">
-            <title>{t('footer.pinterest')}</title>
-          </svg>
-        </a>
       </div>
 
       <div className="footer-bottom">

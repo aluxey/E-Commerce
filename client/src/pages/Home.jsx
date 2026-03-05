@@ -307,7 +307,7 @@ export default function Home() {
       </section>
 
       {/* About Product Section */}
-      <section className="about-product-section" id="uber-das-produkt">
+      <section className="about-product-section" id="faq">
         <div className="container">
           <div className="section-header">
             <div>

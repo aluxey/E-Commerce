@@ -1,5 +1,12 @@
 # Changelog: Recent Refactors & UX Improvements
 
+## 2026-03-05: Reorganisation de la documentation
+
+- Centralisation des docs dans `Docs/` avec index unique (`Docs/README.md`).
+- Deplacement des documents actifs en sous-dossiers (`guides/`, `database/`, `checklists/`, `reference/`).
+- Deplacement des snapshots et contenus obsoletes vers `Docs/archive/`.
+- Nettoyage des liens README pour pointer vers la nouvelle structure.
+
 ## 2026-01-28: Sélecteur couleurs & scroll navigation
 
 - Ajout de swatches cliquables + bouton “+X” avec recherche pour le sélecteur de couleurs.
