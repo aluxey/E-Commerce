@@ -5,6 +5,7 @@ Ce dossier centralise toute la documentation projet.
 ## Documentation active
 
 - [Guide i18n](./guides/i18n.md)
+- [Guide go-live Stripe](./guides/stripe_go_live.md)
 - [Vue d'ensemble base de donnees](./database/overview.md)
 - [Checklist diagnostic mobile](./checklists/mobile_diagnostic.md)
 - [Changelog](./reference/changelog.md)
