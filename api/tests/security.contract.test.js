@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { testUtils } from '../src/server.js'
 
-const { createIpRateLimiter, validateAndNormalizeCheckoutPayload, validateContactPayload } = testUtils
+const { createIpRateLimiter, validateAndNormalizeCheckoutPayload, validateContactPayload, normalizeShippingAddress } = testUtils
 
 function createMockRes() {
   return {
@@ -68,6 +68,45 @@ test('contact payload validation rejects invalid shape', () => {
   assert.ok(result.details.some(d => d.field === 'email'))
   assert.ok(result.details.some(d => d.field === 'subject'))
   assert.ok(result.details.some(d => d.field === 'message'))
+})
+
+test('shipping address normalization accepts a valid address payload', () => {
+  const result = normalizeShippingAddress({
+    name: 'Sabrina Loeber',
+    phone: '+33 6 12 34 56 78',
+    line1: '12 rue des Fleurs',
+    city: 'Lyon',
+    postal_code: '69001',
+    country: 'fr',
+  })
+
+  assert.equal(result.ok, true)
+  assert.deepEqual(result.value, {
+    name: 'Sabrina Loeber',
+    phone: '+33 6 12 34 56 78',
+    line1: '12 rue des Fleurs',
+    line2: '',
+    city: 'Lyon',
+    state: '',
+    postal_code: '69001',
+    country: 'FR',
+  })
+})
+
+test('shipping address normalization rejects incomplete payload', () => {
+  const result = normalizeShippingAddress({
+    name: 'Client',
+    line1: '',
+    city: '',
+    postal_code: '',
+    country: 'F',
+  })
+
+  assert.equal(result.ok, false)
+  assert.ok(result.details.some(d => d.field === 'shippingAddress.line1'))
+  assert.ok(result.details.some(d => d.field === 'shippingAddress.city'))
+  assert.ok(result.details.some(d => d.field === 'shippingAddress.postal_code'))
+  assert.ok(result.details.some(d => d.field === 'shippingAddress.country'))
 })
 
 test('IP rate limiter blocks requests above threshold', () => {

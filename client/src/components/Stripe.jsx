@@ -1,29 +1,38 @@
-import { ArrowLeft, CreditCard, ExternalLink, Lock, ShieldCheck } from 'lucide-react';
-import { useCallback, useContext, useMemo, useState } from 'react';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { ArrowLeft, CreditCard, Lock, ShieldCheck } from 'lucide-react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import CheckoutForm from './CheckoutForm';
 import { useAuth } from '../context/AuthContext';
 import { CartContext } from '../context/CartContextObject';
 
 import '../styles/Stripe.css';
 
-const SUMUP_LINK = 'https://pay.sumup.com/b2c/Q3U6OT1W';
+const stripePublicKey =
+  import.meta.env.VITE_STRIPE_PUBLIC_KEY ||
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
+  '';
+const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
 
 const StripeCheckout = () => {
   const { cart, clearCart } = useContext(CartContext);
   const { session, userData } = useAuth();
   const { t } = useTranslation();
-  const [submitting, setSubmitting] = useState(false);
-  const [info, setInfo] = useState(null);
+  const [clientSecret, setClientSecret] = useState('');
+  const [orderId, setOrderId] = useState(null);
+  const [loadingIntent, setLoadingIntent] = useState(false);
   const [error, setError] = useState(null);
 
   const total = useMemo(() => {
     return cart.reduce((acc, item) => acc + (Number(item.unit_price) || 0) * item.quantity, 0);
   }, [cart]);
 
-  const createOrderAndRedirect = useCallback(async () => {
-    setSubmitting(true);
-    setInfo(null);
+  const createPaymentIntent = useCallback(async () => {
+    if (!session?.access_token || cart.length === 0) return;
+
+    setLoadingIntent(true);
     setError(null);
 
     try {
@@ -62,17 +71,37 @@ const StripeCheckout = () => {
       }
 
       const data = await response.json();
-      setInfo(t('payment.orderCreated', { id: data.orderId }));
-      clearCart();
-
-      window.open(SUMUP_LINK, '_blank', 'noopener');
+      if (!data?.clientSecret) {
+        throw new Error(t('stripe.error', 'Client secret manquant.'));
+      }
+      setClientSecret(data.clientSecret);
+      setOrderId(data.orderId || null);
     } catch (e) {
-      console.error('SumUp create order error:', e);
+      console.error('Stripe checkout init error:', e);
       setError(e.message || t('checkout.paymentError'));
     } finally {
-      setSubmitting(false);
+      setLoadingIntent(false);
     }
-  }, [cart, clearCart, session?.access_token, t, userData?.email]);
+  }, [cart, session?.access_token, t, userData?.email]);
+
+  useEffect(() => {
+    setClientSecret('');
+    setOrderId(null);
+    if (!cart.length || !session?.access_token) return;
+    createPaymentIntent();
+  }, [cart, session?.access_token, createPaymentIntent]);
+
+  const handlePaymentSuccess = () => {
+    clearCart();
+  };
+
+  const elementsOptions = useMemo(() => {
+    if (!clientSecret) return null;
+    return {
+      clientSecret,
+      appearance: { theme: 'stripe' },
+    };
+  }, [clientSecret]);
 
   if (cart.length === 0) {
     return (
@@ -102,9 +131,9 @@ const StripeCheckout = () => {
             </div>
 
             <div className="sumup-section">
-              <div className="sumup-info-box">
+              <div className="payment-info-box">
                 <p className="payment-description">
-                  {t('payment.sumupInfo', 'Vous allez être redirigé vers SumUp, notre partenaire de paiement sécurisé, pour finaliser votre commande.')}
+                  {t('stripe.description', 'Paiement sécurisé par Stripe. Votre commande est confirmée dès validation du paiement.')}
                 </p>
 
                 <div className="secure-badges">
@@ -119,22 +148,26 @@ const StripeCheckout = () => {
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="btn-pay-sumup"
-                onClick={createOrderAndRedirect}
-                disabled={submitting}
-              >
-                <span>{submitting ? t('payment.verifying', 'Préparation...') : t('payment.sumupPay', 'Payer avec SumUp')}</span>
-                {!submitting && <ExternalLink size={20} />}
-              </button>
-
-              <p className="sumup-note">
-                {t('payment.sumupReturn', 'Une fois le paiement effectué, vous pourrez revenir sur le site.')}
-              </p>
-
-              {info && <div className="payment-info success">{info}</div>}
+              {loadingIntent && (
+                <div className="payment-info">{t('stripe.preparing', 'Préparation du paiement...')}</div>
+              )}
+              {!stripePromise && (
+                <div className="payment-info error">
+                  Clé Stripe manquante (`VITE_STRIPE_PUBLIC_KEY`).
+                </div>
+              )}
               {error && <div className="payment-info error">{error}</div>}
+
+              {elementsOptions && stripePromise && (
+                <div className="stripe-form-wrapper">
+                  {orderId ? (
+                    <p className="payment-order-reference">{t('payment.orderReference', { id: orderId.slice(0, 8) })}</p>
+                  ) : null}
+                  <Elements stripe={stripePromise} options={elementsOptions}>
+                    <CheckoutForm onSuccess={handlePaymentSuccess} orderId={orderId} />
+                  </Elements>
+                </div>
+              )}
             </div>
           </div>
         </div>

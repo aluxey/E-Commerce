@@ -15,7 +15,8 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 // Email configuration - using Resend
 const RESEND_API_KEY = process.env.RESEND_API_KEY
-const EMAIL_TO = 'sabbelshandmade@gmail.com'
+const EMAIL_TO = process.env.EMAIL_TO || 'sabbelshandmade@gmail.com'
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Sabbels Handmade <onboarding@resend.dev>'
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 const MAX_CART_ITEMS = 100
 const MAX_ITEM_QUANTITY = 50
@@ -67,6 +68,9 @@ const supabase = createClient(SUPABASE_URL || '', SUPABASE_SERVICE_ROLE_KEY || '
 
 // Configure Resend for emails
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
+if (IS_PRODUCTION && resend && /@resend\.dev>/i.test(RESEND_FROM_EMAIL)) {
+  console.warn('RESEND_FROM_EMAIL uses resend.dev in production. Configure a verified domain sender.')
+}
 
 // Configure multer for file uploads (max 10MB)
 const upload = multer({
@@ -108,6 +112,30 @@ function sendError(res, status, code, message, details) {
   })
 }
 
+const DUPLICATE_STRIPE_EVENT_CODES = new Set(['23505', '409'])
+
+async function acquireStripeEventLock(eventId) {
+  if (!eventId) return { acquired: true }
+  const { error } = await supabase.from('stripe_events').insert({ event_id: eventId })
+
+  if (!error) return { acquired: true }
+  if (DUPLICATE_STRIPE_EVENT_CODES.has(String(error.code || ''))) {
+    return { acquired: false, duplicate: true }
+  }
+  if (typeof error.message === 'string' && /duplicate key/i.test(error.message)) {
+    return { acquired: false, duplicate: true }
+  }
+  throw error
+}
+
+async function releaseStripeEventLock(eventId) {
+  if (!eventId) return
+  const { error } = await supabase.from('stripe_events').delete().eq('event_id', eventId)
+  if (error) {
+    console.error(`[Webhook] Failed to release stripe event lock for ${eventId}:`, error)
+  }
+}
+
 // Webhook needs the raw body
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature']
@@ -120,8 +148,16 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
   }
 
   console.log(`[Webhook] Received event: ${event.type}`)
+  let hasEventLock = false
 
   try {
+    const lock = await acquireStripeEventLock(event.id)
+    if (!lock.acquired) {
+      console.log(`[Webhook] Duplicate event ignored: ${event.id}`)
+      return res.json({ received: true, duplicate: true })
+    }
+    hasEventLock = true
+
     switch (event.type) {
       case 'payment_intent.succeeded': {
         const pi = event.data.object
@@ -129,15 +165,26 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
         console.log(`[Webhook] Payment succeeded for order: ${orderId}`)
         
         if (orderId) {
+          const shippingValidation = normalizeShippingAddress(pi.shipping)
+          const updatePayload = { status: 'paid' }
+          if (shippingValidation.ok) {
+            updatePayload.shipping_address = shippingValidation.value
+          }
+
           // Update order status to paid
           const { error: updateError } = await supabase
             .from('orders')
-            .update({ status: 'paid' })
+            .update(updatePayload)
             .eq('id', orderId)
           
           if (updateError) {
             console.error(`[Webhook] Failed to update order ${orderId}:`, updateError)
           } else {
+            try {
+              await upsertStripePaymentRecord({ orderId, paymentIntent: pi, statusOverride: 'paid' })
+            } catch (paymentError) {
+              console.error(`[Webhook] Failed to sync payment for order ${orderId}:`, paymentError)
+            }
             console.log(`[Webhook] Order ${orderId} marked as paid`)
             
             // Send order recap email to shop owner
@@ -158,6 +205,11 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
         
         if (orderId) {
           await supabase.from('orders').update({ status: 'failed' }).eq('id', orderId)
+          try {
+            await upsertStripePaymentRecord({ orderId, paymentIntent: pi, statusOverride: 'failed' })
+          } catch (paymentError) {
+            console.error(`[Webhook] Failed to sync failed payment for order ${orderId}:`, paymentError)
+          }
         }
         break
       }
@@ -168,6 +220,11 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
         
         if (orderId) {
           await supabase.from('orders').update({ status: 'canceled' }).eq('id', orderId)
+          try {
+            await upsertStripePaymentRecord({ orderId, paymentIntent: pi, statusOverride: 'canceled' })
+          } catch (paymentError) {
+            console.error(`[Webhook] Failed to sync canceled payment for order ${orderId}:`, paymentError)
+          }
         }
         break
       }
@@ -177,6 +234,9 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
     }
   } catch (err) {
     console.error('Webhook handling error:', err)
+    if (hasEventLock) {
+      await releaseStripeEventLock(event.id)
+    }
     return sendError(res, 500, 'WEBHOOK_INTERNAL_ERROR', 'Internal webhook error')
   }
 
@@ -332,6 +392,87 @@ function parsePositiveInt(value) {
 function normalizeCustomization(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return {}
   return input
+}
+
+function sanitizeText(value, maxLength = 255) {
+  if (typeof value !== 'string') return ''
+  return value.trim().slice(0, maxLength)
+}
+
+function normalizeShippingAddress(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    return { ok: false, details: [{ field: 'shippingAddress', issue: 'Shipping address is required' }] }
+  }
+
+  const address = input.address && typeof input.address === 'object' && !Array.isArray(input.address)
+    ? input.address
+    : input
+
+  const normalized = {
+    name: sanitizeText(input.name ?? input.fullName ?? address.name, 120),
+    phone: sanitizeText(input.phone ?? address.phone, 40),
+    line1: sanitizeText(address.line1, 120),
+    line2: sanitizeText(address.line2, 120),
+    city: sanitizeText(address.city, 120),
+    state: sanitizeText(address.state, 120),
+    postal_code: sanitizeText(address.postal_code ?? address.postalCode, 32),
+    country: sanitizeText(address.country, 2).toUpperCase(),
+  }
+
+  const details = []
+  if (!normalized.name) details.push({ field: 'shippingAddress.name', issue: 'Name is required' })
+  if (!normalized.line1) details.push({ field: 'shippingAddress.line1', issue: 'Address line 1 is required' })
+  if (!normalized.city) details.push({ field: 'shippingAddress.city', issue: 'City is required' })
+  if (!normalized.postal_code) details.push({ field: 'shippingAddress.postal_code', issue: 'Postal code is required' })
+  if (!/^[A-Z]{2}$/.test(normalized.country)) {
+    details.push({ field: 'shippingAddress.country', issue: 'Country must be a 2-letter ISO code' })
+  }
+
+  if (details.length) return { ok: false, details }
+  return { ok: true, value: normalized }
+}
+
+function formatShippingAddress(address) {
+  if (!address || typeof address !== 'object' || Array.isArray(address)) return 'Non renseignee'
+  return [
+    address.name,
+    address.line1,
+    address.line2,
+    [address.postal_code, address.city].filter(Boolean).join(' '),
+    address.state,
+    address.country,
+    address.phone ? `Tel: ${address.phone}` : '',
+  ].filter(Boolean).join(', ')
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+async function upsertStripePaymentRecord({ orderId, paymentIntent, statusOverride }) {
+  if (!paymentIntent?.id) return
+
+  const amount = Number(paymentIntent.amount_received || paymentIntent.amount || 0) / 100
+  const payload = {
+    order_id: orderId,
+    provider: 'stripe',
+    provider_id: paymentIntent.id,
+    amount,
+    currency: String(paymentIntent.currency || 'eur').toLowerCase(),
+    status: statusOverride || paymentIntent.status || 'pending',
+    raw: paymentIntent,
+  }
+
+  const { error } = await supabase
+    .from('payments')
+    .upsert(payload, { onConflict: 'provider,provider_id' })
+
+  if (error) throw error
 }
 
 function validateAndNormalizeCheckoutPayload(body) {
@@ -552,10 +693,58 @@ app.post('/api/checkout', checkoutLimiter, async (req, res) => {
       // no-op: ne bloque pas le checkout si l'update échoue
     }
 
+    try {
+      await upsertStripePaymentRecord({ orderId: order.id, paymentIntent })
+    } catch (paymentError) {
+      console.error(`Failed to persist payment record for order ${order.id}:`, paymentError)
+    }
+
     return res.status(200).json({ clientSecret: paymentIntent.client_secret, orderId: order.id })
   } catch (err) {
     console.error('Checkout error:', err)
     return sendError(res, 500, 'CHECKOUT_FAILED', 'Checkout failed')
+  }
+})
+
+app.post('/api/orders/:orderId/shipping', checkoutLimiter, async (req, res) => {
+  try {
+    const user = await getUserFromAuthHeader(req.headers.authorization)
+    if (!user) return sendError(res, 401, 'UNAUTHORIZED', 'Unauthorized')
+
+    const orderId = sanitizeText(req.params?.orderId, 64)
+    if (!orderId) return sendError(res, 400, 'INVALID_ORDER_ID', 'Invalid order id')
+
+    const shippingValidation = normalizeShippingAddress(req.body?.shippingAddress)
+    if (!shippingValidation.ok) {
+      return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid shipping payload', shippingValidation.details)
+    }
+
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .select('id, user_id, status')
+      .eq('id', orderId)
+      .single()
+
+    if (orderError || !order) {
+      return sendError(res, 404, 'ORDER_NOT_FOUND', 'Order not found')
+    }
+    if (order.user_id !== user.id) {
+      return sendError(res, 403, 'FORBIDDEN', 'Forbidden')
+    }
+    if (!['pending', 'failed'].includes(order.status)) {
+      return sendError(res, 409, 'ORDER_NOT_EDITABLE', 'Order can no longer be updated')
+    }
+
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ shipping_address: shippingValidation.value })
+      .eq('id', orderId)
+
+    if (updateError) throw updateError
+    return res.status(200).json({ ok: true })
+  } catch (error) {
+    console.error('Shipping update error:', error)
+    return sendError(res, 500, 'ORDER_UPDATE_FAILED', 'Failed to save shipping address')
   }
 })
 
@@ -584,7 +773,7 @@ async function sendOrderRecapEmail(orderId) {
       .select(`
         *,
         items:item_id (name),
-        variants:variant_id (size, color_id, colors:color_id (name))
+        item_variants:variant_id (size, sku)
       `)
       .eq('order_id', orderId)
 
@@ -595,23 +784,26 @@ async function sendOrderRecapEmail(orderId) {
     // Fetch customer info
     const { data: customer } = await supabase
       .from('users')
-      .select('email, full_name, username')
+      .select('email')
       .eq('id', order.user_id)
       .single()
 
     const customerEmail = customer?.email || 'Non renseigné'
-    const customerName = customer?.full_name || customer?.username || 'Client'
+    const customerName = order.shipping_address?.name || customerEmail.split('@')[0] || 'Client'
+    const shippingAddress = formatShippingAddress(order.shipping_address)
 
     // Build items HTML
     const itemsHtml = (orderItems || []).map(item => {
-      const productName = item.items?.name || `Produit #${item.item_id}`
-      const size = item.variants?.size || '-'
-      const color = item.variants?.colors?.name || '-'
+      const productName = escapeHtml(item.items?.name || `Produit #${item.item_id}`)
+      const size = escapeHtml(item.item_variants?.size || '-')
+      const sku = escapeHtml(item.item_variants?.sku || '-')
+      const hookType = escapeHtml(item.customization?.hook_type || '-')
       return `
         <tr>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">${productName}</td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">${size}</td>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">${color}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #eee;">${sku}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #eee;">${hookType}</td>
           <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
           <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">${(item.unit_price * item.quantity).toFixed(2)} €</td>
         </tr>
@@ -638,6 +830,7 @@ async function sendOrderRecapEmail(orderId) {
           .content { background: #fff; padding: 30px; border: 1px solid #eee; border-top: none; border-radius: 0 0 8px 8px; }
           .order-info { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; }
           .order-info p { margin: 8px 0; }
+          .address-block { white-space: pre-line; }
           table { width: 100%; border-collapse: collapse; margin: 20px 0; }
           th { background: #f5f5f5; padding: 12px; text-align: left; font-weight: 600; }
           .total { font-size: 1.2em; font-weight: bold; text-align: right; padding: 20px 0; border-top: 2px solid #8B7355; }
@@ -651,14 +844,17 @@ async function sendOrderRecapEmail(orderId) {
             <p style="margin: 10px 0 0 0; opacity: 0.9;">Sabbels Handmade</p>
           </div>
           <div class="content">
-            <h2>Commande #${orderId}</h2>
+            <h2>Commande #${escapeHtml(orderId)}</h2>
             <p>Une nouvelle commande vient d'être passée et payée.</p>
             
             <div class="order-info">
               <p><strong>Date:</strong> ${orderDate}</p>
-              <p><strong>Client:</strong> ${customerName}</p>
-              <p><strong>Email:</strong> ${customerEmail}</p>
+              <p><strong>Client:</strong> ${escapeHtml(customerName)}</p>
+              <p><strong>Email:</strong> ${escapeHtml(customerEmail)}</p>
               <p><strong>Statut:</strong> <span style="color: #22c55e; font-weight: bold;">Payée ✓</span></p>
+              <p><strong>PaymentIntent:</strong> ${escapeHtml(order.payment_intent_id || 'Non renseigné')}</p>
+              <p><strong>Livraison:</strong></p>
+              <p class="address-block">${escapeHtml(shippingAddress)}</p>
             </div>
 
             <h3>Articles commandés</h3>
@@ -667,7 +863,8 @@ async function sendOrderRecapEmail(orderId) {
                 <tr>
                   <th>Produit</th>
                   <th>Taille</th>
-                  <th>Couleur</th>
+                  <th>SKU</th>
+                  <th>Crochet</th>
                   <th style="text-align: center;">Qté</th>
                   <th style="text-align: right;">Prix</th>
                 </tr>
@@ -692,9 +889,9 @@ async function sendOrderRecapEmail(orderId) {
     // Send email using Resend
     if (resend) {
       await resend.emails.send({
-        from: 'Sabbels Handmade <onboarding@resend.dev>',
+        from: RESEND_FROM_EMAIL,
         to: EMAIL_TO,
-        subject: `🧶 Nouvelle commande #${orderId} - ${order.total?.toFixed(2) || '0.00'} €`,
+        subject: `[Sabbels Handmade] Nouvelle commande #${orderId} - ${order.total?.toFixed(2) || '0.00'} €`,
         html: emailHtml,
       })
       console.log(`Order recap email sent for order #${orderId}`)
@@ -775,7 +972,7 @@ app.post('/api/contact', contactLimiter, uploadContactAttachment, async (req, re
     `
 
     const mailOptions = {
-      from: 'Sabbels Handmade Contact <onboarding@resend.dev>',
+      from: RESEND_FROM_EMAIL,
       to: EMAIL_TO,
       replyTo: email,
       subject: `📬 ${subject} - de ${name}`,
@@ -917,6 +1114,7 @@ export const testUtils = {
   createIpRateLimiter,
   validateAndNormalizeCheckoutPayload,
   validateContactPayload,
+  normalizeShippingAddress,
   getEnvPositiveInt,
 }
 

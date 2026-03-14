@@ -532,11 +532,12 @@
     "successTitle": "Zahlung erfolgreich!",
     "successText": "Vielen Dank für deine Bestellung. Eine Bestätigung folgt per E-Mail.",
     "transaction": "Transaktionsnummer: {{id}}",
+    "orderReference": "Bestellung Nr. {{id}}",
     "backHome": "Zur Startseite",
     "processingTitle": "Zahlung wird verarbeitet",
     "processingText": "Deine Zahlung wird verarbeitet. Wir senden dir eine Bestätigung, sobald sie abgeschlossen ist.",
-    "manualTitle": "Zahlung übermittelt",
-    "manualText": "Wenn du die SumUp-Zahlung abgeschlossen hast, bestätigen wir deine Bestellung in Kürze.",
+    "manualTitle": "Bestellung erfasst",
+    "manualText": "Deine Bestellung wurde erfasst. Wir bestätigen die Zahlung nach Eingang.",
     "errorTitle": "Zahlungsfehler",
     "errorText": "Beim Bezahlen ist ein Fehler aufgetreten. Bitte versuche es erneut.",
     "backToCart": "Zurück zum Warenkorb",
@@ -548,12 +549,13 @@
     "secure": "Sichere Zahlung",
     "encrypted": "Verschlüsselte Daten",
     "securityNotice": "100% sichere Zahlung",
-    "orderCreated": "Bestellung erstellt (ID: {{id}}). Bitte schließe die SumUp-Zahlung im geöffneten Tab ab."
+    "orderCreated": "Bestellung erstellt (ID: {{id}}). Bitte schließe die Zahlung im sicheren Fenster ab."
   },
   "checkout": {
     "shippingAddress": "Lieferadresse",
     "paymentInfo": "Zahlungsinformationen",
     "payNow": "Jetzt bezahlen",
+    "reviewAndPay": "Prufen und bezahlen",
     "leadTime": {
       "badge": "Fertigungszeit",
       "title": "1-2 Wochen Handarbeit",
@@ -561,7 +563,10 @@
     },
     "successMessage": "Zahlung erfolgreich! Weiterleitung...",
     "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+    "paymentSetupError": "Die Zahlung ist noch nicht bereit. Bitte lade die Seite neu und versuche es erneut.",
     "paymentError": "Beim Bezahlen ist ein Fehler aufgetreten.",
+    "addressRequired": "Bitte gib vor der Zahlung eine vollstandige Lieferadresse ein.",
+    "shippingSaveError": "Die Lieferadresse konnte nicht gespeichert werden.",
     "legalPrefix": "Mit dem Bezahlen akzeptierst du folgende Dokumente:",
     "legalLinksLabel": "Links zu rechtlichen Dokumenten"
   },
@@ -570,6 +575,7 @@
     "error": "Fehler",
     "retry": "Erneut versuchen",
     "initializing": "Zahlung wird initialisiert...",
+    "description": "Sichere Stripe-Zahlung. Deine Bestellung wird direkt nach erfolgreicher Zahlung bestatigt.",
     "title": "Bestellung abschließen",
     "summary": "Deine Bestellung",
     "size": "Größe",

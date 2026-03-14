@@ -532,11 +532,12 @@
     "successTitle": "Paiement réussi !",
     "successText": "Merci pour votre commande. Vous recevrez bientôt un e-mail de confirmation.",
     "transaction": "Numéro de transaction : {{id}}",
+    "orderReference": "Commande n° {{id}}",
     "backHome": "Retour à l'accueil",
     "processingTitle": "Paiement en cours",
     "processingText": "Votre paiement est en traitement. Nous vous enverrons une confirmation dès que ce sera terminé.",
-    "manualTitle": "Paiement soumis",
-    "manualText": "Si vous avez finalisé le paiement SumUp, nous validerons votre commande sous peu.",
+    "manualTitle": "Commande enregistrée",
+    "manualText": "Votre commande a été enregistrée. Nous confirmons le paiement dès réception.",
     "errorTitle": "Erreur de paiement",
     "errorText": "Une erreur est survenue lors du paiement. Merci de réessayer.",
     "backToCart": "Retour au panier",
@@ -548,12 +549,13 @@
     "secure": "Paiement sécurisé",
     "encrypted": "Données chiffrées",
     "securityNotice": "Paiement 100% sécurisé",
-    "orderCreated": "Commande créée (ID: {{id}}). Finalisez le paiement SumUp dans l'onglet ouvert."
+    "orderCreated": "Commande créée (ID: {{id}}). Finalisez le paiement dans la fenêtre sécurisée."
   },
   "checkout": {
     "shippingAddress": "Adresse de livraison",
     "paymentInfo": "Informations de paiement",
     "payNow": "Payer maintenant",
+    "reviewAndPay": "Verifier et payer",
     "leadTime": {
       "badge": "Délai de fabrication",
       "title": "1 à 2 semaines de fabrication",
@@ -561,7 +563,10 @@
     },
     "successMessage": "Paiement réussi ! Redirection...",
     "unexpectedError": "Une erreur inattendue est survenue.",
+    "paymentSetupError": "Le paiement n'est pas prêt. Rechargez la page et réessayez.",
     "paymentError": "Une erreur est survenue lors du paiement.",
+    "addressRequired": "Merci de renseigner une adresse de livraison complète avant de payer.",
+    "shippingSaveError": "Impossible d'enregistrer l'adresse de livraison.",
     "legalPrefix": "En validant votre paiement, vous acceptez les documents suivants :",
     "legalLinksLabel": "Liens vers les documents légaux"
   },
@@ -570,6 +575,7 @@
     "error": "Erreur",
     "retry": "Réessayer",
     "initializing": "Initialisation du paiement...",
+    "description": "Paiement sécurisé par Stripe. Votre commande est confirmée dès validation du paiement.",
     "title": "Finaliser votre commande",
     "summary": "Résumé de votre commande",
     "size": "Taille",

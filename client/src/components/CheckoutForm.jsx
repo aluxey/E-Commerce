@@ -3,17 +3,61 @@ import { PaymentElement, AddressElement, useStripe, useElements } from '@stripe/
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LEGAL_DOCUMENTS } from '../config/legalDocuments';
+import { useAuth } from '../context/AuthContext';
 
-const CheckoutForm = ({ onSuccess }) => {
+const CheckoutForm = ({ onSuccess, orderId }) => {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { session, userData } = useAuth();
 
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [shippingAddress, setShippingAddress] = useState(null);
+  const [isAddressComplete, setIsAddressComplete] = useState(false);
   const defaultCountry = i18n.language === 'fr' ? 'FR' : 'DE';
+
+  const rawApiUrl =
+    import.meta.env.VITE_API_URL ||
+    import.meta.env.VITE_API_URL_PROD ||
+    import.meta.env.VITE_API_URL_LOCAL ||
+    'http://localhost:3000';
+  const apiUrl = rawApiUrl
+    .replace(/\/api\/(health)?\/?$/i, '')
+    .replace(/\/$/, '');
+
+  const normalizeShippingPayload = value => ({
+    name: value?.name || '',
+    phone: value?.phone || '',
+    line1: value?.address?.line1 || '',
+    line2: value?.address?.line2 || '',
+    city: value?.address?.city || '',
+    state: value?.address?.state || '',
+    postal_code: value?.address?.postal_code || '',
+    country: value?.address?.country || '',
+  });
+
+  const persistShippingAddress = async payload => {
+    if (!orderId || !session?.access_token) {
+      throw new Error(t('checkout.unexpectedError'));
+    }
+
+    const response = await fetch(`${apiUrl}/api/orders/${orderId}/shipping`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ shippingAddress: payload }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || t('checkout.shippingSaveError'));
+    }
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -21,15 +65,41 @@ const CheckoutForm = ({ onSuccess }) => {
     if (!stripe || !elements) {
       return;
     }
+    if (!orderId) {
+      setMessage(t('checkout.paymentSetupError'));
+      setMessageType('error');
+      return;
+    }
+    if (!isAddressComplete || !shippingAddress) {
+      setMessage(t('checkout.addressRequired'));
+      setMessageType('error');
+      return;
+    }
 
     setIsLoading(true);
     setMessage(null);
 
     try {
+      const normalizedShipping = normalizeShippingPayload(shippingAddress);
+      await persistShippingAddress(normalizedShipping);
+
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/payment-success`,
+          return_url: `${window.location.origin}/payment-success?order_id=${orderId}`,
+          receipt_email: userData?.email || undefined,
+          shipping: {
+            name: normalizedShipping.name,
+            phone: normalizedShipping.phone || undefined,
+            address: {
+              line1: normalizedShipping.line1,
+              line2: normalizedShipping.line2 || undefined,
+              city: normalizedShipping.city,
+              state: normalizedShipping.state || undefined,
+              postal_code: normalizedShipping.postal_code,
+              country: normalizedShipping.country,
+            },
+          },
         },
         redirect: 'if_required',
       });
@@ -50,7 +120,7 @@ const CheckoutForm = ({ onSuccess }) => {
         // Rediriger vers une page de confirmation
         setTimeout(() => {
           const cs = paymentIntent.client_secret;
-          navigate(cs ? `/payment-success?payment_intent_client_secret=${cs}` : '/payment-success');
+          navigate(cs ? `/payment-success?payment_intent_client_secret=${cs}&order_id=${orderId}` : `/payment-success?order_id=${orderId}`);
         }, 2000);
       }
     } catch (err) {
@@ -72,6 +142,14 @@ const CheckoutForm = ({ onSuccess }) => {
       <div className="address-section">
         <h4>{t('checkout.shippingAddress')}</h4>
         <AddressElement
+          onChange={event => {
+            setShippingAddress(event.value || null);
+            setIsAddressComplete(Boolean(event.complete));
+            if (event.complete && messageType === 'error') {
+              setMessage(null);
+              setMessageType(null);
+            }
+          }}
           options={{
             mode: 'shipping',
             defaultCountry,
@@ -91,13 +169,13 @@ const CheckoutForm = ({ onSuccess }) => {
       </div>
 
       <button
-        disabled={isLoading || !stripe || !elements}
+        disabled={isLoading || !stripe || !elements || !orderId}
         id="submit"
         className="pay-button"
         type="submit"
       >
         <span id="button-text">
-          {isLoading ? <div className="spinner" id="spinner"></div> : t('checkout.payNow')}
+          {isLoading ? <div className="spinner" id="spinner"></div> : t('checkout.reviewAndPay')}
         </span>
       </button>
 
