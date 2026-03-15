@@ -1,7 +1,7 @@
 # Sabbels Handmade E-Commerce
 
 Plateforme e-commerce B2C pour la vente de produits artisanaux faits main.
-Application full-stack moderne : **React 19**, **Supabase**, **Stripe**.
+Application full-stack moderne : **React 19**, **Supabase**, **Stripe**, **Resend**.
 
 ---
 
@@ -30,7 +30,7 @@ Application full-stack moderne : **React 19**, **Supabase**, **Stripe**.
                           ▼
 ┌────────────────────────────────────────────────────────┐
 │                        API                             │
-│   Express 4 · Node.js · Stripe SDK                     │
+│   Express 4 · Node.js · Stripe SDK · Resend            │
 └────────────────────────────────────────────────────────┘
                           │
                           ▼
@@ -77,7 +77,7 @@ E-Commerce/
 | Styling     | CSS custom (variables, responsive)             |
 | i18n        | i18next + react-i18next                        |
 | Paiement    | Stripe (react-stripe-js)                       |
-| Backend     | Express 4, Node.js, Nodemailer                 |
+| Backend     | Express 4, Node.js, Resend                     |
 | BDD         | Supabase (PostgreSQL), RLS                     |
 | Hébergement | Netlify (client), Supabase (DB)                |
 
@@ -96,7 +96,7 @@ E-Commerce/
 ```bash
 cd client
 npm install
-cp .env.example .env   # Renseigner VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_STRIPE_PUBLIC_KEY
+cp .env.example .env   # Renseigner VITE_API_URL, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_STRIPE_PUBLIC_KEY
 npm run dev            # http://localhost:5173
 ```
 
@@ -105,8 +105,8 @@ npm run dev            # http://localhost:5173
 ```bash
 cd api
 npm install
-cp .env.example .env   # Renseigner STRIPE_SECRET_KEY, SUPABASE_SERVICE_ROLE_KEY
-npm run dev            # http://localhost:3001
+cp .env.example .env   # Renseigner STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY
+npm run dev            # http://localhost:3000
 ```
 
 ### 3. Base de données
@@ -136,12 +136,14 @@ Exécuter dans l'ordre sur votre projet Supabase :
 | ------------- | --------------------------------- |
 | `npm run dev` | Serveur avec hot-reload (--watch) |
 | `npm start`   | Serveur production                |
+| `npm test`    | Contrats API de base              |
 
 ---
 
 ## 📁 Documentation
 
 - [Index documentation](./Docs/README.md)
+- [Audit projet 2026-03-15](./Docs/reference/project_audit_2026-03-15.md)
 - [Changelog](./Docs/reference/changelog.md)
 - [Guide i18n](./Docs/guides/i18n.md)
 - [Vue d'ensemble BDD](./Docs/database/overview.md)
@@ -150,7 +152,7 @@ Exécuter dans l'ordre sur votre projet Supabase :
 
 ## 🤝 Contribution
 
-1. Lire les instructions de collaboration du repository (`AGENTS.md`) si presentes
+1. Lire la documentation active dans `Docs/` avant toute modification significative
 2. Créer une branche feature (`git checkout -b feature/ma-feature`)
 3. Commiter avec des messages clairs
 4. Mettre à jour la documentation si nécessaire

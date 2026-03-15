@@ -8,6 +8,7 @@ Ce dossier centralise toute la documentation projet.
 - [Guide go-live Stripe](./guides/stripe_go_live.md)
 - [Vue d'ensemble base de donnees](./database/overview.md)
 - [Checklist diagnostic mobile](./checklists/mobile_diagnostic.md)
+- [Audit projet 2026-03-15](./reference/project_audit_2026-03-15.md)
 - [Changelog](./reference/changelog.md)
 - [TODO deploiement pro](./reference/deployment_readiness_todo.md)
 

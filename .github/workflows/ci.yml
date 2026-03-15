@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            client/package-lock.json
+            api/package-lock.json
+
+      - name: Install client dependencies
+        run: npm ci
+        working-directory: client
+
+      - name: Install API dependencies
+        run: npm ci
+        working-directory: api
+
+      - name: Lint client
+        run: npm run lint
+        working-directory: client
+
+      - name: Test API
+        run: npm test
+        working-directory: api
+
+      - name: Build client
+        run: npm run build
+        working-directory: client

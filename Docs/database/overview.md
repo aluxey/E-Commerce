@@ -11,14 +11,14 @@ La base est organisée autour de 4 grands blocs : **Catalogue**, **Commandes**
 ### 🛍️ Catalogue
 
 - **Catégories** : les familles de produits (ex. _Accessoires_, _Décoration_…).
-- **Couleurs** : référentiel des coloris textiles disponibles (nom + code couleur) pour harmoniser le catalogue.
+- **Couleurs** : référentiel global des coloris textiles disponibles (nom + code couleur) pour harmoniser le catalogue.
 - **Produits** : chaque fiche produit (nom, description, prix de base, image principale, lien vers une catégorie).
-- **Variantes** : déclinaisons d’un produit (taille, stock et prix propres). Les couleurs sont portées par le produit via `item_colors`.
-- **Images de produit** : plusieurs images possibles pour un même produit.
+- **Variantes** : déclinaisons d’un produit (taille, stock et prix propres).
+- **Images de produit** : plusieurs images possibles pour un même produit, avec un ordre d’affichage.
 - **Notes & avis** : une évaluation (1 à 5 étoiles) par utilisateur et par produit, avec commentaire.
 
 **Idée clé** :
-Un **produit** peut avoir **plusieurs variantes** (ex. tailles), **plusieurs images**, et **plusieurs avis**. Les variantes portent le **stock** réel vendu ; les couleurs sont gérées au niveau produit (liste `item_colors`) en s’appuyant sur le référentiel de couleurs. Chaque produit est relié via `item_colors` à **au moins une couleur**, contrainte garantie par la base.
+Un **produit** peut avoir **plusieurs variantes** (ex. tailles), **plusieurs images**, et **plusieurs avis**. Les variantes portent le **stock** réel vendu. Le référentiel de **couleurs** est **global** : il n’existe plus de table de liaison produit-couleur, et toutes les couleurs peuvent etre proposees a tous les produits cote interface.
 
 ### 🧾 Commandes
 
@@ -27,7 +27,7 @@ Un **produit** peut avoir **plusieurs variantes** (ex. tailles), **plusieurs ima
   > Le total de la commande est la somme des lignes.
 
 **Idée clé** :
-Une **commande** regroupe **plusieurs lignes**, chacune pointant vers **une variante** précise d’un produit (pour garder taille/couleur/stock cohérents).
+Une **commande** regroupe **plusieurs lignes**, chacune pointant vers **une variante** précise d’un produit. La commande conserve aussi une **adresse de livraison** et une reference de paiement pour fiabiliser le suivi.
 
 ### 💳 Paiements
 
@@ -95,7 +95,7 @@ Le remplissage (seed) sert à **démarrer rapidement** avec des données réalis
 
 - **Catégories** : _Accessoires_, _Décoration_, _Bébé_, _Peluches_.
 - **Produits** : exemples variés (ex. _Bonnet torsadé_, _Plaid cocoon_, _Chaussons bébé_, _Amigurumi lapin_).
-- **Variantes** : tailles différentes avec **stock** et **prix** adaptés ; les couleurs restent déclarées sur le produit.
+- **Variantes** : tailles différentes avec **stock** et **prix** adaptés.
 - **Images** : une image par produit (URL d’exemple), extensible par la suite.
 - **Avis** : quelques évaluations pour donner un premier rendu sur la boutique.
 
@@ -114,7 +114,7 @@ Dès le premier lancement, la boutique affiche des **produits**, un **stock** et
 ## 4) Ce qu’il faut retenir
 
 - Le **catalogue** est public en lecture ; tout le reste respecte la logique “**je ne vois et ne modifie que ce qui m’appartient**”, sauf pour les **admins**.
-- Les **variantes** sont la source de vérité pour le **stock** et les **déclinaisons** (taille/couleur).
+- Les **variantes** sont la source de vérité pour le **stock** et les **déclinaisons vendues**.
 - Les **commandes** s’additionnent à partir de leurs **lignes** ; les **paiements** valident le passage au statut _payé_.
 - Le **seed** fournit un environnement de démo complet, **relançable sans risques**.
 
@@ -123,7 +123,7 @@ Dès le premier lancement, la boutique affiche des **produits**, un **stock** et
 ## 5) Glossaire rapide
 
 - **Produit** : fiche commerciale (titre, description, prix de base).
-- **Variante** : déclinaison vendue (taille) avec **son stock** et **son prix** ; elle hérite des couleurs du produit.
+- **Variante** : déclinaison vendue (taille) avec **son stock** et **son prix**.
 - **Commande** : panier validé appartenant à un utilisateur.
 - **Ligne de commande** : un article (variante) au sein d’une commande.
 - **RLS** : règles qui déterminent **qui a le droit** d’accéder/modifier **quelle ligne** d’une table.
