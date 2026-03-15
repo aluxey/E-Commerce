@@ -1,6 +1,6 @@
 # Todo List - Sabbels Handmade
 
-> Derniere mise a jour : 15 mars 2026
+> Derniere mise a jour : 15 mars 2026 - focus P1 technique + optimisations images front
 
 ---
 
@@ -90,7 +90,7 @@ Ameliorations techniques a traiter apres les demandes client.
 
 #### Tests
 
-- [ ] **Configurer Vitest** -- setup de base dans `client/` avec `@testing-library/react`
+- [ ] **Configurer Vitest** -- setup de base dans `client/` avec `@testing-library/react` _(prochain chantier P1)_
 - [ ] **Tests unitaires critiques**
   - [ ] CartContext (add, remove, decrease, clear)
   - [ ] `normalizeCartItems` et `gatherCartPricing` (api)
@@ -114,6 +114,7 @@ Ameliorations techniques a traiter apres les demandes client.
 - [ ] **Memoiser le value de CartContext** -- wrapper avec `useMemo` pour eviter les re-renders inutiles
 - [ ] **Compression API** -- ajouter le middleware `compression` (gzip/brotli) sur Express
 - [x] ~~**Lazy loading images**~~ -- composant image partage + `loading`/`sizes` appliques sur cartes, detail produit et vues panier/commande (fait le 15/03/2026)
+- [x] ~~**Formats modernes + `srcset` sur les visuels Home**~~ -- variantes WebP 640/1280 pour hero, categories et bloc about, avec chargement differe des slides hors voisinage (fait le 15/03/2026)
 - [ ] **Fusionner les requetes N+1** -- items + ratings en une seule requete (JOIN ou RPC Supabase) dans `ProductList`
 - [ ] **Index SQL manquants** -- ajouter index sur `items.status` et `orders.status`
 

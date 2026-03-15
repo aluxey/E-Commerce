@@ -1,25 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HERO_IMAGES } from "../config/responsiveImages";
 import AppImage from "./ui/AppImage";
 import "../styles/hero-carousel.css";
 
-// Import carousel images
-import mainPic from "../assets/carroussel/mainPic.jpg";
-import image1 from "../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.49.jpeg";
-import image2 from "../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50.jpeg";
-import image3 from "../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50 (1).jpeg";
-import image4 from "../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50 (2).jpeg";
-
-const CAROUSEL_IMAGES = [
-  { src: mainPic, alt: "Handgemachte Produkte" },
-  { src: image1, alt: "Handgemachte Körbe" },
-  { src: image2, alt: "Strickarbeiten" },
-  { src: image3, alt: "Handgefertigte Accessoires" },
-  { src: image4, alt: "Kunsthandwerk" },
-];
-
 const AUTO_SLIDE_INTERVAL = 5000; // 5 seconds
+
+const getCircularDistance = (from, to, total) => {
+  const distance = Math.abs(from - to);
+  return Math.min(distance, total - distance);
+};
 
 /**
  * HeroCarousel - Desktop only smooth carousel
@@ -31,11 +22,11 @@ export default function HeroCarousel() {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   const goToNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
+    setCurrentIndex((prev) => (prev + 1) % HERO_IMAGES.length);
   }, []);
 
   const goToPrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + CAROUSEL_IMAGES.length) % CAROUSEL_IMAGES.length);
+    setCurrentIndex((prev) => (prev - 1 + HERO_IMAGES.length) % HERO_IMAGES.length);
   }, []);
 
   const goToSlide = useCallback((index) => {
@@ -61,21 +52,30 @@ export default function HeroCarousel() {
       onMouseLeave={handleMouseLeave}
     >
       <div className="hero-carousel__track">
-        {CAROUSEL_IMAGES.map((image, index) => (
+        {HERO_IMAGES.map((image, index) => {
+          const shouldLoadImage = getCircularDistance(currentIndex, index, HERO_IMAGES.length) <= 1;
+
+          return (
           <div
             key={index}
             className={`hero-carousel__slide ${index === currentIndex ? "hero-carousel__slide--active" : ""}`}
             style={{ transform: `translateX(${(index - currentIndex) * 100}%)` }}
           >
-            <AppImage
-              src={image.src}
-              alt={image.alt}
-              loading={index === 0 ? "eager" : "lazy"}
-              fetchPriority={index === 0 ? "high" : undefined}
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
+            {shouldLoadImage ? (
+              <AppImage
+                src={image.src}
+                srcSet={image.srcSet}
+                width={image.width}
+                height={image.height}
+                alt={image.alt}
+                loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : undefined}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            ) : null}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Navigation Arrows */}
@@ -96,7 +96,7 @@ export default function HeroCarousel() {
 
       {/* Dots Indicator */}
       <div className="hero-carousel__dots">
-        {CAROUSEL_IMAGES.map((_, index) => (
+        {HERO_IMAGES.map((_, index) => (
           <button
             key={index}
             className={`hero-carousel__dot ${index === currentIndex ? "hero-carousel__dot--active" : ""}`}

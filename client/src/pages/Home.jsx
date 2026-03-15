@@ -9,36 +9,30 @@ import MiniItemCard from "../components/MiniItemCard";
 import MobileHome from "../components/mobile/MobileHome";
 import AppImage from "../components/ui/AppImage";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
+import {
+  ABOUT_ME_IMAGE,
+  CATEGORY_BASKET_IMAGE,
+  CATEGORY_BESTSELLER_IMAGE,
+  CATEGORY_COLLECTION_IMAGE,
+  CATEGORY_IMAGES,
+  CATEGORY_WOOD_IMAGE,
+  getResponsiveImageProps,
+} from "../config/responsiveImages";
 import { useHomeVariant } from "../config/features";
 import { listColors } from "../services/colors";
 import { fetchPreviewPhotos } from "../services/customerPhotos";
 import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
 import "../styles/home.css";
-
-// Assets
-import aboutMeSabrina from "../assets/aboutMeSabrina.jpeg";
-import bestSellerCategoryImage from "../assets/products/WhatsApp Image 2026-01-06 at 20.35.30.jpeg";
-import collectionCategoryImage from "../assets/products/WhatsApp Image 2026-01-06 at 20.39.30.jpeg";
-import woodBottomCategoryImage from "../assets/products/WhatsApp Image 2026-02-15 at 20.51.11.jpeg";
-import basketCategoryImage from "../assets/products/WhatsApp Image 2026-02-15 at 20.53.52.jpeg";
-
-// Default images for categories (can be overridden by DB)
-const CATEGORY_IMAGES = [
-  bestSellerCategoryImage,
-  collectionCategoryImage,
-  basketCategoryImage,
-  woodBottomCategoryImage,
-];
 const WOOD_CATEGORY_PATTERN = /(holz|wood|bois|holzboden|holzb[öo]den)/i;
 const BESTSELLER_CATEGORY_PATTERN = /(bestseller|best seller)/i;
 const COLLECTION_CATEGORY_PATTERN = /(kollektion|kollektionen|collection|collections)/i;
 const BASKET_CATEGORY_PATTERN = /(k[öo]rbe|basket|paniers)/i;
 
 const getCategoryImage = (name = "", fallbackIndex = 0) => {
-  if (WOOD_CATEGORY_PATTERN.test(name)) return woodBottomCategoryImage;
-  if (BESTSELLER_CATEGORY_PATTERN.test(name)) return bestSellerCategoryImage;
-  if (COLLECTION_CATEGORY_PATTERN.test(name)) return collectionCategoryImage;
-  if (BASKET_CATEGORY_PATTERN.test(name)) return basketCategoryImage;
+  if (WOOD_CATEGORY_PATTERN.test(name)) return CATEGORY_WOOD_IMAGE;
+  if (BESTSELLER_CATEGORY_PATTERN.test(name)) return CATEGORY_BESTSELLER_IMAGE;
+  if (COLLECTION_CATEGORY_PATTERN.test(name)) return CATEGORY_COLLECTION_IMAGE;
+  if (BASKET_CATEGORY_PATTERN.test(name)) return CATEGORY_BASKET_IMAGE;
   return CATEGORY_IMAGES[fallbackIndex % CATEGORY_IMAGES.length];
 };
 
@@ -64,7 +58,7 @@ export default function Home() {
       id: "wood-baskets",
       name: t("home.categories.wood.name", { defaultValue: "Körbe mit Holzböden" }),
       blurb: t("home.categories.wood.blurb", { defaultValue: "" }),
-      image: woodBottomCategoryImage,
+      image: CATEGORY_WOOD_IMAGE,
       link: t("home.categories.wood.link", { defaultValue: "/items?search=holz" }),
     }),
     [t]
@@ -236,8 +230,13 @@ export default function Home() {
           </div>
           <div className="categories-grid">
             {displayCategories.map(cat => (
-              <Link to={cat.link} className="category-card" key={cat.id || cat.name}>
-                <AppImage src={cat.image} alt={cat.name} className="category-bg" sizes="(max-width: 768px) 100vw, 25vw" />
+            <Link to={cat.link} className="category-card" key={cat.id || cat.name}>
+                <AppImage
+                  {...getResponsiveImageProps(cat.image)}
+                  alt={cat.name}
+                  className="category-bg"
+                  sizes="(max-width: 768px) 100vw, 25vw"
+                />
                 <div className="category-overlay">
                   <div className="category-text">
                     <p className="category-blurb">{cat.blurb}</p>
@@ -438,7 +437,11 @@ export default function Home() {
       <section className="about-me-section" id="about-me">
         <div className="container about-me-grid">
           <div className="about-me-visual">
-            <AppImage src={aboutMeSabrina} alt={t("home.aboutMe.imageAlt")} sizes="(max-width: 768px) 100vw, 40vw" />
+            <AppImage
+              {...getResponsiveImageProps(ABOUT_ME_IMAGE)}
+              alt={t("home.aboutMe.imageAlt")}
+              sizes="(max-width: 768px) 100vw, 40vw"
+            />
           </div>
           <div className="about-me-content">
             <span className="eyebrow">{t("home.aboutMe.eyebrow")}</span>

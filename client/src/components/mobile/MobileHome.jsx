@@ -7,34 +7,14 @@ import TrustChips from "./TrustChips";
 import Accordion from "./Accordion";
 import ContactModal from "../ContactModal";
 import CustomerPhotoWall from "../CustomerPhotoWall";
+import AppImage from "../ui/AppImage";
+import {
+  ABOUT_ME_IMAGE,
+  CATEGORY_IMAGES,
+  getResponsiveImageProps,
+  HERO_IMAGES,
+} from "../../config/responsiveImages";
 import "./styles/MobileHome.css";
-
-// Assets
-import mainPic from "../../assets/carroussel/mainPic.jpg";
-import image1 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.49.jpeg";
-import image2 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50.jpeg";
-import image3 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50 (1).jpeg";
-import image4 from "../../assets/carroussel/WhatsApp Image 2026-01-05 at 18.43.50 (2).jpeg";
-import aboutMeSabrina from "../../assets/aboutMeSabrina.jpeg";
-import bestSellerCategoryImage from "../../assets/products/WhatsApp Image 2026-01-06 at 20.35.30.jpeg";
-import collectionCategoryImage from "../../assets/products/WhatsApp Image 2026-02-15 at 20.53.52.jpeg";
-import basketCategoryImage from "../../assets/products/WhatsApp Image 2026-02-15 at 20.51.11.jpeg";
-import woodBottomCategoryImage from "../../assets/products/WhatsApp Image 2026-01-06 at 20.39.30.jpeg";
-
-const HERO_GALLERY_IMAGES = [
-  { src: mainPic, alt: "Handgemachte Produkte" },
-  { src: image1, alt: "Handgemachte Körbe" },
-  { src: image2, alt: "Strickarbeiten" },
-  { src: image3, alt: "Handgefertigte Accessoires" },
-  { src: image4, alt: "Kunsthandwerk" },
-];
-
-const CATEGORY_IMAGES = [
-  bestSellerCategoryImage,
-  collectionCategoryImage,
-  basketCategoryImage,
-  woodBottomCategoryImage,
-];
 
 export default function MobileHome({ 
   latestItems, 
@@ -69,20 +49,22 @@ export default function MobileHome({
       <section className="mh-hero">
         <div className="mh-hero__gallery">
           <div className="mh-hero__main-image">
-            <img 
-              src={HERO_GALLERY_IMAGES[0].src} 
-              alt={HERO_GALLERY_IMAGES[0].alt}
+            <AppImage
+              {...getResponsiveImageProps(HERO_IMAGES[0])}
+              alt={HERO_IMAGES[0].alt}
               loading="eager"
-              fetchpriority="high"
+              fetchPriority="high"
+              sizes="100vw"
             />
           </div>
           <div className="mh-hero__thumbnails">
-            {HERO_GALLERY_IMAGES.slice(1, 5).map((image, index) => (
+            {HERO_IMAGES.slice(1, 5).map((image, index) => (
               <div key={index} className="mh-hero__thumbnail">
-                <img 
-                  src={image.src} 
+                <AppImage
+                  {...getResponsiveImageProps(image)}
                   alt={image.alt}
                   loading="lazy"
+                  sizes="25vw"
                 />
               </div>
             ))}
@@ -125,10 +107,11 @@ export default function MobileHome({
               className="mh-category-tile" 
               key={cat.id || cat.name}
             >
-              <img 
-                src={cat.image || CATEGORY_IMAGES[idx % CATEGORY_IMAGES.length]} 
+              <AppImage
+                {...getResponsiveImageProps(cat.image || CATEGORY_IMAGES[idx % CATEGORY_IMAGES.length])}
                 alt={cat.name}
                 loading="lazy"
+                sizes="100vw"
               />
               <div className="mh-category-tile__overlay">
                 <span className="mh-category-tile__name">{cat.name}</span>
@@ -255,10 +238,11 @@ export default function MobileHome({
       {/* ============ 7. ABOUT ME ============ */}
       <section className="mh-section mh-about-me" id="about-me">
         <div className="mh-about-me__image">
-          <img 
-            src={aboutMeSabrina} 
+          <AppImage
+            {...getResponsiveImageProps(ABOUT_ME_IMAGE)}
             alt={t("home.aboutMe.imageAlt")}
             loading="lazy"
+            sizes="100vw"
           />
         </div>
         <div className="mh-about-me__content">
