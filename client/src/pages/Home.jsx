@@ -7,9 +7,10 @@ import CustomerPhotoWall from "../components/CustomerPhotoWall";
 import HeroCarousel from "../components/HeroCarousel";
 import MiniItemCard from "../components/MiniItemCard";
 import MobileHome from "../components/mobile/MobileHome";
+import AppImage from "../components/ui/AppImage";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import { useHomeVariant } from "../config/features";
-import { listColors } from "../services/adminColors";
+import { listColors } from "../services/colors";
 import { fetchPreviewPhotos } from "../services/customerPhotos";
 import { fetchCategories, fetchLatestItems, fetchTopItems } from "../services/items";
 import "../styles/home.css";
@@ -236,7 +237,7 @@ export default function Home() {
           <div className="categories-grid">
             {displayCategories.map(cat => (
               <Link to={cat.link} className="category-card" key={cat.id || cat.name}>
-                <img src={cat.image} alt={cat.name} className="category-bg" />
+                <AppImage src={cat.image} alt={cat.name} className="category-bg" sizes="(max-width: 768px) 100vw, 25vw" />
                 <div className="category-overlay">
                   <div className="category-text">
                     <p className="category-blurb">{cat.blurb}</p>
@@ -437,7 +438,7 @@ export default function Home() {
       <section className="about-me-section" id="about-me">
         <div className="container about-me-grid">
           <div className="about-me-visual">
-            <img src={aboutMeSabrina} alt={t("home.aboutMe.imageAlt")} />
+            <AppImage src={aboutMeSabrina} alt={t("home.aboutMe.imageAlt")} sizes="(max-width: 768px) 100vw, 40vw" />
           </div>
           <div className="about-me-content">
             <span className="eyebrow">{t("home.aboutMe.eyebrow")}</span>

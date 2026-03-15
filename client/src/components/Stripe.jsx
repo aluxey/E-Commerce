@@ -5,6 +5,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import CheckoutForm from './CheckoutForm';
+import AppImage from './ui/AppImage';
 import { useAuth } from '../context/AuthContext';
 import { CartContext } from '../context/CartContextObject';
 
@@ -182,7 +183,7 @@ const StripeCheckout = () => {
                 return (
                   <div key={item.variantId} className="summary-item">
                     <div className="item-image-small">
-                      <img src={item.image_url} alt={item.name} />
+                      <AppImage src={item.image_url} alt={item.name} sizes="64px" />
                     </div>
                     <div className="item-details-mini">
                       <span className="name">{item.name}</span>

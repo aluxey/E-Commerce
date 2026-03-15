@@ -1,7 +1,7 @@
 # TODO - Deployment Readiness (Pro)
 
 Date: 2026-03-05
-Derniere mise a jour: 2026-03-05 (API security + lint cleanup)
+Derniere mise a jour: 2026-03-15 (Stripe integre + audit repo)
 
 ## Derniers changements integres
 
@@ -27,8 +27,8 @@ Points positifs:
 Points critiques avant deploiement pro:
 - Couverture de test encore insuffisante (pas d'integration DB/webhook, pas d'E2E).
 - Pas de CI/CD pipeline versionnee dans `.github/workflows`.
-- Flux paiement incoherent: creation PaymentIntent Stripe mais redirection SumUp statique.
-- `client/.env.example` encore manquant.
+- Flux paiement Stripe maintenant unifie, mais tests d'integration webhook/checkout encore a ajouter.
+- Documentation et schema DB encore a reconciler completement.
 
 ---
 
@@ -41,10 +41,10 @@ Points critiques avant deploiement pro:
   - [x] Externaliser les seuils de rate-limit via variables d'environnement.
   - Done: un utilisateur non admin recoit `401/403` sur endpoint admin.
 
-- [ ] Stabiliser le flux de paiement
-  - [ ] Choisir une seule strategie: Stripe complet OU SumUp complet.
-  - [ ] Supprimer le flux mixte actuel (ordre Stripe + redirection SumUp).
-  - [ ] Garantir la reconciliation paiement -> commande (webhook/idempotence).
+- [x] Stabiliser le flux de paiement
+  - [x] Choisir une seule strategie: Stripe complet OU SumUp complet.
+  - [x] Supprimer le flux mixte actuel (ordre Stripe + redirection SumUp).
+  - [x] Garantir la reconciliation paiement -> commande (webhook/idempotence).
   - Done quand: une commande payee passe a `paid` de facon deterministe, sans intervention manuelle.
 
 - [x] Corriger la qualite minimale de code
@@ -54,8 +54,8 @@ Points critiques avant deploiement pro:
 
 - [ ] Ajouter les environnements standardises
   - [x] Creer `api/.env.example` avec variables obligatoires et options.
-  - [ ] Creer `client/.env.example`.
-  - [ ] Aligner le README avec les templates reellement presents.
+  - [x] Creer `client/.env.example`.
+  - [x] Aligner le README avec les templates reellement presents.
   - Done quand: un nouveau dev peut lancer le projet sans guess.
 
 ---
@@ -63,14 +63,14 @@ Points critiques avant deploiement pro:
 ## P1 - Fiabilite et industrialisation
 
 - [ ] Mettre en place la CI
-  - [ ] Workflow GitHub Actions: install, lint, build.
+  - [x] Workflow GitHub Actions: install, lint, build.
   - [ ] Ajouter checks obligatoires sur PR.
   - Done quand: aucune PR ne merge sans pipeline verte.
 
 - [ ] Introduire des tests critiques
   - [x] Base de tests API securite (validation payload + rate-limit).
   - [ ] Unit tests services/formatters/hooks critiques (client).
-  - [ ] Integration tests API checkout/webhook/contact avec mocks DB/Stripe.
+  - [x] Integration tests API checkout/webhook/contact avec mocks DB/Stripe/Resend.
   - [ ] E2E minimal: login -> panier -> checkout -> confirmation.
   - Done quand: couverture de base sur parcours business principaux.
 
@@ -115,10 +115,10 @@ Points critiques avant deploiement pro:
 ## Proposition de plan 30 jours
 
 Semaine 1:
-- Securite API (fait) + lint client vert (fait) + `client/.env.example`.
+- Securite API (fait) + lint client vert (fait) + `client/.env.example` (fait).
 
 Semaine 2:
-- P0 paiement unifie + tests integration checkout/webhook.
+- P0 paiement unifie (fait) + tests integration checkout/webhook.
 
 Semaine 3:
 - CI complete + E2E smoke + observabilite minimale.

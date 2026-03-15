@@ -1,8 +1,9 @@
 import { supabase } from "../supabase/supabaseClient";
+import { listColors } from "./colors";
+
+export { listColors };
 
 const TABLE_COLORS = "colors";
-
-export const listColors = async () => supabase.from(TABLE_COLORS).select("*").order("name");
 
 export const upsertColor = async payload =>
   supabase.from(TABLE_COLORS).upsert(payload, { onConflict: "id" });

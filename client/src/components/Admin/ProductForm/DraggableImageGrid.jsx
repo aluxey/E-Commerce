@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import AppImage from "@/components/ui/AppImage";
 
 /**
  * DraggableImageGrid - A drag-and-drop image grid component
@@ -90,7 +91,7 @@ export default function DraggableImageGrid({
             onDrop={e => handleDrop(e, index)}
             onClick={() => onSetPrimary(index)}
           >
-            <img src={image.src} alt={t("admin.products.wizard.images.imageAlt", { index: index + 1 })} />
+            <AppImage src={image.src} alt={t("admin.products.wizard.images.imageAlt", { index: index + 1 })} sizes="160px" />
 
             {/* Primary badge */}
             {isPrimary && <span className="image-badge">{t("admin.products.wizard.images.primary")}</span>}

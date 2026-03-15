@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContextObject';
 import { pushToast } from '../utils/toast';
 import { useTranslation } from 'react-i18next';
+import AppImage from './ui/AppImage';
 
 export default function MiniItemCard({ item }) {
   const { addItem, cart } = useContext(CartContext);
@@ -43,7 +44,7 @@ export default function MiniItemCard({ item }) {
     <div className="mini-card">
       <div className="mini-card__image">
         {imageUrl ? (
-          <img src={imageUrl} alt={item?.name || 'Produit'} />
+          <AppImage src={imageUrl} alt={item?.name || 'Produit'} sizes="160px" />
         ) : (
           <div className="mini-card__placeholder">{t('miniCard.imageUnavailable')}</div>
         )}

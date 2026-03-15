@@ -5,6 +5,7 @@ import { CartContext } from '../context/CartContextObject';
 import { pushToast } from '../utils/toast';
 import '../styles/Item.css';
 import { useTranslation } from 'react-i18next';
+import AppImage from './ui/AppImage';
 
 export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categoryLabel = '' }) {
   const { addItem, cart } = useContext(CartContext);
@@ -74,7 +75,7 @@ export default function ItemCard({ item, avgRating = 0, reviewCount = 0, categor
       <Link to={`/item/${item.id}`} className="card-link">
         <div className="item-image">
           {imageUrl ? (
-            <img src={imageUrl} alt={item.name} className="card-img" />
+            <AppImage src={imageUrl} alt={item.name} className="card-img" sizes="(max-width: 768px) 50vw, 33vw" />
           ) : (
             <div className="placeholder-img">{t('itemCard.imageUnavailable')}</div>
           )}

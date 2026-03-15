@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import AppImage from "@/components/ui/AppImage";
 
 /**
  * ReviewStep - Final review before submission
@@ -40,12 +41,6 @@ export default function ReviewStep({
                 </span>
               </dd>
             </div>
-            {form.pattern_type && (
-              <div className="review-item">
-                <dt>{t("admin.products.wizard.review.labels.patternType")}</dt>
-                <dd>{form.pattern_type === 'rechtsmuster' ? 'Rechtsmuster' : 'Gänsefüsschen'}</dd>
-              </div>
-            )}
             {form.description && (
               <div className="review-item review-item--full">
                 <dt>{t("admin.products.wizard.review.labels.description")}</dt>
@@ -80,7 +75,7 @@ export default function ReviewStep({
             <div className="review-images">
               {existingImages.slice(0, 4).map((img, i) => (
                 <div key={`existing-${i}`} className={`review-image-wrapper ${primaryImageIndex === i ? 'is-primary' : ''}`}>
-                  <img src={img.image_url} alt={`Image ${i + 1}`} />
+                  <AppImage src={img.image_url} alt={`Image ${i + 1}`} sizes="96px" />
                   {primaryImageIndex === i && <span className="primary-indicator">★</span>}
                 </div>
               ))}
@@ -88,7 +83,7 @@ export default function ReviewStep({
                 const actualIndex = existingImages.length + i;
                 return (
                   <div key={`new-${i}`} className={`review-image-wrapper ${primaryImageIndex === actualIndex ? 'is-primary' : ''}`}>
-                    <img src={src} alt={`Nouvelle ${i + 1}`} />
+                    <AppImage src={src} alt={`Nouvelle ${i + 1}`} sizes="96px" />
                     {primaryImageIndex === actualIndex && <span className="primary-indicator">★</span>}
                   </div>
                 );

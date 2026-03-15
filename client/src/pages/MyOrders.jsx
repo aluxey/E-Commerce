@@ -5,6 +5,7 @@ import { fetchUserOrders } from '../services/orders';
 import '../styles/adminForms.css';
 import { ErrorMessage, LoadingMessage } from '../components/StatusMessage';
 import { useTranslation } from 'react-i18next';
+import AppImage from '../components/ui/AppImage';
 import { formatDate, getLocaleFromLang } from '../utils/formatters';
 import { buildStatusMap } from '../utils/orderStatus';
 
@@ -115,7 +116,7 @@ export default function MyOrders() {
                       <div key={idx} className="order-item-row">
                         <div className="order-item-thumb">
                           {it.items?.item_images?.[0]?.image_url ? (
-                            <img src={it.items.item_images[0].image_url} alt={it.items?.name || 'Produit'} />
+                            <AppImage src={it.items.item_images[0].image_url} alt={it.items?.name || 'Produit'} sizes="72px" />
                           ) : null}
                         </div>
                         <div className="order-item-body">

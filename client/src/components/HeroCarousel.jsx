@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import AppImage from "./ui/AppImage";
 import "../styles/hero-carousel.css";
 
 // Import carousel images
@@ -66,7 +67,13 @@ export default function HeroCarousel() {
             className={`hero-carousel__slide ${index === currentIndex ? "hero-carousel__slide--active" : ""}`}
             style={{ transform: `translateX(${(index - currentIndex) * 100}%)` }}
           >
-            <img src={image.src} alt={image.alt} />
+            <AppImage
+              src={image.src}
+              alt={image.alt}
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : undefined}
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
           </div>
         ))}
       </div>

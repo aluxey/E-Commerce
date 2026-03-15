@@ -2,6 +2,7 @@ import { ArrowRight, ShieldCheck, ShoppingBag, Trash2, Truck } from 'lucide-reac
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import AppImage from '../components/ui/AppImage';
 import { useAuth } from '../context/AuthContext';
 import { CartContext } from '../context/CartContextObject';
 import { pushToast } from '../utils/toast';
@@ -89,7 +90,7 @@ const Cart = () => {
               return (
                 <div key={`${item.variantId}`} className="cart-item-card">
                   <div className="item-image-container">
-                    <img src={item.image_url} alt={item.name} />
+                    <AppImage src={item.image_url} alt={item.name} sizes="96px" />
                   </div>
 
                   <div className="item-info">

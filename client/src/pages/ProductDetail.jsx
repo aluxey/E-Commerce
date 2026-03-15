@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Star, Minus, Plus } from "lucide-react";
+import AppImage from "../components/ui/AppImage";
 import { ErrorMessage, LoadingMessage } from "../components/StatusMessage";
 import ColorPicker from "../components/ui/ColorPicker";
 import { useAuth } from "../context/AuthContext";
 import { CartContext } from "../context/CartContextObject";
 import { pushToast } from "../utils/toast";
-import { listColors } from "../services/adminColors";
+import { listColors } from "../services/colors";
 import { fetchItemDetail, fetchRelatedItems } from "../services/items";
 import { loadAllRatings, submitRating } from "../services/ratings";
 import "../styles/itemPage.css";
@@ -315,7 +316,7 @@ export default function ItemDetail() {
         <div className="pd-gallery">
           <div className="pd-main-image">
             {activeImage ? (
-              <img src={activeImage} alt={item.name} />
+              <AppImage src={activeImage} alt={item.name} loading="eager" fetchPriority="high" sizes="(max-width: 768px) 100vw, 50vw" />
             ) : (
               <div className="pd-placeholder">{t("productDetail.imageUnavailable")}</div>
             )}
@@ -329,7 +330,7 @@ export default function ItemDetail() {
                   onClick={() => setActiveImage(img.image_url)}
                   aria-label={t("productDetail.imageAria", { index: idx + 1 })}
                 >
-                  <img src={img.image_url} alt={t("productDetail.imagePreviewAlt", { index: idx + 1 })} />
+                  <AppImage src={img.image_url} alt={t("productDetail.imagePreviewAlt", { index: idx + 1 })} sizes="72px" />
                 </button>
               ))}
             </div>
@@ -653,9 +654,10 @@ export default function ItemDetail() {
             {relatedItems.map(relatedItem => (
               <div key={relatedItem.id} className="related-item">
                 <div className="related-image">
-                  <img
+                  <AppImage
                     src={relatedItem.item_images?.[0]?.image_url || "/placeholder.jpg"}
                     alt={relatedItem.name}
+                    sizes="(max-width: 768px) 50vw, 220px"
                     onClick={() => navigate(`/item/${relatedItem.id}`)}
                   />
                 </div>

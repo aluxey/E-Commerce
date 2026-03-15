@@ -47,6 +47,11 @@ export const fetchVariantsByItem = async itemId =>
     .order("price", { ascending: true })
     .order("id", { ascending: true });
 
+export const listVariantIdsByItem = async itemId => {
+  const { data, error } = await supabase.from(TABLE_VARIANTS).select("id").eq("item_id", itemId);
+  return { ids: (data || []).map(variant => variant.id), error };
+};
+
 const sanitizeItemPayload = payload => ({
   name: payload.name ?? null,
   description: payload.description ?? null,
@@ -125,5 +130,4 @@ export const removeProductImage = async path =>
 
 export const getPublicImageUrl = filePath =>
   supabase.storage.from("product-images").getPublicUrl(filePath);
-
 

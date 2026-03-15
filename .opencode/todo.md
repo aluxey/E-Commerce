@@ -1,6 +1,6 @@
 # Todo List - Sabbels Handmade
 
-> Derniere mise a jour : 15 fevrier 2026
+> Derniere mise a jour : 15 mars 2026
 
 ---
 
@@ -83,10 +83,10 @@ Ameliorations techniques a traiter apres les demandes client.
 
 #### Securite API
 
-- [ ] **Rate limiting** -- ajouter `express-rate-limit` sur tous les endpoints (surtout `/api/checkout` et `/api/contact`)
-- [ ] **Validation des entrees serveur** -- ajouter Zod ou Joi pour valider le body de `/api/checkout` (types, quantite max, format cartItems)
-- [ ] **Validation format JWT** -- valider le format du token avant l'appel a `supabase.auth.getUser()` dans `getUserFromAuthHeader` (`api/src/server.js`)
-- [ ] **CORS strict en production** -- ne jamais accepter `origin: true`, toujours lister les origines autorisees
+- [x] ~~**Rate limiting**~~ -- middleware IP applique sur `/api`, `/api/checkout`, `/api/contact` et endpoints admin (fait le 15/03/2026)
+- [x] ~~**Validation des entrees serveur**~~ -- validation centralisee des payloads checkout/contact + limites explicites (fait le 15/03/2026)
+- [x] ~~**Validation format JWT**~~ -- verification minimale du format du bearer token avant `supabase.auth.getUser()` (fait le 15/03/2026)
+- [x] ~~**CORS strict en production**~~ -- allowlist explicite des origines (fait le 15/03/2026)
 
 #### Tests
 
@@ -95,7 +95,7 @@ Ameliorations techniques a traiter apres les demandes client.
   - [ ] CartContext (add, remove, decrease, clear)
   - [ ] `normalizeCartItems` et `gatherCartPricing` (api)
   - [ ] Services checkout
-- [ ] **Tests API** -- endpoints `/api/checkout` (auth, validation, stock) et `/api/stripe/webhook` (signature, idempotence)
+- [x] ~~**Tests API**~~ -- contrats securite + integration `checkout` / `contact` / `webhook` avec mocks (fait le 15/03/2026)
 
 #### Traductions
 
@@ -113,13 +113,13 @@ Ameliorations techniques a traiter apres les demandes client.
 
 - [ ] **Memoiser le value de CartContext** -- wrapper avec `useMemo` pour eviter les re-renders inutiles
 - [ ] **Compression API** -- ajouter le middleware `compression` (gzip/brotli) sur Express
-- [ ] **Lazy loading images** -- ajouter `loading="lazy"` sur toutes les images produits (`ItemCard`, `MiniItemCard`, `ProductDetail`)
+- [x] ~~**Lazy loading images**~~ -- composant image partage + `loading`/`sizes` appliques sur cartes, detail produit et vues panier/commande (fait le 15/03/2026)
 - [ ] **Fusionner les requetes N+1** -- items + ratings en une seule requete (JOIN ou RPC Supabase) dans `ProductList`
 - [ ] **Index SQL manquants** -- ajouter index sur `items.status` et `orders.status`
 
 #### Refactoring
 
-- [ ] **Decouper `ProductManager.jsx`** (~1250 lignes) -- extraire en sous-composants (`ProductWizard`, `ProductListAdmin`)
+- [x] ~~**Decouper `ProductManager.jsx`**~~ -- extraction en header, modal wizard, grille produits et hook de gestion (fait le 15/03/2026)
 - [ ] **Decouper `ProductDetail.jsx`** (~600 lignes) -- extraire `ProductGallery`, `ProductInfo`, `ProductReviews`
 - [ ] **Standardiser la gestion d'erreurs** -- un seul pattern partout (`error` = `string | null`, jamais boolean)
 - [ ] **Centraliser les magic strings** -- statuts de commande, roles, statuts produit dans `utils/constants.js`
@@ -132,7 +132,7 @@ Ameliorations techniques a traiter apres les demandes client.
 #### Tests E2E & CI/CD
 
 - [ ] **Configurer Playwright** -- tests E2E sur le parcours d'achat complet (catalogue -> panier -> checkout)
-- [ ] **Pipeline CI/CD** -- GitHub Actions (lint, tests, build) sur chaque PR
+- [x] ~~**Pipeline CI/CD**~~ -- GitHub Actions minimale ajoutee (lint client, tests API, build client) le 15/03/2026
 
 #### Accessibilite
 
@@ -142,9 +142,9 @@ Ameliorations techniques a traiter apres les demandes client.
 
 #### Nettoyage
 
-- [ ] **Supprimer les dependances root inutilisees** -- `axios`, `bootstrap`, `react-bootstrap`, `classnames` dans le `package.json` racine
-- [ ] **Supprimer `Server/Stripe.js`** -- edge function Deno legacy, remplacee par `api/src/server.js`
-- [ ] **Verifier et supprimer `client/src/api/`** -- marque "legacy (a migrer)" dans la doc, verifier si la migration est terminee
+- [x] ~~**Supprimer les dependances root inutilisees**~~ -- nettoyage du `package.json` racine (fait le 15/03/2026)
+- [x] ~~**Supprimer `Server/Stripe.js`**~~ -- edge function Deno legacy, remplacee par `api/src/server.js` (fait le 15/03/2026)
+- [x] ~~**Verifier et supprimer `client/src/api/`**~~ -- dossier absent, migration legacy consideree terminee (verifie le 15/03/2026)
 - [ ] **Ajouter Prettier** -- formateur automatique pour uniformiser le style (semicolons, quotes, trailing commas)
 - [ ] **ESLint plus strict** -- ajouter `no-console: warn`, renforcer les regles
 - [ ] **Documentation inline** -- JSDoc sur les hooks et services principaux
